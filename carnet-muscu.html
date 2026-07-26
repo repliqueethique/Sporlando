@@ -148,6 +148,27 @@ a { color: inherit; }
 }
 .nav-onglet-actif { color: var(--couleur-turquoise); }
 
+/* NAVIGATION CARROUSEL */
+#conteneur-pages {
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+}
+.page-carrousel {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  -webkit-transform: translate3d(0,0,0);
+  transform: translate3d(0,0,0);
+  will-change: transform;
+}
+.page-transition {
+  -webkit-transition: -webkit-transform 260ms ease-out;
+  transition: transform 260ms ease-out;
+}
+/* ====================== */
+
 .carte {
   background: var(--couleur-carte);
   border: 1px solid var(--couleur-bordure);
@@ -1076,6 +1097,206 @@ function allerVersPage(nomPage) {
     rendreSuggestions();
   }
 }
+
+/* ============================================================
+   BLOC 5bis : NAVIGATION PAR SWIPE AVEC SUIVI DU DOIGT (carrousel)
+   ============================================================ */
+
+var ORDRE_PAGES = ['accueil', 'seance', 'nutrition', 'bibliotheque', 'historique'];
+
+var swipe = {
+  actif: false,
+  depX: 0,
+  depY: 0,
+  deltaX: 0,
+  largeur: 0,
+  decide: false,       // true dès qu'on a tranché horizontal vs vertical
+  horizontal: false,
+  idxCourant: 0,
+  pageAvant: null,
+  pageActuelle: null,
+  pageApres: null
+};
+
+function indexPageCourante() {
+  for (var i = 0; i < ORDRE_PAGES.length; i++) {
+    if (ORDRE_PAGES[i] === pageCourante) { return i; }
+  }
+  return 0;
+}
+
+function elementPage(nomPage) {
+  if (!nomPage) { return null; }
+  return document.getElementById('page-' + nomPage);
+}
+
+function cibleDansZoneNonSwipable(element) {
+  var noeud = element;
+  while (noeud) {
+    if (noeud.getAttribute) {
+      var role = noeud.getAttribute('data-role');
+      if (role === 'ressenti-sommeil' || role === 'ressenti-fatigue' || role === 'ressenti-stress') { return true; }
+      if (noeud.tagName === 'INPUT' && noeud.getAttribute('type') === 'range') { return true; }
+      if (noeud.className && typeof noeud.className === 'string' && noeud.className.indexOf('sans-swipe') !== -1) { return true; }
+    }
+    noeud = noeud.parentNode;
+  }
+  return false;
+}
+
+function appliquerTransform(el, px) {
+  if (!el) { return; }
+  el.style.webkitTransform = 'translate3d(' + px + 'px,0,0)';
+  el.style.transform = 'translate3d(' + px + 'px,0,0)';
+}
+
+function retirerTransitionCss(el) {
+  if (!el) { return; }
+  el.className = el.className.replace(/\s*page-transition\s*/g, ' ');
+}
+function ajouterTransitionCss(el) {
+  if (!el) { return; }
+  if (el.className.indexOf('page-transition') === -1) { el.className += ' page-transition'; }
+}
+
+function demarrerSwipe(evenement) {
+  if (evenement.touches.length !== 1) { swipe.actif = false; return; }
+  if (cibleDansZoneNonSwipable(evenement.target)) { swipe.actif = false; return; }
+
+  swipe.actif = true;
+  swipe.decide = false;
+  swipe.horizontal = false;
+  swipe.depX = evenement.touches[0].clientX;
+  swipe.depY = evenement.touches[0].clientY;
+  swipe.deltaX = 0;
+  swipe.largeur = document.getElementById('conteneur-pages').offsetWidth;
+  swipe.idxCourant = indexPageCourante();
+
+  swipe.pageActuelle = elementPage(ORDRE_PAGES[swipe.idxCourant]);
+  swipe.pagePrecedente = swipe.idxCourant > 0 ? elementPage(ORDRE_PAGES[swipe.idxCourant - 1]) : null;
+  swipe.pageSuivante = swipe.idxCourant < ORDRE_PAGES.length - 1 ? elementPage(ORDRE_PAGES[swipe.idxCourant + 1]) : null;
+}
+
+function deplacerSwipe(evenement) {
+  if (!swipe.actif) { return; }
+  var x = evenement.touches[0].clientX;
+  var y = evenement.touches[0].clientY;
+  var dx = x - swipe.depX;
+  var dy = y - swipe.depY;
+
+  if (!swipe.decide) {
+    if (Math.abs(dx) < 8 && Math.abs(dy) < 8) { return; } // pas encore assez de mouvement pour trancher
+    swipe.decide = true;
+    swipe.horizontal = Math.abs(dx) > Math.abs(dy) * 1.2;
+    if (swipe.horizontal) {
+      // on active le mode carrousel : on positionne les pages voisines en absolu
+      prepareCarrouselAvantGlissement();
+    }
+  }
+
+  if (!swipe.horizontal) { return; } // laisse le scroll vertical natif faire son travail
+
+  evenement.preventDefault(); // on bloque le scroll une fois qu'on est confirmé horizontal
+
+  // Empêche de glisser vers une page qui n'existe pas (bord de liste)
+  if (dx > 0 && !swipe.pagePrecedente) { dx = dx * 0.35; } // effet de résistance en bord
+  if (dx < 0 && !swipe.pageSuivante) { dx = dx * 0.35; }
+
+  swipe.deltaX = dx;
+
+  appliquerTransform(swipe.pageActuelle, dx);
+  if (swipe.pagePrecedente) { appliquerTransform(swipe.pagePrecedente, dx - swipe.largeur); }
+  if (swipe.pageSuivante) { appliquerTransform(swipe.pageSuivante, dx + swipe.largeur); }
+}
+
+function prepareCarrouselAvantGlissement() {
+  var conteneur = document.getElementById('conteneur-pages');
+  conteneur.style.height = swipe.pageActuelle.offsetHeight + 'px'; // fige la hauteur pendant la transition
+
+  if (swipe.pagePrecedente) {
+    swipe.pagePrecedente.className += ' page-active page-carrousel';
+    retirerTransitionCss(swipe.pagePrecedente);
+    appliquerTransform(swipe.pagePrecedente, -swipe.largeur);
+  }
+  swipe.pageActuelle.className += ' page-carrousel';
+  retirerTransitionCss(swipe.pageActuelle);
+  appliquerTransform(swipe.pageActuelle, 0);
+
+  if (swipe.pageSuivante) {
+    swipe.pageSuivante.className += ' page-active page-carrousel';
+    retirerTransitionCss(swipe.pageSuivante);
+    appliquerTransform(swipe.pageSuivante, swipe.largeur);
+  }
+}
+
+function terminerSwipe(evenement) {
+  if (!swipe.actif) { return; }
+  swipe.actif = false;
+
+  if (!swipe.horizontal) { return; }
+
+  var seuil = swipe.largeur * 0.22; // 22% de la largeur pour valider le changement de page
+  var allerSuivant = swipe.deltaX <= -seuil && swipe.pageSuivante;
+  var allerPrecedent = swipe.deltaX >= seuil && swipe.pagePrecedente;
+
+  ajouterTransitionCss(swipe.pageActuelle);
+  ajouterTransitionCss(swipe.pagePrecedente);
+  ajouterTransitionCss(swipe.pageSuivante);
+
+  if (allerSuivant) {
+    appliquerTransform(swipe.pageActuelle, -swipe.largeur);
+    appliquerTransform(swipe.pageSuivante, 0);
+    finaliserApresTransition(ORDRE_PAGES[swipe.idxCourant + 1]);
+  } else if (allerPrecedent) {
+    appliquerTransform(swipe.pageActuelle, swipe.largeur);
+    appliquerTransform(swipe.pagePrecedente, 0);
+    finaliserApresTransition(ORDRE_PAGES[swipe.idxCourant - 1]);
+  } else {
+    // retour à la page courante (swipe annulé)
+    appliquerTransform(swipe.pageActuelle, 0);
+    if (swipe.pagePrecedente) { appliquerTransform(swipe.pagePrecedente, -swipe.largeur); }
+    if (swipe.pageSuivante) { appliquerTransform(swipe.pageSuivante, swipe.largeur); }
+    window.setTimeout(function () { nettoyerCarrousel(null); }, 270);
+  }
+}
+
+function finaliserApresTransition(nomNouvellePage) {
+  window.setTimeout(function () {
+    nettoyerCarrousel(nomNouvellePage);
+  }, 270); // doit correspondre à la durée CSS (260ms) + marge
+}
+
+function nettoyerCarrousel(nomNouvellePage) {
+  var conteneur = document.getElementById('conteneur-pages');
+  conteneur.style.height = '';
+
+  var pages = document.querySelectorAll('.page');
+  for (var i = 0; i < pages.length; i++) {
+    pages[i].className = pages[i].className
+      .replace(/\s*page-carrousel\s*/g, ' ')
+      .replace(/\s*page-transition\s*/g, ' ');
+    pages[i].style.webkitTransform = '';
+    pages[i].style.transform = '';
+  }
+
+  if (nomNouvellePage) {
+    allerVersPage(nomNouvellePage); // remet proprement classes actives + relance les rendus (rendreSeance, etc.)
+  } else {
+    // swipe annulé : on s'assure que seule la page courante reste affichée
+    allerVersPage(pageCourante);
+  }
+}
+
+function initialiserSwipeNavigation() {
+  var zone = document.getElementById('conteneur-pages');
+  if (!zone) { return; }
+  zone.addEventListener('touchstart', demarrerSwipe, false);
+  zone.addEventListener('touchmove', deplacerSwipe, false);
+  zone.addEventListener('touchend', terminerSwipe, false);
+  zone.addEventListener('touchcancel', terminerSwipe, false);
+}
+
+initialiserSwipeNavigation();
 
 /* ============================================================
    BLOC 6 : MODAL GENERIQUE
