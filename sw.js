@@ -1,17 +1,17 @@
-const CACHE_NAME = 'sport-app-v1'; // change ce numéro à chaque déploiement
+const CACHE_NAME = 'sport-app-v2'; // incrémente pour forcer la mise à jour
 const urlsToCache = [
-  '/',
-  '/index.html',
-  '/style.css',
-  '/script.js',
-  '/manifest.json'
+  './',
+  './index.html',
+  './style.css',
+  './app.js',
+  './manifest.json'
 ];
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => cache.addAll(urlsToCache))
   );
-  self.skipWaiting(); // active direct la nouvelle version
+  self.skipWaiting();
 });
 
 self.addEventListener('activate', (event) => {
@@ -20,7 +20,7 @@ self.addEventListener('activate', (event) => {
       return Promise.all(
         cacheNames
           .filter((name) => name !== CACHE_NAME)
-          .map((name) => caches.delete(name)) // supprime les vieux caches
+          .map((name) => caches.delete(name))
       );
     })
   );
@@ -31,13 +31,12 @@ self.addEventListener('fetch', (event) => {
   event.respondWith(
     fetch(event.request)
       .then((response) => {
-        // met à jour le cache avec la nouvelle version
         const responseClone = response.clone();
         caches.open(CACHE_NAME).then((cache) => {
           cache.put(event.request, responseClone);
         });
         return response;
       })
-      .catch(() => caches.match(event.request)) // fallback offline
+      .catch(() => caches.match(event.request))
   );
 });

@@ -1,6 +1,6 @@
 {
-  "name": "Mon App Sport",
-  "short_name": "Sport",
+  "name": "Sporlando",
+  "short_name": "Sporlando",
   "start_url": "/index.html",
   "display": "standalone",
   "background_color": "#000000",
