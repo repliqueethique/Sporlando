@@ -349,7 +349,16 @@ a { color: inherit; }
   -webkit-box-align: center; -webkit-align-items: center; align-items: center;
   -webkit-box-pack: center; -webkit-justify-content: center; justify-content: center;
   -webkit-flex-shrink: 0; flex-shrink: 0;
+  overflow: hidden;
 }
+
+.accueil-icone img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
 .accueil-carte p { margin: 2px 0 0 0; }
 
 /* Seance active : zone haute collante (chrono + minuteur) */
