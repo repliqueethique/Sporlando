@@ -1,9 +1,9 @@
-const CACHE_NAME = 'sport-app-v2'; // incrémente pour forcer la mise à jour
+const CACHE_NAME = 'sport-app-v2';
 const urlsToCache = [
-  './',
-  './index.html',
+  './',             
+  './index.html',    
   './style.css',
-  './app.js',
+  './script.js',
   './manifest.json'
 ];
 
