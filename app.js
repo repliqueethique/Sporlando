@@ -3572,27 +3572,56 @@ function trouverProchainCreneauIdealBanniere(heures, temps) {
   var minuteMin = 8 * 60;
   var seuilMinute = Math.max(minuteActuelle, minuteMin);
 
+  function chercherEtat(etatCible) {
+    for (var i = 0; i < heures.length; i++) {
+      var hMin = parseInt(heures[i].substring(11, 13), 10) * 60 + parseInt(heures[i].substring(14, 16), 10);
+      if (hMin < seuilMinute) { continue; }
+      if (evaluerTemperature(temps[i]) === etatCible) {
+        return { heure: heures[i].substring(11, 16), temperature: temps[i] };
+      }
+    }
+    return null;
+  }
+
+  // 1. priorité : un créneau idéal
+  var resultat = chercherEtat('ideal');
+  if (resultat) { return resultat; }
+
+  // 2. sinon : un créneau moyen
+  resultat = chercherEtat('moyen');
+  if (resultat) { return resultat; }
+
+  // 3. sinon : le meilleur moment restant de la journée (température la plus basse à venir)
+  var meilleurIndex = -1, meilleureTemp = Infinity;
   for (var i = 0; i < heures.length; i++) {
     var hMin = parseInt(heures[i].substring(11, 13), 10) * 60 + parseInt(heures[i].substring(14, 16), 10);
     if (hMin < seuilMinute) { continue; }
-
-    var etatTemp = evaluerTemperature(temps[i]);
-    if (etatTemp === 'ideal') {
-      return { heure: heures[i].substring(11, 16), temperature: temps[i] };
-    }
+    if (temps[i] < meilleureTemp) { meilleureTemp = temps[i]; meilleurIndex = i; }
   }
+  if (meilleurIndex !== -1) {
+    return { heure: heures[meilleurIndex].substring(11, 16), temperature: temps[meilleurIndex] };
+  }
+
   return null;
 }
 
 function rendreBanniereMeteo() {
+  console.log('rendreBanniereMeteo appelée');
   var zone = document.getElementById('zone-banniere-meteo');
+  console.log('zone trouvée:', zone);
   if (!zone) { return; }
-  if (etat.profil.latitudeGym === null || etat.profil.longitudeGym === null) { zone.innerHTML = ''; return; }
-
+  if (etat.profil.latitudeGym === null || etat.profil.longitudeGym === null) {
+    console.log('lat/lng manquantes, arrêt');
+    zone.innerHTML = '';
+    return;
+  }
+  console.log('avant appel verifierMeteoGym');
   verifierMeteoGym(function (resultat) {
+    console.log('callback verifierMeteoGym reçu:', resultat);
     if (!resultat) { zone.innerHTML = ''; return; }
     var etatTemp = evaluerTemperature(resultat.actuelle);
     var tranche = trouverProchainCreneauIdealBanniere(resultat.heures, resultat.temperatures);
+    console.log('tranche trouvée:', tranche);
 
     var html = '<div class="banniere-meteo banniere-meteo-' + etatTemp + '" data-action="ouvrir-modale-meteo" style="cursor:pointer;">';
     html += '<span class="banniere-meteo-actuelle">' + resultat.actuelle.toFixed(1) + '°C actuellement</span>';
