@@ -3539,20 +3539,31 @@ function evaluerTemperature(temperature) {
   return 'mauvais';
 }
 
-function trouverTrancheIdeale(heures, temperatures) {
+function trouverTrancheIdeale(heures, temps) {
+  var maintenant = new Date();
+  var minuteActuelle = maintenant.getHours() * 60 + maintenant.getMinutes();
+
   var meilleurIndex = -1;
   var meilleurEcart = Infinity;
-  var centreIdeal = 16;
+
   for (var i = 0; i < heures.length; i++) {
-    var ecart = Math.abs(temperatures[i] - centreIdeal);
+    var hMin = parseInt(heures[i].substring(11, 13), 10) * 60 + parseInt(heures[i].substring(14, 16), 10);
+    if (hMin < minuteActuelle) { continue; } // on ignore le passé
+
+    var etatTemp = evaluerTemperature(temps[i]);
+    if (etatTemp !== 'bon') { continue; } // on ne garde que les créneaux "idéaux"
+
+    // on privilégie le créneau idéal le plus proche de maintenant
+    var ecart = hMin - minuteActuelle;
     if (ecart < meilleurEcart) {
       meilleurEcart = ecart;
       meilleurIndex = i;
     }
   }
+
   if (meilleurIndex === -1) { return null; }
-  var heureTexte = heures[meilleurIndex].substring(11, 16);
-  return { heure: heureTexte, temperature: temperatures[meilleurIndex] };
+
+  return { heure: heures[meilleurIndex].substring(11, 16), temperature: temps[meilleurIndex] };
 }
 
 function rendreBanniereMeteo() {
