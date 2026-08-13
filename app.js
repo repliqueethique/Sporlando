@@ -178,13 +178,17 @@ function passerEtapeEtirementSuivante() {
 
 function terminerSeanceEtirement() {
   etatSeanceEtirement.enCours = false;
-  etat.checklistQuotidienne.etirements = true;
+
+  var dateReference = obtenirDateJourReference();
+  var checklist = checklistDuJour(dateReference);
+  checklist.etirements = true;
   sauvegarderEtat();
+
   afficherToast('Séance d\'étirements terminée !');
   allerVersPage('accueil');
   rendreChecklistQuotidienne();
 
-  if (checklistEstComplete()) {
+  if (checklistEstComplete(dateReference)) {
     fermerCarteChecklistAvecAnimation();
   }
 }
