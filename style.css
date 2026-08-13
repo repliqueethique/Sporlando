@@ -330,7 +330,7 @@ a { color: inherit; }
 }
 
 .accueil-carte.seance-a-faire .accueil-icone {
-  background: rgba(255,255,255,0.25);
+  background: transparent;
   color: #fff;
 }
 
