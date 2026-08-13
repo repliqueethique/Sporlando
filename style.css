@@ -10,12 +10,14 @@
   --couleur-turquoise: #1FD9C4;
   --couleur-cyan: #22A7E5;
   --couleur-degrade: linear-gradient(135deg, #1FD9C4 0%, #22A7E5 100%);
+  --couleur-pevue: #ff0095;
   --couleur-succes: #4CD97B;
   --couleur-alerte: #FF6B6B;
   --couleur-avertissement: #E0A73D;
-  --couleur-piscine: #4C8DFF;
+  --couleur-piscine: #0bdaff;
   --couleur-nutrition: #B98EF0;
   --couleur-bordure: #2A313B;
+  --couleur-checklist: #6624ff;
   --rayon: 10px;
   --ombre: 0 2px 6px rgba(0,0,0,0.35);
   --police-corps: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
@@ -684,12 +686,12 @@ a { color: inherit; }
 .cal-jour-select .cal-jour-bouton { background: var(--couleur-degrade); color: #0B1114; font-weight: 700; }
 .cal-marqueurs { display: -webkit-box; display: -webkit-flex; display: flex; -webkit-box-pack: center; -webkit-justify-content: center; justify-content: center; margin-top: 2px; height: 6px; }
 .cal-point { width: 5px; height: 5px; border-radius: 50%; margin: 0 1px; }
-.cal-point-prevu { background: var(--couleur-cyan); }
+.cal-point-prevu { background: var(--couleur-pevue); }
 .cal-point-fait { background: var(--couleur-succes); }
 .cal-point-incomplet { background: var(--couleur-avertissement); }
 .cal-point-piscine { background: var(--couleur-piscine); }
 .cal-point-nutrition { background: var(--couleur-nutrition); }
-.cal-point-checklist { background-color: #6624ff; }
+.cal-point-checklist { background-color: var(--couleur-checklist) }
 
 .macro-ligne { margin-bottom: 14px; }
 .macro-barre-fond {
