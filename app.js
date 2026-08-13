@@ -3577,7 +3577,7 @@ function trouverProchainCreneauIdealBanniere(heures, temps) {
     if (hMin < seuilMinute) { continue; }
 
     var etatTemp = evaluerTemperature(temps[i]);
-    if (etatTemp === 'bon') {
+    if (etatTemp === 'ideal') {
       return { heure: heures[i].substring(11, 16), temperature: temps[i] };
     }
   }
