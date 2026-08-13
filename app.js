@@ -2034,23 +2034,20 @@ function rendreCalendrier() {
 
   var premierJourMois = new Date(moisAffiche.getFullYear(), moisAffiche.getMonth(), 1);
   var nbJoursMois = new Date(moisAffiche.getFullYear(), moisAffiche.getMonth() + 1, 0).getDate();
+  var decalage = (premierJourMois.getDay() + 6) % 7;
 
-  // Ajustement pour que la semaine commence lundi (0 = lundi, 6 = dimanche)
-  var decalage = (premierJourMois.getDay() + 6) % 7; // (0=dimanche → 6, 1=lundi → 0, 2=mardi → 1, etc.)
+  var aujourdHuiISO = formaterDateISO(new Date()); // AJOUT
 
   var html = '';
-  // Libellés des jours : Lundi à Dimanche
   var libellesJours = ['L', 'M', 'M', 'J', 'V', 'S', 'D'];
   for (var lj = 0; lj < 7; lj++) {
     html += '<div class="cal-jour-libelle">' + libellesJours[lj] + '</div>';
   }
 
-  // Cases vides avant le 1er jour du mois
   for (var vide = 0; vide < decalage; vide++) {
     html += '<div class="cal-jour cal-jour-vide"><div class="cal-jour-bouton">-</div></div>';
   }
 
-  // Jours du mois
   for (var jour = 1; jour <= nbJoursMois; jour++) {
     var dateISO = formaterDateISO(new Date(moisAffiche.getFullYear(), moisAffiche.getMonth(), jour));
     var entrees = entreesPourDate(dateISO);
@@ -2062,7 +2059,8 @@ function rendreCalendrier() {
     var aNutrition = objectifsNutritionAtteints(dateISO);
     var checklistFaite = checklistEstComplete(dateISO);
     var classeSelect = (dateISO === jourSelectionneISO) ? ' cal-jour-select' : '';
-    html += '<div class="cal-jour' + classeSelect + '">';
+    var classeAujourdhui = (dateISO === aujourdHuiISO) ? ' cal-jour-aujourdhui' : ''; // AJOUT
+    html += '<div class="cal-jour' + classeSelect + classeAujourdhui + '">'; // MODIF
     html += '<button class="cal-jour-bouton" data-action="selectionner-jour" data-date="' + dateISO + '">' + jour + '</button>';
     html += '<div class="cal-marqueurs">';
     if (aPrevu) { html += '<span class="cal-point cal-point-prevu"></span>'; }

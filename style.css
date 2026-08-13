@@ -692,6 +692,14 @@ a { color: inherit; }
 .cal-point-piscine { background: var(--couleur-piscine); }
 .cal-point-nutrition { background: var(--couleur-nutrition); }
 .cal-point-checklist { background-color: var(--couleur-checklist) }
+.cal-jour-aujourdhui .cal-jour-bouton {
+  border: 2px solid var(--couleur-turquoise);
+  padding: 5px 0 3px 0;
+  border-radius: 8px;
+}
+.cal-jour-aujourdhui.cal-jour-select .cal-jour-bouton {
+  border: 2px solid transparent;
+}
 
 .macro-ligne { margin-bottom: 14px; }
 .macro-barre-fond {
