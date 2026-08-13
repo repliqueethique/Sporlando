@@ -1191,6 +1191,13 @@ a { color: inherit; }
   color: #30d158;
 }
 
+.banniere-creneau-ideal {
+  float: right;
+  color: #34c759;
+  font-weight: 600;
+  font-size: 13px;
+}
+
 .banniere-meteo-moyen {
   border-left-color: #ffd60a;
   background-image: linear-gradient(to right, rgba(255, 214, 10, 0.18) 0%, rgba(255, 214, 10, 0.18) 33%, transparent 66%);

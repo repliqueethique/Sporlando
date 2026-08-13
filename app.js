@@ -3566,6 +3566,24 @@ function trouverTrancheIdeale(heures, temps) {
   return { heure: heures[meilleurIndex].substring(11, 16), temperature: temps[meilleurIndex] };
 }
 
+function trouverProchainCreneauIdealBanniere(heures, temps) {
+  var maintenant = new Date();
+  var minuteActuelle = maintenant.getHours() * 60 + maintenant.getMinutes();
+  var minuteMin = 8 * 60;
+  var seuilMinute = Math.max(minuteActuelle, minuteMin);
+
+  for (var i = 0; i < heures.length; i++) {
+    var hMin = parseInt(heures[i].substring(11, 13), 10) * 60 + parseInt(heures[i].substring(14, 16), 10);
+    if (hMin < seuilMinute) { continue; }
+
+    var etatTemp = evaluerTemperature(temps[i]);
+    if (etatTemp === 'bon') {
+      return { heure: heures[i].substring(11, 16), temperature: temps[i] };
+    }
+  }
+  return null;
+}
+
 function rendreBanniereMeteo() {
   var zone = document.getElementById('zone-banniere-meteo');
   if (!zone) { return; }
@@ -3574,12 +3592,12 @@ function rendreBanniereMeteo() {
   verifierMeteoGym(function (resultat) {
     if (!resultat) { zone.innerHTML = ''; return; }
     var etatTemp = evaluerTemperature(resultat.actuelle);
-    var tranche = trouverTrancheIdeale(resultat.heures, resultat.temperatures);
+    var tranche = trouverProchainCreneauIdealBanniere(resultat.heures, resultat.temperatures);
 
     var html = '<div class="banniere-meteo banniere-meteo-' + etatTemp + '" data-action="ouvrir-modale-meteo" style="cursor:pointer;">';
     html += '<span class="banniere-meteo-actuelle">' + resultat.actuelle.toFixed(1) + '°C actuellement</span>';
     if (tranche) {
-      html += '<span class="banniere-meteo-tranche">Idéal vers ' + tranche.heure + ' (' + tranche.temperature.toFixed(1) + '°C)</span>';
+      html += '<span class="banniere-meteo-tranche">idéal à ' + tranche.heure + '-' + Math.round(tranche.temperature) + '°</span>';
     }
     html += '</div>';
     zone.innerHTML = html;
