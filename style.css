@@ -466,6 +466,14 @@ a { color: inherit; }
 
 .accueil-carte p { margin: 2px 0 0 0; }
 
+.particules {
+  position: absolute;
+  top: 50%; left: 50px;
+  width: 0; height: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+
 .particule {
   position: absolute;
   top: 0; left: 0;

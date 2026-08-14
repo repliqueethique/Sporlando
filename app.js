@@ -2205,14 +2205,7 @@ function rendreCarteSeanceJour() {
     var seance = trouverParId(etat.seances, entreeJour.seanceId);
     var nomSeance = seance ? seance.nom : '(séance supprimée)';
     html += '<div class="accueil-carte seance-a-faire" data-action="demarrer-depuis-agenda" data-id="' + entreeJour.id + '">';
-    html += '<div class="particules">';
-    html += '<span class="particule p1"></span>';
-    html += '<span class="particule p2"></span>';
-    html += '<span class="particule p3"></span>';
-    html += '<span class="particule p4"></span>';
-    html += '<span class="particule p5"></span>';
-    html += '<span class="particule p6"></span>';
-    html += '</div>';
+    html += genererParticules(100);
     html += '<div class="accueil-icone"><img src="images/seance-prevue.png" alt="Séance prévue"></div>';
     html += '<div>';
     html += '<h2 class="titre-affichage">Séance prévue</h2>';
@@ -2225,7 +2218,6 @@ function rendreCarteSeanceJour() {
     html += '<h2 class="titre-affichage">Nouvelle séance</h2>';
     html += '<p class="texte-att">Démarre une séance planifiée ou libre</p>';
     html += '</div></div>';
-    html += genererParticules(100);
   }
 
   conteneur.innerHTML = html;
