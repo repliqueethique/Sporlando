@@ -344,10 +344,6 @@ a { color: inherit; }
   animation: pulseHalo 3s ease-in-out infinite;
 }
 
-.accueil-carte.seance-a-faire::before,
-.accueil-carte.seance-a-faire .rayons1,
-.accueil-carte.seance-a-faire .rayons2 {}
-
 .accueil-carte.seance-a-faire::after {
   content: "";
   position: absolute;
