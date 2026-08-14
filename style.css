@@ -381,8 +381,22 @@ a { color: inherit; }
     rgba(255,220,150,0.8) 20deg,
     transparent 40deg,
     transparent 360deg);
-  -webkit-mask-image: radial-gradient(circle, transparent 0%, transparent 22%, #fff 32%, #fff 68%, transparent 78%);
-  mask-image: radial-gradient(circle, transparent 0%, transparent 22%, #fff 32%, #fff 68%, transparent 78%);
+  -webkit-mask-image: radial-gradient(circle,
+    transparent 0%,
+    transparent 22%,
+    #fff 32%,
+    rgba(255,255,255,0.6) 55%,
+    rgba(255,255,255,0.15) 68%,
+    transparent 78%
+  );
+  mask-image: radial-gradient(circle,
+    transparent 0%,
+    transparent 22%,
+    #fff 32%,
+    rgba(255,255,255,0.6) 55%,
+    rgba(255,255,255,0.15) 68%,
+    transparent 78%
+  );
   z-index: 0;
   pointer-events: none;
   animation: tourneRayons1 24s linear infinite;
