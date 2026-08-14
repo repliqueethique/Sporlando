@@ -334,7 +334,7 @@ a { color: inherit; }
   transform: translate(-50%, -50%);
   background:
     radial-gradient(circle,
-      rgba(255, 220, 130, 0.9) 0%,
+      rgba(255, 238, 195, 0.9) 0%,
       rgba(255, 180, 60, 0.5) 25%,
       rgba(255, 150, 30, 0.2) 45%,
       rgba(255, 150, 30, 0) 70%
@@ -352,17 +352,17 @@ a { color: inherit; }
   transform: translate(-50%, -50%);
   background:
     conic-gradient(from 0deg,
-      transparent 0deg, rgba(255,220,150,0.9) 14deg, transparent 18deg, transparent 360deg),
+      transparent 0deg, rgba(255,220,150,0.9) 34deg, transparent 18deg, transparent 360deg),
     conic-gradient(from 63deg,
-      transparent 0deg, rgba(255,220,150,0.8) 15deg, transparent 14deg, transparent 360deg),
+      transparent 0deg, rgba(255,220,150,0.8) 55deg, transparent 14deg, transparent 360deg),
     conic-gradient(from 132deg,
       transparent 0deg, rgba(255,220,150,0.9) 24deg, transparent 20deg, transparent 360deg),
     conic-gradient(from 222deg,
-      transparent 0deg, rgba(255,220,150,0.75) 16deg, transparent 16deg, transparent 360deg),
+      transparent 0deg, rgba(255,220,150,0.75) 46deg, transparent 16deg, transparent 360deg),
     conic-gradient(from 278deg,
-      transparent 0deg, rgba(255,220,150,0.85) 10deg, transparent 18deg, transparent 360deg),
+      transparent 0deg, rgba(255,220,150,0.85) 70deg, transparent 18deg, transparent 360deg),
     conic-gradient(from 352deg,
-      transparent 0deg, rgba(255,220,150,0.8) 20deg, transparent 15deg, transparent 360deg);
+      transparent 0deg, rgba(255,220,150,0.8) 80deg, transparent 15deg, transparent 360deg);
   -webkit-mask-image: radial-gradient(circle, transparent 0%, transparent 22%, #fff 32%, #fff 68%, transparent 78%);
   mask-image: radial-gradient(circle, transparent 0%, transparent 22%, #fff 32%, #fff 68%, transparent 78%);
   z-index: 0;
