@@ -329,7 +329,7 @@ a { color: inherit; }
 .accueil-carte.seance-a-faire::before {
   content: "";
   position: absolute;
-  top: 50%; left: 46px;
+  top: 50%; left: 50px;
   width: 130px; height: 130px;
   transform: translate(-50%, -50%);
   background: radial-gradient(circle,
@@ -346,27 +346,27 @@ a { color: inherit; }
 .accueil-carte.seance-a-faire::after {
   content: "";
   position: absolute;
-  top: 50%; left: 46px;
+  top: 50%; left: 50px;
   width: 130px; height: 130px;
   transform: translate(-50%, -50%);
   background:
     conic-gradient(from 15deg,
-      rgba(255,230,180,0.85) 0deg, rgba(255,150,30,0) 6deg,
+      rgba(255,230,180,0.85) 0deg, rgba(255,150,30,0) 16deg,
       transparent 30deg),
     conic-gradient(from 70deg,
-      rgba(255,230,180,0.7) 0deg, rgba(255,150,30,0) 4deg,
+      rgba(255,230,180,0.7) 0deg, rgba(255,150,30,0) 14deg,
       transparent 30deg),
     conic-gradient(from 140deg,
-      rgba(255,230,180,0.8) 0deg, rgba(255,150,30,0) 5deg,
+      rgba(255,230,180,0.8) 0deg, rgba(255,150,30,0) 15deg,
       transparent 30deg),
     conic-gradient(from 200deg,
-      rgba(255,230,180,0.6) 0deg, rgba(255,150,30,0) 4deg,
+      rgba(255,230,180,0.6) 0deg, rgba(255,150,30,0) 14deg,
       transparent 30deg),
     conic-gradient(from 260deg,
-      rgba(255,230,180,0.75) 0deg, rgba(255,150,30,0) 5deg,
+      rgba(255,230,180,0.75) 0deg, rgba(255,150,30,0) 25deg,
       transparent 30deg),
     conic-gradient(from 320deg,
-      rgba(255,230,180,0.65) 0deg, rgba(255,150,30,0) 4deg,
+      rgba(255,230,180,0.65) 0deg, rgba(255,150,30,0) 24deg,
       transparent 30deg);
   mask: radial-gradient(circle, #fff 0%, #fff 38%, transparent 38.5%);
   -webkit-mask: radial-gradient(circle, #fff 0%, #fff 38%, transparent 38.5%);
