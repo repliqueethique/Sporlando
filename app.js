@@ -550,7 +550,7 @@ function allerVersPage(nomPage) {
   var ongletCible = document.querySelector('.nav-onglet[data-page="' + nomPage + '"]');
   if (ongletCible) { ongletCible.classList.add('nav-onglet-actif'); }
 
-  if (nomPage === 'accueil') { rendreBanniereObjectif(); rendreBanniereMeteo(); rendreChecklistQuotidienne(); rendreCarteSeanceJour(); }
+  if (nomPage === 'accueil') { rendreBanniereObjectif(); rendreBanniereMeteo(); afficherBanniereRappels(verifierRappelsDus()); rendreChecklistQuotidienne(); rendreCarteSeanceJour(); }
   if (nomPage === 'seance') { rendreSeance(); }
   if (nomPage === 'nutrition') { rendreNutrition(); }
   if (nomPage === 'bibliotheque') { rendreExercices(); rendreSeancesBib(); rendreProgrammesBib(); rendreAliments(); rendrePlats(); }
