@@ -23,7 +23,10 @@ function chargerReglagesRappels() {
   return JSON.parse(JSON.stringify(RAPPELS_DEFAUT));
 }
 
-var reglagesRappels = chargerReglagesRappels();
+var reglagesRappels = chargerReglagesRappels() || [
+  { id: 'eau', label: 'Boire de l\'eau', heure: '10:00', actif: true },
+  { id: 'pesee', label: 'Se peser', heure: '08:00', actif: true }
+];
 
 function sauvegarderReglagesRappels() {
   try {
