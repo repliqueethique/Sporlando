@@ -338,15 +338,15 @@ a { color: inherit; }
       rgba(255, 180, 60, 0.5) 25%,
       rgba(255, 150, 30, 0.2) 45%,
       rgba(255, 150, 30, 0) 70%
-    ),
-    conic-gradient(from 0deg,   rgba(255,230,180,0.85) 0deg, rgba(255,150,30,0) 45deg, transparent 90deg),
-    conic-gradient(from 130deg, rgba(255,230,180,0.7)  0deg, rgba(255,150,30,0) 40deg, transparent 90deg),
-    conic-gradient(from 250deg, rgba(255,230,180,0.8)  0deg, rgba(255,150,30,0) 50deg, transparent 90deg);
+    );
   z-index: 0;
   pointer-events: none;
-  animation: pulseHalo 3s ease-in-out infinite, tourneRayons1 24s linear infinite;
-  transform-origin: center;
+  animation: pulseHalo 3s ease-in-out infinite;
 }
+
+.accueil-carte.seance-a-faire::before,
+.accueil-carte.seance-a-faire .rayons1,
+.accueil-carte.seance-a-faire .rayons2 {}
 
 .accueil-carte.seance-a-faire::after {
   content: "";
@@ -355,14 +355,30 @@ a { color: inherit; }
   width: 130px; height: 130px;
   transform: translate(-50%, -50%);
   background:
-    conic-gradient(from 40deg,  rgba(255,230,180,0.6) 0deg, rgba(255,150,30,0) 35deg, transparent 90deg),
-    conic-gradient(from 160deg, rgba(255,230,180,0.75) 0deg, rgba(255,150,30,0) 42deg, transparent 90deg),
-    conic-gradient(from 290deg, rgba(255,230,180,0.65) 0deg, rgba(255,150,30,0) 38deg, transparent 90deg);
-  mask: radial-gradient(circle, transparent 0%, transparent 22%, #fff 30%, #fff 70%, transparent 76%);
-  -webkit-mask: radial-gradient(circle, transparent 0%, transparent 22%, #fff 30%, #fff 70%, transparent 76%);
+    radial-gradient(circle, rgba(255,230,180,0.95) 0%, rgba(255,140,20,0) 70%);
+  -webkit-mask:
+    conic-gradient(from 0deg,
+      #fff 0deg, #fff 18deg, transparent 26deg,
+      transparent 47deg, #fff 63deg, transparent 71deg,
+      transparent 118deg, #fff 132deg, transparent 141deg,
+      transparent 205deg, #fff 222deg, transparent 233deg,
+      transparent 260deg, #fff 278deg, transparent 289deg,
+      transparent 335deg, #fff 352deg, transparent 360deg),
+    radial-gradient(circle, transparent 0%, transparent 22%, #fff 30%, #fff 70%, transparent 76%);
+  -webkit-mask-composite: source-in;
+  mask-composite: intersect;
+  mask:
+    conic-gradient(from 0deg,
+      #fff 0deg, #fff 18deg, transparent 26deg,
+      transparent 47deg, #fff 63deg, transparent 71deg,
+      transparent 118deg, #fff 132deg, transparent 141deg,
+      transparent 205deg, #fff 222deg, transparent 233deg,
+      transparent 260deg, #fff 278deg, transparent 289deg,
+      transparent 335deg, #fff 352deg, transparent 360deg),
+    radial-gradient(circle, transparent 0%, transparent 22%, #fff 30%, #fff 70%, transparent 76%);
   z-index: 0;
   pointer-events: none;
-  animation: tourneRayons2 17s linear infinite reverse;
+  animation: tourneRayons1 24s linear infinite;
 }
 
 @keyframes tourneRayons1 {
