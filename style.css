@@ -352,17 +352,17 @@ a { color: inherit; }
   transform: translate(-50%, -50%);
   background:
     conic-gradient(from 0deg,
-      transparent 0deg, rgba(255,220,150,0.9) 4deg, transparent 18deg, transparent 360deg),
+      transparent 0deg, rgba(255,220,150,0.9) 14deg, transparent 18deg, transparent 360deg),
     conic-gradient(from 63deg,
-      transparent 0deg, rgba(255,220,150,0.8) 5deg, transparent 14deg, transparent 360deg),
+      transparent 0deg, rgba(255,220,150,0.8) 15deg, transparent 14deg, transparent 360deg),
     conic-gradient(from 132deg,
-      transparent 0deg, rgba(255,220,150,0.9) 4deg, transparent 20deg, transparent 360deg),
+      transparent 0deg, rgba(255,220,150,0.9) 24deg, transparent 20deg, transparent 360deg),
     conic-gradient(from 222deg,
-      transparent 0deg, rgba(255,220,150,0.75) 6deg, transparent 16deg, transparent 360deg),
+      transparent 0deg, rgba(255,220,150,0.75) 16deg, transparent 16deg, transparent 360deg),
     conic-gradient(from 278deg,
-      transparent 0deg, rgba(255,220,150,0.85) 4deg, transparent 18deg, transparent 360deg),
+      transparent 0deg, rgba(255,220,150,0.85) 10deg, transparent 18deg, transparent 360deg),
     conic-gradient(from 352deg,
-      transparent 0deg, rgba(255,220,150,0.8) 5deg, transparent 15deg, transparent 360deg);
+      transparent 0deg, rgba(255,220,150,0.8) 20deg, transparent 15deg, transparent 360deg);
   -webkit-mask-image: radial-gradient(circle, transparent 0%, transparent 22%, #fff 32%, #fff 68%, transparent 78%);
   mask-image: radial-gradient(circle, transparent 0%, transparent 22%, #fff 32%, #fff 68%, transparent 78%);
   z-index: 0;
