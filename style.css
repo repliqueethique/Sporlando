@@ -204,6 +204,7 @@ a { color: inherit; }
   border: 1px solid var(--couleur-bordure);
   border-radius: 8px;
   overflow: hidden;
+  align-items: center; /* <-- Ajoute cette ligne */
 }
 .sous-onglet {
   -webkit-box-flex: 1; -webkit-flex: 1; flex: 1;
