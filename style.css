@@ -318,10 +318,61 @@ a { color: inherit; }
 }
 
 .accueil-carte.seance-a-faire {
+  position: relative;
+  overflow: hidden;
   background: linear-gradient(135deg, var(--couleur-turquoise), var(--couleur-cyan), var(--couleur-nutrition));
   background-size: 200% 200%;
   animation: degradeSeanceDuJour 8s ease infinite;
   color: #fff;
+}
+
+.accueil-carte.seance-a-faire::before {
+  content: "";
+  position: absolute;
+  top: 50%; left: 50%;
+  width: 300px; height: 300px;
+  transform: translate(-50%, -50%);
+  background: radial-gradient(circle,
+    rgba(255, 220, 130, 0.9) 0%,
+    rgba(255, 180, 60, 0.5) 20%,
+    rgba(255, 150, 30, 0.2) 40%,
+    rgba(255, 150, 30, 0) 65%
+  );
+  z-index: 0;
+  pointer-events: none;
+  animation: pulseHalo 3s ease-in-out infinite;
+}
+
+.accueil-carte.seance-a-faire::after {
+  content: "";
+  position: absolute;
+  top: 50%; left: 50%;
+  width: 320px; height: 320px;
+  transform: translate(-50%, -50%);
+  background: conic-gradient(
+    from 0deg,
+    rgba(255, 200, 100, 0) 0deg,
+    rgba(255, 200, 100, 0.4) 10deg,
+    rgba(255, 200, 100, 0) 20deg,
+    rgba(255, 200, 100, 0) 70deg,
+    rgba(255, 200, 100, 0.4) 80deg,
+    rgba(255, 200, 100, 0) 90deg,
+    rgba(255, 200, 100, 0) 160deg,
+    rgba(255, 200, 100, 0.4) 170deg,
+    rgba(255, 200, 100, 0) 180deg,
+    rgba(255, 200, 100, 0) 250deg,
+    rgba(255, 200, 100, 0.4) 260deg,
+    rgba(255, 200, 100, 0) 270deg
+  );
+  z-index: 0;
+  pointer-events: none;
+  animation: tourneRayons 12s linear infinite;
+}
+
+.accueil-carte.seance-a-faire .accueil-icone,
+.accueil-carte.seance-a-faire > div {
+  position: relative;
+  z-index: 1;
 }
 
 .accueil-carte.seance-a-faire .titre-affichage,
@@ -338,6 +389,16 @@ a { color: inherit; }
   0% { background-position: 0% 50%; }
   50% { background-position: 100% 50%; }
   100% { background-position: 0% 50%; }
+}
+
+@keyframes pulseHalo {
+  0%, 100% { opacity: 0.8; transform: translate(-50%, -50%) scale(1); }
+  50% { opacity: 1; transform: translate(-50%, -50%) scale(1.1); }
+}
+
+@keyframes tourneRayons {
+  from { transform: translate(-50%, -50%) rotate(0deg); }
+  to { transform: translate(-50%, -50%) rotate(360deg); }
 }
 
 .accueil-icone {
