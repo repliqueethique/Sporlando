@@ -329,7 +329,7 @@ a { color: inherit; }
 .accueil-carte.seance-a-faire::before {
   content: "";
   position: absolute;
-  top: 32px; left: 46px;
+  top: 50%; left: 46px;
   width: 130px; height: 130px;
   transform: translate(-50%, -50%);
   background: radial-gradient(circle,
@@ -346,7 +346,7 @@ a { color: inherit; }
 .accueil-carte.seance-a-faire::after {
   content: "";
   position: absolute;
-  top: 32px; left: 46px;
+  top: 50%; left: 46px;
   width: 130px; height: 130px;
   transform: translate(-50%, -50%);
   background:
@@ -368,8 +368,8 @@ a { color: inherit; }
     conic-gradient(from 320deg,
       rgba(255,230,180,0.65) 0deg, rgba(255,150,30,0) 4deg,
       transparent 30deg);
-  mask: radial-gradient(circle, #fff 0%, #fff 19%, transparent 19.5%);
-  -webkit-mask: radial-gradient(circle, #fff 0%, #fff 19%, transparent 19.5%);
+  mask: radial-gradient(circle, #fff 0%, #fff 38%, transparent 38.5%);
+  -webkit-mask: radial-gradient(circle, #fff 0%, #fff 38%, transparent 38.5%);
   z-index: 0;
   pointer-events: none;
   animation: tourneRayonsAntiHoraire 22s linear infinite;
