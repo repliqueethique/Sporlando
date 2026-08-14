@@ -2225,7 +2225,7 @@ function rendreCarteSeanceJour() {
     html += '<h2 class="titre-affichage">Nouvelle séance</h2>';
     html += '<p class="texte-att">Démarre une séance planifiée ou libre</p>';
     html += '</div></div>';
-    html += genererParticules(25);
+    html += genererParticules(100);
   }
 
   conteneur.innerHTML = html;
