@@ -17,7 +17,6 @@ if ('serviceWorker' in navigator) {
       .catch((err) => console.error('Erreur SW:', err));
   });
 }
-
 (function () {
 'use strict';
 
@@ -4143,6 +4142,18 @@ ajouterEcouteurClicDelegue(document.body, function (cible) {
   if (action === 'basculer-token') { basculerAffichageToken(); return; }
   if (action === 'basculer-token') { basculerAffichageToken(); return; }
   if (action === 'valider-poids-jour') { validerPoidsJour(); return; }
+  if (action === 'tester-notif') {
+    demanderPermissionNotif().then(function (accorde) {
+      if (accorde) {
+        envoyerNotification('Carnet Muscu', 'Ceci est un test 🔔');
+      } else {
+        afficherToast('Notifications refusées ou non supportées.');
+      }
+    });
+    return;
+  }
+  if (action === 'toggle-rappel-actif') { toggleRappelActif(parseInt(cible.getAttribute('data-index'), 10)); return; }
+  if (action === 'marquer-rappel-fait') { marquerRappelFaitEtRafraichir(cible.getAttribute('data-rappel-id')); return; }
 
   if (action === 'sous-onglet') {
     var groupe = cible.getAttribute('data-groupe');
@@ -4292,41 +4303,8 @@ setInterval(function () {
    BLOC 19 : NOTIFICATIONS
    ============================================================ */
 
-function renderRemindersSettings() {
-  const config = getRemindersConfig();
-  const container = document.getElementById('reminders-list');
-  container.innerHTML = '';
-
-  for (const [key, reminder] of Object.entries(config)) {
-    const row = document.createElement('div');
-    row.className = 'reminder-row';
-    row.innerHTML = `
-      <label>
-        <input type="checkbox" data-key="${key}" data-field="enabled" ${reminder.enabled ? 'checked' : ''}>
-        ${reminder.label}
-      </label>
-      <input type="time" data-key="${key}" data-field="time" 
-             value="${String(reminder.hour).padStart(2,'0')}:${String(reminder.minute).padStart(2,'0')}">
-    `;
-    container.appendChild(row);
+document.addEventListener('change', function (e) {
+  if (e.target.getAttribute('data-action') === 'changer-heure-rappel') {
+    changerHeureRappel(parseInt(e.target.getAttribute('data-index'), 10), e.target.value);
   }
-
-  container.querySelectorAll('input').forEach(input => {
-    input.addEventListener('change', (e) => {
-      const key = e.target.dataset.key;
-      const field = e.target.dataset.field;
-      const cfg = getRemindersConfig();
-
-      if (field === 'enabled') {
-        cfg[key].enabled = e.target.checked;
-      } else if (field === 'time') {
-        const [h, m] = e.target.value.split(':').map(Number);
-        cfg[key].hour = h;
-        cfg[key].minute = m;
-      }
-      saveRemindersConfig(cfg);
-    });
-  });
-}
-
-// Appelle renderRemindersSettings() quand tu ouvres l'écran de réglages
+});

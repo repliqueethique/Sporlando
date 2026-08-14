@@ -1,106 +1,159 @@
-// ===== CONFIG PAR DÉFAUT DES RAPPELS =====
-const DEFAULT_REMINDERS = {
-  sommeil:  { enabled: true, hour: 8,  minute: 0,  label: "💤 Note ton sommeil de la nuit" },
-  fatigue:  { enabled: true, hour: 8,  minute: 5,  label: "🔋 Note ton niveau de fatigue" },
-  stress:   { enabled: true, hour: 8,  minute: 10, label: "🧠 Note ton niveau de stress" },
-  seance:   { enabled: true, hour: 18, minute: 0,  label: "🏋️ N'oublie pas ta séance prévue !" }
-};
+/* ============================================================
+   RAPPELS QUOTIDIENS (sans backend, vérifiés à l'ouverture de l'app)
+   ============================================================ */
 
-const STORAGE_KEY = 'reminders_config';
-const LOG_KEY = 'reminders_last_sent';
+var CLE_REGLAGES_RAPPELS = 'carnetMusculationReglagesRappels_v1';
 
-// ===== GESTION CONFIG =====
-function getRemindersConfig() {
-  const saved = localStorage.getItem(STORAGE_KEY);
-  return saved ? JSON.parse(saved) : structuredClone(DEFAULT_REMINDERS);
-}
+var RAPPELS_DEFAUT = [
+  { id: 'sommeil',   label: 'Sommeil de la nuit',     heure: '08:00', actif: true },
+  { id: 'fatigue',   label: 'Niveau de fatigue',      heure: '08:00', actif: true },
+  { id: 'stress',    label: 'Niveau de stress',       heure: '08:00', actif: true },
+  { id: 'seance',    label: 'Séance prévue',          heure: '17:00', actif: true },
+  { id: 'pesee',     label: 'Se peser',               heure: '08:00', actif: false }
+];
 
-function saveRemindersConfig(config) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(config));
-}
-
-function getLastSentLog() {
-  const saved = localStorage.getItem(LOG_KEY);
-  return saved ? JSON.parse(saved) : {};
-}
-
-function markAsSent(key) {
-  const log = getLastSentLog();
-  log[key] = new Date().toISOString().split('T')[0]; // date du jour YYYY-MM-DD
-  localStorage.setItem(LOG_KEY, JSON.stringify(log));
-}
-
-function alreadySentToday(key) {
-  const log = getLastSentLog();
-  const today = new Date().toISOString().split('T')[0];
-  return log[key] === today;
-}
-
-// ===== PERMISSION =====
-async function requestNotifPermission() {
-  if (!('Notification' in window)) {
-    alert("Les notifications ne sont pas supportées sur ce navigateur.");
-    return false;
-  }
-  if (Notification.permission === 'granted') return true;
-  if (Notification.permission === 'denied') {
-    alert("Notifications bloquées. Active-les dans les réglages de ton navigateur/téléphone.");
-    return false;
-  }
-  const result = await Notification.requestPermission();
-  return result === 'granted';
-}
-
-// ===== ENVOI D'UNE NOTIF =====
-async function sendNotification(title, body) {
-  const reg = await navigator.serviceWorker.getRegistration();
-  if (reg) {
-    reg.showNotification(title, {
-      body: body,
-      icon: './images/icon-192.png',
-      badge: './images/icon-192.png',
-      vibrate: [200, 100, 200],
-      tag: title, // évite les doublons empilés
-    });
-  } else if (Notification.permission === 'granted') {
-    new Notification(title, { body });
-  }
-}
-
-// ===== VÉRIFICATION DES RAPPELS =====
-function checkReminders() {
-  if (Notification.permission !== 'granted') return;
-
-  const config = getRemindersConfig();
-  const now = new Date();
-  const currentMinutes = now.getHours() * 60 + now.getMinutes();
-
-  for (const [key, reminder] of Object.entries(config)) {
-    if (!reminder.enabled) continue;
-    if (alreadySentToday(key)) continue;
-
-    const reminderMinutes = reminder.hour * 60 + reminder.minute;
-
-    // Si l'heure actuelle a dépassé l'heure du rappel (tolérance de la journée)
-    if (currentMinutes >= reminderMinutes) {
-      sendNotification("Sporlando", reminder.label);
-      markAsSent(key);
+function chargerReglagesRappels() {
+  try {
+    var brut = window.localStorage.getItem(CLE_REGLAGES_RAPPELS);
+    if (brut) {
+      var donnees = JSON.parse(brut);
+      if (Array.isArray(donnees) && donnees.length > 0) { return donnees; }
     }
-  }
+  } catch (erreur) {}
+  return JSON.parse(JSON.stringify(RAPPELS_DEFAUT));
 }
 
-// ===== INIT =====
-function initReminders() {
-  // Vérifie immédiatement au chargement de l'app
-  checkReminders();
+var reglagesRappels = chargerReglagesRappels();
 
-  // Vérifie toutes les minutes tant que l'app est ouverte/visible
-  setInterval(checkReminders, 60 * 1000);
+function sauvegarderReglagesRappels() {
+  try {
+    window.localStorage.setItem(CLE_REGLAGES_RAPPELS, JSON.stringify(reglagesRappels));
+  } catch (erreur) {}
+}
 
-  // Vérifie aussi quand l'app redevient visible (retour au premier plan)
-  document.addEventListener('visibilitychange', () => {
-    if (document.visibilityState === 'visible') {
-      checkReminders();
-    }
+/* --- Suivi de ce qui a déjà été fait aujourd'hui --- */
+
+function cleFaitAujourdhui(idRappel) {
+  return 'rappelFait_' + idRappel + '_' + formaterDateISO(new Date());
+}
+
+function rappelEstFaitAujourdhui(idRappel) {
+  return window.localStorage.getItem(cleFaitAujourdhui(idRappel)) === '1';
+}
+
+function marquerRappelFait(idRappel) {
+  try {
+    window.localStorage.setItem(cleFaitAujourdhui(idRappel), '1');
+  } catch (erreur) {}
+}
+
+/* --- Permission navigateur --- */
+
+function demanderPermissionNotif() {
+  if (!('Notification' in window)) { return Promise.resolve(false); }
+  if (Notification.permission === 'granted') { return Promise.resolve(true); }
+  if (Notification.permission === 'denied') { return Promise.resolve(false); }
+  return Notification.requestPermission().then(function (resultat) {
+    return resultat === 'granted';
   });
+}
+
+function envoyerNotification(titre, corps) {
+  if (!('Notification' in window) || Notification.permission !== 'granted') { return; }
+  try {
+    if (navigator.serviceWorker && navigator.serviceWorker.controller) {
+      navigator.serviceWorker.ready.then(function (registration) {
+        registration.showNotification(titre, { body: corps, icon: 'images/icon-192.png' });
+      });
+    } else {
+      new Notification(titre, { body: corps, icon: 'images/icon-192.png' });
+    }
+  } catch (erreur) {}
+}
+
+/* --- Vérification au lancement de l'app --- */
+
+function heureActuelleDepassee(heureRappel) {
+  var maintenant = new Date();
+  var parties = heureRappel.split(':');
+  var heureCible = new Date();
+  heureCible.setHours(parseInt(parties[0], 10), parseInt(parties[1], 10), 0, 0);
+  return maintenant >= heureCible;
+}
+
+function verifierRappelsDus() {
+  var rappelsDus = [];
+  reglagesRappels.forEach(function (rappel) {
+    if (!rappel.actif) { return; }
+    if (rappelEstFaitAujourdhui(rappel.id)) { return; }
+    if (!heureActuelleDepassee(rappel.heure)) { return; }
+    rappelsDus.push(rappel);
+  });
+  return rappelsDus;
+}
+
+function traiterRappelsAuLancement() {
+  var rappelsDus = verifierRappelsDus();
+  if (rappelsDus.length === 0) { return; }
+
+  demanderPermissionNotif().then(function (accorde) {
+    rappelsDus.forEach(function (rappel) {
+      if (accorde) {
+        envoyerNotification('Carnet Muscu', rappel.label);
+      }
+    });
+  });
+
+  afficherBanniereRappels(rappelsDus);
+}
+
+/* --- Bannière sur l'accueil --- */
+
+function afficherBanniereRappels(rappelsDus) {
+  var zone = document.getElementById('zone-banniere-rappels');
+  if (!zone) { return; }
+  if (!rappelsDus || rappelsDus.length === 0) { zone.innerHTML = ''; return; }
+
+  var html = '<div class="carte-checklist">';
+  html += '<div class="checklist-entete"><span class="titre-affichage">À noter aujourd\'hui</span></div>';
+  rappelsDus.forEach(function (rappel) {
+    html += '<div class="checklist-ligne">';
+    html += '<button class="bulle-validation checklist-bouton" data-action="marquer-rappel-fait" data-rappel-id="' + rappel.id + '" title="Marquer comme fait">✓</button>';
+    html += '<span class="checklist-texte">' + echapperHtml(rappel.label) + '</span>';
+    html += '</div>';
+  });
+  html += '</div>';
+  zone.innerHTML = html;
+}
+
+function marquerRappelFaitEtRafraichir(idRappel) {
+  marquerRappelFait(idRappel);
+  var rappelsDus = verifierRappelsDus();
+  afficherBanniereRappels(rappelsDus);
+}
+
+/* --- Formulaire de réglages --- */
+
+function renderRemindersSettings() {
+  var zone = document.getElementById('reminders-container');
+  if (!zone) { return; }
+  var html = '';
+  reglagesRappels.forEach(function (rappel, index) {
+    html += '<div class="champ" style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">';
+    html += '<input type="checkbox" data-action="toggle-rappel-actif" data-index="' + index + '" ' + (rappel.actif ? 'checked' : '') + '>';
+    html += '<span style="flex:1; min-width:140px;">' + echapperHtml(rappel.label) + '</span>';
+    html += '<input type="time" value="' + rappel.heure + '" data-action="changer-heure-rappel" data-index="' + index + '">';
+    html += '</div>';
+  });
+  zone.innerHTML = html;
+}
+
+function toggleRappelActif(index) {
+  reglagesRappels[index].actif = !reglagesRappels[index].actif;
+  sauvegarderReglagesRappels();
+}
+
+function changerHeureRappel(index, nouvelleHeure) {
+  reglagesRappels[index].heure = nouvelleHeure;
+  sauvegarderReglagesRappels();
 }
