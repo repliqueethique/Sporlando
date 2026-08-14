@@ -1374,3 +1374,11 @@ a { color: inherit; }
 .segment-moyen { stroke:#ffd60a; }
 .segment-mauvais { stroke:#ff453a; }
 .point-ideal { fill:#30d158; stroke:#1c1c1e; stroke-width:1.5; }
+
+.reminder-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 0;
+  border-bottom: 1px solid #333;
+}
