@@ -385,16 +385,16 @@ a { color: inherit; }
     transparent 0%,
     transparent 22%,
     #fff 32%,
-    rgba(255,255,255,0.6) 55%,
-    rgba(255,255,255,0.15) 68%,
+    rgba(255,255,255,0.6) 50%,
+    rgba(255,255,255,0.15) 65%,
     transparent 78%
   );
   mask-image: radial-gradient(circle,
     transparent 0%,
     transparent 22%,
     #fff 32%,
-    rgba(255,255,255,0.6) 55%,
-    rgba(255,255,255,0.15) 68%,
+    rgba(255,255,255,0.6) 50%,
+    rgba(255,255,255,0.15) 65%,
     transparent 78%
   );
   z-index: 0;
