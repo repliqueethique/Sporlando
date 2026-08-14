@@ -2225,9 +2225,34 @@ function rendreCarteSeanceJour() {
     html += '<h2 class="titre-affichage">Nouvelle séance</h2>';
     html += '<p class="texte-att">Démarre une séance planifiée ou libre</p>';
     html += '</div></div>';
+    html += genererParticules(25);
   }
 
   conteneur.innerHTML = html;
+}
+
+function genererParticules(nombre) {
+  var html = '<div class="particules">';
+  for (var i = 0; i < nombre; i++) {
+    var taille = (Math.random() * 4 + 2).toFixed(1); // 2px à 6px
+    var duree = (Math.random() * 3 + 3).toFixed(2); // 3s à 6s
+    var delai = (Math.random() * 5).toFixed(2); // 0 à 5s
+    var angle = Math.random() * 360;
+    var distance = Math.random() * 40 + 20; // 20px à 60px
+    var x = (Math.cos(angle * Math.PI / 180) * distance).toFixed(1);
+    var y = (Math.sin(angle * Math.PI / 180) * distance).toFixed(1);
+
+    html += '<span class="particule" style="' +
+      'width:' + taille + 'px;' +
+      'height:' + taille + 'px;' +
+      'animation-duration:' + duree + 's;' +
+      'animation-delay:' + delai + 's;' +
+      '--tx:' + x + 'px;' +
+      '--ty:' + y + 'px;' +
+      '"></span>';
+  }
+  html += '</div>';
+  return html;
 }
 
 /* ============================================================

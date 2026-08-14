@@ -466,58 +466,21 @@ a { color: inherit; }
 
 .accueil-carte p { margin: 2px 0 0 0; }
 
-.particules {
-  position: absolute;
-  top: 50%; left: 50px;
-  width: 0; height: 0;
-  z-index: 0;
-  pointer-events: none;
-}
-
 .particule {
   position: absolute;
   top: 0; left: 0;
   border-radius: 50%;
   background: radial-gradient(circle, rgba(255,230,180,1) 0%, rgba(255,150,30,0.7) 60%, transparent 100%);
   opacity: 0;
+  animation-name: flotteParticule;
+  animation-timing-function: ease-in;
+  animation-iteration-count: infinite;
 }
 
-.p1 { width: 4px; height: 4px; animation: flotte1 4s ease-in infinite; }
-.p2 { width: 3px; height: 3px; animation: flotte2 5s ease-in infinite 0.7s; }
-.p3 { width: 5px; height: 5px; animation: flotte3 4.5s ease-in infinite 1.4s; }
-.p4 { width: 2px; height: 2px; animation: flotte4 6s ease-in infinite 2.1s; }
-.p5 { width: 4px; height: 4px; animation: flotte5 5.5s ease-in infinite 2.8s; }
-.p6 { width: 3px; height: 3px; animation: flotte6 4.8s ease-in infinite 3.5s; }
-
-@keyframes flotte1 {
+@keyframes flotteParticule {
   0%   { transform: translate(-50%, -50%) translate(0, 0); opacity: 0; }
   15%  { opacity: 1; }
-  100% { transform: translate(-50%, -50%) translate(35px, -60px); opacity: 0; }
-}
-@keyframes flotte2 {
-  0%   { transform: translate(-50%, -50%) translate(0, 0); opacity: 0; }
-  15%  { opacity: 1; }
-  100% { transform: translate(-50%, -50%) translate(-45px, -50px); opacity: 0; }
-}
-@keyframes flotte3 {
-  0%   { transform: translate(-50%, -50%) translate(0, 0); opacity: 0; }
-  15%  { opacity: 1; }
-  100% { transform: translate(-50%, -50%) translate(50px, 20px); opacity: 0; }
-}
-@keyframes flotte4 {
-  0%   { transform: translate(-50%, -50%) translate(0, 0); opacity: 0; }
-  15%  { opacity: 1; }
-  100% { transform: translate(-50%, -50%) translate(-40px, 40px); opacity: 0; }
-}
-@keyframes flotte5 {
-  0%   { transform: translate(-50%, -50%) translate(0, 0); opacity: 0; }
-  15%  { opacity: 1; }
-  100% { transform: translate(-50%, -50%) translate(20px, -55px); opacity: 0; }
-}
-@keyframes flotte6 {
-  0%   { transform: translate(-50%, -50%) translate(0, 0); opacity: 0; }
-  15%  { opacity: 1; }
-  100% { transform: translate(-50%, -50%) translate(-25px, 50px); opacity: 0; }
+  100% { transform: translate(-50%, -50%) translate(var(--tx), var(--ty)); opacity: 0; }
 }
 
 /* Seance active : zone haute collante (chrono + minuteur) */
