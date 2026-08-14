@@ -464,7 +464,10 @@ a { color: inherit; }
   display: block;
 }
 
-.accueil-carte p { margin: 2px 0 0 0; }
+.accueil-carte {
+  position: relative;
+  overflow: hidden;
+}
 
 .particules {
   position: absolute;
