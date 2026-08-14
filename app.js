@@ -3080,8 +3080,15 @@ function ouvrirReglages() {
   html += '<button class="btn btn-contour btn-bloc" data-action="ouvrir-import-donnees">Importer des données</button>';
   html += '</div>';
 
+  html += '<div class="sync-separateur">';
+  html += '<h2 class="carte-titre">Rappels & notifications</h2>';
+  html += '<div id="reminders-container"></div>';
+  html += '<button class="btn btn-contour btn-bloc" data-action="tester-notif" style="margin-top:8px;">🔔 Tester une notification</button>';
+  html += '</div>';
+
   ouvrirModal(html);
   rendreZoneSync();
+  renderRemindersSettings();
 }
 
 /* ============================================================
