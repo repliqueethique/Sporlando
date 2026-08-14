@@ -352,7 +352,7 @@ a { color: inherit; }
   transform: translate(-50%, -50%);
   background:
     radial-gradient(circle, rgba(255,230,180,0.95) 0%, rgba(255,140,20,0) 70%);
-  -webkit-mask:
+  mask-image:
     conic-gradient(from 0deg,
       #fff 0deg, #fff 18deg, transparent 26deg,
       transparent 47deg, #fff 63deg, transparent 71deg,
@@ -361,9 +361,8 @@ a { color: inherit; }
       transparent 260deg, #fff 278deg, transparent 289deg,
       transparent 335deg, #fff 352deg, transparent 360deg),
     radial-gradient(circle, transparent 0%, transparent 22%, #fff 30%, #fff 70%, transparent 76%);
-  -webkit-mask-composite: source-in;
   mask-composite: intersect;
-  mask:
+  -webkit-mask-image:
     conic-gradient(from 0deg,
       #fff 0deg, #fff 18deg, transparent 26deg,
       transparent 47deg, #fff 63deg, transparent 71deg,
@@ -372,6 +371,7 @@ a { color: inherit; }
       transparent 260deg, #fff 278deg, transparent 289deg,
       transparent 335deg, #fff 352deg, transparent 360deg),
     radial-gradient(circle, transparent 0%, transparent 22%, #fff 30%, #fff 70%, transparent 76%);
+  -webkit-mask-composite: source-in, source-in;
   z-index: 0;
   pointer-events: none;
   animation: tourneRayons1 24s linear infinite;
