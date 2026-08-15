@@ -1,3 +1,11 @@
+navigator.serviceWorker.getRegistrations().then(function(regs) {
+  debugLog('Nb SW enregistrés: ' + regs.length);
+  regs.forEach(function(r) {
+    debugLog('SW state: ' + (r.active ? r.active.state : 'aucun actif'));
+    debugLog('SW scope: ' + r.scope);
+  });
+});
+
 // Enregistrement du Service Worker
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
