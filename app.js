@@ -3052,11 +3052,21 @@ function ouvrirNotice() {
   html += '<div class="notice-section"><h3>Bibliothèque</h3><ul>';
   html += '<li><strong>Exercices</strong> : recherche par nom ou groupe musculaire avec ET/OU (ex. "dos ET poulie"), groupes musculaires repliables. Le bouton "Charger les exercices de base" ajoute 45 exercices adaptés à ton matériel (rack ATX, banc, barre, haltères, élastiques...). En modifiant un exercice : historique (nombre de fois, poids max par mode, RPE moyen), schéma des muscles ciblés, et un champ Variantes (prise, position) pré-rempli pour les exercices qui en ont.</li>';
   html += '<li><strong>Séances</strong> : assembler des exercices avec poids/reps/séries, et pour chacun une structure de séries (linéaire, pyramide montante/descendante, échelle, cluster), une technique d\'intensification (drop set, rest-pause...) et un tempo.</li>';
-  html += '<li><strong>Programmes</strong> : regrouper des séances, définir un objectif texte libre, un type de mésocycle (Hypertrophie/Force/Décharge/Personnalisé) et une durée en semaines. Un seul programme actif à la fois ("Démarrer ce programme").</li>';
+  html += '<li><strong>Programmes</strong> : regrouper des séances, définir un objectif texte libre, un type de mésocycle (Hypertrophie/Force/Décharge/Personnalisé) et une durée en semaines. Un seul programme actif à la fois ("Démarrer ce programme"). Ce type de mésocycle est aussi utilisé pour ajuster automatiquement tes objectifs nutrition (voir section Nutrition).</li>';
   html += '<li><strong>Aliments</strong> : bibliothèque 100% végétalienne. Le bouton "Charger les aliments de base" ajoute 32 aliments (tofu, tempeh, seitan, légumineuses, céréales, laits et fromages végétaux...).</li>';
   html += '</ul></div>';
 
-  html += '<div class="notice-section"><h3>Nutrition</h3><p>Journal du jour avec navigation par date (flèches). Barres de progression Protéines/Glucides/Lipides comparées à tes objectifs (réglables dans Réglages). Bouton "+ Ajouter" pour choisir un aliment de la bibliothèque et sa quantité en grammes.</p></div>';
+  html += '<div class="notice-section"><h3>Nutrition</h3>';
+  html += '<p>Journal du jour avec navigation par date (flèches). Barres de progression Protéines/Glucides/Lipides comparées à tes objectifs (réglables dans Réglages). Bouton "+ Ajouter" pour choisir un aliment de la bibliothèque et sa quantité en grammes.</p>';
+  html += '<p><strong>Recalcul automatique des objectifs</strong> : le bouton "Recalculer automatiquement mes objectifs" ajuste tes cibles caloriques et de macronutriments à partir de ton poids corporel et du type de mésocycle de ton programme actif :</p>';
+  html += '<ul>';
+  html += '<li><strong>Hypertrophie</strong> : léger surplus calorique (~+10%) pour soutenir la synthèse protéique musculaire, avec un apport protéique élevé (~2g/kg de poids de corps) — quantité généralement admise comme suffisante pour maximiser la prise de masse maigre sans excès catabolique.</li>';
+  html += '<li><strong>Force</strong> : maintien calorique (autour du métabolisme de base + activité), protéines élevées (~1.8-2g/kg) pour la récupération, avec une part de glucides plus importante pour soutenir la performance sur les charges lourdes (resynthèse du glycogène musculaire).</li>';
+  html += '<li><strong>Décharge</strong> : léger déficit ou maintien bas, car le volume et l\'intensité d\'entraînement chutent temporairement : les besoins énergétiques diminuent, mais les protéines restent élevées pour préserver la masse musculaire pendant cette phase de récupération.</li>';
+  html += '<li><strong>Personnalisé</strong> : valeurs par défaut modérées (maintien, ~1.8g/kg de protéines), à ajuster manuellement selon ton objectif propre.</li>';
+  html += '</ul>';
+  html += '<p class="texte-att">Ces repères s\'appuient sur des recommandations courantes en nutrition sportive (apport protéique de 1.6 à 2.2g/kg selon les objectifs, surplus/déficit de 10 à 20% pour la prise de masse ou la perte de poids). Ce sont des points de départ raisonnables, pas des valeurs individualisées : ajuste-les selon ta réponse réelle (poids, énergie, performance).</p>';
+  html += '</div>';
 
   html += '<div class="notice-section"><h3>Historique</h3><ul>';
   html += '<li><strong>Agenda</strong> : calendrier avec des points de couleur par jour — prévu (cyan), fait complet (vert), fait incomplet (orange), piscine (bleu), objectifs nutrition atteints (violet). Case à cocher simple pour noter une séance de piscine. Bouton "+ Planifier" pour programmer une séance à une date.</li>';
@@ -3073,7 +3083,7 @@ function ouvrirNotice() {
 
   html += '<div class="notice-section"><h3>Bon à savoir</h3><ul>';
   html += '<li>Toutes les données restent sur l\'appareil (localStorage) sauf si tu actives la synchronisation.</li>';
-  html += '<li>Les suggestions et alertes météo sont des pistes, pas des décisions — à valider avec ton bon sens ou ton coach.</li>';
+  html += '<li>Les suggestions, alertes météo et objectifs nutrition recalculés sont des pistes, pas des décisions — à valider avec ton bon sens ou ton coach.</li>';
   html += '<li>Ressenti quotidien, ressenti météo et synchro dépendent du réseau ou d\'une saisie manuelle : rien n\'est bloquant si tu ne les utilises pas.</li>';
   html += '</ul></div>';
 
