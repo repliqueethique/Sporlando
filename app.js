@@ -1,11 +1,3 @@
-navigator.serviceWorker.getRegistrations().then(function(regs) {
-  debugLog('Nb SW enregistrés: ' + regs.length);
-  regs.forEach(function(r) {
-    debugLog('SW state: ' + (r.active ? r.active.state : 'aucun actif'));
-    debugLog('SW scope: ' + r.scope);
-  });
-});
-
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('./sw.js')
