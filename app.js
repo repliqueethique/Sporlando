@@ -4413,9 +4413,11 @@ document.getElementById('modal-overlay').addEventListener('click', function (evt
 
 
 
-/* ============================================================
-   BLOC 18 : INITIALISATION
-   ============================================================ */
+/* BLOC 18 : INITIALISATION */
+
+window.formaterDateISO = formaterDateISO;
+window.completerZero = completerZero;
+window.echapperHtml = echapperHtml;
 
 allerVersPage('accueil');
 
@@ -4431,14 +4433,15 @@ setInterval(function () {
   rendreChecklistQuotidienne();
 }, 60000);
 
-})();
-
-/* ============================================================
-   BLOC 19 : NOTIFICATIONS
-   ============================================================ */
+/* BLOC 19 : NOTIFICATIONS */
 
 document.addEventListener('change', function (e) {
   if (e.target.getAttribute('data-action') === 'changer-heure-rappel') {
     changerHeureRappel(parseInt(e.target.getAttribute('data-index'), 10), e.target.value);
   }
 });
+
+})();
+
+
+
