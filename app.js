@@ -3035,21 +3035,26 @@ function demanderPermissionNotif() {
 }
 
 function envoyerNotification(titre, corps) {
+  alert('1. Notification.permission = ' + Notification.permission);
+  
   if (!('Notification' in window) || Notification.permission !== 'granted') {
+    alert('STOP: notif non autorisée');
     return;
   }
+  
+  alert('2. serviceWorker in navigator = ' + ('serviceWorker' in navigator));
+  
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker.ready.then(function (registration) {
-      registration.showNotification(titre, {
-        body: corps,
-        icon: 'icon-180.png'
-      });
+      alert('3. SW ready, registration OK');
+      return registration.showNotification(titre, { body: corps });
+    }).then(function() {
+      alert('4. showNotification appelé SANS erreur');
     }).catch(function (err) {
-      console.error('Erreur showNotification:', err);
-      new Notification(titre, { body: corps }); // fallback desktop uniquement
+      alert('ERREUR: ' + err.name + ' - ' + err.message);
     });
   } else {
-    new Notification(titre, { body: corps });
+    alert('STOP: pas de serviceWorker');
   }
 }
 
