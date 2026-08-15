@@ -4440,4 +4440,6 @@ document.addEventListener('change', function (e) {
   if (e.target.getAttribute('data-action') === 'changer-heure-rappel') {
     changerHeureRappel(parseInt(e.target.getAttribute('data-index'), 10), e.target.value);
   }
+window.formaterDateISO = formaterDateISO;
+window.completerZero = completerZero;
 });
