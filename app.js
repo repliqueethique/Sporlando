@@ -4276,7 +4276,7 @@ ajouterEcouteurClicDelegue(document.body, function (cible) {
   if (action === 'retirer-aliment-journal') { retirerAlimentDuJournal(id); return; }
   if (action === 'charger-aliments-base') { chargerAlimentsDeBase(); return; }
   if (action === 'basculer-groupe-aliments') { basculerGroupeAliments(cible.getAttribute('data-groupe')); return; }
-  if (action === 'calculer-objectifs-nutrition') { calculerObjectifsNutritionAuto(); }
+  if (action === 'calculer-objectifs-nutrition') { calculerObjectifsNutritionAuto(); return; }
 
   if (action === 'nouveau-plat') { ouvrirFormulairePlat(null); return; }
   if (action === 'editer-plat') { ouvrirFormulairePlat(id); return; }
