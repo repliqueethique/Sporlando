@@ -2220,7 +2220,7 @@ function rendreCarteSeanceJour() {
     html += '<div class="accueil-carte" data-action="aller-page" data-page="seance">';
     html += '<div class="accueil-icone"><img src="images/seance-non-prevue.png" alt="Nouvelle séance"></div>';
     html += '<div>';
-    html += '<h2 class="titre-affichage">Nouvelle séance</h2>';
+    html += '<h2 class="titre-affichage">Séances</h2>';
     html += '<p class="texte-att">Démarre une séance planifiée ou libre</p>';
     html += '</div></div>';
   }
