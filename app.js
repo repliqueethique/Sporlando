@@ -3038,27 +3038,40 @@ function demanderPermissionNotif() {
 }
 
 function envoyerNotification(titre, corps) {
-  alert('1. Notification.permission = ' + Notification.permission);
-  
+  debugLog('1. permission = ' + Notification.permission);
+
   if (!('Notification' in window) || Notification.permission !== 'granted') {
-    alert('STOP: notif non autorisée');
+    debugLog('STOP: notif non autorisée');
     return;
   }
-  
-  alert('2. serviceWorker in navigator = ' + ('serviceWorker' in navigator));
-  
-  if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.ready.then(function (registration) {
-      alert('3. SW ready, registration OK');
-      return registration.showNotification(titre, { body: corps });
-    }).then(function() {
-      alert('4. showNotification appelé SANS erreur');
-    }).catch(function (err) {
-      alert('ERREUR: ' + err.name + ' - ' + err.message);
+
+  debugLog('2. serviceWorker in navigator = ' + ('serviceWorker' in navigator));
+
+  navigator.serviceWorker.getRegistrations().then(function(regs) {
+    debugLog('2b. Nb SW enregistrés: ' + regs.length);
+    regs.forEach(function(r) {
+      debugLog('2c. SW state: ' + (r.active ? r.active.state : (r.installing ? 'installing' : (r.waiting ? 'waiting' : 'aucun'))));
+      debugLog('2d. SW scope: ' + r.scope);
     });
-  } else {
-    alert('STOP: pas de serviceWorker');
-  }
+  }).catch(function(err) {
+    debugLog('ERREUR getRegistrations: ' + err.message);
+  });
+
+  var timeoutAtteint = false;
+  setTimeout(function() {
+    timeoutAtteint = true;
+    debugLog('TIMEOUT: ready ne se résout jamais après 5s');
+  }, 5000);
+
+  navigator.serviceWorker.ready.then(function (registration) {
+    if (timeoutAtteint) return;
+    debugLog('3. SW ready, scope=' + registration.scope);
+    return registration.showNotification(titre, { body: corps });
+  }).then(function() {
+    if (!timeoutAtteint) debugLog('4. showNotification OK');
+  }).catch(function (err) {
+    debugLog('ERREUR: ' + err.name + ' - ' + err.message);
+  });
 }
 
 function ouvrirNotice() {
