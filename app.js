@@ -2999,6 +2999,38 @@ function rendreZoneSync() {
   zone.innerHTML = html;
 }
 
+function demanderPermissionNotif() {
+  if (!('Notification' in window)) {
+    return Promise.resolve(false);
+  }
+  if (Notification.permission === 'granted') {
+    return Promise.resolve(true);
+  }
+  if (Notification.permission === 'denied') {
+    return Promise.resolve(false);
+  }
+  return Notification.requestPermission().then(function (resultat) {
+    return resultat === 'granted';
+  });
+}
+
+function envoyerNotification(titre, corps) {
+  if (!('Notification' in window) || Notification.permission !== 'granted') {
+    return;
+  }
+  // Si un service worker est actif (PWA), passer par lui pour que ça marche aussi en arrière-plan
+  if (navigator.serviceWorker && navigator.serviceWorker.controller) {
+    navigator.serviceWorker.ready.then(function (registration) {
+      registration.showNotification(titre, {
+        body: corps,
+        icon: 'icon-180.png'
+      });
+    });
+  } else {
+    new Notification(titre, { body: corps });
+  }
+}
+
 function ouvrirNotice() {
   var html = '';
   html += '<div class="modal-entete"><h2>Notice complète</h2><button class="bouton-fermer" data-action="fermer-modal">&times;</button></div>';
