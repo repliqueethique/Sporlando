@@ -17,7 +17,6 @@ if ('serviceWorker' in navigator) {
       .catch((err) => console.error('Erreur SW:', err));
   });
 }
-(function () {
 'use strict';
 
 /* ============================================================
