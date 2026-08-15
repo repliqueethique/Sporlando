@@ -2882,58 +2882,6 @@ function rendreZoneSync() {
   zone.innerHTML = html;
 }
 
-function demanderPermissionNotif() {
-  if (!('Notification' in window)) {
-    return Promise.resolve(false);
-  }
-  if (Notification.permission === 'granted') {
-    return Promise.resolve(true);
-  }
-  if (Notification.permission === 'denied') {
-    return Promise.resolve(false);
-  }
-  return Notification.requestPermission().then(function (resultat) {
-    return resultat === 'granted';
-  });
-}
-
-function envoyerNotification(titre, corps) {
-  debugLog('1. permission = ' + Notification.permission);
-
-  if (!('Notification' in window) || Notification.permission !== 'granted') {
-    debugLog('STOP: notif non autorisée');
-    return;
-  }
-
-  debugLog('2. serviceWorker in navigator = ' + ('serviceWorker' in navigator));
-
-  navigator.serviceWorker.getRegistrations().then(function(regs) {
-    debugLog('2b. Nb SW enregistrés: ' + regs.length);
-    regs.forEach(function(r) {
-      debugLog('2c. SW state: ' + (r.active ? r.active.state : (r.installing ? 'installing' : (r.waiting ? 'waiting' : 'aucun'))));
-      debugLog('2d. SW scope: ' + r.scope);
-    });
-  }).catch(function(err) {
-    debugLog('ERREUR getRegistrations: ' + err.message);
-  });
-
-  var timeoutAtteint = false;
-  setTimeout(function() {
-    timeoutAtteint = true;
-    debugLog('TIMEOUT: ready ne se résout jamais après 5s');
-  }, 5000);
-
-  navigator.serviceWorker.ready.then(function (registration) {
-    if (timeoutAtteint) return;
-    debugLog('3. SW ready, scope=' + registration.scope);
-    return registration.showNotification(titre, { body: corps });
-  }).then(function() {
-    if (!timeoutAtteint) debugLog('4. showNotification OK');
-  }).catch(function (err) {
-    debugLog('ERREUR: ' + err.name + ' - ' + err.message);
-  });
-}
-
 function ouvrirNotice() {
   var html = '';
   html += '<div class="modal-entete"><h2>Notice complète</h2><button class="bouton-fermer" data-action="fermer-modal">&times;</button></div>';
