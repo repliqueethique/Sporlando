@@ -382,13 +382,8 @@ function validerPoidsJour() {
   var dateReference = obtenirDateJourReference();
   etat.poidsCorporelHistorique[dateReference] = valeur;
 
-  // Synchronise le poids "courant" utilisé dans Réglages et les calculs (nutrition, calories...)
-  etat.poidsCorporel = valeur;
-
-  var champReglagesPoids = document.getElementById('champ-poids-reglages');
-  if (champReglagesPoids) {
-    champReglagesPoids.value = valeur;
-  }
+  // Synchronise le poids "courant" utilisé dans Réglages et les calculs
+  etat.profil.poidsCorporel = valeur;
 
   var checklist = checklistDuJour(dateReference);
   checklist.pesee = true;
@@ -400,11 +395,6 @@ function validerPoidsJour() {
 
   if (typeof rendreGraphiquePoidsCorporel === 'function') {
     rendreGraphiquePoidsCorporel();
-  }
-
-  // Si l'écran Réglages est affiché, on le re-rend pour refléter le nouveau poids
-  if (typeof rendreReglages === 'function') {
-    rendreReglages();
   }
 
   if (checklistEstComplete(dateReference)) {
