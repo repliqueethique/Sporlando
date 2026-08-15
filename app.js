@@ -17,6 +17,7 @@ if ('serviceWorker' in navigator) {
       .catch((err) => console.error('Erreur SW:', err));
   });
 }
+(function () {
 'use strict';
 
 /* ============================================================
@@ -36,17 +37,15 @@ function echapperHtml(texte) {
     .replace(/"/g, '&quot;');
 }
 
-function formaterDateISO(date) {
-  return date.getFullYear() + '-' + completerZero(date.getMonth() + 1) + '-' + completerZero(date.getDate());
-}
-window.formaterDateISO = formaterDateISO;
-
 function completerZero(nombre) {
   nombre = Math.floor(nombre);
   if (nombre < 10) { return '0' + nombre; }
   return String(nombre);
 }
-window.completerZero = completerZero;
+
+function formaterDateISO(date) {
+  return date.getFullYear() + '-' + completerZero(date.getMonth() + 1) + '-' + completerZero(date.getDate());
+}
 
 function dateDepuisISO(chaineISO) {
   var parties = chaineISO.split('-');
@@ -4432,6 +4431,8 @@ setInterval(function () {
   rendreChecklistQuotidienne();
 }, 60000);
 
+})();
+
 /* ============================================================
    BLOC 19 : NOTIFICATIONS
    ============================================================ */
@@ -4441,6 +4442,3 @@ document.addEventListener('change', function (e) {
     changerHeureRappel(parseInt(e.target.getAttribute('data-index'), 10), e.target.value);
   }
 });
-
-
- 
