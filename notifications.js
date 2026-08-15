@@ -62,16 +62,25 @@ function demanderPermissionNotif() {
 }
 
 function envoyerNotification(titre, corps) {
-  if (!('Notification' in window) || Notification.permission !== 'granted') { return; }
-  try {
-    if (navigator.serviceWorker && navigator.serviceWorker.controller) {
-      navigator.serviceWorker.ready.then(function (registration) {
-        registration.showNotification(titre, { body: corps, icon: 'images/icon-192.png' });
+  if (!('Notification' in window)) { return; }
+  if (Notification.permission !== 'granted') { return; }
+
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.ready.then(function (registration) {
+      registration.showNotification(titre, {
+        body: corps,
+        icon: 'images/icon-192.png',
+        badge: 'images/icon-192.png',
+        vibrate: [200, 100, 200]
+      }).catch(function (erreur) {
+        alert('Erreur showNotification: ' + erreur.message);
       });
-    } else {
-      new Notification(titre, { body: corps, icon: 'images/icon-192.png' });
-    }
-  } catch (erreur) {}
+    }).catch(function (erreur) {
+      alert('Erreur SW ready: ' + erreur.message);
+    });
+  } else {
+    alert('Service Worker non supporté');
+  }
 }
 
 /* --- Vérification au lancement de l'app --- */
