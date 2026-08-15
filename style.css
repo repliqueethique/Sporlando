@@ -844,6 +844,7 @@ a { color: inherit; }
   margin-top: 4px;
 }
 .macro-barre-remplie { height: 100%; border-radius: 5px; }
+.macro-barre-calories { background-color: var(--couleur-pevue) }
 .macro-barre-proteines { background: var(--couleur-degrade); }
 .macro-barre-glucides { background: var(--couleur-avertissement); }
 .macro-barre-lipides { background: var(--couleur-nutrition); }

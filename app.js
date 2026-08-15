@@ -1468,12 +1468,14 @@ function rendreNutrition() {
   zoneDate.innerHTML = formaterDateLisible(dateNutritionAffichee);
 
   var totaux = calculerTotauxJour(dateNutritionAffichee);
+  var objCal = etat.profil.objectifCalories || 0;
   var objP = etat.profil.objectifProteines || 0;
   var objG = etat.profil.objectifGlucides || 0;
   var objL = etat.profil.objectifLipides || 0;
 
   var htmlMacros = '';
-  htmlMacros += '<div class="texte-att donnee-num" style="margin-bottom:14px;">' + Math.round(totaux.calories) + ' kcal aujourd\'hui</div>';
+  htmlMacros += '<div class="macro-ligne"><div class="ligne"><span>Calories</span><span class="donnee-num">' + Math.round(totaux.calories) + ' / ' + objCal + ' kcal</span></div>';
+  htmlMacros += '<div class="macro-barre-fond"><div class="macro-barre-remplie macro-barre-calories" style="width:' + barreProgressionMacro(totaux.calories, objCal) + '%;"></div></div></div>';
   htmlMacros += '<div class="macro-ligne"><div class="ligne"><span>Protéines</span><span class="donnee-num">' + totaux.proteines.toFixed(1) + ' / ' + objP + ' g</span></div>';
   htmlMacros += '<div class="macro-barre-fond"><div class="macro-barre-remplie macro-barre-proteines" style="width:' + barreProgressionMacro(totaux.proteines, objP) + '%;"></div></div></div>';
   htmlMacros += '<div class="macro-ligne"><div class="ligne"><span>Glucides</span><span class="donnee-num">' + totaux.glucides.toFixed(1) + ' / ' + objG + ' g</span></div>';
