@@ -3080,6 +3080,11 @@ function ouvrirNotice() {
   ouvrirModal(html);
 }
 
+function obtenirProgrammeActif() {
+  if (!etat.programmeActif) { return null; }
+  return trouverParId(etat.programmes, etat.programmeActif.programmeId);
+}
+
 function calculerObjectifsNutritionAuto() {
   var poids = parseFloat(document.getElementById('champ-profil-poids').value) || etat.profil.poidsCorporel || 75;
   var taille = parseFloat(document.getElementById('champ-profil-taille').value) || etat.profil.tailleCm || 175;
@@ -3099,7 +3104,7 @@ function calculerObjectifsNutritionAuto() {
   var maintenance = mb * facteurActivite;
 
   // Ajustement selon l'objectif du programme actif
-  var programmeActif = obtenirProgrammeActif ? obtenirProgrammeActif() : null;
+  var programmeActif = (typeof obtenirProgrammeActif === 'function') ? obtenirProgrammeActif() : null;
   var typeObjectif = programmeActif ? (programmeActif.typeMesocycle || '') : '';
 
   var calories = maintenance;
