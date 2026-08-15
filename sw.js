@@ -1,4 +1,4 @@
-const CACHE_NAME = 'sport-app-v2';
+const CACHE_NAME = 'sport-app-v3';
 const urlsToCache = [
   './',             
   './index.html',    
@@ -38,5 +38,21 @@ self.addEventListener('fetch', (event) => {
         return response;
       })
       .catch(() => caches.match(event.request))
+  );
+});
+
+/* ============================================================
+   GESTION DES NOTIFICATIONS
+   ============================================================ */
+
+self.addEventListener('notificationclick', function (event) {
+  event.notification.close();
+  event.waitUntil(
+    clients.matchAll({ type: 'window', includeUncontrolled: true }).then(function (clientList) {
+      for (const client of clientList) {
+        if ('focus' in client) return client.focus();
+      }
+      if (clients.openWindow) return clients.openWindow('./');
+    })
   );
 });
