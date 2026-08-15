@@ -409,6 +409,13 @@ function validerPoidsJour() {
   }
 }
 
+function echapperHtml(texte) {
+  if (texte === null || texte === undefined) { return ''; }
+  var div = document.createElement('div');
+  div.textContent = String(texte);
+  return div.innerHTML;
+}
+
 function trouverParId(liste, id) {
   for (var i = 0; i < liste.length; i++) {
     if (liste[i].id === id) { return liste[i]; }
