@@ -36,15 +36,17 @@ function echapperHtml(texte) {
     .replace(/"/g, '&quot;');
 }
 
+function formaterDateISO(date) {
+  return date.getFullYear() + '-' + completerZero(date.getMonth() + 1) + '-' + completerZero(date.getDate());
+}
+window.formaterDateISO = formaterDateISO;
+
 function completerZero(nombre) {
   nombre = Math.floor(nombre);
   if (nombre < 10) { return '0' + nombre; }
   return String(nombre);
 }
-
-function formaterDateISO(date) {
-  return date.getFullYear() + '-' + completerZero(date.getMonth() + 1) + '-' + completerZero(date.getDate());
-}
+window.completerZero = completerZero;
 
 function dateDepuisISO(chaineISO) {
   var parties = chaineISO.split('-');
@@ -4440,7 +4442,5 @@ document.addEventListener('change', function (e) {
   }
 });
 
-window.formaterDateISO = formaterDateISO;
-window.completerZero = completerZero;
 
  
