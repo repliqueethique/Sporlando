@@ -327,17 +327,20 @@
   <div id="modal-contenu" class="modal-contenu"></div>
 </div>
 
+<script src="utils.js"></script>
 <script src="exercices.js"></script>
 <script src="nutrition.js"></script>
 <script src="notifications.js"></script>
 <script src="app.js"></script>
 <script>
-  // Init notifications au chargement
-  window.addEventListener('load', async () => {
-    const granted = await requestNotifPermission();
-    if (granted) {
-      initReminders();
-    }
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('./sw.js')
+      .then(() => console.log('Service Worker enregistré'))
+      .catch((err) => console.error('Erreur SW:', err));
+  }
+
+  window.addEventListener('load', () => {
+    traiterRappelsAuLancement();
   });
 </script>
 
