@@ -19,6 +19,9 @@ if ('serviceWorker' in navigator) {
 }
 (function () {
 'use strict';
+window.formaterDateISO = formaterDateISO;
+window.completerZero = completerZero;
+window.echapperHtml = echapperHtml;
 
 /* ============================================================
    BLOC 3 : OUTILS GENERIQUES (compatibles anciens navigateurs)
@@ -4414,10 +4417,6 @@ document.getElementById('modal-overlay').addEventListener('click', function (evt
 
 
 /* BLOC 18 : INITIALISATION */
-
-window.formaterDateISO = formaterDateISO;
-window.completerZero = completerZero;
-window.echapperHtml = echapperHtml;
 
 allerVersPage('accueil');
 
