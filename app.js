@@ -4148,7 +4148,7 @@ ajouterEcouteurClicDelegue(document.body, function (cible) {
   if (action === 'basculer-token') { basculerAffichageToken(); return; }
   if (action === 'basculer-token') { basculerAffichageToken(); return; }
   if (action === 'valider-poids-jour') { validerPoidsJour(); return; }
-  if (action === 'tester-notif') {
+  if (action === 'tester-notification') {
     demanderPermissionNotif().then(function (accorde) {
       if (accorde) {
         envoyerNotification('Carnet Muscu', 'Ceci est un test 🔔');
