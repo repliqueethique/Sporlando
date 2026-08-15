@@ -3046,6 +3046,51 @@ function ouvrirNotice() {
   ouvrirModal(html);
 }
 
+function calculerObjectifsNutritionAuto() {
+  var poids = parseFloat(document.getElementById('champ-profil-poids').value) || etat.profil.poidsCorporel || 75;
+  var taille = parseFloat(document.getElementById('champ-profil-taille').value) || etat.profil.tailleCm || 175;
+  var age = etat.profil.age || 30; // à ajouter si tu veux affiner, sinon valeur par défaut
+  var sexe = etat.profil.sexe || 'homme'; // idem, optionnel
+
+  // Métabolisme de base (Mifflin-St Jeor)
+  var mb;
+  if (sexe === 'femme') {
+    mb = (10 * poids) + (6.25 * taille) - (5 * age) - 161;
+  } else {
+    mb = (10 * poids) + (6.25 * taille) - (5 * age) + 5;
+  }
+
+  // Facteur d'activité (pratiquant la musculation régulièrement)
+  var facteurActivite = 1.55;
+  var maintenance = mb * facteurActivite;
+
+  // Ajustement selon l'objectif du programme actif
+  var programmeActif = obtenirProgrammeActif ? obtenirProgrammeActif() : null;
+  var typeObjectif = programmeActif ? (programmeActif.typeMesocycle || '') : '';
+
+  var calories = maintenance;
+  if (typeObjectif === 'Force' || typeObjectif === 'Hypertrophie') {
+    calories = maintenance + 250; // léger surplus
+  } else if (typeObjectif === 'Décharge') {
+    calories = maintenance - 200; // léger déficit
+  }
+  // "Personnalisé" ou vide -> maintenance
+
+  // Répartition des macros
+  var proteinesG = Math.round(poids * 2); // 2g/kg, standard musculation
+  var lipidesG = Math.round((calories * 0.25) / 9); // 25% des calories
+  var caloriesRestantes = calories - (proteinesG * 4) - (lipidesG * 9);
+  var glucidesG = Math.round(caloriesRestantes / 4);
+  if (glucidesG < 0) { glucidesG = 0; }
+
+  document.getElementById('champ-profil-calories').value = Math.round(calories);
+  document.getElementById('champ-profil-proteines').value = proteinesG;
+  document.getElementById('champ-profil-lipides').value = lipidesG;
+  document.getElementById('champ-profil-glucides').value = glucidesG;
+
+  afficherToast('Objectifs recalculés selon ton profil.');
+}
+
 function ouvrirReglages() {
   var html = '';
   html += '<div class="modal-entete"><h2>Réglages</h2><button class="bouton-fermer" data-action="fermer-modal">&times;</button></div>';
@@ -3090,6 +3135,16 @@ function ouvrirReglages() {
   html += '<div id="reminders-container"></div>';
   html += '<button class="btn btn-contour btn-bloc" data-action="tester-notif" style="margin-top:8px;">🔔 Tester une notification</button>';
   html += '</div>';
+
+  html += '<div class="champ"><label>Poids corporel (kg)</label><input type="number" step="0.1" id="champ-profil-poids" value="' + (etat.profil.poidsCorporel || 75) + '"></div>';
+  html += '<div class="champ"><label>Taille (cm)</label><input type="number" step="1" id="champ-profil-taille" value="' + (etat.profil.tailleCm || 175) + '"></div>';
+  html += '<div class="texte-att" style="margin-bottom:10px;">Le poids et la taille servent aussi à calculer automatiquement tes objectifs nutritionnels ci-dessous.</div>';
+
+  html += '<div class="champ"><label>Objectif protéines / jour (g)</label><input type="number" step="1" id="champ-profil-proteines" value="' + (etat.profil.objectifProteines || 150) + '"></div>';
+  html += '<div class="champ"><label>Objectif glucides / jour (g)</label><input type="number" step="1" id="champ-profil-glucides" value="' + (etat.profil.objectifGlucides || 250) + '"></div>';
+  html += '<div class="champ"><label>Objectif lipides / jour (g)</label><input type="number" step="1" id="champ-profil-lipides" value="' + (etat.profil.objectifLipides || 70) + '"></div>';
+  html += '<div class="champ"><label>Objectif calories / jour (kcal)</label><input type="number" step="1" id="champ-profil-calories" value="' + (etat.profil.objectifCalories || 2200) + '"></div>';
+  html += '<button class="btn btn-contour btn-bloc" data-action="calculer-objectifs-nutrition" style="margin-bottom:10px;">🔄 Recalculer automatiquement mes objectifs</button>';
 
   ouvrirModal(html);
   rendreZoneSync();
@@ -3184,9 +3239,12 @@ function lancerImportJson() {
 function enregistrerProfil() {
   var poids = parseFloat(document.getElementById('champ-profil-poids').value);
   etat.profil.poidsCorporel = poids > 0 ? poids : 75;
+  var taille = parseFloat(document.getElementById('champ-profil-taille').value);
+  etat.profil.tailleCm = taille > 0 ? taille : 175;
   etat.profil.objectifProteines = parseFloat(document.getElementById('champ-profil-proteines').value) || 150;
   etat.profil.objectifGlucides = parseFloat(document.getElementById('champ-profil-glucides').value) || 250;
   etat.profil.objectifLipides = parseFloat(document.getElementById('champ-profil-lipides').value) || 70;
+  etat.profil.objectifCalories = parseFloat(document.getElementById('champ-profil-calories').value) || 2200;
   etat.poidsCorporelHistorique[formaterDateISO(new Date())] = etat.profil.poidsCorporel;
 
   var latitude = parseFloat(document.getElementById('champ-profil-latitude').value);
@@ -4128,7 +4186,7 @@ ajouterEcouteurClicDelegue(document.body, function (cible) {
 
   if (action === 'aller-page') { allerVersPage(cible.getAttribute('data-page')); return; }
   if (action === 'fermer-modal') { fermerModal(); return; }
-    if (action === 'confirmation-valider') { validerConfirmation(); return; }
+  if (action === 'confirmation-valider') { validerConfirmation(); return; }
   if (action === 'confirmation-annuler') { annulerConfirmation(); return; }
   if (action === 'choisir-echauffement') { choisirEchauffement(cible.getAttribute('data-type')); return; }
   if (action === 'passer-echauffement') { passerEchauffement(); return; }
@@ -4191,6 +4249,8 @@ ajouterEcouteurClicDelegue(document.body, function (cible) {
   if (action === 'retirer-aliment-journal') { retirerAlimentDuJournal(id); return; }
   if (action === 'charger-aliments-base') { chargerAlimentsDeBase(); return; }
   if (action === 'basculer-groupe-aliments') { basculerGroupeAliments(cible.getAttribute('data-groupe')); return; }
+
+  if (action === 'calculer-objectifs-nutrition') { calculerObjectifsNutritionAuto(); }
 
   if (action === 'nouveau-plat') { ouvrirFormulairePlat(null); return; }
   if (action === 'editer-plat') { ouvrirFormulairePlat(id); return; }
