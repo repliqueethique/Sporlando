@@ -3018,13 +3018,15 @@ function envoyerNotification(titre, corps) {
   if (!('Notification' in window) || Notification.permission !== 'granted') {
     return;
   }
-  // Si un service worker est actif (PWA), passer par lui pour que ça marche aussi en arrière-plan
-  if (navigator.serviceWorker && navigator.serviceWorker.controller) {
+  if ('serviceWorker' in navigator) {
     navigator.serviceWorker.ready.then(function (registration) {
       registration.showNotification(titre, {
         body: corps,
         icon: 'icon-180.png'
       });
+    }).catch(function (err) {
+      console.error('Erreur showNotification:', err);
+      new Notification(titre, { body: corps }); // fallback desktop uniquement
     });
   } else {
     new Notification(titre, { body: corps });
