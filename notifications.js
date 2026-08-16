@@ -70,19 +70,31 @@ function envoyerNotification(titre, corps, options) {
   navigator.serviceWorker.ready.then(function (reg) {
     reg.showNotification(titre, {
       body: corps,
-      icon: 'images/icon-192.png',
-      badge: 'images/icon-192.png',
+      icon: 'images/icon-180.png',
+      badge: 'images/icon-180.png',
+      image: config.image || undefined,
       tag: config.tag || 'carnet-muscu-rappel',
       renotify: true,
-      vibrate: [200, 100, 200],
-      requireInteraction: false,
+      silent: false,
+      vibrate: [200, 100, 200, 100, 200],
+      requireInteraction: true,
+      timestamp: Date.now(),
+      dir: 'ltr',
+      lang: 'fr',
       data: { url: './' },
       actions: [
-        { action: 'ouvrir', title: 'Ouvrir' },
-        { action: 'fermer', title: 'Ignorer' }
+        { action: 'ouvrir', title: '📖 Ouvrir' },
+        { action: 'fermer', title: '✖️ Ignorer' }
       ]
     });
   });
+}
+
+function jouerSonNotification() {
+  try {
+    var audio = new Audio('sons/notification.mp3');
+    audio.play().catch(function () {});
+  } catch (erreur) {}
 }
 
 /* --- Vérification au lancement de l'app --- */
