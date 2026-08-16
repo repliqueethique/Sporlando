@@ -1,17 +1,11 @@
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('./sw.js')
     .then(function (reg) {
-      alert('SW enregistré, scope: ' + reg.scope);
+      console.log('Service Worker enregistré, scope: ' + reg.scope);
     })
     .catch(function (err) {
-      alert('ERREUR enregistrement SW: ' + err.message);
+      console.error('Erreur enregistrement SW:', err);
     });
-
-  navigator.serviceWorker.getRegistrations().then(function (regs) {
-    alert('Nb SW enregistrés au démarrage: ' + regs.length);
-  });
-} else {
-  alert('Service Worker non supporté par ce navigateur');
 }
 
 (function () {
