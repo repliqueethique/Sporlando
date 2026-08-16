@@ -71,7 +71,7 @@ function envoyerNotification(titre, corps, options) {
     reg.showNotification(titre, {
       body: corps,
       icon: 'images/icon-180.png',
-      badge: 'images/icon-180.png',
+      badge: 'images/badge.png',
       image: config.image || undefined,
       tag: config.tag || 'carnet-muscu-rappel',
       renotify: true,
