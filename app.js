@@ -1,3 +1,7 @@
+window.onerror = function (msg, url, line) {
+  alert('ERREUR JS: ' + msg + ' (ligne ' + line + ')');
+};
+
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('./sw.js')
     .then(function (reg) {

@@ -1,4 +1,4 @@
-const CACHE_NAME = 'sport-app-v3';
+const CACHE_NAME = 'carnet-v2';
 const urlsToCache = [
   './',             
   './index.html',    
