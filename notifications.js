@@ -61,14 +61,26 @@ function demanderPermissionNotif() {
   });
 }
 
-function envoyerNotification(titre, corps) {
+function envoyerNotification(titre, corps, options) {
   if (!('Notification' in window) || Notification.permission !== 'granted') { return; }
   if (!('serviceWorker' in navigator)) { return; }
+
+  var config = options || {};
 
   navigator.serviceWorker.ready.then(function (reg) {
     reg.showNotification(titre, {
       body: corps,
-      icon: 'images/icon-192.png'
+      icon: 'images/icon-192.png',
+      badge: 'images/icon-192.png',
+      tag: config.tag || 'carnet-muscu-rappel',
+      renotify: true,
+      vibrate: [200, 100, 200],
+      requireInteraction: false,
+      data: { url: './' },
+      actions: [
+        { action: 'ouvrir', title: 'Ouvrir' },
+        { action: 'fermer', title: 'Ignorer' }
+      ]
     });
   });
 }
@@ -101,7 +113,7 @@ function traiterRappelsAuLancement() {
   demanderPermissionNotif().then(function (accorde) {
     rappelsDus.forEach(function (rappel) {
       if (accorde) {
-        envoyerNotification('Carnet Muscu', rappel.label);
+        envoyerNotification('Carnet Muscu', rappel.label, { tag: 'rappel-' + rappel.id });
       }
     });
   });

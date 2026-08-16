@@ -47,6 +47,9 @@ self.addEventListener('fetch', (event) => {
 
 self.addEventListener('notificationclick', function (event) {
   event.notification.close();
+
+  if (event.action === 'fermer') { return; }
+
   event.waitUntil(
     clients.matchAll({ type: 'window', includeUncontrolled: true }).then(function (clientList) {
       for (const client of clientList) {
