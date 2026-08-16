@@ -62,25 +62,39 @@ function demanderPermissionNotif() {
 }
 
 function envoyerNotification(titre, corps) {
-  if (!('Notification' in window)) { return; }
-  if (Notification.permission !== 'granted') { return; }
+  alert('1. Fonction appelée');
 
-  if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.ready.then(function (registration) {
-      registration.showNotification(titre, {
-        body: corps,
-        icon: 'images/icon-192.png',
-        badge: 'images/icon-192.png',
-        vibrate: [200, 100, 200]
-      }).catch(function (erreur) {
-        alert('Erreur showNotification: ' + erreur.message);
-      });
-    }).catch(function (erreur) {
-      alert('Erreur SW ready: ' + erreur.message);
-    });
-  } else {
-    alert('Service Worker non supporté');
+  if (!('Notification' in window)) {
+    alert('2. Notification API non supportée');
+    return;
   }
+  alert('2. Notification API OK, permission = ' + Notification.permission);
+
+  if (Notification.permission !== 'granted') {
+    alert('3. Permission non accordée');
+    return;
+  }
+
+  if (!('serviceWorker' in navigator)) {
+    alert('4. Service Worker non supporté');
+    return;
+  }
+
+  navigator.serviceWorker.getRegistration().then(function (reg) {
+    alert('5. Registration = ' + (reg ? 'trouvée' : 'NULL'));
+    if (!reg) return;
+
+    reg.showNotification(titre, {
+      body: corps,
+      icon: 'images/icon-192.png'
+    }).then(function () {
+      alert('6. showNotification OK');
+    }).catch(function (erreur) {
+      alert('ERREUR showNotification: ' + erreur.message);
+    });
+  }).catch(function (erreur) {
+    alert('ERREUR getRegistration: ' + erreur.message);
+  });
 }
 
 /* --- Vérification au lancement de l'app --- */
