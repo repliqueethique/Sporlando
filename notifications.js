@@ -62,25 +62,14 @@ function demanderPermissionNotif() {
 }
 
 function envoyerNotification(titre, corps) {
-  if (!('Notification' in window) || Notification.permission !== 'granted') {
-    alert('Notifications non autorisées');
-    return;
-  }
-
-  if (!('serviceWorker' in navigator)) {
-    alert('Service Worker non supporté');
-    return;
-  }
+  if (!('Notification' in window) || Notification.permission !== 'granted') { return; }
+  if (!('serviceWorker' in navigator)) { return; }
 
   navigator.serviceWorker.ready.then(function (reg) {
     reg.showNotification(titre, {
       body: corps,
       icon: 'images/icon-192.png'
-    }).catch(function (erreur) {
-      alert('ERREUR showNotification: ' + erreur.message);
     });
-  }).catch(function (erreur) {
-    alert('ERREUR ready: ' + erreur.message);
   });
 }
 
