@@ -62,38 +62,25 @@ function demanderPermissionNotif() {
 }
 
 function envoyerNotification(titre, corps) {
-  alert('1. Fonction appelée');
-
-  if (!('Notification' in window)) {
-    alert('2. Notification API non supportée');
-    return;
-  }
-  alert('2. Notification API OK, permission = ' + Notification.permission);
-
-  if (Notification.permission !== 'granted') {
-    alert('3. Permission non accordée');
+  if (!('Notification' in window) || Notification.permission !== 'granted') {
+    alert('Notifications non autorisées');
     return;
   }
 
   if (!('serviceWorker' in navigator)) {
-    alert('4. Service Worker non supporté');
+    alert('Service Worker non supporté');
     return;
   }
 
-  navigator.serviceWorker.getRegistration().then(function (reg) {
-    alert('5. Registration = ' + (reg ? 'trouvée' : 'NULL'));
-    if (!reg) return;
-
+  navigator.serviceWorker.ready.then(function (reg) {
     reg.showNotification(titre, {
       body: corps,
       icon: 'images/icon-192.png'
-    }).then(function () {
-      alert('6. showNotification OK');
     }).catch(function (erreur) {
       alert('ERREUR showNotification: ' + erreur.message);
     });
   }).catch(function (erreur) {
-    alert('ERREUR getRegistration: ' + erreur.message);
+    alert('ERREUR ready: ' + erreur.message);
   });
 }
 
