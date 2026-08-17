@@ -1417,7 +1417,7 @@ function optionsAlimentsHtml(alimentIdSelectionne) {
   var alimentsTries = etat.aliments.slice().sort(function (a, b) { return a.nom.localeCompare(b.nom); });
   var html = '';
   for (var i = 0; i < alimentsTries.length; i++) {
-    var selectionne = (alimentsTries[i].id === alimentIdSelectionne) ? ' selected' : '';
+    var selectionne = (String(alimentsTries[i].id) === String(alimentIdSelectionne)) ? ' selected' : '';
     html += '<option value="' + alimentsTries[i].id + '"' + selectionne + '>' + echapperHtml(alimentsTries[i].nom) + '</option>';
   }
   return html;
