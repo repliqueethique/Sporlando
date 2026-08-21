@@ -2262,7 +2262,7 @@ function rendreRessentiJour() {
 
   // Booléens colère / blessure / maladie
   ['colere', 'blessure', 'maladie'].forEach(function (champ) {
-    var bouton = document.querySelector('[data-role="booleen-' + champ + '"]');
+    var bouton = document.querySelector('[data-action="basculer-booleen-ressenti"][data-champ="' + champ + '"]');
     if (bouton) {
       bouton.setAttribute('data-actif', donnees[champ] ? 'true' : 'false');
     }
@@ -4252,6 +4252,10 @@ ajouterEcouteurClicDelegue(document.body, function (cible) {
   if (action === 'synchroniser-maintenant') { synchroniserMaintenant(); return; }
   if (action === 'basculer-token') { basculerAffichageToken(); return; }
   if (action === 'basculer-token') { basculerAffichageToken(); return; }
+  if (action === 'basculer-booleen-ressenti') {
+    basculerBooleenRessenti(cible.getAttribute('data-champ'), cible);
+    return;
+  }  
   if (action === 'valider-poids-jour') { validerPoidsJour(); return; }
   if (action === 'tester-notif') {
     demanderPermissionNotif().then(function (accorde) {
