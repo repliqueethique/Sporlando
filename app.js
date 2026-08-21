@@ -2387,6 +2387,7 @@ function mettreAJourApparenceSlider(champ, valeur) {
   if (input) {
     var pourcentage = (valeur / 8) * 100;
     input.style.background = 'linear-gradient(to right, ' + couleur + ' 0%, ' + couleur + ' ' + pourcentage + '%, #2f2f33 ' + pourcentage + '%, #2f2f33 100%)';
+    input.style.setProperty('--couleur-progression', couleur);
   }
 }
 
