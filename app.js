@@ -2259,6 +2259,14 @@ function rendreRessentiJour() {
   mettreAJourApparenceSlider('fatigue', donnees.fatigue);
   mettreAJourApparenceSlider('stress', donnees.stress);
   mettreAJourApparenceSlider('humeur', donnees.humeur);
+
+  // Booléens colère / blessure / maladie
+  ['colere', 'blessure', 'maladie'].forEach(function (champ) {
+    var bouton = document.querySelector('[data-role="booleen-' + champ + '"]');
+    if (bouton) {
+      bouton.setAttribute('data-actif', donnees[champ] ? 'true' : 'false');
+    }
+  });
 }
 
 function mettreAJourApparenceSlider(champ, valeur) {
@@ -2319,12 +2327,39 @@ function mettreAJourApparenceSlider(champ, valeur) {
   }
 }
 
+function initialiserBooleensRessenti() {
+  var aujourdHui = formaterDateISO(new Date());
+  var donneesJour = etat.ressentiQuotidien[aujourdHui];
+  if (!donneesJour) return;
+  ['colere', 'blessure', 'maladie'].forEach(function (champ) {
+    var bouton = document.querySelector('[data-role="booleen-' + champ + '"]');
+    if (bouton) {
+      bouton.setAttribute('data-actif', donneesJour[champ] ? 'true' : 'false');
+    }
+  });
+}
+
 function modifierRessentiBooleen(champ, coche) {
   var aujourdHui = formaterDateISO(new Date());
   if (!etat.ressentiQuotidien[aujourdHui]) {
     etat.ressentiQuotidien[aujourdHui] = { sommeil: 7, fatigue: 3, stress: 3, humeur: 4, colere: false, blessure: false, maladie: false };
   }
   etat.ressentiQuotidien[aujourdHui][champ] = coche;
+  sauvegarderEtat();
+}
+
+function basculerBooleenRessenti(champ, element) {
+  var aujourdHui = formaterDateISO(new Date());
+  if (!etat.ressentiQuotidien[aujourdHui]) {
+    etat.ressentiQuotidien[aujourdHui] = {
+      sommeil: 7, fatigue: 5, stress: 5, humeur: 4,
+      colere: false, blessure: false, maladie: false
+    };
+  }
+  var valeurActuelle = !!etat.ressentiQuotidien[aujourdHui][champ];
+  var nouvelleValeur = !valeurActuelle;
+  etat.ressentiQuotidien[aujourdHui][champ] = nouvelleValeur;
+  element.setAttribute('data-actif', nouvelleValeur ? 'true' : 'false');
   sauvegarderEtat();
 }
 

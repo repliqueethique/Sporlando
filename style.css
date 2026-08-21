@@ -981,6 +981,26 @@ a { color: inherit; }
   background: var(--couleur-progression, #000);
 }
 
+.booleens-ligne {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+}
+.booleen-emoji-btn {
+  font-size: 32px;
+  line-height: 1;
+  background: none;
+  border: none;
+  padding: 6px;
+  cursor: pointer;
+  filter: grayscale(100%) opacity(0.4);
+  transition: filter 0.15s ease, transform 0.1s ease;
+}
+.booleen-emoji-btn[data-actif="true"] {
+  filter: none;
+  transform: scale(1.15);
+}
+
 .suggestion-carte {
   border-left: 3px solid var(--couleur-turquoise);
   padding: 4px 0 4px 10px;

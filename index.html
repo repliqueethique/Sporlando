@@ -126,17 +126,10 @@
             <input type="range" min="0" max="8" step="1" data-role="ressenti-stress" id="champ-ressenti-stress">
           </div>
         </div>
-        <div class="ressenti-ligne case-liste" style="border-bottom:none;">
-          <input type="checkbox" data-role="ressenti-colere" id="champ-ressenti-colere">
-          <label for="champ-ressenti-colere">🤬 Épisode de colère</label>
-        </div>
-        <div class="ressenti-ligne case-liste" style="border-bottom:none;">
-          <input type="checkbox" data-role="ressenti-blessure" id="champ-ressenti-blessure">
-          <label for="champ-ressenti-blessure">🤕 Blessure</label>
-        </div>
-        <div class="ressenti-ligne case-liste" style="border-bottom:none; margin-bottom:0;">
-          <input type="checkbox" data-role="ressenti-maladie" id="champ-ressenti-maladie">
-          <label for="champ-ressenti-maladie">🤒 Maladie</label>
+        <div class="ressenti-ligne booleens-ligne">
+          <button type="button" class="booleen-emoji-btn" data-role="booleen-colere" data-actif="false">🤬</button>
+          <button type="button" class="booleen-emoji-btn" data-role="booleen-blessure" data-actif="false">🤕</button>
+          <button type="button" class="booleen-emoji-btn" data-role="booleen-maladie" data-actif="false">🤒</button>
         </div>
       </div>
       <div class="carte" id="seance-carte-prevu" style="display:none;">
