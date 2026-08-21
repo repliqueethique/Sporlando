@@ -920,6 +920,67 @@ a { color: inherit; }
 .ressenti-ligne input[type="range"] {
   width: 100%;
 }
+
+.ressenti-slider-zone {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+}
+.ressenti-emoji-rond {
+  flex: 0 0 auto;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 3px solid #000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  background: #fff;
+  transition: border-color 0.15s ease;
+}
+.ressenti-slider-zone input[type="range"] {
+  flex: 1 1 auto;
+  min-width: 0;
+  -webkit-appearance: none;
+  appearance: none;
+  height: 8px;
+  border-radius: 4px;
+  outline: none;
+  background: #000;
+  transition: background 0.15s ease;
+}
+.ressenti-slider-zone input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #fff;
+  border: 2px solid #333;
+  cursor: pointer;
+}
+.ressenti-slider-zone input[type="range"]::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #fff;
+  border: 2px solid #333;
+  cursor: pointer;
+}
+
+.ressenti-slider-zone input[type="range"]::-moz-range-track {
+  height: 8px;
+  border-radius: 4px;
+  background: #ddd;
+}
+.ressenti-slider-zone input[type="range"]::-moz-range-progress {
+  height: 8px;
+  border-radius: 4px;
+  background: var(--couleur-progression, #000);
+}
+
 .suggestion-carte {
   border-left: 3px solid var(--couleur-turquoise);
   padding: 4px 0 4px 10px;

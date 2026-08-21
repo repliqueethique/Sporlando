@@ -91,7 +91,10 @@ var etatSeanceEtirement = {
   minuteurId: null
 };
 
-var EMOJIS_HUMEUR = ['😢', '😞', '😕', '😐', '🙂', '😊', '😄', '🤩'];
+var EMOJIS_HUMEUR = ['😭', '😢', '😟', '😕', '😐', '🙂', '😊', '😁', '🤩'];
+var EMOJIS_FATIGUE = ['😴', '😪', '🫩', '🥱', '🤭', '😌', '🤗', '😀', '🤪'];
+var EMOJIS_STRESS = ['😤', '😖', '😬', '😥', '😮‍💨', '😗', '☺️', '😋', '🥰'];
+var COULEURS_NIVEAU = ['#000000', '#7a0000', '#e30000', '#ff8c00', '#ffd700', '#c6e600', '#4caf50', '#00e676', '#1de9b6'];
 
 function ouvrirSeanceEtirement() {
   etatSeanceEtirement.enCours = true;
@@ -2239,50 +2242,81 @@ function rendreDemarrageLibre() {
 
 function rendreRessentiJour() {
   var aujourdHui = formaterDateISO(new Date());
-  var donnees = etat.ressentiQuotidien[aujourdHui] || { sommeil: 7, fatigue: 3, stress: 3, humeur: 4, colere: false, blessure: false, maladie: false };
+  var donnees = etat.ressentiQuotidien[aujourdHui] || { sommeil: 7, fatigue: 5, stress: 5, humeur: 4 };
   var champSommeil = document.getElementById('champ-ressenti-sommeil');
   var champFatigue = document.getElementById('champ-ressenti-fatigue');
   var champStress = document.getElementById('champ-ressenti-stress');
   var champHumeur = document.getElementById('champ-ressenti-humeur');
-  var champColere = document.getElementById('champ-ressenti-colere');
-  var champBlessure = document.getElementById('champ-ressenti-blessure');
-  var champMaladie = document.getElementById('champ-ressenti-maladie');
   if (!champSommeil) { return; }
 
   champSommeil.value = donnees.sommeil;
   champFatigue.value = donnees.fatigue;
   champStress.value = donnees.stress;
-  champHumeur.value = donnees.humeur || 4;
-  champColere.checked = !!donnees.colere;
-  champBlessure.checked = !!donnees.blessure;
-  champMaladie.checked = !!donnees.maladie;
+  champHumeur.value = donnees.humeur;
 
   document.getElementById('valeur-ressenti-sommeil').innerHTML = donnees.sommeil;
-  document.getElementById('valeur-ressenti-fatigue').innerHTML = donnees.fatigue;
-  document.getElementById('valeur-ressenti-stress').innerHTML = donnees.stress;
-  document.getElementById('valeur-ressenti-humeur').innerHTML = EMOJIS_HUMEUR[(donnees.humeur || 4) - 1];
+
+  mettreAJourApparenceSlider('fatigue', donnees.fatigue);
+  mettreAJourApparenceSlider('stress', donnees.stress);
+  mettreAJourApparenceSlider('humeur', donnees.humeur);
+}
+
+function mettreAJourApparenceSlider(champ, valeur) {
+  var couleur = COULEURS_NIVEAU[valeur];
+  var input = document.getElementById('champ-ressenti-' + champ);
+  var rond = document.getElementById('rond-ressenti-' + champ);
+  var emoji;
+  if (champ === 'fatigue') { emoji = EMOJIS_FATIGUE[valeur]; }
+  else if (champ === 'stress') { emoji = EMOJIS_STRESS[valeur]; }
+  else { emoji = EMOJIS_HUMEUR[valeur]; }
+
+  if (rond) {
+    rond.innerHTML = emoji;
+    rond.style.borderColor = couleur;
+  }
+  if (input) {
+    var pourcentage = (valeur / 8) * 100;
+    input.style.background = 'linear-gradient(to right, ' + couleur + ' 0%, ' + couleur + ' ' + pourcentage + '%, #ddd ' + pourcentage + '%, #ddd 100%)';
+  }
 }
 
 function modifierRessenti(champ, valeur) {
   var aujourdHui = formaterDateISO(new Date());
   if (!etat.ressentiQuotidien[aujourdHui]) {
-    etat.ressentiQuotidien[aujourdHui] = { sommeil: 7, fatigue: 3, stress: 3, humeur: 4, colere: false, blessure: false, maladie: false };
+    etat.ressentiQuotidien[aujourdHui] = { sommeil: 7, fatigue: 5, stress: 5, humeur: 4 };
   }
   if (champ === 'sommeil') {
     etat.ressentiQuotidien[aujourdHui][champ] = parseFloat(valeur);
     if (isNaN(etat.ressentiQuotidien[aujourdHui][champ])) { etat.ressentiQuotidien[aujourdHui][champ] = 7; }
+    var elementValeur = document.getElementById('valeur-ressenti-sommeil');
+    if (elementValeur) { elementValeur.innerHTML = etat.ressentiQuotidien[aujourdHui][champ]; }
   } else {
-    etat.ressentiQuotidien[aujourdHui][champ] = parseInt(valeur, 10) || 3;
-  }
-  var elementValeur = document.getElementById('valeur-ressenti-' + champ);
-  if (elementValeur) {
-    if (champ === 'humeur') {
-      elementValeur.innerHTML = EMOJIS_HUMEUR[etat.ressentiQuotidien[aujourdHui][champ] - 1];
-    } else {
-      elementValeur.innerHTML = etat.ressentiQuotidien[aujourdHui][champ];
-    }
+    var niveau = parseInt(valeur, 10);
+    if (isNaN(niveau)) { niveau = 4; }
+    etat.ressentiQuotidien[aujourdHui][champ] = niveau;
+    mettreAJourApparenceSlider(champ, niveau);
   }
   sauvegarderEtat();
+}
+
+function mettreAJourApparenceSlider(champ, valeur) {
+  var couleur = COULEURS_NIVEAU[valeur];
+  var input = document.getElementById('champ-ressenti-' + champ);
+  var rond = document.getElementById('rond-ressenti-' + champ);
+  var emoji;
+  if (champ === 'fatigue') { emoji = EMOJIS_FATIGUE[valeur]; }
+  else if (champ === 'stress') { emoji = EMOJIS_STRESS[valeur]; }
+  else { emoji = EMOJIS_HUMEUR[valeur]; }
+
+  if (rond) {
+    rond.innerHTML = emoji;
+    rond.style.borderColor = couleur;
+  }
+  if (input) {
+    var pourcentage = (valeur / 8) * 100;
+    input.style.setProperty('--couleur-progression', couleur);
+    input.style.background = 'linear-gradient(to right, ' + couleur + ' 0%, ' + couleur + ' ' + pourcentage + '%, #ddd ' + pourcentage + '%, #ddd 100%)';
+  }
 }
 
 function modifierRessentiBooleen(champ, coche) {

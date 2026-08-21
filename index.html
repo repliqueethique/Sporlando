@@ -106,16 +106,25 @@
           <input type="number" min="0" max="14" step="0.5" data-role="ressenti-sommeil" id="champ-ressenti-sommeil" placeholder="ex. 7.5">
         </div>
         <div class="ressenti-ligne">
-          <label>Fatigue <span id="valeur-ressenti-fatigue">-</span>/5</label>
-          <input type="range" min="1" max="5" step="1" data-role="ressenti-fatigue" id="champ-ressenti-fatigue">
+          <label>Humeur</label>
+          <div class="ressenti-slider-zone">
+            <div class="ressenti-emoji-rond" id="rond-ressenti-humeur">😐</div>
+            <input type="range" min="0" max="8" step="1" data-role="ressenti-humeur" id="champ-ressenti-humeur">
+          </div>
         </div>
         <div class="ressenti-ligne">
-          <label>Stress <span id="valeur-ressenti-stress">-</span>/5</label>
-          <input type="range" min="1" max="5" step="1" data-role="ressenti-stress" id="champ-ressenti-stress">
+          <label>Fatigue</label>
+          <div class="ressenti-slider-zone">
+            <div class="ressenti-emoji-rond" id="rond-ressenti-fatigue">😌</div>
+            <input type="range" min="0" max="8" step="1" data-role="ressenti-fatigue" id="champ-ressenti-fatigue">
+          </div>
         </div>
-        <div class="ressenti-ligne">
-          <label>Humeur <span id="valeur-ressenti-humeur">-</span></label>
-          <input type="range" min="1" max="8" step="1" data-role="ressenti-humeur" id="champ-ressenti-humeur">
+        <div class="ressenti-ligne" style="margin-bottom:0;">
+          <label>Stress</label>
+          <div class="ressenti-slider-zone">
+            <div class="ressenti-emoji-rond" id="rond-ressenti-stress">😗</div>
+            <input type="range" min="0" max="8" step="1" data-role="ressenti-stress" id="champ-ressenti-stress">
+          </div>
         </div>
         <div class="ressenti-ligne case-liste" style="border-bottom:none;">
           <input type="checkbox" data-role="ressenti-colere" id="champ-ressenti-colere">
