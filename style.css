@@ -979,7 +979,7 @@ a { color: inherit; }
   height: 8px;
   border-radius: 4px;
   outline: none;
-  background: #000;
+  background: #2f2f33;
   transition: background 0.15s ease;
 }
 .ressenti-slider-zone input[type="range"]::-webkit-slider-thumb {
