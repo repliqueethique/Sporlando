@@ -109,9 +109,25 @@
           <label>Fatigue <span id="valeur-ressenti-fatigue">-</span>/5</label>
           <input type="range" min="1" max="5" step="1" data-role="ressenti-fatigue" id="champ-ressenti-fatigue">
         </div>
-        <div class="ressenti-ligne" style="margin-bottom:0;">
+        <div class="ressenti-ligne">
           <label>Stress <span id="valeur-ressenti-stress">-</span>/5</label>
           <input type="range" min="1" max="5" step="1" data-role="ressenti-stress" id="champ-ressenti-stress">
+        </div>
+        <div class="ressenti-ligne">
+          <label>Humeur <span id="valeur-ressenti-humeur">-</span></label>
+          <input type="range" min="1" max="8" step="1" data-role="ressenti-humeur" id="champ-ressenti-humeur">
+        </div>
+        <div class="ressenti-ligne case-liste" style="border-bottom:none;">
+          <input type="checkbox" data-role="ressenti-colere" id="champ-ressenti-colere">
+          <label for="champ-ressenti-colere">🤬 Épisode de colère</label>
+        </div>
+        <div class="ressenti-ligne case-liste" style="border-bottom:none;">
+          <input type="checkbox" data-role="ressenti-blessure" id="champ-ressenti-blessure">
+          <label for="champ-ressenti-blessure">🤕 Blessure</label>
+        </div>
+        <div class="ressenti-ligne case-liste" style="border-bottom:none; margin-bottom:0;">
+          <input type="checkbox" data-role="ressenti-maladie" id="champ-ressenti-maladie">
+          <label for="champ-ressenti-maladie">🤒 Maladie</label>
         </div>
       </div>
       <div class="carte" id="seance-carte-prevu" style="display:none;">
@@ -211,6 +227,7 @@
   <section id="page-historique" class="page">
     <div class="sous-onglets">
       <button class="sous-onglet sous-onglet-actif" data-action="sous-onglet" data-groupe="hist" data-cible="agenda">Agenda</button>
+      <button class="sous-onglet" data-action="sous-onglet" data-groupe="hist" data-cible="etat">État</button>
       <button class="sous-onglet" data-action="sous-onglet" data-groupe="hist" data-cible="progression">Progression</button>
       <button class="sous-onglet" data-action="sous-onglet" data-groupe="hist" data-cible="equilibre">Équilibre</button>
       <button class="sous-onglet" data-action="sous-onglet" data-groupe="hist" data-cible="suggestions">Suggestions</button>
@@ -309,7 +326,30 @@
         <ul id="liste-historique-seances"></ul>
       </div>
     </div>
-  </section>
+
+    <div id="hist-etat" class="section-hist" style="display:none;">
+      <div class="carte">
+        <h2 class="carte-titre">Humeur (30 derniers jours)</h2>
+        <div class="svg-conteneur" id="etat-zone-humeur"></div>
+      </div>
+      <div class="carte">
+        <h2 class="carte-titre">Fatigue (30 derniers jours)</h2>
+        <div class="svg-conteneur" id="etat-zone-fatigue"></div>
+      </div>
+      <div class="carte">
+        <h2 class="carte-titre">Stress (30 derniers jours)</h2>
+        <div class="svg-conteneur" id="etat-zone-stress"></div>
+      </div>
+      <div class="carte">
+        <h2 class="carte-titre">Sommeil (30 derniers jours)</h2>
+        <div class="svg-conteneur" id="etat-zone-sommeil"></div>
+      </div>
+      <div class="carte">
+        <h2 class="carte-titre">Événements (colère 🤬 / blessure 🤕 / maladie 🤒)</h2>
+        <div id="etat-zone-evenements"></div>
+      </div>
+    </div>
+      </section>
 
 </main>
 
