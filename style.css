@@ -907,6 +907,37 @@ a { color: inherit; }
   font-size: 14px;
 }
 
+.sommeil-ligne {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  width: 100%;
+  font-size: 1.5em;
+  font-weight: 600;
+  text-align: center;
+  transition: color 0.2s ease;
+}
+
+.sommeil-input {
+  width: 2.2ch;
+  padding: 0;
+  margin: 0;
+  border: 0;
+  outline: none;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: right;
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+
+.sommeil-input::-webkit-inner-spin-button,
+.sommeil-input::-webkit-outer-spin-button {
+  margin: 0;
+  -webkit-appearance: none;
+}
+
 .ressenti-ligne { margin-bottom: 14px; }
 .ressenti-ligne label {
   display: -webkit-box; display: -webkit-flex; display: flex;

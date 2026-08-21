@@ -2240,9 +2240,67 @@ function rendreDemarrageLibre() {
   conteneur.innerHTML = html;
 }
 
+function couleurSommeil(valeur) {
+  var points = [
+    { v: 0,  c: '#000000' },
+    { v: 1,  c: '#8B0000' },
+    { v: 2,  c: '#FF0000' },
+    { v: 3,  c: '#FF4500' },
+    { v: 4,  c: '#FFA500' },
+    { v: 5,  c: '#FFB300' },
+    { v: 6,  c: '#FFFF00' },
+    { v: 7,  c: '#00A000' },
+    { v: 8,  c: '#00CFCF' },
+    { v: 9,  c: '#00CFCF' },
+    { v: 10, c: '#00A000' },
+    { v: 11, c: '#FFFF00' },
+    { v: 12, c: '#FFB300' },
+    { v: 13, c: '#FFA500' },
+    { v: 14, c: '#FF4500' },
+    { v: 15, c: '#FF0000' },
+    { v: 16, c: '#8B0000' },
+    { v: 17, c: '#000000' }
+  ];
+
+  var n = parseFloat(valeur);
+  if (isNaN(n)) { n = 8; }
+  if (n <= 0) { return '#000000'; }
+  if (n >= 17) { return '#000000'; }
+
+  for (var i = 0; i < points.length - 1; i++) {
+    if (n >= points[i].v && n <= points[i + 1].v) {
+      var t = (n - points[i].v) / (points[i + 1].v - points[i].v);
+      return interpolerCouleur(points[i].c, points[i + 1].c, t);
+    }
+  }
+  return '#000000';
+}
+
+function interpolerCouleur(hexA, hexB, t) {
+  var a = hexVersRgb(hexA);
+  var b = hexVersRgb(hexB);
+  var r = Math.round(a.r + (b.r - a.r) * t);
+  var g = Math.round(a.g + (b.g - a.g) * t);
+  var bl = Math.round(a.b + (b.b - a.b) * t);
+  return rgbVersHex(r, g, bl);
+}
+
+function hexVersRgb(hex) {
+  return {
+    r: parseInt(hex.substr(1, 2), 16),
+    g: parseInt(hex.substr(3, 2), 16),
+    b: parseInt(hex.substr(5, 2), 16)
+  };
+}
+
+function rgbVersHex(r, g, b) {
+  function h(v) { var s = v.toString(16); return s.length === 1 ? '0' + s : s; }
+  return '#' + h(r) + h(g) + h(b);
+}
+
 function rendreRessentiJour() {
   var aujourdHui = formaterDateISO(new Date());
-  var donnees = etat.ressentiQuotidien[aujourdHui] || { sommeil: 7, fatigue: 5, stress: 5, humeur: 4 };
+  var donnees = etat.ressentiQuotidien[aujourdHui] || { sommeil: 8, fatigue: 5, stress: 5, humeur: 4 };
   var champSommeil = document.getElementById('champ-ressenti-sommeil');
   var champFatigue = document.getElementById('champ-ressenti-fatigue');
   var champStress = document.getElementById('champ-ressenti-stress');
@@ -2254,7 +2312,7 @@ function rendreRessentiJour() {
   champStress.value = donnees.stress;
   champHumeur.value = donnees.humeur;
 
-  document.getElementById('valeur-ressenti-sommeil').innerHTML = donnees.sommeil;
+  document.getElementById('ligne-ressenti-sommeil').style.color = couleurSommeil(donnees.sommeil);
 
   mettreAJourApparenceSlider('fatigue', donnees.fatigue);
   mettreAJourApparenceSlider('stress', donnees.stress);
@@ -4387,7 +4445,10 @@ document.body.addEventListener('input', function (evt) {
     rendreExercices();
   }
   var roleRessenti = evt.target.getAttribute && evt.target.getAttribute('data-role');
-  if (roleRessenti === 'ressenti-sommeil') { modifierRessenti('sommeil', evt.target.value); }
+  if (roleRessenti === 'ressenti-sommeil') {
+    modifierRessenti('sommeil', evt.target.value);
+    document.getElementById('ligne-ressenti-sommeil').style.color = couleurSommeil(evt.target.value);
+  }
   if (roleRessenti === 'ressenti-fatigue') { modifierRessenti('fatigue', evt.target.value); }
   if (roleRessenti === 'ressenti-stress') { modifierRessenti('stress', evt.target.value); }
   if (roleRessenti === 'ressenti-humeur') { modifierRessenti('humeur', evt.target.value); }
