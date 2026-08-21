@@ -1009,7 +1009,7 @@ a { color: inherit; }
 .ressenti-slider-zone input[type="range"]::-moz-range-progress {
   height: 8px;
   border-radius: 4px;
-  background: var(--couleur-progression, #000);
+  background: var(--couleur-progression, #2f2f33);
 }
 
 .booleens-ligne {
