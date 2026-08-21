@@ -988,7 +988,7 @@ a { color: inherit; }
   width: 20px;
   height: 20px;
   border-radius: 50%;
-  background: #fff;
+  background: #2f2f33;
   border: 2px solid #333;
   cursor: pointer;
 }
@@ -996,7 +996,7 @@ a { color: inherit; }
   width: 20px;
   height: 20px;
   border-radius: 50%;
-  background: #fff;
+  background: #2f2f33;
   border: 2px solid #333;
   cursor: pointer;
 }
@@ -1004,7 +1004,7 @@ a { color: inherit; }
 .ressenti-slider-zone input[type="range"]::-moz-range-track {
   height: 8px;
   border-radius: 4px;
-  background: #ddd;
+  background: #2f2f33;
 }
 .ressenti-slider-zone input[type="range"]::-moz-range-progress {
   height: 8px;
