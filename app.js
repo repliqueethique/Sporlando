@@ -6,7 +6,20 @@ if ('serviceWorker' in navigator) {
     .catch(function (err) {
       console.error('Erreur enregistrement SW:', err);
     });
+
+  navigator.serviceWorker.addEventListener('message', function (event) {
+    if (event.data && event.data.action === 'aller-ressenti') {
+      allerVersRessentiJour();
+    }
+  });
 }
+
+window.addEventListener('DOMContentLoaded', function () {
+  var params = new URLSearchParams(window.location.search);
+  if (params.get('action') === 'ressenti') {
+    allerVersRessentiJour();
+  }
+});
 
 (function () {
 'use strict';
@@ -542,6 +555,34 @@ function allerVersPage(nomPage) {
     rendreEquilibre();
     rendreSuggestions();
   }
+}
+
+function afficherBanniereRappels(rappelsDus) {
+  var zone = document.getElementById('zone-banniere-rappels');
+  if (!zone) { return; }
+  if (!rappelsDus || rappelsDus.length === 0) { zone.innerHTML = ''; return; }
+
+  var html = '<div class="carte-checklist">';
+  html += '<div class="checklist-entete"><span class="titre-affichage">À noter aujourd\'hui</span></div>';
+  rappelsDus.forEach(function (rappel) {
+    var estRessenti = (rappel.id === 'sommeil' || rappel.id === 'fatigue' || rappel.id === 'stress');
+    html += '<div class="checklist-ligne"' + (estRessenti ? ' data-action="aller-vers-ressenti" style="cursor:pointer;"' : '') + '>';
+    html += '<button class="bulle-validation checklist-bouton" data-action="marquer-rappel-fait" data-rappel-id="' + rappel.id + '" title="Marquer comme fait">✓</button>';
+    html += '<span class="checklist-texte">' + echapperHtml(rappel.label) + '</span>';
+    html += '</div>';
+  });
+  html += '</div>';
+  zone.innerHTML = html;
+}
+
+function allerVersRessentiJour() {
+  allerVersPage('seance');
+  // Si tu as un onglet/section dédiée dans la page séance, remplace 'ressenti' par le bon sélecteur.
+  var section = document.getElementById('seance-zone-inactive');
+  if (section) { section.scrollIntoView({ behavior: 'smooth' }); }
+  // Focus optionnel sur le premier champ
+  var champ = document.getElementById('champ-ressenti-sommeil');
+  if (champ) { champ.focus(); }
 }
 
 /* ============================================================
@@ -4313,6 +4354,10 @@ ajouterEcouteurClicDelegue(document.body, function (cible) {
   if (action === 'synchroniser-maintenant') { synchroniserMaintenant(); return; }
   if (action === 'basculer-token') { basculerAffichageToken(); return; }
   if (action === 'basculer-token') { basculerAffichageToken(); return; }
+  if (action === 'aller-vers-ressenti') {
+    allerVersRessentiJour();
+    return;
+  }
   if (action === 'basculer-booleen-ressenti') {
     basculerBooleenRessenti(cible.getAttribute('data-champ'), cible);
     return;
@@ -4330,7 +4375,7 @@ ajouterEcouteurClicDelegue(document.body, function (cible) {
   }
   if (action === 'toggle-rappel-actif') { toggleRappelActif(parseInt(cible.getAttribute('data-index'), 10)); return; }
   if (action === 'marquer-rappel-fait') { marquerRappelFaitEtRafraichir(cible.getAttribute('data-rappel-id')); return; }
-
+  if (action === 'aller-vers-ressenti') { allerVersRessentiJour(); return; }
   if (action === 'sous-onglet') {
     var groupe = cible.getAttribute('data-groupe');
     var boutonsGroupe = document.querySelectorAll('.sous-onglet[data-groupe="' + groupe + '"]');

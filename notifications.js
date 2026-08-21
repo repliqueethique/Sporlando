@@ -183,3 +183,13 @@ function changerHeureRappel(index, nouvelleHeure) {
   reglagesRappels[index].heure = nouvelleHeure;
   sauvegarderReglagesRappels();
 }
+
+function allerVersRessentiJour() {
+  allerVersPage('seance');
+  // Si tu as un onglet/section dédiée dans la page séance, remplace 'ressenti' par le bon sélecteur.
+  var section = document.getElementById('seance-zone-inactive');
+  if (section) { section.scrollIntoView({ behavior: 'smooth' }); }
+  // Focus optionnel sur le premier champ
+  var champ = document.getElementById('champ-ressenti-sommeil');
+  if (champ) { champ.focus(); }
+}

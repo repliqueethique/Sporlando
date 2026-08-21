@@ -47,15 +47,22 @@ self.addEventListener('fetch', (event) => {
 
 self.addEventListener('notificationclick', function (event) {
   event.notification.close();
-
   if (event.action === 'fermer') { return; }
+
+  var tag = event.notification.tag || '';
+  var estRessenti = tag.indexOf('rappel-sommeil') === 0 || tag.indexOf('rappel-fatigue') === 0 || tag.indexOf('rappel-stress') === 0;
+  var urlCible = estRessenti ? './?action=ressenti' : './';
 
   event.waitUntil(
     clients.matchAll({ type: 'window', includeUncontrolled: true }).then(function (clientList) {
-      for (const client of clientList) {
-        if ('focus' in client) return client.focus();
+      for (var i = 0; i < clientList.length; i++) {
+        var client = clientList[i];
+        if ('focus' in client) {
+          client.postMessage({ action: estRessenti ? 'aller-ressenti' : 'ouvrir' });
+          return client.focus();
+        }
       }
-      if (clients.openWindow) return clients.openWindow('./');
+      if (clients.openWindow) { return clients.openWindow(urlCible); }
     })
   );
 });
