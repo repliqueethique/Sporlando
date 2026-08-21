@@ -2208,6 +2208,8 @@ function rendrePrevuAujourdHui() {
   var aujourdHui = formaterDateISO(new Date());
   var entrees = entreesPourDate(aujourdHui).filter(function (a) { return a.statut === 'planifie'; });
   var carte = document.getElementById('seance-carte-prevu');
+  var liste = document.getElementById('seance-liste-prevu');
+  if (!carte || !liste) { return; }
   if (entrees.length === 0) {
     carte.style.display = 'none';
     return;
@@ -2221,11 +2223,12 @@ function rendrePrevuAujourdHui() {
     html += '<button class="btn btn-plein btn-petit" data-action="demarrer-depuis-agenda" data-id="' + entrees[i].id + '">Début</button>';
     html += '</li>';
   }
-  document.getElementById('seance-liste-prevu').innerHTML = html;
+  liste.innerHTML = html;
 }
 
 function rendreDemarrageLibre() {
   var conteneur = document.getElementById('seance-liste-demarrage-libre');
+  if (!conteneur) { return; }
   if (etat.seances.length === 0) {
     conteneur.innerHTML = '<li class="etat-vide">Crée d\'abord une séance dans la Bibliothèque.</li>';
     return;
@@ -2305,20 +2308,20 @@ function rendreRessentiJour() {
   var champFatigue = document.getElementById('champ-ressenti-fatigue');
   var champStress = document.getElementById('champ-ressenti-stress');
   var champHumeur = document.getElementById('champ-ressenti-humeur');
-  if (!champSommeil) { return; }
+  if (!champSommeil || !champFatigue || !champStress || !champHumeur) { return; }
 
   champSommeil.value = donnees.sommeil;
   champFatigue.value = donnees.fatigue;
   champStress.value = donnees.stress;
   champHumeur.value = donnees.humeur;
 
-  document.getElementById('ligne-ressenti-sommeil').style.color = couleurSommeil(donnees.sommeil);
+  var ligneSommeil = document.getElementById('ligne-ressenti-sommeil');
+  if (ligneSommeil) { ligneSommeil.style.color = couleurSommeil(donnees.sommeil); }
 
   mettreAJourApparenceSlider('fatigue', donnees.fatigue);
   mettreAJourApparenceSlider('stress', donnees.stress);
   mettreAJourApparenceSlider('humeur', donnees.humeur);
 
-  // Booléens colère / blessure / maladie
   ['colere', 'blessure', 'maladie'].forEach(function (champ) {
     var bouton = document.querySelector('[data-action="basculer-booleen-ressenti"][data-champ="' + champ + '"]');
     if (bouton) {
