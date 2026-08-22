@@ -27,6 +27,12 @@ window.formaterDateISO = formaterDateISO;
 window.completerZero = completerZero;
 window.echapperHtml = echapperHtml;
 
+var EMOJIS_HUMEUR = ['😭', '😢', '😟', '😕', '😐', '🙂', '😊', '😁', '🤩'];
+var EMOJIS_FATIGUE = ['😴', '😪', '🫩', '🥱', '🤭', '😌', '🤗', '😀', '🤪'];
+var EMOJIS_STRESS = ['😤', '😖', '😬', '😥', '😮‍💨', '😗', '☺️', '😋', '🥰'];
+var COULEURS_NIVEAU = ['#000000', '#7a0000', '#e30000', '#ff8c00', '#ffd700', '#c6e600', '#4caf50', '#00e676', '#1de9b6'];
+
+
 /* ============================================================
    BLOC SEANCE ETIREMENT — LOGIQUE
    ============================================================ */
@@ -101,13 +107,10 @@ var etatSeanceEtirement = {
   indexEtape: 0,
   chronoRestantSec: 0,
   dureeTotaleSec: 0,
-  minuteurId: null
+  minuteurId: null,
+  enPause: false,
+  timestampFin: null
 };
-
-var EMOJIS_HUMEUR = ['😭', '😢', '😟', '😕', '😐', '🙂', '😊', '😁', '🤩'];
-var EMOJIS_FATIGUE = ['😴', '😪', '🫩', '🥱', '🤭', '😌', '🤗', '😀', '🤪'];
-var EMOJIS_STRESS = ['😤', '😖', '😬', '😥', '😮‍💨', '😗', '☺️', '😋', '🥰'];
-var COULEURS_NIVEAU = ['#000000', '#7a0000', '#e30000', '#ff8c00', '#ffd700', '#c6e600', '#4caf50', '#00e676', '#1de9b6'];
 
 function ouvrirSeanceEtirement() {
   etatSeanceEtirement.enCours = true;
@@ -120,16 +123,39 @@ function demarrerEtapeEtirement() {
   var etape = SEANCE_ETIREMENT_MATIN.etapes[etatSeanceEtirement.indexEtape];
   etatSeanceEtirement.chronoRestantSec = etape.dureeSec;
   etatSeanceEtirement.dureeTotaleSec = etape.dureeSec;
+  etatSeanceEtirement.enPause = false;
   rendreEtapeEtirement();
+  lancerMinuteurEtirement();
+}
 
+function lancerMinuteurEtirement() {
   if (etatSeanceEtirement.minuteurId) { clearInterval(etatSeanceEtirement.minuteurId); }
+
+  etatSeanceEtirement.timestampFin = Date.now() + (etatSeanceEtirement.chronoRestantSec * 1000);
+
   etatSeanceEtirement.minuteurId = setInterval(function () {
-    etatSeanceEtirement.chronoRestantSec--;
+    var msRestantes = etatSeanceEtirement.timestampFin - Date.now();
+    etatSeanceEtirement.chronoRestantSec = Math.max(0, Math.round(msRestantes / 1000));
     rendreChronoEtirement();
-    if (etatSeanceEtirement.chronoRestantSec <= 0) {
+
+    if (msRestantes <= 0) {
       passerEtapeEtirementSuivante();
     }
-  }, 1000);
+  }, 250);
+}
+
+function togglePauseChronoEtirement() {
+  if (etatSeanceEtirement.enPause) {
+    // reprise
+    etatSeanceEtirement.enPause = false;
+    lancerMinuteurEtirement();
+  } else {
+    // pause
+    etatSeanceEtirement.enPause = true;
+    clearInterval(etatSeanceEtirement.minuteurId);
+    etatSeanceEtirement.minuteurId = null;
+  }
+  rendreChronoEtirement();
 }
 
 function passerEtapeEtirementSuivante() {
@@ -174,7 +200,7 @@ function rendreEtapeEtirement() {
   html += '<p class="etirement-position">' + etape.position + '</p>';
 
   html += '<div class="etirement-chrono-zone">';
-  html += '<span id="etirement-chrono" class="etirement-chrono">' + etape.dureeSec + '</span>';
+  html += '<span id="etirement-chrono" class="etirement-chrono" data-action="etirement-toggle-pause">' + etape.dureeSec + '</span>';
   html += '</div>';
 
   html += '<div class="etirement-barre-progression"><div id="etirement-barre-remplissage" class="etirement-barre-remplissage" style="width:100%;"></div></div>';
@@ -202,18 +228,21 @@ function rendreChronoEtirement() {
   var chrono = document.getElementById('etirement-chrono');
   if (chrono) {
     chrono.textContent = etatSeanceEtirement.chronoRestantSec;
+    chrono.classList.toggle('etirement-chrono-pause', etatSeanceEtirement.enPause);
   }
 
   var barre = document.getElementById('etirement-barre-remplissage');
   if (barre) {
     var pourcentage = (etatSeanceEtirement.chronoRestantSec / etatSeanceEtirement.dureeTotaleSec) * 100;
     barre.style.width = pourcentage + '%';
+    barre.classList.toggle('pause-active', etatSeanceEtirement.enPause);
   }
 }
 
 function quitterSeanceEtirement() {
   clearInterval(etatSeanceEtirement.minuteurId);
   etatSeanceEtirement.enCours = false;
+  etatSeanceEtirement.enPause = false;
   allerVersPage('accueil');
 }
 /* ============================================================
@@ -4470,6 +4499,8 @@ ajouterEcouteurClicDelegue(document.body, function (cible) {
   }
   if (action === 'etirement-passer') { passerEtapeEtirementSuivante(); }
   if (action === 'etirement-quitter') { quitterSeanceEtirement(); }
+  if (action === 'etirement-toggle-pause') { togglePauseChronoEtirement(); return; }
+  if (action === 'ouvrir-etirement') { ouvrirSeanceEtirement(); return; }
 
 });
 
