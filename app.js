@@ -160,6 +160,8 @@ function togglePauseChronoEtirement() {
 
 function passerEtapeEtirementSuivante() {
   clearInterval(etatSeanceEtirement.minuteurId);
+  etatSeanceEtirement.minuteurId = null;
+  etatSeanceEtirement.enPause = false;
   etatSeanceEtirement.indexEtape++;
 
   if (etatSeanceEtirement.indexEtape >= SEANCE_ETIREMENT_MATIN.etapes.length) {
@@ -241,6 +243,7 @@ function rendreChronoEtirement() {
 
 function quitterSeanceEtirement() {
   clearInterval(etatSeanceEtirement.minuteurId);
+  etatSeanceEtirement.minuteurId = null;
   etatSeanceEtirement.enCours = false;
   etatSeanceEtirement.enPause = false;
   allerVersPage('accueil');
