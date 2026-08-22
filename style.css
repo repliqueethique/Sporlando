@@ -975,6 +975,7 @@ a { color: inherit; }
   flex: 1 1 auto;
   min-width: 0;
   -webkit-appearance: none;
+  -moz-appearance: none;
   appearance: none;
   height: 8px;
   border-radius: 4px;
