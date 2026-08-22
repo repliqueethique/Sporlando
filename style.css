@@ -907,6 +907,15 @@ a { color: inherit; }
   font-size: 14px;
 }
 
+.sommeil-glissable {
+  cursor: ew-resize;
+  user-select: none;
+  touch-action: pan-y;
+}
+.sommeil-glissable.glisse-actif {
+  opacity: 0.8;
+}
+
 .sommeil-ligne {
   display: flex;
   align-items: baseline;

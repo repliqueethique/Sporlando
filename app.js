@@ -2403,6 +2403,73 @@ function rendreRessentiJour() {
   });
 }
 
+(function () {
+  var ligne = document.getElementById('ligne-ressenti-sommeil');
+  var champ = document.getElementById('champ-ressenti-sommeil');
+  if (!ligne || !champ) return;
+
+  var enCours = false;
+  var xDepart = 0;
+  var valeurDepart = 0;
+  var aDeplace = false;
+  var seuilPx = 20;
+
+  function getValeur() {
+    var v = parseFloat(champ.value);
+    return isNaN(v) ? 8 : v;
+  }
+
+  function appliquerValeur(v) {
+    v = Math.round(v * 2) / 2;
+    if (v < 0) v = 0;
+    if (v > 24) v = 24;
+    champ.value = v;
+    modifierRessenti('sommeil', v);
+    ligne.style.color = couleurSommeil(v);
+  }
+
+  function demarrer(x, cible) {
+    // on ignore si le geste démarre directement dans le input (pour ne pas gêner la saisie au clavier/tap simple)
+    if (cible === champ) return;
+    enCours = true;
+    aDeplace = false;
+    xDepart = x;
+    valeurDepart = getValeur();
+    ligne.classList.add('glisse-actif');
+  }
+
+  function deplacer(x) {
+    if (!enCours) return;
+    var delta = x - xDepart;
+    if (Math.abs(delta) >= seuilPx) { aDeplace = true; }
+    var pas = Math.trunc(delta / seuilPx);
+    appliquerValeur(valeurDepart + pas * 0.5);
+  }
+
+  function terminer() {
+    enCours = false;
+    ligne.classList.remove('glisse-actif');
+  }
+
+  // Souris
+  ligne.addEventListener('mousedown', function (e) {
+    demarrer(e.clientX, e.target);
+  });
+  document.addEventListener('mousemove', function (e) {
+    deplacer(e.clientX);
+  });
+  document.addEventListener('mouseup', terminer);
+
+  // Tactile
+  ligne.addEventListener('touchstart', function (e) {
+    demarrer(e.touches[0].clientX, e.target);
+  }, { passive: true });
+  document.addEventListener('touchmove', function (e) {
+    deplacer(e.touches[0].clientX);
+  }, { passive: true });
+  document.addEventListener('touchend', terminer);
+})();
+
 function mettreAJourApparenceSlider(champ, valeur) {
   var couleur = COULEURS_NIVEAU[valeur];
   var input = document.getElementById('champ-ressenti-' + champ);
