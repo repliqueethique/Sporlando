@@ -4497,8 +4497,8 @@ ajouterEcouteurClicDelegue(document.body, function (cible) {
     var tache = cible.getAttribute('data-tache');
     basculerTacheChecklist(tache);
   }
-  if (action === 'etirement-passer') { passerEtapeEtirementSuivante(); }
-  if (action === 'etirement-quitter') { quitterSeanceEtirement(); }
+  if (action === 'etirement-passer') { passerEtapeEtirementSuivante(); return; }
+  if (action === 'etirement-quitter') { quitterSeanceEtirement(); return; }
   if (action === 'etirement-toggle-pause') { togglePauseChronoEtirement(); return; }
   if (action === 'ouvrir-etirement') { ouvrirSeanceEtirement(); return; }
 
