@@ -2375,7 +2375,7 @@ function rgbVersHex(r, g, b) {
 }
 
 function rendreRessentiJour() {
-  var aujourdHui = formaterDateISO(new Date());
+  var aujourdHui = obtenirDateJourReference();
   var donnees = etat.ressentiQuotidien[aujourdHui] || { sommeil: 8, fatigue: 5, stress: 5, humeur: 4 };
   var champSommeil = document.getElementById('champ-ressenti-sommeil');
   var champFatigue = document.getElementById('champ-ressenti-fatigue');
@@ -2491,7 +2491,7 @@ function mettreAJourApparenceSlider(champ, valeur) {
 }
 
 function modifierRessenti(champ, valeur) {
-  var aujourdHui = formaterDateISO(new Date());
+  var aujourdHui = obtenirDateJourReference();
   if (!etat.ressentiQuotidien[aujourdHui]) {
     etat.ressentiQuotidien[aujourdHui] = { sommeil: 7, fatigue: 5, stress: 5, humeur: 4 };
   }
@@ -2530,7 +2530,7 @@ function mettreAJourApparenceSlider(champ, valeur) {
 }
 
 function initialiserBooleensRessenti() {
-  var aujourdHui = formaterDateISO(new Date());
+  var aujourdHui = obtenirDateJourReference();
   var donneesJour = etat.ressentiQuotidien[aujourdHui];
   if (!donneesJour) return;
   ['colere', 'blessure', 'maladie'].forEach(function (champ) {
@@ -2542,7 +2542,7 @@ function initialiserBooleensRessenti() {
 }
 
 function modifierRessentiBooleen(champ, coche) {
-  var aujourdHui = formaterDateISO(new Date());
+  var aujourdHui = obtenirDateJourReference();
   if (!etat.ressentiQuotidien[aujourdHui]) {
     etat.ressentiQuotidien[aujourdHui] = { sommeil: 7, fatigue: 3, stress: 3, humeur: 4, colere: false, blessure: false, maladie: false };
   }
@@ -2551,7 +2551,7 @@ function modifierRessentiBooleen(champ, coche) {
 }
 
 function basculerBooleenRessenti(champ, element) {
-  var aujourdHui = formaterDateISO(new Date());
+  var aujourdHui = obtenirDateJourReference();
   if (!etat.ressentiQuotidien[aujourdHui]) {
     etat.ressentiQuotidien[aujourdHui] = {
       sommeil: 7, fatigue: 5, stress: 5, humeur: 4,
