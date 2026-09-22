@@ -487,6 +487,13 @@ function completerChampsEtat(donnees) {
   if (!donnees.exercices) { donnees.exercices = []; }
   if (!donnees.seances) { donnees.seances = []; }
   if (!donnees.programmes) { donnees.programmes = []; }
+  if (donnees.programmes) {
+    for (var pIdx = 0; pIdx < donnees.programmes.length; pIdx++) {
+      if (!donnees.programmes[pIdx].objectifType) {
+        donnees.programmes[pIdx].objectifType = 'personnalise';
+      }
+    }
+  }
   if (!donnees.agenda) { donnees.agenda = []; }
   if (donnees.seanceActive === undefined) { donnees.seanceActive = null; }
   if (!donnees.derniereMiseAJour) { donnees.derniereMiseAJour = 0; }
@@ -732,6 +739,16 @@ var TYPES_MESOCYCLE = [
   { valeur: 'hypertrophie', libelle: 'Hypertrophie' },
   { valeur: 'force', libelle: 'Force' },
   { valeur: 'decharge', libelle: 'Décharge (deload)' },
+  { valeur: 'personnalise', libelle: 'Personnalisé' }
+];
+
+var OBJECTIFS_PROGRAMME = [
+  { valeur: 'prise_de_masse', libelle: 'Prise de masse musculaire' },
+  { valeur: 'force', libelle: 'Force' },
+  { valeur: 'perte_de_poids', libelle: 'Perte de poids / Sèche' },
+  { valeur: 'remise_en_forme', libelle: 'Remise en forme / Santé générale' },
+  { valeur: 'performance', libelle: 'Performance sportive' },
+  { valeur: 'esthetique', libelle: 'Esthétique / Silhouette' },
   { valeur: 'personnalise', libelle: 'Personnalisé' }
 ];
 
@@ -1844,9 +1861,10 @@ function ouvrirFormulaireProgramme(idProgramme) {
         seanceIds: progExistant.seanceIds.slice(),
         typeMesocycle: progExistant.typeMesocycle || 'personnalise',
         dureeSemaines: progExistant.dureeSemaines || '',
+        objectifType: progExistant.objectifType || 'personnalise',
         objectif: progExistant.objectif || ''
       }
-    : { id: null, nom: '', notes: '', seanceIds: [], typeMesocycle: 'personnalise', dureeSemaines: '', objectif: '' };
+    : { id: null, nom: '', notes: '', seanceIds: [], typeMesocycle: 'personnalise', dureeSemaines: '', objectifType: 'personnalise', objectif: '' };
   rendreFormulaireProgramme();
 }
 
@@ -1856,7 +1874,8 @@ function rendreFormulaireProgramme() {
   html += '<div class="modal-entete"><h2>' + (estModif ? 'Modifier le programme' : 'Nouveau programme') + '</h2>';
   html += '<button class="bouton-fermer" data-action="fermer-modal">&times;</button></div>';
   html += '<div class="champ"><label>Nom du programme</label><input type="text" id="champ-pr-nom" value="' + echapperHtml(programmeEnConstruction.nom) + '" placeholder="ex. Force 5x5"></div>';
-  html += '<div class="champ"><label>Objectif actuel</label><textarea id="champ-pr-objectif" placeholder="ex. Prise de masse, force sur squat, perte de gras...">' + echapperHtml(programmeEnConstruction.objectif) + '</textarea></div>';
+  html += '<div class="champ"><label>Objectif</label><select id="champ-pr-objectif-type">' + optionsListeValeurLibelle(OBJECTIFS_PROGRAMME, programmeEnConstruction.objectifType) + '</select></div>';
+  html += '<div class="champ"><label>Précisions (optionnel)</label><textarea id="champ-pr-objectif" placeholder="ex. Viser +5kg au squat, perdre 3kg d\'ici l\'été...">' + echapperHtml(programmeEnConstruction.objectif) + '</textarea></div>';
   html += '<div class="champ"><label>Type de mésocycle</label><select id="champ-pr-type">' + optionsListeValeurLibelle(TYPES_MESOCYCLE, programmeEnConstruction.typeMesocycle) + '</select></div>';
   html += '<div class="champ"><label>Durée (semaines, optionnel)</label><input type="number" step="1" min="1" id="champ-pr-duree" value="' + echapperHtml(programmeEnConstruction.dureeSemaines) + '" placeholder="ex. 6"></div>';
   html += '<div class="champ"><label>Notes (optionnel)</label><textarea id="champ-pr-notes">' + echapperHtml(programmeEnConstruction.notes) + '</textarea></div>';
@@ -1887,6 +1906,7 @@ function enregistrerProgramme() {
   var nom = document.getElementById('champ-pr-nom').value.trim();
   if (!nom) { afficherToast('Le nom du programme est obligatoire.'); return; }
   var notes = document.getElementById('champ-pr-notes').value;
+  var objectifType = document.getElementById('champ-pr-objectif-type').value;
   var objectif = document.getElementById('champ-pr-objectif').value;
   var typeMesocycle = document.getElementById('champ-pr-type').value;
   var dureeBrute = parseInt(document.getElementById('champ-pr-duree').value, 10);
@@ -1900,9 +1920,9 @@ function enregistrerProgramme() {
     var prog = trouverParId(etat.programmes, programmeEnConstruction.id);
     prog.nom = nom; prog.notes = notes; prog.seanceIds = seanceIds;
     prog.typeMesocycle = typeMesocycle; prog.dureeSemaines = dureeSemaines;
-    prog.objectif = objectif;
+    prog.objectifType = objectifType; prog.objectif = objectif;
   } else {
-    etat.programmes.push({ id: genererId(), nom: nom, notes: notes, seanceIds: seanceIds, typeMesocycle: typeMesocycle, dureeSemaines: dureeSemaines, objectif: objectif });
+    etat.programmes.push({ id: genererId(), nom: nom, notes: notes, seanceIds: seanceIds, typeMesocycle: typeMesocycle, dureeSemaines: dureeSemaines, objectifType: objectifType, objectif: objectif });
   }
   sauvegarderEtat();
   fermerModal();
@@ -1970,6 +1990,7 @@ function rendreProgrammesBib() {
     if (p.dureeSemaines) { html += ' · ' + p.dureeSemaines + ' semaines'; }
     html += '</div>';
     html += '</li>';
+    html += '<div class="texte-att" style="margin-top:4px;">' + p.seanceIds.length + ' séance(s) · ' + echapperHtml(libelleDepuisValeur(OBJECTIFS_PROGRAMME, p.objectifType || 'personnalise')) + ' · ' + echapperHtml(libelleDepuisValeur(TYPES_MESOCYCLE, p.typeMesocycle || 'personnalise'));
   }
   conteneur.innerHTML = html;
 }
