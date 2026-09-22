@@ -4256,12 +4256,12 @@ function calculerIndiceFatigueManuel() {
   if (joursRecents.length === 0) { return null; }
   var sommeManqueSommeil = 0, sommeFatigue = 0, sommeStress = 0;
   for (var j = 0; j < joursRecents.length; j++) {
-    /* Moins de 7h de sommeil augmente la contribution ; 7h ou plus = 0 (pas de trop-dormir penalise ici) */
     var heures = joursRecents[j].sommeil;
     var manque = (typeof heures === 'number') ? Math.max(0, Math.min(5, (7 - heures) * 1.5)) : 0;
     sommeManqueSommeil += manque;
-    sommeFatigue += joursRecents[j].fatigue;
-    sommeStress += joursRecents[j].stress;
+    /* fatigue/stress : 0 = pire, 8 = meilleur -> on inverse pour que "mauvais ressenti" pèse dans le score */
+    sommeFatigue += (8 - (joursRecents[j].fatigue !== undefined ? joursRecents[j].fatigue : 4));
+    sommeStress += (8 - (joursRecents[j].stress !== undefined ? joursRecents[j].stress : 4));
   }
   return {
     score: (sommeManqueSommeil + sommeFatigue + sommeStress) / (joursRecents.length * 3),
