@@ -3581,7 +3581,7 @@ function pointsPoidsMaxParSeance(exerciceId) {
   return points;
 }
 
-function construireSvgCourbe(points, suffixeUnite, couleur) {
+function construireSvgCourbe(points, suffixeUnite, couleur, plageMin, plageMax, inverserAxe) {
   if (points.length === 0) {
     return '<div class="etat-vide">Pas encore assez de données pour afficher une courbe.</div>';
   }
@@ -3590,14 +3590,19 @@ function construireSvgCourbe(points, suffixeUnite, couleur) {
   }
   var largeur = 300, hauteur = 140, marge = 24;
   var valeurs = points.map(function (p) { return p.valeur; });
-  var valeurMin = Math.min.apply(null, valeurs);
-  var valeurMax = Math.max.apply(null, valeurs);
+  var valeurMin = (plageMin !== undefined && plageMin !== null) ? plageMin : Math.min.apply(null, valeurs);
+  var valeurMax = (plageMax !== undefined && plageMax !== null) ? plageMax : Math.max.apply(null, valeurs);
   if (valeurMax === valeurMin) { valeurMax = valeurMin + 1; }
 
   var coordonnees = [];
   for (var i = 0; i < points.length; i++) {
     var x = marge + (i / (points.length - 1)) * (largeur - marge * 2);
-    var y = hauteur - marge - ((points[i].valeur - valeurMin) / (valeurMax - valeurMin)) * (hauteur - marge * 2);
+    var fraction = (points[i].valeur - valeurMin) / (valeurMax - valeurMin);
+    if (fraction < 0) { fraction = 0; }
+    if (fraction > 1) { fraction = 1; }
+    var y = inverserAxe
+      ? marge + fraction * (hauteur - marge * 2)
+      : hauteur - marge - fraction * (hauteur - marge * 2);
     coordonnees.push({ x: x, y: y });
   }
 
@@ -3608,8 +3613,10 @@ function construireSvgCourbe(points, suffixeUnite, couleur) {
   for (var k = 0; k < coordonnees.length; k++) {
     svg += '<circle cx="' + coordonnees[k].x.toFixed(1) + '" cy="' + coordonnees[k].y.toFixed(1) + '" r="3.2" fill="' + couleur + '" />';
   }
-  svg += '<text x="' + marge + '" y="12" font-size="10" fill="#8996A3">' + valeurMax + suffixeUnite + '</text>';
-  svg += '<text x="' + marge + '" y="' + (hauteur - 6) + '" font-size="10" fill="#8996A3">' + valeurMin + suffixeUnite + '</text>';
+  var yTexteMax = inverserAxe ? (hauteur - 6) : 12;
+  var yTexteMin = inverserAxe ? 12 : (hauteur - 6);
+  svg += '<text x="' + marge + '" y="' + yTexteMax + '" font-size="10" fill="#8996A3">' + valeurMax + suffixeUnite + '</text>';
+  svg += '<text x="' + marge + '" y="' + yTexteMin + '" font-size="10" fill="#8996A3">' + valeurMin + suffixeUnite + '</text>';
   svg += '</svg>';
   return '<div class="svg-conteneur">' + svg + '</div>';
 }
@@ -3631,13 +3638,65 @@ function rendreGraphiqueCalories() {
   document.getElementById('progression-zone-calories').innerHTML = construireSvgCourbe(points, ' kcal', '#22A7E5');
 }
 
+var PERIODES_ETAT = [
+  { valeur: '30j',  libelle: '30j',   jours: 30 },
+  { valeur: '2m',   libelle: '2 mois', jours: 60 },
+  { valeur: '6m',   libelle: '6 mois', jours: 180 },
+  { valeur: '1a',   libelle: '1 an',   jours: 365 },
+  { valeur: 'tout', libelle: 'Depuis le début', jours: null }
+];
+
+var periodeEtatSelectionnee = '30j';
+
+function trouverPeriodeEtat(valeur) {
+  for (var i = 0; i < PERIODES_ETAT.length; i++) {
+    if (PERIODES_ETAT[i].valeur === valeur) { return PERIODES_ETAT[i]; }
+  }
+  return PERIODES_ETAT[0];
+}
+
+function filtrerDatesParPeriode(dates, valeurPeriode) {
+  var conf = trouverPeriodeEtat(valeurPeriode);
+  if (!conf.jours) { return dates; } // "Depuis le début" : pas de filtre
+  var limite = new Date();
+  limite.setDate(limite.getDate() - conf.jours);
+  var limiteISO = formaterDateISO(limite);
+  return dates.filter(function (d) { return d >= limiteISO; });
+}
+
+function rendreSelecteurPeriodeEtat() {
+  var zone = document.getElementById('etat-selecteur-periode');
+  if (!zone) { return; }
+  var html = '';
+  for (var i = 0; i < PERIODES_ETAT.length; i++) {
+    var p = PERIODES_ETAT[i];
+    var actif = (p.valeur === periodeEtatSelectionnee) ? ' sous-onglet-actif' : '';
+    html += '<button class="sous-onglet' + actif + '" data-action="changer-periode-etat" data-periode="' + p.valeur + '">' + p.libelle + '</button>';
+  }
+  zone.innerHTML = html;
+}
+
+function changerPeriodeEtat(valeur) {
+  periodeEtatSelectionnee = valeur;
+  rendreSelecteurPeriodeEtat();
+  rendreGraphiqueEtat();
+}
+
 function rendreGraphiqueEtat() {
-  var dates = Object.keys(etat.ressentiQuotidien).sort();
-  var dates30j = dates.slice(-30);
+  rendreSelecteurPeriodeEtat();
+
+  var toutesLesDates = Object.keys(etat.ressentiQuotidien).sort();
+  var dates = filtrerDatesParPeriode(toutesLesDates, periodeEtatSelectionnee);
+
+  var libellePeriode = trouverPeriodeEtat(periodeEtatSelectionnee).libelle;
+  document.getElementById('etat-titre-humeur').innerHTML = 'Humeur (' + libellePeriode + ')';
+  document.getElementById('etat-titre-fatigue').innerHTML = 'Fatigue (' + libellePeriode + ')';
+  document.getElementById('etat-titre-stress').innerHTML = 'Stress (' + libellePeriode + ')';
+  document.getElementById('etat-titre-sommeil').innerHTML = 'Sommeil (' + libellePeriode + ')';
 
   var pointsSommeil = [], pointsFatigue = [], pointsStress = [], pointsHumeur = [];
 
-  dates30j.forEach(function (date) {
+  dates.forEach(function (date) {
     var j = etat.ressentiQuotidien[date];
     pointsSommeil.push({ date: date, valeur: j.sommeil });
     pointsFatigue.push({ date: date, valeur: j.fatigue !== undefined ? j.fatigue : 4 });
@@ -3645,12 +3704,12 @@ function rendreGraphiqueEtat() {
     pointsHumeur.push({ date: date, valeur: j.humeur !== undefined ? j.humeur : 4 });
   });
 
-  document.getElementById('etat-zone-sommeil').innerHTML = construireSvgCourbe(pointsSommeil, ' h', '#3b82f6');
-  document.getElementById('etat-zone-fatigue').innerHTML = construireSvgCourbe(pointsFatigue, '/7', '#f59e0b');
-  document.getElementById('etat-zone-stress').innerHTML = construireSvgCourbe(pointsStress, '/7', '#ef4444');
-  document.getElementById('etat-zone-humeur').innerHTML = construireSvgCourbe(pointsHumeur, '/8', '#10b981');
+  document.getElementById('etat-zone-sommeil').innerHTML = construireSvgCourbe(pointsSommeil, ' h', '#3b82f6', 0, 24, false);
+  document.getElementById('etat-zone-fatigue').innerHTML = construireSvgCourbe(pointsFatigue, '/8', '#f59e0b', 0, 8, true);
+  document.getElementById('etat-zone-stress').innerHTML = construireSvgCourbe(pointsStress, '/8', '#ef4444', 0, 8, true);
+  document.getElementById('etat-zone-humeur').innerHTML = construireSvgCourbe(pointsHumeur, '/8', '#10b981', 0, 8, false);
 
-  rendreListeEvenementsEtat(dates30j);
+  rendreListeEvenementsEtat(dates);
 }
 
 function rendreListeEvenementsEtat(dates30j) {
@@ -4515,7 +4574,7 @@ ajouterEcouteurClicDelegue(document.body, function (cible) {
     }
     return;
   }
-
+  if (action === 'changer-periode-etat') { changerPeriodeEtat(cible.getAttribute('data-periode')); return; }
   if (action === 'nouvel-exercice') { ouvrirFormulaireExercice(null); return; }
   if (action === 'nouvel-aliment') { ouvrirFormulaireAliment(null); return; }
   if (action === 'editer-aliment') { ouvrirFormulaireAliment(id); return; }
