@@ -197,24 +197,34 @@ a { color: inherit; }
 .btn-bloc { display: block; width: 100%; }
 .btn-petit { padding: 6px 10px; font-size: 12px; }
 
-/* Sous-onglets (Bibliotheque, Historique) */
+/* Sous-onglets (Bibliotheque, Historique) — barre défilante horizontalement */
 .sous-onglets {
   display: -webkit-box; display: -webkit-flex; display: flex;
   margin-bottom: 12px;
   border: 1px solid var(--couleur-bordure);
   border-radius: 8px;
-  overflow: hidden;
-  align-items: center; /* <-- Ajoute cette ligne */
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+  scroll-snap-type: x proximity;
+  align-items: center;
+  /* masque la scrollbar tout en gardant le scroll utilisable */
+  scrollbar-width: none;
+  -ms-overflow-style: none;
 }
+.sous-onglets::-webkit-scrollbar { display: none; }
+
 .sous-onglet {
-  -webkit-box-flex: 1; -webkit-flex: 1; flex: 1;
-  padding: 9px 4px;
+  -webkit-box-flex: 0; -webkit-flex: 0 0 auto; flex: 0 0 auto;
+  white-space: nowrap;
+  padding: 9px 16px;
   font-size: 12px;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.02em;
   color: var(--couleur-texte-att);
   border-right: 1px solid var(--couleur-bordure);
+  scroll-snap-align: start;
 }
 .sous-onglet:last-child { border-right: none; }
 .sous-onglet-actif { background: var(--couleur-carte-creux); color: var(--couleur-turquoise); }
