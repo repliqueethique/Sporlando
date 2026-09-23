@@ -3682,6 +3682,15 @@ function changerPeriodeEtat(valeur) {
   rendreGraphiqueEtat();
 }
 
+function definirTitreCarte(idZone, libelle) {
+  var zone = document.getElementById(idZone);
+  if (!zone) { return; }
+  var carte = zone.closest('.carte');
+  if (!carte) { return; }
+  var titre = carte.querySelector('.carte-titre');
+  if (titre) { titre.innerHTML = libelle; }
+}
+
 function rendreGraphiqueEtat() {
   rendreSelecteurPeriodeEtat();
 
@@ -3689,10 +3698,10 @@ function rendreGraphiqueEtat() {
   var dates = filtrerDatesParPeriode(toutesLesDates, periodeEtatSelectionnee);
 
   var libellePeriode = trouverPeriodeEtat(periodeEtatSelectionnee).libelle;
-  document.getElementById('etat-titre-humeur').innerHTML = 'Humeur (' + libellePeriode + ')';
-  document.getElementById('etat-titre-fatigue').innerHTML = 'Fatigue (' + libellePeriode + ')';
-  document.getElementById('etat-titre-stress').innerHTML = 'Stress (' + libellePeriode + ')';
-  document.getElementById('etat-titre-sommeil').innerHTML = 'Sommeil (' + libellePeriode + ')';
+  definirTitreCarte('etat-zone-humeur', 'Humeur (' + libellePeriode + ')');
+  definirTitreCarte('etat-zone-fatigue', 'Fatigue (' + libellePeriode + ')');
+  definirTitreCarte('etat-zone-stress', 'Stress (' + libellePeriode + ')');
+  definirTitreCarte('etat-zone-sommeil', 'Sommeil (' + libellePeriode + ')');
 
   var pointsSommeil = [], pointsFatigue = [], pointsStress = [], pointsHumeur = [];
 
@@ -3704,10 +3713,15 @@ function rendreGraphiqueEtat() {
     pointsHumeur.push({ date: date, valeur: j.humeur !== undefined ? j.humeur : 4 });
   });
 
-  document.getElementById('etat-zone-sommeil').innerHTML = construireSvgCourbe(pointsSommeil, ' h', '#3b82f6', 0, 24, false);
-  document.getElementById('etat-zone-fatigue').innerHTML = construireSvgCourbe(pointsFatigue, '/8', '#f59e0b', 0, 8, true);
-  document.getElementById('etat-zone-stress').innerHTML = construireSvgCourbe(pointsStress, '/8', '#ef4444', 0, 8, true);
-  document.getElementById('etat-zone-humeur').innerHTML = construireSvgCourbe(pointsHumeur, '/8', '#10b981', 0, 8, false);
+  var zoneSommeil = document.getElementById('etat-zone-sommeil');
+  var zoneFatigue = document.getElementById('etat-zone-fatigue');
+  var zoneStress = document.getElementById('etat-zone-stress');
+  var zoneHumeur = document.getElementById('etat-zone-humeur');
+
+  if (zoneSommeil) { zoneSommeil.innerHTML = construireSvgCourbe(pointsSommeil, ' h', '#3b82f6', 0, 24, false); }
+  if (zoneFatigue) { zoneFatigue.innerHTML = construireSvgCourbe(pointsFatigue, '/8', '#f59e0b', 0, 8, true); }
+  if (zoneStress) { zoneStress.innerHTML = construireSvgCourbe(pointsStress, '/8', '#ef4444', 0, 8, true); }
+  if (zoneHumeur) { zoneHumeur.innerHTML = construireSvgCourbe(pointsHumeur, '/8', '#10b981', 0, 8, false); }
 
   rendreListeEvenementsEtat(dates);
 }
