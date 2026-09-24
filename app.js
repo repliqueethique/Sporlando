@@ -931,6 +931,30 @@ function meilleurPoidsHistorique(exerciceId) {
   return maxToutModes;
 }
 
+/* La série la plus lourde jamais enregistrée pour cet exercice (poids ET reps correspondantes),
+   toutes séances confondues, hors séries d'échauffement. Sert à préremplir automatiquement les
+   champs poids/reps quand on démarre une séance, pour ne plus avoir à les ajuster à la main. */
+function meilleureSerieHistorique(exerciceId) {
+  var entreesTerminees = etat.agenda.filter(function (a) { return a.statut === 'termine' && a.resultat; });
+  var meilleure = null;
+  for (var i = 0; i < entreesTerminees.length; i++) {
+    var resultat = entreesTerminees[i].resultat;
+    for (var j = 0; j < resultat.exercices.length; j++) {
+      var ligneEx = resultat.exercices[j];
+      if (ligneEx.exerciceId !== exerciceId) { continue; }
+      for (var s = 0; s < ligneEx.series.length; s++) {
+        var serie = ligneEx.series[s];
+        if (serie.echauffement) { continue; }
+        if (meilleure === null || serie.poids > meilleure.poids ||
+          (serie.poids === meilleure.poids && serie.reps > meilleure.reps)) {
+          meilleure = { poids: serie.poids, reps: serie.reps };
+        }
+      }
+    }
+  }
+  return meilleure;
+}
+
 /* Dernière séance terminée (avant aujourd'hui) où cet exercice apparaît */
 function derniereOccurrenceExercice(exerciceId) {
   var entreesTerminees = etat.agenda.filter(function (a) { return a.statut === 'termine' && a.resultat; });
@@ -2245,7 +2269,13 @@ function demarrerSeanceDepuisModele(seanceModeleId, agendaEntryId) {
   demanderEchauffement(function () {
     var exercicesActifs = modele.exercices.map(function (e) {
       var structure = e.structure || 'lineaire';
-      var seriesTab = genererSeriesSelonStructure(structure, e.poids, e.reps, e.series);
+      /* Préremplissage automatique : le record (poids + reps correspondantes) sert de référence
+         plutôt que les valeurs figées de la séance-modèle, tant qu'un record existe pour cet
+         exercice — sinon on retombe sur les valeurs par défaut de la séance. */
+      var record = meilleureSerieHistorique(e.exerciceId);
+      var poidsBase = record ? record.poids : e.poids;
+      var repsBase = record ? record.reps : e.reps;
+      var seriesTab = genererSeriesSelonStructure(structure, poidsBase, repsBase, e.series);
       return {
         exerciceId: e.exerciceId,
         structure: structure,
@@ -2815,14 +2845,24 @@ function ajouterSerieLive(exIndex) {
 
 /* Ajoute une série d'échauffement. Elle vient se placer avant les séries de travail, mais après
    les séries d'échauffement déjà présentes (elles restent groupées en tête de liste), et ne compte
-   jamais dans les statistiques (records, historique, volume, progression...). */
+   jamais dans les statistiques (records, historique, volume, progression...). Poids par défaut :
+   la moitié du record de l'exercice (ou, à défaut de record, la moitié de la série de référence
+   déjà présente). Reps par défaut : toujours 12, indépendamment du record. */
 function ajouterSerieEchauffementLive(exIndex) {
-  var seriesTab = etat.seanceActive.exercices[exIndex].series;
+  var ligneEx = etat.seanceActive.exercices[exIndex];
+  var seriesTab = ligneEx.series;
   var indexInsertion = 0;
   while (indexInsertion < seriesTab.length && seriesTab[indexInsertion].echauffement) { indexInsertion++; }
-  var reference = seriesTab[indexInsertion] || seriesTab[seriesTab.length - 1] || { poids: 0, reps: 0 };
-  var poidsEchauffement = arrondirPoids((reference.poids || 0) * 0.5);
-  seriesTab.splice(indexInsertion, 0, { poids: poidsEchauffement, reps: reference.reps || 0, fait: false, note: '', echauffement: true });
+  var record = meilleureSerieHistorique(ligneEx.exerciceId);
+  var poidsReference;
+  if (record) {
+    poidsReference = record.poids;
+  } else {
+    var reference = seriesTab[indexInsertion] || seriesTab[seriesTab.length - 1] || { poids: 0 };
+    poidsReference = reference.poids || 0;
+  }
+  var poidsEchauffement = arrondirPoids(poidsReference * 0.5);
+  seriesTab.splice(indexInsertion, 0, { poids: poidsEchauffement, reps: 12, fait: false, note: '', echauffement: true });
   sauvegarderEtat();
   rendreExercicesActifs();
 }
