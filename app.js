@@ -3699,17 +3699,18 @@ function pointsPoidsMaxParSeance(exerciceId) {
   return points;
 }
 
-function construireSvgCourbe(points, suffixeUnite, couleur) {
+function construireSvgCourbe(points, suffixeUnite, couleur, options) {
+  options = options || {};
   if (points.length === 0) {
     return '<div class="etat-vide">Pas encore assez de données pour afficher une courbe.</div>';
   }
   if (points.length === 1) {
     return '<div class="etat-vide">Une seule valeur enregistrée pour l\'instant (' + points[0].valeur + suffixeUnite + '). Reviens plus tard pour voir la courbe.</div>';
   }
-  var largeur = 300, hauteur = 140, marge = 24;
+  var largeur = 300, hauteur = 140, marge = 30;
   var valeurs = points.map(function (p) { return p.valeur; });
-  var valeurMin = Math.min.apply(null, valeurs);
-  var valeurMax = Math.max.apply(null, valeurs);
+  var valeurMin = (options.min !== undefined && options.min !== null) ? options.min : Math.min.apply(null, valeurs);
+  var valeurMax = (options.max !== undefined && options.max !== null) ? options.max : Math.max.apply(null, valeurs);
   if (valeurMax === valeurMin) { valeurMax = valeurMin + 1; }
 
   var coordonnees = [];
@@ -3718,16 +3719,23 @@ function construireSvgCourbe(points, suffixeUnite, couleur) {
     var y = hauteur - marge - ((points[i].valeur - valeurMin) / (valeurMax - valeurMin)) * (hauteur - marge * 2);
     coordonnees.push({ x: x, y: y });
   }
-
   var chainePoints = coordonnees.map(function (c) { return c.x.toFixed(1) + ',' + c.y.toFixed(1); }).join(' ');
 
   var svg = '<svg viewBox="0 0 ' + largeur + ' ' + hauteur + '" xmlns="http://www.w3.org/2000/svg">';
+
+  var nbLignes = options.nbLignesGrille || 4;
+  for (var g = 0; g <= nbLignes; g++) {
+    var fraction = g / nbLignes;
+    var yGrille = hauteur - marge - fraction * (hauteur - marge * 2);
+    var valeurGrille = valeurMin + fraction * (valeurMax - valeurMin);
+    svg += '<line x1="' + marge + '" y1="' + yGrille.toFixed(1) + '" x2="' + (largeur - marge) + '" y2="' + yGrille.toFixed(1) + '" stroke="#2A313B" stroke-width="1" />';
+    svg += '<text x="2" y="' + (yGrille + 3).toFixed(1) + '" font-size="9" fill="#8996A3">' + Math.round(valeurGrille) + suffixeUnite + '</text>';
+  }
+
   svg += '<polyline points="' + chainePoints + '" fill="none" stroke="' + couleur + '" stroke-width="2.5" />';
   for (var k = 0; k < coordonnees.length; k++) {
     svg += '<circle cx="' + coordonnees[k].x.toFixed(1) + '" cy="' + coordonnees[k].y.toFixed(1) + '" r="3.2" fill="' + couleur + '" />';
   }
-  svg += '<text x="' + marge + '" y="12" font-size="10" fill="#8996A3">' + valeurMax + suffixeUnite + '</text>';
-  svg += '<text x="' + marge + '" y="' + (hauteur - 6) + '" font-size="10" fill="#8996A3">' + valeurMin + suffixeUnite + '</text>';
   svg += '</svg>';
   return '<div class="svg-conteneur">' + svg + '</div>';
 }
@@ -3757,16 +3765,18 @@ function rendreGraphiqueEtat() {
 
   dates30j.forEach(function (date) {
     var j = etat.ressentiQuotidien[date];
+    var fatigueBrute = j.fatigue !== undefined ? j.fatigue : 4;
+    var stressBrut = j.stress !== undefined ? j.stress : 4;
     pointsSommeil.push({ date: date, valeur: j.sommeil });
-    pointsFatigue.push({ date: date, valeur: j.fatigue !== undefined ? j.fatigue : 4 });
-    pointsStress.push({ date: date, valeur: j.stress !== undefined ? j.stress : 4 });
+    pointsFatigue.push({ date: date, valeur: 8 - fatigueBrute }); // inversé
+    pointsStress.push({ date: date, valeur: 8 - stressBrut });    // inversé
     pointsHumeur.push({ date: date, valeur: j.humeur !== undefined ? j.humeur : 4 });
   });
 
-  document.getElementById('etat-zone-sommeil').innerHTML = construireSvgCourbe(pointsSommeil, ' h', '#3b82f6');
-  document.getElementById('etat-zone-fatigue').innerHTML = construireSvgCourbe(pointsFatigue, '/7', '#f59e0b');
-  document.getElementById('etat-zone-stress').innerHTML = construireSvgCourbe(pointsStress, '/7', '#ef4444');
-  document.getElementById('etat-zone-humeur').innerHTML = construireSvgCourbe(pointsHumeur, '/8', '#10b981');
+  document.getElementById('etat-zone-sommeil').innerHTML = construireSvgCourbe(pointsSommeil, ' h', '#3b82f6', { min: 0, max: 14 });
+  document.getElementById('etat-zone-fatigue').innerHTML = construireSvgCourbe(pointsFatigue, '/8', '#f59e0b', { min: 0, max: 8 });
+  document.getElementById('etat-zone-stress').innerHTML = construireSvgCourbe(pointsStress, '/8', '#ef4444', { min: 0, max: 8 });
+  document.getElementById('etat-zone-humeur').innerHTML = construireSvgCourbe(pointsHumeur, '/8', '#10b981', { min: 0, max: 8 });
 
   rendreListeEvenementsEtat(dates30j);
   if (vueCombineeEtatVisible) { rendreGraphiqueEtatCombine(); }
@@ -3774,6 +3784,15 @@ function rendreGraphiqueEtat() {
 
 var visibiliteCourbesEtat = { sommeil: true, fatigue: true, stress: true, humeur: true };
 var vueCombineeEtatVisible = false;
+
+function definitionsCourbesEtat() {
+  return [
+    { cle: 'sommeil', nom: 'Sommeil', couleur: '#3b82f6', defaut: 8, min: 0, max: 14, inverser: false },
+    { cle: 'fatigue', nom: 'Fatigue', couleur: '#f59e0b', defaut: 4, min: 0, max: 8, inverser: true },
+    { cle: 'stress',  nom: 'Stress',  couleur: '#ef4444', defaut: 4, min: 0, max: 8, inverser: true },
+    { cle: 'humeur',  nom: 'Humeur',  couleur: '#10b981', defaut: 4, min: 0, max: 8, inverser: false }
+  ];
+}
 
 function basculerVueCombineeEtat() {
   vueCombineeEtatVisible = !vueCombineeEtatVisible;
@@ -3791,15 +3810,6 @@ function basculerCourbeEtat(nomCourbe) {
   visibiliteCourbesEtat[nomCourbe] = !visibiliteCourbesEtat[nomCourbe];
   rendreLegendeCombineeEtat();
   rendreGraphiqueEtatCombine();
-}
-
-function definitionsCourbesEtat() {
-  return [
-    { cle: 'sommeil', nom: 'Sommeil', couleur: '#3b82f6', defaut: 8 },
-    { cle: 'fatigue', nom: 'Fatigue', couleur: '#f59e0b', defaut: 4 },
-    { cle: 'stress', nom: 'Stress', couleur: '#ef4444', defaut: 4 },
-    { cle: 'humeur', nom: 'Humeur', couleur: '#10b981', defaut: 4 }
-  ];
 }
 
 function rendreLegendeCombineeEtat() {
@@ -3833,13 +3843,13 @@ function rendreGraphiqueEtatCombine() {
   for (var i = 0; i < definitions.length; i++) {
     var def = definitions[i];
     if (!visibiliteCourbesEtat[def.cle]) { continue; }
-    var points = [];
+    var pts = [];
     for (var d = 0; d < dates30j.length; d++) {
       var jour = etat.ressentiQuotidien[dates30j[d]];
-      var valeur = (jour[def.cle] !== undefined && jour[def.cle] !== null) ? jour[def.cle] : def.defaut;
-      points.push(valeur);
+      var brut = (jour[def.cle] !== undefined && jour[def.cle] !== null) ? jour[def.cle] : def.defaut;
+      pts.push(def.inverser ? (8 - brut) : brut);
     }
-    seriesVisibles.push({ couleur: def.couleur, points: points });
+    seriesVisibles.push({ couleur: def.couleur, points: pts, min: def.min, max: def.max });
   }
 
   if (seriesVisibles.length === 0) {
@@ -3847,19 +3857,21 @@ function rendreGraphiqueEtatCombine() {
     return;
   }
 
-  var largeur = 300, hauteur = 150, marge = 22;
+  var largeur = 300, hauteur = 150, marge = 24;
   var svg = '<svg viewBox="0 0 ' + largeur + ' ' + hauteur + '" xmlns="http://www.w3.org/2000/svg">';
+
+  var nbLignes = 4;
+  for (var g = 0; g <= nbLignes; g++) {
+    var yGrille = hauteur - marge - (g / nbLignes) * (hauteur - marge * 2);
+    svg += '<line x1="' + marge + '" y1="' + yGrille.toFixed(1) + '" x2="' + (largeur - marge) + '" y2="' + yGrille.toFixed(1) + '" stroke="#2A313B" stroke-width="1" />';
+  }
 
   for (var s = 0; s < seriesVisibles.length; s++) {
     var serie = seriesVisibles[s];
-    var valeurMin = Math.min.apply(null, serie.points);
-    var valeurMax = Math.max.apply(null, serie.points);
-    if (valeurMax === valeurMin) { valeurMax = valeurMin + 1; }
-
     var chainePoints = '';
     for (var k = 0; k < serie.points.length; k++) {
       var x = marge + (k / (serie.points.length - 1)) * (largeur - marge * 2);
-      var y = hauteur - marge - ((serie.points[k] - valeurMin) / (valeurMax - valeurMin)) * (hauteur - marge * 2);
+      var y = hauteur - marge - ((serie.points[k] - serie.min) / (serie.max - serie.min)) * (hauteur - marge * 2);
       chainePoints += x.toFixed(1) + ',' + y.toFixed(1) + ' ';
     }
     svg += '<polyline points="' + chainePoints.trim() + '" fill="none" stroke="' + serie.couleur + '" stroke-width="2.2" opacity="0.9" />';
@@ -4734,10 +4746,11 @@ ajouterEcouteurClicDelegue(document.body, function (cible) {
     if (groupe === 'hist' && sousOnglet === 'etat') {
       rendreGraphiqueEtat();
     }
-    if (action === 'toggle-vue-combinee-etat') { basculerVueCombineeEtat(); return; }
-    if (action === 'toggle-courbe-etat') { basculerCourbeEtat(cible.getAttribute('data-courbe')); return; }
     return;
   }
+
+  if (action === 'toggle-vue-combinee-etat') { basculerVueCombineeEtat(); return; }
+  if (action === 'toggle-courbe-etat') { basculerCourbeEtat(cible.getAttribute('data-courbe')); return; }
 
   if (action === 'nouvel-exercice') { ouvrirFormulaireExercice(null); return; }
   if (action === 'nouvel-aliment') { ouvrirFormulaireAliment(null); return; }
