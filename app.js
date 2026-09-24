@@ -2281,7 +2281,7 @@ function demarrerSeanceDepuisModele(seanceModeleId, agendaEntryId) {
         structure: structure,
         technique: e.technique || 'aucune',
         tempo: e.tempo || '',
-        rpe: null,
+        rpe: 3,
         series: seriesTab
       };
     });
@@ -2664,7 +2664,7 @@ function rendreExercicesActifs() {
 
     var derniereFois = derniereOccurrenceExercice(ligneEx.exerciceId);
     if (derniereFois) {
-      html += '<div class="texte-att donnee-num" style="margin:4px 0;">Dernière fois (' + formaterDateCourte(derniereFois.date) + ') : ' + formaterResumeSeries(derniereFois.ligneEx) + '</div>';
+      html += '<div class="texte-att donnee-num" style="margin:4px 0;">Dernière (' + formaterDateCourte(derniereFois.date) + ') : ' + formaterResumeSeries(derniereFois.ligneEx) + '</div>';
     }
 
     var recordAnterieur = meilleurPoidsHistorique(ligneEx.exerciceId);
@@ -2732,10 +2732,13 @@ function rendreExercicesActifs() {
 
     html += '</div>'; // Fermeture de .exercice-series-zone
 
-    // Champ RPE et boutons
-    html += '<div class="champ" style="margin-top:10px; margin-bottom:0;"><label style="font-size:11px;">RPE ressenti (1-10, optionnel)</label>';
-    html += '<input type="number" min="1" max="10" step="1" data-role="live-rpe" data-ex="' + e + '" value="' + (ligneEx.rpe !== null && ligneEx.rpe !== undefined ? ligneEx.rpe : '') + '"></div>';
-    html += '<div class="ligne-boutons-serie" style="display:flex; gap:8px; margin-top:8px;">';
+    // RPE (glissable) et boutons, sur une seule ligne pour gagner de la place
+    var rpeValeur = (ligneEx.rpe !== null && ligneEx.rpe !== undefined) ? ligneEx.rpe : 3;
+    html += '<div class="ligne-actions-exercice">';
+    html += '<div class="rpe-ligne rpe-glissable" data-role="rpe-ligne" data-ex="' + e + '" title="RPE ressenti — glisser pour ajuster (0 à 10)">';
+    html += '<input type="number" class="rpe-input" min="0" max="10" step="1" data-role="live-rpe" data-ex="' + e + '" value="' + rpeValeur + '">';
+    html += '<span class="rpe-suffixe">RPE</span>';
+    html += '</div>';
     html += '<button class="btn btn-contour" style="flex:1;" data-action="ajouter-serie" data-ex="' + e + '">+ Série</button>';
     html += '<button class="btn btn-contour" style="flex:1;" data-action="ajouter-serie-echauffement" data-ex="' + e + '">+ Échauffement</button>';
     html += '</div>';
@@ -2779,6 +2782,10 @@ function rendreExercicesActifs() {
         });
       });
 
+    // Active le glissé sur la ligne RPE de cet exercice
+    var ligneRpe = exercice.querySelector('.rpe-ligne');
+    if (ligneRpe) { configurerGlisseRpe(ligneRpe); }
+
     // Écouter le clic sur l'exercice pour déplier/replier
     exercice.addEventListener('click', function(e) {
       if (e.target.closest('[data-action], .bouton-note, .serie-suppr, [data-role]')) {
@@ -2802,8 +2809,72 @@ function mettreAJourChrono() {
 
 function modifierRpeExercice(exIndex, valeur) {
   var val = parseInt(valeur, 10);
-  etat.seanceActive.exercices[exIndex].rpe = (isNaN(val) || val < 1) ? null : Math.min(10, val);
+  if (isNaN(val)) { val = 3; }
+  if (val < 0) { val = 0; }
+  if (val > 10) { val = 10; }
+  etat.seanceActive.exercices[exIndex].rpe = val;
   sauvegarderEtat();
+}
+
+/* Rend la ligne RPE d'un exercice glissable au doigt/à la souris (même principe que le glissé
+   des heures de sommeil) : on glisse horizontalement sur le chiffre lui-même pour le faire
+   monter/descendre de 0 à 10, sans passer par le clavier. Les écouteurs de déplacement ne sont
+   posés sur document que pendant le geste, puis retirés à son relâchement, pour ne rien laisser
+   traîner d'un rendu à l'autre. */
+function configurerGlisseRpe(ligneElement) {
+  var champ = ligneElement.querySelector('.rpe-input');
+  if (!champ) { return; }
+  var exIndex = parseInt(ligneElement.getAttribute('data-ex'), 10);
+  var xDepart = 0;
+  var valeurDepart = 3;
+  var seuilPx = 20;
+
+  function getValeur() {
+    var v = parseInt(champ.value, 10);
+    return isNaN(v) ? 3 : v;
+  }
+
+  function appliquerValeur(v) {
+    v = Math.round(v);
+    if (v < 0) { v = 0; }
+    if (v > 10) { v = 10; }
+    champ.value = v;
+    modifierRpeExercice(exIndex, v);
+  }
+
+  function deplacerSouris(e) {
+    appliquerValeur(valeurDepart + Math.trunc((e.clientX - xDepart) / seuilPx));
+  }
+  function terminerSouris() {
+    document.removeEventListener('mousemove', deplacerSouris);
+    document.removeEventListener('mouseup', terminerSouris);
+    ligneElement.classList.remove('glisse-actif');
+  }
+  ligneElement.addEventListener('mousedown', function (e) {
+    if (e.target === champ) { return; }
+    xDepart = e.clientX;
+    valeurDepart = getValeur();
+    ligneElement.classList.add('glisse-actif');
+    document.addEventListener('mousemove', deplacerSouris);
+    document.addEventListener('mouseup', terminerSouris);
+  });
+
+  function deplacerTactile(e) {
+    appliquerValeur(valeurDepart + Math.trunc((e.touches[0].clientX - xDepart) / seuilPx));
+  }
+  function terminerTactile() {
+    document.removeEventListener('touchmove', deplacerTactile);
+    document.removeEventListener('touchend', terminerTactile);
+    ligneElement.classList.remove('glisse-actif');
+  }
+  ligneElement.addEventListener('touchstart', function (e) {
+    if (e.target === champ) { return; }
+    xDepart = e.touches[0].clientX;
+    valeurDepart = getValeur();
+    ligneElement.classList.add('glisse-actif');
+    document.addEventListener('touchmove', deplacerTactile, { passive: true });
+    document.addEventListener('touchend', terminerTactile);
+  }, { passive: true });
 }
 
 function modifierValeurSerieLive(role, exIndex, serieIndex, valeur) {
@@ -3276,7 +3347,7 @@ function ouvrirNotice() {
   html += '<li>Une fois lancée : chrono en haut, et un <strong>minuteur de repos</strong> réglable en minutes/secondes, toujours accessible, qui sonne une seule fois (bip généré, pas de fichier audio).</li>';
   html += '<li>Pour chaque exercice : la <strong>barre de charge</strong> (un bloc par série, se remplit au fur et à mesure), la <strong>bulle ✓</strong> pour valider poids/reps d\'une série, le <strong>crayon ✎</strong> pour noter un changement ou une douleur sur une série précise.</li>';
   html += '<li>Le bouton <strong>+ Échauffement</strong> ajoute une série d\'échauffement, placée avant les séries de travail (après les échauffements déjà ajoutés). Elle est numérotée « É1, É2... », ne compte jamais dans les records, l\'historique, le volume ou la progression, et peut être validée/supprimée comme une série normale.</li>';
-  html += '<li>Un champ <strong>RPE</strong> (1 à 10, optionnel) par exercice pour ton ressenti d\'effort.</li>';
+  html += '<li>Un champ <strong>RPE</strong> (0 à 10, préremplit à 3) par exercice pour ton ressenti d\'effort, réglable en glissant directement sur le chiffre.</li>';
   html += '<li>La <strong>référence "dernière fois"</strong> (ce que tu avais fait la séance précédente) et un badge <strong>★ Nouveau record</strong> si tu dépasses ton meilleur poids.</li>';
   html += '<li>Des badges rappellent la structure de séries, la technique d\'intensification et le tempo si tu les as définis pour cet exercice dans la séance.</li>';
   html += '<li>Le bouton <strong>Fin</strong> enregistre tout dans l\'historique, calcule la durée et les calories dépensées (formule MET × poids corporel × durée).</li>';
@@ -3698,6 +3769,104 @@ function rendreGraphiqueEtat() {
   document.getElementById('etat-zone-humeur').innerHTML = construireSvgCourbe(pointsHumeur, '/8', '#10b981');
 
   rendreListeEvenementsEtat(dates30j);
+  if (vueCombineeEtatVisible) { rendreGraphiqueEtatCombine(); }
+}
+
+var visibiliteCourbesEtat = { sommeil: true, fatigue: true, stress: true, humeur: true };
+var vueCombineeEtatVisible = false;
+
+function basculerVueCombineeEtat() {
+  vueCombineeEtatVisible = !vueCombineeEtatVisible;
+  var corps = document.getElementById('etat-combine-corps');
+  var bouton = document.querySelector('[data-action="toggle-vue-combinee-etat"]');
+  if (corps) { corps.style.display = vueCombineeEtatVisible ? 'block' : 'none'; }
+  if (bouton) { bouton.textContent = vueCombineeEtatVisible ? 'Masquer' : 'Afficher'; }
+  if (vueCombineeEtatVisible) {
+    rendreLegendeCombineeEtat();
+    rendreGraphiqueEtatCombine();
+  }
+}
+
+function basculerCourbeEtat(nomCourbe) {
+  visibiliteCourbesEtat[nomCourbe] = !visibiliteCourbesEtat[nomCourbe];
+  rendreLegendeCombineeEtat();
+  rendreGraphiqueEtatCombine();
+}
+
+function definitionsCourbesEtat() {
+  return [
+    { cle: 'sommeil', nom: 'Sommeil', couleur: '#3b82f6', defaut: 8 },
+    { cle: 'fatigue', nom: 'Fatigue', couleur: '#f59e0b', defaut: 4 },
+    { cle: 'stress', nom: 'Stress', couleur: '#ef4444', defaut: 4 },
+    { cle: 'humeur', nom: 'Humeur', couleur: '#10b981', defaut: 4 }
+  ];
+}
+
+function rendreLegendeCombineeEtat() {
+  var zone = document.getElementById('etat-combine-legende');
+  if (!zone) { return; }
+  var definitions = definitionsCourbesEtat();
+  var html = '';
+  for (var i = 0; i < definitions.length; i++) {
+    var def = definitions[i];
+    var actif = !!visibiliteCourbesEtat[def.cle];
+    html += '<button class="courbe-toggle-btn' + (actif ? ' courbe-toggle-actif' : '') + '" data-action="toggle-courbe-etat" data-courbe="' + def.cle + '" style="--couleur-courbe:' + def.couleur + ';">';
+    html += '<span class="courbe-toggle-pastille"></span>' + echapperHtml(def.nom);
+    html += '</button>';
+  }
+  zone.innerHTML = html;
+}
+
+function rendreGraphiqueEtatCombine() {
+  var conteneur = document.getElementById('etat-zone-combine');
+  if (!conteneur) { return; }
+  var dates = Object.keys(etat.ressentiQuotidien).sort();
+  var dates30j = dates.slice(-30);
+
+  if (dates30j.length < 2) {
+    conteneur.innerHTML = '<div class="etat-vide">Pas encore assez de données pour afficher une courbe.</div>';
+    return;
+  }
+
+  var definitions = definitionsCourbesEtat();
+  var seriesVisibles = [];
+  for (var i = 0; i < definitions.length; i++) {
+    var def = definitions[i];
+    if (!visibiliteCourbesEtat[def.cle]) { continue; }
+    var points = [];
+    for (var d = 0; d < dates30j.length; d++) {
+      var jour = etat.ressentiQuotidien[dates30j[d]];
+      var valeur = (jour[def.cle] !== undefined && jour[def.cle] !== null) ? jour[def.cle] : def.defaut;
+      points.push(valeur);
+    }
+    seriesVisibles.push({ couleur: def.couleur, points: points });
+  }
+
+  if (seriesVisibles.length === 0) {
+    conteneur.innerHTML = '<div class="etat-vide">Active au moins une courbe ci-dessus.</div>';
+    return;
+  }
+
+  var largeur = 300, hauteur = 150, marge = 22;
+  var svg = '<svg viewBox="0 0 ' + largeur + ' ' + hauteur + '" xmlns="http://www.w3.org/2000/svg">';
+
+  for (var s = 0; s < seriesVisibles.length; s++) {
+    var serie = seriesVisibles[s];
+    var valeurMin = Math.min.apply(null, serie.points);
+    var valeurMax = Math.max.apply(null, serie.points);
+    if (valeurMax === valeurMin) { valeurMax = valeurMin + 1; }
+
+    var chainePoints = '';
+    for (var k = 0; k < serie.points.length; k++) {
+      var x = marge + (k / (serie.points.length - 1)) * (largeur - marge * 2);
+      var y = hauteur - marge - ((serie.points[k] - valeurMin) / (valeurMax - valeurMin)) * (hauteur - marge * 2);
+      chainePoints += x.toFixed(1) + ',' + y.toFixed(1) + ' ';
+    }
+    svg += '<polyline points="' + chainePoints.trim() + '" fill="none" stroke="' + serie.couleur + '" stroke-width="2.2" opacity="0.9" />';
+  }
+
+  svg += '</svg>';
+  conteneur.innerHTML = svg;
 }
 
 function rendreListeEvenementsEtat(dates30j) {
@@ -4565,6 +4734,8 @@ ajouterEcouteurClicDelegue(document.body, function (cible) {
     if (groupe === 'hist' && sousOnglet === 'etat') {
       rendreGraphiqueEtat();
     }
+    if (action === 'toggle-vue-combinee-etat') { basculerVueCombineeEtat(); return; }
+    if (action === 'toggle-courbe-etat') { basculerCourbeEtat(cible.getAttribute('data-courbe')); return; }
     return;
   }
 

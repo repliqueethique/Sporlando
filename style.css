@@ -1551,3 +1551,85 @@ a { color: inherit; }
   padding: 10px 0;
   border-bottom: 1px solid #333;
 }
+
+/* ==== AJOUT : RPE glissable + boutons de séries sur une seule ligne ==== */
+.ligne-actions-exercice {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 10px;
+}
+.rpe-ligne {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+  padding: 8px 10px;
+  border: 1px solid var(--couleur-bordure);
+  border-radius: 8px;
+  background: var(--couleur-carte-creux);
+  flex-shrink: 0;
+}
+.rpe-glissable {
+  cursor: ew-resize;
+  user-select: none;
+  touch-action: pan-y;
+  transition: opacity 0.15s ease;
+}
+.rpe-glissable.glisse-actif { opacity: 0.75; }
+.rpe-input {
+  width: 1.6ch;
+  padding: 0;
+  margin: 0;
+  border: 0;
+  outline: none;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-weight: 700;
+  font-family: var(--police-donnees);
+  text-align: right;
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+.rpe-input::-webkit-inner-spin-button,
+.rpe-input::-webkit-outer-spin-button {
+  margin: 0;
+  -webkit-appearance: none;
+}
+.rpe-suffixe {
+  font-size: 11px;
+  color: var(--couleur-texte-att);
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+.etat-combine-legende {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+.courbe-toggle-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  border-radius: 16px;
+  border: 1px solid var(--couleur-bordure);
+  background: var(--couleur-carte-creux);
+  font-size: 12px;
+  color: var(--couleur-texte-att);
+  opacity: 0.5;
+  transition: opacity 0.15s ease, border-color 0.15s ease;
+}
+.courbe-toggle-btn.courbe-toggle-actif {
+  opacity: 1;
+  border-color: var(--couleur-courbe, var(--couleur-turquoise));
+  color: var(--couleur-texte);
+}
+.courbe-toggle-pastille {
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  background: var(--couleur-courbe, var(--couleur-texte-att));
+  flex-shrink: 0;
+}

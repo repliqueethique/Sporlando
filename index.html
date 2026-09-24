@@ -348,6 +348,17 @@
     </div>
 
     <div id="hist-etat" class="section-hist" style="display:none;">
+      <div class="carte">
+        <div class="ligne" style="margin-bottom:10px;">
+          <h2 class="carte-titre" style="margin-bottom:0;">Courbes superposées</h2>
+          <button class="btn btn-petit btn-contour" data-action="toggle-vue-combinee-etat">Afficher</button>
+        </div>
+        <div id="etat-combine-corps" style="display:none;">
+          <div id="etat-combine-legende" class="etat-combine-legende"></div>
+          <div class="svg-conteneur" id="etat-zone-combine"></div>
+          <div class="texte-att" style="margin-top:8px;">Chaque courbe est normalisée sur sa propre échelle (min/max des 30 derniers jours) pour rester lisible malgré les unités différentes.</div>
+        </div>
+      </div>
       <div class="sous-onglets" id="etat-selecteur-periode" style="margin-bottom:12px;"></div>
       <div class="carte">
         <h2 class="carte-titre">Humeur</h2>
