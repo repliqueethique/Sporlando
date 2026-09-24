@@ -197,34 +197,24 @@ a { color: inherit; }
 .btn-bloc { display: block; width: 100%; }
 .btn-petit { padding: 6px 10px; font-size: 12px; }
 
-/* Sous-onglets (Bibliotheque, Historique) — barre défilante horizontalement */
+/* Sous-onglets (Bibliotheque, Historique) */
 .sous-onglets {
   display: -webkit-box; display: -webkit-flex; display: flex;
   margin-bottom: 12px;
   border: 1px solid var(--couleur-bordure);
   border-radius: 8px;
-  overflow-x: auto;
-  overflow-y: hidden;
-  -webkit-overflow-scrolling: touch;
-  scroll-snap-type: x proximity;
-  align-items: center;
-  /* masque la scrollbar tout en gardant le scroll utilisable */
-  scrollbar-width: none;
-  -ms-overflow-style: none;
+  overflow: hidden;
+  align-items: center; /* <-- Ajoute cette ligne */
 }
-.sous-onglets::-webkit-scrollbar { display: none; }
-
 .sous-onglet {
-  -webkit-box-flex: 0; -webkit-flex: 0 0 auto; flex: 0 0 auto;
-  white-space: nowrap;
-  padding: 9px 16px;
+  -webkit-box-flex: 1; -webkit-flex: 1; flex: 1;
+  padding: 9px 4px;
   font-size: 12px;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.02em;
   color: var(--couleur-texte-att);
   border-right: 1px solid var(--couleur-bordure);
-  scroll-snap-align: start;
 }
 .sous-onglet:last-child { border-right: none; }
 .sous-onglet-actif { background: var(--couleur-carte-creux); color: var(--couleur-turquoise); }
@@ -238,6 +228,8 @@ a { color: inherit; }
   margin-right: 4px; margin-bottom: 4px;
 }
 .bloc-charge-fait { background: var(--couleur-degrade); border-color: transparent; }
+.bloc-charge-echauffement { border-color: var(--couleur-avertissement); border-style: dashed; }
+.bloc-charge-echauffement.bloc-charge-fait { background: var(--couleur-avertissement); border-style: solid; }
 
 /* Champs de formulaire */
 .champ { margin-bottom: 12px; }
@@ -690,6 +682,23 @@ a { color: inherit; }
 
 @media (max-width: 380px) {
   .serie-cible .serie-champ input { font-size: 45px; }
+}
+
+/* ==== AJOUT : séries d'échauffement ====
+   Numérotées "É1, É2..." à part des séries de travail ("#1, #2...").
+   Ne comptent jamais dans les statistiques (records, historique, volume,
+   progression) ; visuellement distinguées par une teinte ambre. */
+.serie-echauffement {
+  background: rgba(224, 167, 61, 0.06);
+  border-bottom-color: rgba(224, 167, 61, 0.35);
+}
+.serie-echauffement .serie-num {
+  color: var(--couleur-avertissement);
+}
+.serie-echauffement.serie-cible .serie-champ input,
+.serie-echauffement.serie-cible .serie-unite,
+.serie-echauffement.serie-cible .serie-num {
+  color: var(--couleur-avertissement);
 }
 
 /* =============================================

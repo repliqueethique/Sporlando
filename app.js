@@ -487,13 +487,6 @@ function completerChampsEtat(donnees) {
   if (!donnees.exercices) { donnees.exercices = []; }
   if (!donnees.seances) { donnees.seances = []; }
   if (!donnees.programmes) { donnees.programmes = []; }
-  if (donnees.programmes) {
-    for (var pIdx = 0; pIdx < donnees.programmes.length; pIdx++) {
-      if (!donnees.programmes[pIdx].objectifType) {
-        donnees.programmes[pIdx].objectifType = 'personnalise';
-      }
-    }
-  }
   if (!donnees.agenda) { donnees.agenda = []; }
   if (donnees.seanceActive === undefined) { donnees.seanceActive = null; }
   if (!donnees.derniereMiseAJour) { donnees.derniereMiseAJour = 0; }
@@ -742,16 +735,6 @@ var TYPES_MESOCYCLE = [
   { valeur: 'personnalise', libelle: 'Personnalisé' }
 ];
 
-var OBJECTIFS_PROGRAMME = [
-  { valeur: 'prise_de_masse', libelle: 'Prise de masse musculaire' },
-  { valeur: 'force', libelle: 'Force' },
-  { valeur: 'perte_de_poids', libelle: 'Perte de poids / Sèche' },
-  { valeur: 'remise_en_forme', libelle: 'Remise en forme / Santé générale' },
-  { valeur: 'performance', libelle: 'Performance sportive' },
-  { valeur: 'esthetique', libelle: 'Esthétique / Silhouette' },
-  { valeur: 'personnalise', libelle: 'Personnalisé' }
-];
-
 var STRUCTURES_SERIES = [
   { valeur: 'lineaire', libelle: 'Linéaire (classique)' },
   { valeur: 'pyramide_montante', libelle: 'Pyramide montante' },
@@ -915,6 +898,7 @@ function statistiquesExercice(exerciceId) {
       var structure = ligneEx.structure || 'lineaire';
       var maxPoidsCetteSeance = null;
       for (var s = 0; s < ligneEx.series.length; s++) {
+        if (ligneEx.series[s].echauffement) { continue; }
         if (maxPoidsCetteSeance === null || ligneEx.series[s].poids > maxPoidsCetteSeance) {
           maxPoidsCetteSeance = ligneEx.series[s].poids;
         }
@@ -1861,10 +1845,9 @@ function ouvrirFormulaireProgramme(idProgramme) {
         seanceIds: progExistant.seanceIds.slice(),
         typeMesocycle: progExistant.typeMesocycle || 'personnalise',
         dureeSemaines: progExistant.dureeSemaines || '',
-        objectifType: progExistant.objectifType || 'personnalise',
         objectif: progExistant.objectif || ''
       }
-    : { id: null, nom: '', notes: '', seanceIds: [], typeMesocycle: 'personnalise', dureeSemaines: '', objectifType: 'personnalise', objectif: '' };
+    : { id: null, nom: '', notes: '', seanceIds: [], typeMesocycle: 'personnalise', dureeSemaines: '', objectif: '' };
   rendreFormulaireProgramme();
 }
 
@@ -1874,8 +1857,7 @@ function rendreFormulaireProgramme() {
   html += '<div class="modal-entete"><h2>' + (estModif ? 'Modifier le programme' : 'Nouveau programme') + '</h2>';
   html += '<button class="bouton-fermer" data-action="fermer-modal">&times;</button></div>';
   html += '<div class="champ"><label>Nom du programme</label><input type="text" id="champ-pr-nom" value="' + echapperHtml(programmeEnConstruction.nom) + '" placeholder="ex. Force 5x5"></div>';
-  html += '<div class="champ"><label>Objectif</label><select id="champ-pr-objectif-type">' + optionsListeValeurLibelle(OBJECTIFS_PROGRAMME, programmeEnConstruction.objectifType) + '</select></div>';
-  html += '<div class="champ"><label>Précisions (optionnel)</label><textarea id="champ-pr-objectif" placeholder="ex. Viser +5kg au squat, perdre 3kg d\'ici l\'été...">' + echapperHtml(programmeEnConstruction.objectif) + '</textarea></div>';
+  html += '<div class="champ"><label>Objectif actuel</label><textarea id="champ-pr-objectif" placeholder="ex. Prise de masse, force sur squat, perte de gras...">' + echapperHtml(programmeEnConstruction.objectif) + '</textarea></div>';
   html += '<div class="champ"><label>Type de mésocycle</label><select id="champ-pr-type">' + optionsListeValeurLibelle(TYPES_MESOCYCLE, programmeEnConstruction.typeMesocycle) + '</select></div>';
   html += '<div class="champ"><label>Durée (semaines, optionnel)</label><input type="number" step="1" min="1" id="champ-pr-duree" value="' + echapperHtml(programmeEnConstruction.dureeSemaines) + '" placeholder="ex. 6"></div>';
   html += '<div class="champ"><label>Notes (optionnel)</label><textarea id="champ-pr-notes">' + echapperHtml(programmeEnConstruction.notes) + '</textarea></div>';
@@ -1906,7 +1888,6 @@ function enregistrerProgramme() {
   var nom = document.getElementById('champ-pr-nom').value.trim();
   if (!nom) { afficherToast('Le nom du programme est obligatoire.'); return; }
   var notes = document.getElementById('champ-pr-notes').value;
-  var objectifType = document.getElementById('champ-pr-objectif-type').value;
   var objectif = document.getElementById('champ-pr-objectif').value;
   var typeMesocycle = document.getElementById('champ-pr-type').value;
   var dureeBrute = parseInt(document.getElementById('champ-pr-duree').value, 10);
@@ -1920,9 +1901,9 @@ function enregistrerProgramme() {
     var prog = trouverParId(etat.programmes, programmeEnConstruction.id);
     prog.nom = nom; prog.notes = notes; prog.seanceIds = seanceIds;
     prog.typeMesocycle = typeMesocycle; prog.dureeSemaines = dureeSemaines;
-    prog.objectifType = objectifType; prog.objectif = objectif;
+    prog.objectif = objectif;
   } else {
-    etat.programmes.push({ id: genererId(), nom: nom, notes: notes, seanceIds: seanceIds, typeMesocycle: typeMesocycle, dureeSemaines: dureeSemaines, objectifType: objectifType, objectif: objectif });
+    etat.programmes.push({ id: genererId(), nom: nom, notes: notes, seanceIds: seanceIds, typeMesocycle: typeMesocycle, dureeSemaines: dureeSemaines, objectif: objectif });
   }
   sauvegarderEtat();
   fermerModal();
@@ -1990,7 +1971,6 @@ function rendreProgrammesBib() {
     if (p.dureeSemaines) { html += ' · ' + p.dureeSemaines + ' semaines'; }
     html += '</div>';
     html += '</li>';
-    html += '<div class="texte-att" style="margin-top:4px;">' + p.seanceIds.length + ' séance(s) · ' + echapperHtml(libelleDepuisValeur(OBJECTIFS_PROGRAMME, p.objectifType || 'personnalise')) + ' · ' + echapperHtml(libelleDepuisValeur(TYPES_MESOCYCLE, p.typeMesocycle || 'personnalise'));
   }
   conteneur.innerHTML = html;
 }
@@ -2396,7 +2376,7 @@ function rgbVersHex(r, g, b) {
 }
 
 function rendreRessentiJour() {
-  var aujourdHui = obtenirDateJourReference();
+  var aujourdHui = formaterDateISO(new Date());
   var donnees = etat.ressentiQuotidien[aujourdHui] || { sommeil: 8, fatigue: 5, stress: 5, humeur: 4 };
   var champSommeil = document.getElementById('champ-ressenti-sommeil');
   var champFatigue = document.getElementById('champ-ressenti-fatigue');
@@ -2512,7 +2492,7 @@ function mettreAJourApparenceSlider(champ, valeur) {
 }
 
 function modifierRessenti(champ, valeur) {
-  var aujourdHui = obtenirDateJourReference();
+  var aujourdHui = formaterDateISO(new Date());
   if (!etat.ressentiQuotidien[aujourdHui]) {
     etat.ressentiQuotidien[aujourdHui] = { sommeil: 7, fatigue: 5, stress: 5, humeur: 4 };
   }
@@ -2551,7 +2531,7 @@ function mettreAJourApparenceSlider(champ, valeur) {
 }
 
 function initialiserBooleensRessenti() {
-  var aujourdHui = obtenirDateJourReference();
+  var aujourdHui = formaterDateISO(new Date());
   var donneesJour = etat.ressentiQuotidien[aujourdHui];
   if (!donneesJour) return;
   ['colere', 'blessure', 'maladie'].forEach(function (champ) {
@@ -2563,7 +2543,7 @@ function initialiserBooleensRessenti() {
 }
 
 function modifierRessentiBooleen(champ, coche) {
-  var aujourdHui = obtenirDateJourReference();
+  var aujourdHui = formaterDateISO(new Date());
   if (!etat.ressentiQuotidien[aujourdHui]) {
     etat.ressentiQuotidien[aujourdHui] = { sommeil: 7, fatigue: 3, stress: 3, humeur: 4, colere: false, blessure: false, maladie: false };
   }
@@ -2572,7 +2552,7 @@ function modifierRessentiBooleen(champ, coche) {
 }
 
 function basculerBooleenRessenti(champ, element) {
-  var aujourdHui = obtenirDateJourReference();
+  var aujourdHui = formaterDateISO(new Date());
   if (!etat.ressentiQuotidien[aujourdHui]) {
     etat.ressentiQuotidien[aujourdHui] = {
       sommeil: 7, fatigue: 5, stress: 5, humeur: 4,
@@ -2617,6 +2597,7 @@ function formaterDateCourte(dateISO) {
 function formaterResumeSeries(ligneEx) {
   var morceaux = [];
   for (var i = 0; i < ligneEx.series.length; i++) {
+    if (ligneEx.series[i].echauffement) { continue; }
     morceaux.push(ligneEx.series[i].poids + 'kg×' + ligneEx.series[i].reps);
   }
   return morceaux.join(', ');
@@ -2647,7 +2628,7 @@ function rendreExercicesActifs() {
     html += '<div class="ligne"><strong>' + echapperHtml(nomEx) + '</strong>';
     html += '<div class="barre-charge">';
     for (var b = 0; b < ligneEx.series.length; b++) {
-      html += '<div class="bloc-charge' + (ligneEx.series[b].fait ? ' bloc-charge-fait' : '') + '"></div>';
+      html += '<div class="bloc-charge' + (ligneEx.series[b].fait ? ' bloc-charge-fait' : '') + (ligneEx.series[b].echauffement ? ' bloc-charge-echauffement' : '') + '"></div>';
     }
     html += '</div></div>';
 
@@ -2659,6 +2640,7 @@ function rendreExercicesActifs() {
     var recordAnterieur = meilleurPoidsHistorique(ligneEx.exerciceId);
     var meilleurPoidsAujourdhui = null;
     for (var s2 = 0; s2 < ligneEx.series.length; s2++) {
+      if (ligneEx.series[s2].echauffement) { continue; }
       if (ligneEx.series[s2].fait && (meilleurPoidsAujourdhui === null || ligneEx.series[s2].poids > meilleurPoidsAujourdhui)) {
         meilleurPoidsAujourdhui = ligneEx.series[s2].poids;
       }
@@ -2693,11 +2675,17 @@ function rendreExercicesActifs() {
       }
     }
 
+    var compteurEchauffement = 0;
+    var compteurTravail = 0;
     for (var s = 0; s < ligneEx.series.length; s++) {
       var serie = ligneEx.series[s];
+      var estEchauffement = !!serie.echauffement;
+      var libelleNumSerie;
+      if (estEchauffement) { compteurEchauffement++; libelleNumSerie = 'É' + compteurEchauffement; }
+      else { compteurTravail++; libelleNumSerie = '#' + compteurTravail; }
       var estCible = (s === indexProchaineSerie);
-      html += '<div class="serie-ligne' + (estCible ? ' serie-cible' : '') + '">';
-      html += '<div class="serie-num">#' + (s + 1) + '</div>';
+      html += '<div class="serie-ligne' + (estCible ? ' serie-cible' : '') + (estEchauffement ? ' serie-echauffement' : '') + '">';
+      html += '<div class="serie-num">' + libelleNumSerie + '</div>';
       html += '<div class="serie-champ"><input type="number" step="0.5" inputmode="decimal" data-role="live-poids" data-ex="' + e + '" data-serie="' + s + '" value="' + serie.poids + '"></div>';
       html += '<div class="serie-unite">kg</div>';
       html += '<div class="serie-champ"><input type="number" step="1" inputmode="numeric" data-role="live-reps" data-ex="' + e + '" data-serie="' + s + '" value="' + serie.reps + '"></div>';
@@ -2717,7 +2705,10 @@ function rendreExercicesActifs() {
     // Champ RPE et boutons
     html += '<div class="champ" style="margin-top:10px; margin-bottom:0;"><label style="font-size:11px;">RPE ressenti (1-10, optionnel)</label>';
     html += '<input type="number" min="1" max="10" step="1" data-role="live-rpe" data-ex="' + e + '" value="' + (ligneEx.rpe !== null && ligneEx.rpe !== undefined ? ligneEx.rpe : '') + '"></div>';
-    html += '<button class="btn btn-contour btn-bloc" style="margin-top:8px;" data-action="ajouter-serie" data-ex="' + e + '">+ Ajouter une série</button>';
+    html += '<div class="ligne-boutons-serie" style="display:flex; gap:8px; margin-top:8px;">';
+    html += '<button class="btn btn-contour" style="flex:1;" data-action="ajouter-serie" data-ex="' + e + '">+ Série</button>';
+    html += '<button class="btn btn-contour" style="flex:1;" data-action="ajouter-serie-echauffement" data-ex="' + e + '">+ Échauffement</button>';
+    html += '</div>';
     if (ligneEx.technique === 'drop_set') {
       html += '<button class="btn btn-contour btn-bloc" style="margin-top:6px;" data-action="ajouter-serie-degressive" data-ex="' + e + '">+ Série dégressive (~70%)</button>';
     }
@@ -2817,7 +2808,21 @@ function noteSerieEstOuverte(exIndex, serieIndex, serie) {
 function ajouterSerieLive(exIndex) {
   var seriesTab = etat.seanceActive.exercices[exIndex].series;
   var derniere = seriesTab.length > 0 ? seriesTab[seriesTab.length - 1] : { poids: 0, reps: 0 };
-  seriesTab.push({ poids: derniere.poids, reps: derniere.reps, fait: false, note: '' });
+  seriesTab.push({ poids: derniere.poids, reps: derniere.reps, fait: false, note: '', echauffement: false });
+  sauvegarderEtat();
+  rendreExercicesActifs();
+}
+
+/* Ajoute une série d'échauffement. Elle vient se placer avant les séries de travail, mais après
+   les séries d'échauffement déjà présentes (elles restent groupées en tête de liste), et ne compte
+   jamais dans les statistiques (records, historique, volume, progression...). */
+function ajouterSerieEchauffementLive(exIndex) {
+  var seriesTab = etat.seanceActive.exercices[exIndex].series;
+  var indexInsertion = 0;
+  while (indexInsertion < seriesTab.length && seriesTab[indexInsertion].echauffement) { indexInsertion++; }
+  var reference = seriesTab[indexInsertion] || seriesTab[seriesTab.length - 1] || { poids: 0, reps: 0 };
+  var poidsEchauffement = arrondirPoids((reference.poids || 0) * 0.5);
+  seriesTab.splice(indexInsertion, 0, { poids: poidsEchauffement, reps: reference.reps || 0, fait: false, note: '', echauffement: true });
   sauvegarderEtat();
   rendreExercicesActifs();
 }
@@ -2826,7 +2831,7 @@ function ajouterSerieDegressive(exIndex) {
   var seriesTab = etat.seanceActive.exercices[exIndex].series;
   var derniere = seriesTab.length > 0 ? seriesTab[seriesTab.length - 1] : { poids: 0, reps: 0 };
   var poidsReduit = arrondirPoids(derniere.poids * 0.7);
-  seriesTab.push({ poids: poidsReduit, reps: derniere.reps, fait: false, note: '' });
+  seriesTab.push({ poids: poidsReduit, reps: derniere.reps, fait: false, note: '', echauffement: false });
   sauvegarderEtat();
   rendreExercicesActifs();
 }
@@ -3230,6 +3235,7 @@ function ouvrirNotice() {
   html += '<li>Si une séance est planifiée aujourd\'hui dans l\'agenda, elle apparaît en premier avec un bouton <strong>Début</strong>. Sinon, choisis une séance libre dans la liste.</li>';
   html += '<li>Une fois lancée : chrono en haut, et un <strong>minuteur de repos</strong> réglable en minutes/secondes, toujours accessible, qui sonne une seule fois (bip généré, pas de fichier audio).</li>';
   html += '<li>Pour chaque exercice : la <strong>barre de charge</strong> (un bloc par série, se remplit au fur et à mesure), la <strong>bulle ✓</strong> pour valider poids/reps d\'une série, le <strong>crayon ✎</strong> pour noter un changement ou une douleur sur une série précise.</li>';
+  html += '<li>Le bouton <strong>+ Échauffement</strong> ajoute une série d\'échauffement, placée avant les séries de travail (après les échauffements déjà ajoutés). Elle est numérotée « É1, É2... », ne compte jamais dans les records, l\'historique, le volume ou la progression, et peut être validée/supprimée comme une série normale.</li>';
   html += '<li>Un champ <strong>RPE</strong> (1 à 10, optionnel) par exercice pour ton ressenti d\'effort.</li>';
   html += '<li>La <strong>référence "dernière fois"</strong> (ce que tu avais fait la séance précédente) et un badge <strong>★ Nouveau record</strong> si tu dépasses ton meilleur poids.</li>';
   html += '<li>Des badges rappellent la structure de séries, la technique d\'intensification et le tempo si tu les as définis pour cet exercice dans la séance.</li>';
@@ -3573,6 +3579,7 @@ function pointsPoidsMaxParSeance(exerciceId) {
       var ligneEx = entree.resultat.exercices[j];
       if (ligneEx.exerciceId !== exerciceId) { continue; }
       for (var s = 0; s < ligneEx.series.length; s++) {
+        if (ligneEx.series[s].echauffement) { continue; }
         if (poidsMax === null || ligneEx.series[s].poids > poidsMax) { poidsMax = ligneEx.series[s].poids; }
       }
     }
@@ -3581,65 +3588,35 @@ function pointsPoidsMaxParSeance(exerciceId) {
   return points;
 }
 
-function construireSvgCourbe(points, suffixeUnite, couleur, plageMin, plageMax, inverserAxe) {
+function construireSvgCourbe(points, suffixeUnite, couleur) {
   if (points.length === 0) {
     return '<div class="etat-vide">Pas encore assez de données pour afficher une courbe.</div>';
   }
   if (points.length === 1) {
     return '<div class="etat-vide">Une seule valeur enregistrée pour l\'instant (' + points[0].valeur + suffixeUnite + '). Reviens plus tard pour voir la courbe.</div>';
   }
-  var largeur = 300, hauteur = 160;
-  var margeGauche = 34, margeDroite = 10, margeHaut = 14, margeBas = 22;
-  var zoneLargeur = largeur - margeGauche - margeDroite;
-  var zoneHauteur = hauteur - margeHaut - margeBas;
-
+  var largeur = 300, hauteur = 140, marge = 24;
   var valeurs = points.map(function (p) { return p.valeur; });
-  var valeurMin = (plageMin !== undefined && plageMin !== null) ? plageMin : Math.min.apply(null, valeurs);
-  var valeurMax = (plageMax !== undefined && plageMax !== null) ? plageMax : Math.max.apply(null, valeurs);
+  var valeurMin = Math.min.apply(null, valeurs);
+  var valeurMax = Math.max.apply(null, valeurs);
   if (valeurMax === valeurMin) { valeurMax = valeurMin + 1; }
-
-  function xPour(i) { return margeGauche + (i / (points.length - 1)) * zoneLargeur; }
-  function yPour(valeur) {
-    var fraction = (valeur - valeurMin) / (valeurMax - valeurMin);
-    if (fraction < 0) { fraction = 0; }
-    if (fraction > 1) { fraction = 1; }
-    return inverserAxe
-      ? margeHaut + fraction * zoneHauteur
-      : margeHaut + zoneHauteur - fraction * zoneHauteur;
-  }
 
   var coordonnees = [];
   for (var i = 0; i < points.length; i++) {
-    coordonnees.push({ x: xPour(i), y: yPour(points[i].valeur) });
+    var x = marge + (i / (points.length - 1)) * (largeur - marge * 2);
+    var y = hauteur - marge - ((points[i].valeur - valeurMin) / (valeurMax - valeurMin)) * (hauteur - marge * 2);
+    coordonnees.push({ x: x, y: y });
   }
+
   var chainePoints = coordonnees.map(function (c) { return c.x.toFixed(1) + ',' + c.y.toFixed(1); }).join(' ');
 
   var svg = '<svg viewBox="0 0 ' + largeur + ' ' + hauteur + '" xmlns="http://www.w3.org/2000/svg">';
-
-  /* Grille horizontale + graduations Y (ordonnées) */
-  var nbLignesY = 4;
-  for (var g = 0; g <= nbLignesY; g++) {
-    var valeurLigne = valeurMin + (g / nbLignesY) * (valeurMax - valeurMin);
-    var yLigne = yPour(valeurLigne);
-    svg += '<line x1="' + margeGauche + '" y1="' + yLigne.toFixed(1) + '" x2="' + (largeur - margeDroite) + '" y2="' + yLigne.toFixed(1) + '" stroke="#2A313B" stroke-width="1" />';
-    var libelleValeur = (Math.abs(valeurLigne - Math.round(valeurLigne)) < 0.05) ? Math.round(valeurLigne) : valeurLigne.toFixed(1);
-    svg += '<text x="' + (margeGauche - 5) + '" y="' + (yLigne + 3).toFixed(1) + '" font-size="8" fill="#8996A3" text-anchor="end">' + libelleValeur + suffixeUnite + '</text>';
-  }
-
-  /* Grille verticale + graduations X (abscisses, dates) */
-  var nbLignesX = Math.min(5, points.length - 1);
-  for (var v = 0; v <= nbLignesX; v++) {
-    var indexPoint = Math.round((v / nbLignesX) * (points.length - 1));
-    var xLigne = xPour(indexPoint);
-    svg += '<line x1="' + xLigne.toFixed(1) + '" y1="' + margeHaut + '" x2="' + xLigne.toFixed(1) + '" y2="' + (hauteur - margeBas) + '" stroke="#2A313B" stroke-width="1" />';
-    var libelleDate = points[indexPoint].date ? formaterDateCourte(points[indexPoint].date) : '';
-    svg += '<text x="' + xLigne.toFixed(1) + '" y="' + (hauteur - margeBas + 12) + '" font-size="8" fill="#8996A3" text-anchor="middle">' + libelleDate + '</text>';
-  }
-
   svg += '<polyline points="' + chainePoints + '" fill="none" stroke="' + couleur + '" stroke-width="2.5" />';
   for (var k = 0; k < coordonnees.length; k++) {
     svg += '<circle cx="' + coordonnees[k].x.toFixed(1) + '" cy="' + coordonnees[k].y.toFixed(1) + '" r="3.2" fill="' + couleur + '" />';
   }
+  svg += '<text x="' + marge + '" y="12" font-size="10" fill="#8996A3">' + valeurMax + suffixeUnite + '</text>';
+  svg += '<text x="' + marge + '" y="' + (hauteur - 6) + '" font-size="10" fill="#8996A3">' + valeurMin + suffixeUnite + '</text>';
   svg += '</svg>';
   return '<div class="svg-conteneur">' + svg + '</div>';
 }
@@ -3661,74 +3638,13 @@ function rendreGraphiqueCalories() {
   document.getElementById('progression-zone-calories').innerHTML = construireSvgCourbe(points, ' kcal', '#22A7E5');
 }
 
-var PERIODES_ETAT = [
-  { valeur: '30j',  libelle: '30j',   jours: 30 },
-  { valeur: '2m',   libelle: '2 mois', jours: 60 },
-  { valeur: '6m',   libelle: '6 mois', jours: 180 },
-  { valeur: '1a',   libelle: '1 an',   jours: 365 },
-  { valeur: 'tout', libelle: 'Depuis le début', jours: null }
-];
-
-var periodeEtatSelectionnee = '30j';
-
-function trouverPeriodeEtat(valeur) {
-  for (var i = 0; i < PERIODES_ETAT.length; i++) {
-    if (PERIODES_ETAT[i].valeur === valeur) { return PERIODES_ETAT[i]; }
-  }
-  return PERIODES_ETAT[0];
-}
-
-function filtrerDatesParPeriode(dates, valeurPeriode) {
-  var conf = trouverPeriodeEtat(valeurPeriode);
-  if (!conf.jours) { return dates; } // "Depuis le début" : pas de filtre
-  var limite = new Date();
-  limite.setDate(limite.getDate() - conf.jours);
-  var limiteISO = formaterDateISO(limite);
-  return dates.filter(function (d) { return d >= limiteISO; });
-}
-
-function rendreSelecteurPeriodeEtat() {
-  var zone = document.getElementById('etat-selecteur-periode');
-  if (!zone) { return; }
-  var html = '';
-  for (var i = 0; i < PERIODES_ETAT.length; i++) {
-    var p = PERIODES_ETAT[i];
-    var actif = (p.valeur === periodeEtatSelectionnee) ? ' sous-onglet-actif' : '';
-    html += '<button class="sous-onglet' + actif + '" data-action="changer-periode-etat" data-periode="' + p.valeur + '">' + p.libelle + '</button>';
-  }
-  zone.innerHTML = html;
-}
-
-function changerPeriodeEtat(valeur) {
-  periodeEtatSelectionnee = valeur;
-  rendreSelecteurPeriodeEtat();
-  rendreGraphiqueEtat();
-}
-
-function definirTitreCarte(idZone, libelle) {
-  var zone = document.getElementById(idZone);
-  if (!zone) { return; }
-  var carte = zone.closest('.carte');
-  if (!carte) { return; }
-  var titre = carte.querySelector('.carte-titre');
-  if (titre) { titre.innerHTML = libelle; }
-}
-
 function rendreGraphiqueEtat() {
-  rendreSelecteurPeriodeEtat();
-
-  var toutesLesDates = Object.keys(etat.ressentiQuotidien).sort();
-  var dates = filtrerDatesParPeriode(toutesLesDates, periodeEtatSelectionnee);
-
-  var libellePeriode = trouverPeriodeEtat(periodeEtatSelectionnee).libelle;
-  definirTitreCarte('etat-zone-humeur', 'Humeur (' + libellePeriode + ')');
-  definirTitreCarte('etat-zone-fatigue', 'Fatigue (' + libellePeriode + ')');
-  definirTitreCarte('etat-zone-stress', 'Stress (' + libellePeriode + ')');
-  definirTitreCarte('etat-zone-sommeil', 'Sommeil (' + libellePeriode + ')');
+  var dates = Object.keys(etat.ressentiQuotidien).sort();
+  var dates30j = dates.slice(-30);
 
   var pointsSommeil = [], pointsFatigue = [], pointsStress = [], pointsHumeur = [];
 
-  dates.forEach(function (date) {
+  dates30j.forEach(function (date) {
     var j = etat.ressentiQuotidien[date];
     pointsSommeil.push({ date: date, valeur: j.sommeil });
     pointsFatigue.push({ date: date, valeur: j.fatigue !== undefined ? j.fatigue : 4 });
@@ -3736,17 +3652,12 @@ function rendreGraphiqueEtat() {
     pointsHumeur.push({ date: date, valeur: j.humeur !== undefined ? j.humeur : 4 });
   });
 
-  var zoneSommeil = document.getElementById('etat-zone-sommeil');
-  var zoneFatigue = document.getElementById('etat-zone-fatigue');
-  var zoneStress = document.getElementById('etat-zone-stress');
-  var zoneHumeur = document.getElementById('etat-zone-humeur');
+  document.getElementById('etat-zone-sommeil').innerHTML = construireSvgCourbe(pointsSommeil, ' h', '#3b82f6');
+  document.getElementById('etat-zone-fatigue').innerHTML = construireSvgCourbe(pointsFatigue, '/7', '#f59e0b');
+  document.getElementById('etat-zone-stress').innerHTML = construireSvgCourbe(pointsStress, '/7', '#ef4444');
+  document.getElementById('etat-zone-humeur').innerHTML = construireSvgCourbe(pointsHumeur, '/8', '#10b981');
 
-  if (zoneSommeil) { zoneSommeil.innerHTML = construireSvgCourbe(pointsSommeil, ' h', '#3b82f6', 0, 14, false); }
-  if (zoneFatigue) { zoneFatigue.innerHTML = construireSvgCourbe(pointsFatigue, '/8', '#f59e0b', 0, 8, true); }
-  if (zoneStress) { zoneStress.innerHTML = construireSvgCourbe(pointsStress, '/8', '#ef4444', 0, 8, true); }
-  if (zoneHumeur) { zoneHumeur.innerHTML = construireSvgCourbe(pointsHumeur, '/8', '#10b981', 0, 8, false); }
-
-  rendreListeEvenementsEtat(dates);
+  rendreListeEvenementsEtat(dates30j);
 }
 
 function rendreListeEvenementsEtat(dates30j) {
@@ -3876,7 +3787,7 @@ function calculerVolumeSemaine(lundiDebut) {
       var exRef = trouverParId(etat.exercices, ligneEx.exerciceId);
       var groupe = exRef ? exRef.groupe : 'Autre';
       if (volumeParGroupe[groupe] === undefined) { volumeParGroupe[groupe] = 0; joursParGroupe[groupe] = {}; }
-      var seriesValidees = ligneEx.series.filter(function (s) { return s.fait; }).length;
+      var seriesValidees = ligneEx.series.filter(function (s) { return s.fait && !s.echauffement; }).length;
       volumeParGroupe[groupe] += seriesValidees;
       if (seriesValidees > 0) { joursParGroupe[groupe][entreesTerminees[e].date] = true; }
     }
@@ -4373,12 +4284,12 @@ function calculerIndiceFatigueManuel() {
   if (joursRecents.length === 0) { return null; }
   var sommeManqueSommeil = 0, sommeFatigue = 0, sommeStress = 0;
   for (var j = 0; j < joursRecents.length; j++) {
+    /* Moins de 7h de sommeil augmente la contribution ; 7h ou plus = 0 (pas de trop-dormir penalise ici) */
     var heures = joursRecents[j].sommeil;
     var manque = (typeof heures === 'number') ? Math.max(0, Math.min(5, (7 - heures) * 1.5)) : 0;
     sommeManqueSommeil += manque;
-    /* fatigue/stress : 0 = pire, 8 = meilleur -> on inverse pour que "mauvais ressenti" pèse dans le score */
-    sommeFatigue += (8 - (joursRecents[j].fatigue !== undefined ? joursRecents[j].fatigue : 4));
-    sommeStress += (8 - (joursRecents[j].stress !== undefined ? joursRecents[j].stress : 4));
+    sommeFatigue += joursRecents[j].fatigue;
+    sommeStress += joursRecents[j].stress;
   }
   return {
     score: (sommeManqueSommeil + sommeFatigue + sommeStress) / (joursRecents.length * 3),
@@ -4526,10 +4437,15 @@ function ouvrirDetailHistorique(idEntree) {
     html += '<strong>' + echapperHtml(nomEx) + '</strong>';
     html += '<table style="width:100%; margin-top:8px; font-size:13px;">';
     html += '<tr class="texte-att"><td>Série</td><td>Poids</td><td>Reps</td><td>Fait</td></tr>';
+    var compteurEchHist = 0;
+    var compteurTravHist = 0;
     for (var s = 0; s < ligneEx.series.length; s++) {
       var serie = ligneEx.series[s];
-      html += '<tr>';
-      html += '<td>' + (s + 1) + '</td>';
+      var libelleSerieHist;
+      if (serie.echauffement) { compteurEchHist++; libelleSerieHist = 'É' + compteurEchHist; }
+      else { compteurTravHist++; libelleSerieHist = compteurTravHist; }
+      html += '<tr' + (serie.echauffement ? ' class="texte-att"' : '') + '>';
+      html += '<td>' + libelleSerieHist + '</td>';
       html += '<td>' + serie.poids + ' kg</td>';
       html += '<td>' + serie.reps + '</td>';
       html += '<td>' + (serie.fait ? '&#10003;' : '&#10007;') + '</td>';
@@ -4611,7 +4527,7 @@ ajouterEcouteurClicDelegue(document.body, function (cible) {
     }
     return;
   }
-  if (action === 'changer-periode-etat') { changerPeriodeEtat(cible.getAttribute('data-periode')); return; }
+
   if (action === 'nouvel-exercice') { ouvrirFormulaireExercice(null); return; }
   if (action === 'nouvel-aliment') { ouvrirFormulaireAliment(null); return; }
   if (action === 'editer-aliment') { ouvrirFormulaireAliment(id); return; }
@@ -4672,6 +4588,7 @@ ajouterEcouteurClicDelegue(document.body, function (cible) {
   if (action === 'terminer-seance') { terminerSeance(); return; }
   if (action === 'annuler-seance') { annulerSeance(); }
   if (action === 'ajouter-serie') { ajouterSerieLive(parseInt(cible.getAttribute('data-ex'), 10)); return; }
+  if (action === 'ajouter-serie-echauffement') { ajouterSerieEchauffementLive(parseInt(cible.getAttribute('data-ex'), 10)); return; }
   if (action === 'ajouter-serie-degressive') { ajouterSerieDegressive(parseInt(cible.getAttribute('data-ex'), 10)); return; }
   if (action === 'supprimer-serie') { supprimerSerieLive(parseInt(cible.getAttribute('data-ex'), 10), parseInt(cible.getAttribute('data-serie'), 10)); return; }
   if (action === 'basculer-serie-faite') { basculerSerieFaite(parseInt(cible.getAttribute('data-ex'), 10), parseInt(cible.getAttribute('data-serie'), 10)); return; }
@@ -4759,6 +4676,3 @@ document.addEventListener('change', function (e) {
 });
 
 })();
-
-
-
