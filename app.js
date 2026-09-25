@@ -3699,37 +3699,59 @@ function pointsPoidsMaxParSeance(exerciceId) {
   return points;
 }
 
-function construireSvgCourbe(points, suffixeUnite, couleur, options) {
-  options = options || {};
+/* ---- Courbe SVG générique : grille Y + grille X (dates), plage fixe optionnelle, axe inversable ---- */
+
+function construireSvgCourbe(points, suffixeUnite, couleur, plageMin, plageMax, inverserAxe) {
   if (points.length === 0) {
     return '<div class="etat-vide">Pas encore assez de données pour afficher une courbe.</div>';
   }
   if (points.length === 1) {
     return '<div class="etat-vide">Une seule valeur enregistrée pour l\'instant (' + points[0].valeur + suffixeUnite + '). Reviens plus tard pour voir la courbe.</div>';
   }
-  var largeur = 300, hauteur = 140, marge = 30;
+  var largeur = 300, hauteur = 160;
+  var margeGauche = 34, margeDroite = 10, margeHaut = 14, margeBas = 22;
+  var zoneLargeur = largeur - margeGauche - margeDroite;
+  var zoneHauteur = hauteur - margeHaut - margeBas;
+
   var valeurs = points.map(function (p) { return p.valeur; });
-  var valeurMin = (options.min !== undefined && options.min !== null) ? options.min : Math.min.apply(null, valeurs);
-  var valeurMax = (options.max !== undefined && options.max !== null) ? options.max : Math.max.apply(null, valeurs);
+  var valeurMin = (plageMin !== undefined && plageMin !== null) ? plageMin : Math.min.apply(null, valeurs);
+  var valeurMax = (plageMax !== undefined && plageMax !== null) ? plageMax : Math.max.apply(null, valeurs);
   if (valeurMax === valeurMin) { valeurMax = valeurMin + 1; }
+
+  function xPour(i) { return margeGauche + (i / (points.length - 1)) * zoneLargeur; }
+  function yPour(valeur) {
+    var fraction = (valeur - valeurMin) / (valeurMax - valeurMin);
+    if (fraction < 0) { fraction = 0; }
+    if (fraction > 1) { fraction = 1; }
+    return inverserAxe
+      ? margeHaut + fraction * zoneHauteur
+      : margeHaut + zoneHauteur - fraction * zoneHauteur;
+  }
 
   var coordonnees = [];
   for (var i = 0; i < points.length; i++) {
-    var x = marge + (i / (points.length - 1)) * (largeur - marge * 2);
-    var y = hauteur - marge - ((points[i].valeur - valeurMin) / (valeurMax - valeurMin)) * (hauteur - marge * 2);
-    coordonnees.push({ x: x, y: y });
+    coordonnees.push({ x: xPour(i), y: yPour(points[i].valeur) });
   }
   var chainePoints = coordonnees.map(function (c) { return c.x.toFixed(1) + ',' + c.y.toFixed(1); }).join(' ');
 
   var svg = '<svg viewBox="0 0 ' + largeur + ' ' + hauteur + '" xmlns="http://www.w3.org/2000/svg">';
 
-  var nbLignes = options.nbLignesGrille || 4;
-  for (var g = 0; g <= nbLignes; g++) {
-    var fraction = g / nbLignes;
-    var yGrille = hauteur - marge - fraction * (hauteur - marge * 2);
-    var valeurGrille = valeurMin + fraction * (valeurMax - valeurMin);
-    svg += '<line x1="' + marge + '" y1="' + yGrille.toFixed(1) + '" x2="' + (largeur - marge) + '" y2="' + yGrille.toFixed(1) + '" stroke="#2A313B" stroke-width="1" />';
-    svg += '<text x="2" y="' + (yGrille + 3).toFixed(1) + '" font-size="9" fill="#8996A3">' + Math.round(valeurGrille) + suffixeUnite + '</text>';
+  var nbLignesY = 4;
+  for (var g = 0; g <= nbLignesY; g++) {
+    var valeurLigne = valeurMin + (g / nbLignesY) * (valeurMax - valeurMin);
+    var yLigne = yPour(valeurLigne);
+    svg += '<line x1="' + margeGauche + '" y1="' + yLigne.toFixed(1) + '" x2="' + (largeur - margeDroite) + '" y2="' + yLigne.toFixed(1) + '" stroke="#2A313B" stroke-width="1" />';
+    var libelleValeur = (Math.abs(valeurLigne - Math.round(valeurLigne)) < 0.05) ? Math.round(valeurLigne) : valeurLigne.toFixed(1);
+    svg += '<text x="' + (margeGauche - 5) + '" y="' + (yLigne + 3).toFixed(1) + '" font-size="8" fill="#8996A3" text-anchor="end">' + libelleValeur + suffixeUnite + '</text>';
+  }
+
+  var nbLignesX = Math.min(5, points.length - 1);
+  for (var v = 0; v <= nbLignesX; v++) {
+    var indexPoint = Math.round((v / nbLignesX) * (points.length - 1));
+    var xLigne = xPour(indexPoint);
+    svg += '<line x1="' + xLigne.toFixed(1) + '" y1="' + margeHaut + '" x2="' + xLigne.toFixed(1) + '" y2="' + (hauteur - margeBas) + '" stroke="#2A313B" stroke-width="1" />';
+    var libelleDate = points[indexPoint].date ? formaterDateCourte(points[indexPoint].date) : '';
+    svg += '<text x="' + xLigne.toFixed(1) + '" y="' + (hauteur - margeBas + 12) + '" font-size="8" fill="#8996A3" text-anchor="middle">' + libelleDate + '</text>';
   }
 
   svg += '<polyline points="' + chainePoints + '" fill="none" stroke="' + couleur + '" stroke-width="2.5" />';
@@ -3757,40 +3779,98 @@ function rendreGraphiqueCalories() {
   document.getElementById('progression-zone-calories').innerHTML = construireSvgCourbe(points, ' kcal', '#22A7E5');
 }
 
+/* ---- Sélecteur de période (page État) ---- */
+
+var PERIODES_ETAT = [
+  { valeur: '30j',  libelle: '30j',   jours: 30 },
+  { valeur: '2m',   libelle: '2 mois', jours: 60 },
+  { valeur: '6m',   libelle: '6 mois', jours: 180 },
+  { valeur: '1a',   libelle: '1 an',   jours: 365 },
+  { valeur: 'tout', libelle: 'Depuis le début', jours: null }
+];
+
+var periodeEtatSelectionnee = '30j';
+
+function trouverPeriodeEtat(valeur) {
+  for (var i = 0; i < PERIODES_ETAT.length; i++) {
+    if (PERIODES_ETAT[i].valeur === valeur) { return PERIODES_ETAT[i]; }
+  }
+  return PERIODES_ETAT[0];
+}
+
+function filtrerDatesParPeriode(dates, valeurPeriode) {
+  var conf = trouverPeriodeEtat(valeurPeriode);
+  if (!conf.jours) { return dates; }
+  var limite = new Date();
+  limite.setDate(limite.getDate() - conf.jours);
+  var limiteISO = formaterDateISO(limite);
+  return dates.filter(function (d) { return d >= limiteISO; });
+}
+
+function rendreSelecteurPeriodeEtat() {
+  var zone = document.getElementById('etat-selecteur-periode');
+  if (!zone) { return; }
+  var html = '';
+  for (var i = 0; i < PERIODES_ETAT.length; i++) {
+    var p = PERIODES_ETAT[i];
+    var actif = (p.valeur === periodeEtatSelectionnee) ? ' sous-onglet-actif' : '';
+    html += '<button class="sous-onglet' + actif + '" data-action="changer-periode-etat" data-periode="' + p.valeur + '">' + p.libelle + '</button>';
+  }
+  zone.innerHTML = html;
+}
+
+function changerPeriodeEtat(valeur) {
+  periodeEtatSelectionnee = valeur;
+  rendreSelecteurPeriodeEtat();
+  rendreGraphiqueEtat();
+}
+
+/* ---- Page État : 4 courbes individuelles ---- */
+
 function rendreGraphiqueEtat() {
-  var dates = Object.keys(etat.ressentiQuotidien).sort();
-  var dates30j = dates.slice(-30);
+  rendreSelecteurPeriodeEtat();
+
+  var toutesLesDates = Object.keys(etat.ressentiQuotidien).sort();
+  var dates = filtrerDatesParPeriode(toutesLesDates, periodeEtatSelectionnee);
+
+  var libellePeriode = trouverPeriodeEtat(periodeEtatSelectionnee).libelle;
+  document.getElementById('etat-titre-humeur').innerHTML = 'Humeur (' + libellePeriode + ')';
+  document.getElementById('etat-titre-fatigue').innerHTML = 'Fatigue (' + libellePeriode + ')';
+  document.getElementById('etat-titre-stress').innerHTML = 'Stress (' + libellePeriode + ')';
+  document.getElementById('etat-titre-sommeil').innerHTML = 'Sommeil (' + libellePeriode + ')';
 
   var pointsSommeil = [], pointsFatigue = [], pointsStress = [], pointsHumeur = [];
 
-  dates30j.forEach(function (date) {
+  dates.forEach(function (date) {
     var j = etat.ressentiQuotidien[date];
-    var fatigueBrute = j.fatigue !== undefined ? j.fatigue : 4;
-    var stressBrut = j.stress !== undefined ? j.stress : 4;
     pointsSommeil.push({ date: date, valeur: j.sommeil });
-    pointsFatigue.push({ date: date, valeur: 8 - fatigueBrute }); // inversé
-    pointsStress.push({ date: date, valeur: 8 - stressBrut });    // inversé
+    pointsFatigue.push({ date: date, valeur: j.fatigue !== undefined ? j.fatigue : 4 });
+    pointsStress.push({ date: date, valeur: j.stress !== undefined ? j.stress : 4 });
     pointsHumeur.push({ date: date, valeur: j.humeur !== undefined ? j.humeur : 4 });
   });
 
-  document.getElementById('etat-zone-sommeil').innerHTML = construireSvgCourbe(pointsSommeil, ' h', '#3b82f6', { min: 0, max: 14 });
-  document.getElementById('etat-zone-fatigue').innerHTML = construireSvgCourbe(pointsFatigue, '/8', '#f59e0b', { min: 0, max: 8 });
-  document.getElementById('etat-zone-stress').innerHTML = construireSvgCourbe(pointsStress, '/8', '#ef4444', { min: 0, max: 8 });
-  document.getElementById('etat-zone-humeur').innerHTML = construireSvgCourbe(pointsHumeur, '/8', '#10b981', { min: 0, max: 8 });
+  // inverserAxe = true pour fatigue/stress : raw 0 -> affiché en haut (maximum), raw 8 -> affiché en bas (minimum)
+  document.getElementById('etat-zone-sommeil').innerHTML = construireSvgCourbe(pointsSommeil, ' h', '#3b82f6', 0, 24, false);
+  document.getElementById('etat-zone-fatigue').innerHTML = construireSvgCourbe(pointsFatigue, '/8', '#f59e0b', 0, 8, true);
+  document.getElementById('etat-zone-stress').innerHTML = construireSvgCourbe(pointsStress, '/8', '#ef4444', 0, 8, true);
+  document.getElementById('etat-zone-humeur').innerHTML = construireSvgCourbe(pointsHumeur, '/8', '#10b981', 0, 8, false);
 
-  rendreListeEvenementsEtat(dates30j);
   if (vueCombineeEtatVisible) { rendreGraphiqueEtatCombine(); }
+
+  rendreListeEvenementsEtat(dates);
 }
+
+/* ---- Vue superposée : mêmes courbes, même période, même grille, même inversion ---- */
 
 var visibiliteCourbesEtat = { sommeil: true, fatigue: true, stress: true, humeur: true };
 var vueCombineeEtatVisible = false;
 
 function definitionsCourbesEtat() {
   return [
-    { cle: 'sommeil', nom: 'Sommeil', couleur: '#3b82f6', defaut: 8, min: 0, max: 14, inverser: false },
-    { cle: 'fatigue', nom: 'Fatigue', couleur: '#f59e0b', defaut: 4, min: 0, max: 8, inverser: true },
-    { cle: 'stress',  nom: 'Stress',  couleur: '#ef4444', defaut: 4, min: 0, max: 8, inverser: true },
-    { cle: 'humeur',  nom: 'Humeur',  couleur: '#10b981', defaut: 4, min: 0, max: 8, inverser: false }
+    { cle: 'sommeil', nom: 'Sommeil', couleur: '#3b82f6', defaut: 8, min: 0, max: 24, inverser: false },
+    { cle: 'fatigue', nom: 'Fatigue', couleur: '#f59e0b', defaut: 4, min: 0, max: 8,  inverser: true },
+    { cle: 'stress',  nom: 'Stress',  couleur: '#ef4444', defaut: 4, min: 0, max: 8,  inverser: true },
+    { cle: 'humeur',  nom: 'Humeur',  couleur: '#10b981', defaut: 4, min: 0, max: 8,  inverser: false }
   ];
 }
 
@@ -3830,10 +3910,11 @@ function rendreLegendeCombineeEtat() {
 function rendreGraphiqueEtatCombine() {
   var conteneur = document.getElementById('etat-zone-combine');
   if (!conteneur) { return; }
-  var dates = Object.keys(etat.ressentiQuotidien).sort();
-  var dates30j = dates.slice(-30);
 
-  if (dates30j.length < 2) {
+  var toutesLesDates = Object.keys(etat.ressentiQuotidien).sort();
+  var dates = filtrerDatesParPeriode(toutesLesDates, periodeEtatSelectionnee);
+
+  if (dates.length < 2) {
     conteneur.innerHTML = '<div class="etat-vide">Pas encore assez de données pour afficher une courbe.</div>';
     return;
   }
@@ -3844,12 +3925,12 @@ function rendreGraphiqueEtatCombine() {
     var def = definitions[i];
     if (!visibiliteCourbesEtat[def.cle]) { continue; }
     var pts = [];
-    for (var d = 0; d < dates30j.length; d++) {
-      var jour = etat.ressentiQuotidien[dates30j[d]];
+    for (var d = 0; d < dates.length; d++) {
+      var jour = etat.ressentiQuotidien[dates[d]];
       var brut = (jour[def.cle] !== undefined && jour[def.cle] !== null) ? jour[def.cle] : def.defaut;
-      pts.push(def.inverser ? (8 - brut) : brut);
+      pts.push(brut); // valeur brute, l'inversion se fait à l'affichage (yPour), pas ici
     }
-    seriesVisibles.push({ couleur: def.couleur, points: pts, min: def.min, max: def.max });
+    seriesVisibles.push({ couleur: def.couleur, points: pts, min: def.min, max: def.max, inverser: def.inverser });
   }
 
   if (seriesVisibles.length === 0) {
@@ -3857,21 +3938,41 @@ function rendreGraphiqueEtatCombine() {
     return;
   }
 
-  var largeur = 300, hauteur = 150, marge = 24;
+  var largeur = 300, hauteur = 160;
+  var margeGauche = 10, margeDroite = 10, margeHaut = 14, margeBas = 22;
+  var zoneLargeur = largeur - margeGauche - margeDroite;
+  var zoneHauteur = hauteur - margeHaut - margeBas;
+
+  function xPour(i, nb) { return margeGauche + (i / (nb - 1)) * zoneLargeur; }
+  function yPour(valeur, min, max, inverser) {
+    var fraction = (valeur - min) / (max - min);
+    if (fraction < 0) { fraction = 0; }
+    if (fraction > 1) { fraction = 1; }
+    return inverser ? margeHaut + fraction * zoneHauteur : margeHaut + zoneHauteur - fraction * zoneHauteur;
+  }
+
   var svg = '<svg viewBox="0 0 ' + largeur + ' ' + hauteur + '" xmlns="http://www.w3.org/2000/svg">';
 
-  var nbLignes = 4;
-  for (var g = 0; g <= nbLignes; g++) {
-    var yGrille = hauteur - marge - (g / nbLignes) * (hauteur - marge * 2);
-    svg += '<line x1="' + marge + '" y1="' + yGrille.toFixed(1) + '" x2="' + (largeur - marge) + '" y2="' + yGrille.toFixed(1) + '" stroke="#2A313B" stroke-width="1" />';
+  var nbLignesY = 4;
+  for (var g = 0; g <= nbLignesY; g++) {
+    var yGrille = margeHaut + (g / nbLignesY) * zoneHauteur;
+    svg += '<line x1="' + margeGauche + '" y1="' + yGrille.toFixed(1) + '" x2="' + (largeur - margeDroite) + '" y2="' + yGrille.toFixed(1) + '" stroke="#2A313B" stroke-width="1" />';
+  }
+
+  var nbLignesX = Math.min(5, dates.length - 1);
+  for (var v = 0; v <= nbLignesX; v++) {
+    var indexPoint = Math.round((v / nbLignesX) * (dates.length - 1));
+    var xLigne = xPour(indexPoint, dates.length);
+    svg += '<line x1="' + xLigne.toFixed(1) + '" y1="' + margeHaut + '" x2="' + xLigne.toFixed(1) + '" y2="' + (hauteur - margeBas) + '" stroke="#2A313B" stroke-width="1" />';
+    svg += '<text x="' + xLigne.toFixed(1) + '" y="' + (hauteur - margeBas + 12) + '" font-size="8" fill="#8996A3" text-anchor="middle">' + formaterDateCourte(dates[indexPoint]) + '</text>';
   }
 
   for (var s = 0; s < seriesVisibles.length; s++) {
     var serie = seriesVisibles[s];
     var chainePoints = '';
     for (var k = 0; k < serie.points.length; k++) {
-      var x = marge + (k / (serie.points.length - 1)) * (largeur - marge * 2);
-      var y = hauteur - marge - ((serie.points[k] - serie.min) / (serie.max - serie.min)) * (hauteur - marge * 2);
+      var x = xPour(k, serie.points.length);
+      var y = yPour(serie.points[k], serie.min, serie.max, serie.inverser);
       chainePoints += x.toFixed(1) + ',' + y.toFixed(1) + ' ';
     }
     svg += '<polyline points="' + chainePoints.trim() + '" fill="none" stroke="' + serie.couleur + '" stroke-width="2.2" opacity="0.9" />';
@@ -3881,11 +3982,11 @@ function rendreGraphiqueEtatCombine() {
   conteneur.innerHTML = svg;
 }
 
-function rendreListeEvenementsEtat(dates30j) {
+function rendreListeEvenementsEtat(dates) {
   var conteneur = document.getElementById('etat-zone-evenements');
   if (!conteneur) { return; }
   var lignes = [];
-  dates30j.slice().reverse().forEach(function (date) {
+  dates.slice().reverse().forEach(function (date) {
     var j = etat.ressentiQuotidien[date];
     var badges = [];
     if (j.colere) { badges.push('🤬'); }
