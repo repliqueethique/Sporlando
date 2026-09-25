@@ -4828,6 +4828,7 @@ ajouterEcouteurClicDelegue(document.body, function (cible) {
     });
     return;
   }
+  if (action === 'changer-periode-etat') { changerPeriodeEtat(cible.getAttribute('data-periode')); return; }
   if (action === 'toggle-rappel-actif') { toggleRappelActif(parseInt(cible.getAttribute('data-index'), 10)); return; }
   if (action === 'marquer-rappel-fait') { marquerRappelFaitEtRafraichir(cible.getAttribute('data-rappel-id')); return; }
   if (action === 'aller-vers-ressenti') { allerVersRessentiJour(); return; }
