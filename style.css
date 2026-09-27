@@ -1142,6 +1142,7 @@ a { color: inherit; }
   display: flex;
   justify-content: center;
   gap: 20px;
+  margin-top: 18px;
 }
 .booleen-emoji-btn {
   font-size: 32px;
