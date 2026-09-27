@@ -933,14 +933,11 @@ a { color: inherit; }
    MINUTEUR DE REPOS
 ============================================= */
 
-#seance-zone-cdr {
-  background: none !important;
-  border: none !important;
-  box-shadow: none !important;
-  padding: 0 !important;
-  margin: 0 auto 12px auto !important;
+.carte-cdr-actif,
+.carte-cdr-reglage {
   display: -webkit-box; display: -webkit-flex; display: flex;
   -webkit-box-pack: center; -webkit-justify-content: center; justify-content: center;
+  margin: 0 auto 12px auto;
 }
 .carte-cdr-actif {
   width: 200px;

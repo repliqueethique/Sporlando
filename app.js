@@ -3205,7 +3205,7 @@ function configurerGlissementDuree() {
 function rendreZoneCompteARebours() {
   var conteneur = document.getElementById('seance-zone-cdr');
   if (!conteneur) { return; }
-  conteneur.classList.remove('carte-cdr-actif', 'carte-cdr-reglage');
+  conteneur.classList.remove('carte', 'carte-cdr-actif', 'carte-cdr-reglage');
   conteneur.classList.add(compteARebours.actif ? 'carte-cdr-actif' : 'carte-cdr-reglage');
   var html = '';
   if (compteARebours.actif) {
