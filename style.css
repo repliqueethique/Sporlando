@@ -811,16 +811,12 @@ a { color: inherit; }
    MINUTEUR DE REPOS
 ============================================= */
 
-.carte-cdr-actif,
-.carte-cdr-reglage {
-  background: none;
-  border: none;
-  box-shadow: none;
-  padding: 0;
-  width: -webkit-fit-content;
-  width: -moz-fit-content;
-  width: fit-content;
-  margin: 0 auto 12px auto;
+#seance-zone-cdr {
+  background: none !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  margin: 0 auto 12px auto !important;
   display: -webkit-box; display: -webkit-flex; display: flex;
   -webkit-box-pack: center; -webkit-justify-content: center; justify-content: center;
 }
@@ -828,7 +824,6 @@ a { color: inherit; }
   width: 200px;
   height: 200px;
   -webkit-box-align: center; -webkit-align-items: center; align-items: center;
-  overflow: visible;
 }
 
 .cdr-cercle-zone {
@@ -836,6 +831,8 @@ a { color: inherit; }
   width: 200px;
   height: 200px;
   margin: 0;
+  border-radius: 50%;
+  box-shadow: var(--ombre);
   touch-action: none;
   cursor: pointer;
 }
@@ -888,6 +885,7 @@ a { color: inherit; }
   border: 1.5px solid var(--couleur-nutrition);
   border-radius: 999px;
   background: rgba(185, 142, 240, 0.08);
+  box-shadow: var(--ombre);
   padding: 6px 6px 6px 20px;
   cursor: ew-resize;
   -webkit-user-select: none;
