@@ -2239,7 +2239,7 @@ function rendreCarteSeanceJour() {
 }
 
 var PARTICULES_PAR_THEME = {
-  automnal: ['🍂', '🍁', '🍃'],
+  automnal: ['🍂', '🍁', '🌰'],
   effroi: ['👻', '🎃', '🦇', '💀'],
   hivernal: ['❄', '❅', '❆'],
   paindepice: ['⭐', '✨', '🍪'],
@@ -2263,13 +2263,15 @@ function genererParticules(nombre) {
 
     if (jeuEmoji) {
       var emoji = jeuEmoji[Math.floor(Math.random() * jeuEmoji.length)];
-      var tailleEmoji = (Math.random() * 10 + 14).toFixed(1);
+      var tailleEmoji = (Math.random() * 6 + 9).toFixed(1); // 9px à 15px, plus discret
+      var rotation = Math.round(Math.random() * 720 - 360); // -360deg à +360deg
       html += '<span class="particule particule-emoji" style="' +
         'font-size:' + tailleEmoji + 'px;' +
         'animation-duration:' + duree + 's;' +
         'animation-delay:' + delai + 's;' +
         '--tx:' + x + 'px;' +
         '--ty:' + y + 'px;' +
+        '--rot:' + rotation + 'deg;' +
         '">' + emoji + '</span>';
     } else {
       var taille = (Math.random() * 4 + 2).toFixed(1);

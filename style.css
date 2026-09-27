@@ -543,7 +543,8 @@ a { color: inherit; }
   border-radius: 0;
   line-height: 1;
   display: inline-block;
-  filter: drop-shadow(0 0 3px rgba(0,0,0,0.35));
+  filter: none;
+  animation-name: flotteParticuleEmoji;
 }
 
 @keyframes tourneRayons1 {
@@ -636,6 +637,11 @@ a { color: inherit; }
   0%   { transform: translate(-50%, -50%) translate(0, 0); opacity: 0; }
   15%  { opacity: 1; }
   100% { transform: translate(-50%, -50%) translate(var(--tx), var(--ty)); opacity: 0; }
+}
+@keyframes flotteParticuleEmoji {
+  0%   { transform: translate(-50%, -50%) translate(0, 0) rotate(0deg); opacity: 0; }
+  15%  { opacity: 1; }
+  100% { transform: translate(-50%, -50%) translate(var(--tx), var(--ty)) rotate(var(--rot)); opacity: 0; }
 }
 
 /* Seance active : zone haute collante (chrono + minuteur) */
