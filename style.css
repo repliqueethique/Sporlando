@@ -812,11 +812,104 @@ a { color: inherit; }
 ============================================= */
 
 /* Minuteur de repos (compte a rebours) */
-.cdr-champs {
-  display: -webkit-box; display: -webkit-flex; display: flex;
-  -webkit-box-align: end; -webkit-align-items: flex-end; align-items: flex-end;
+.cdr-cercle-zone {
+  position: relative;
+  width: 200px;
+  height: 200px;
+  margin: 4px auto 2px auto;
+  touch-action: none;
+  cursor: pointer;
 }
-.cdr-champ { width: auto; margin-right: 10px; }
+.cdr-svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+  -webkit-transform: rotate(-90deg);
+  transform: rotate(-90deg);
+}
+.cdr-cercle-fond {
+  fill: none;
+  stroke: var(--couleur-carte-creux);
+  stroke-width: 10;
+}
+.cdr-cercle-progression {
+  fill: none;
+  stroke-width: 10;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 0.25s linear;
+}
+.cdr-centre {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  display: -webkit-box; display: -webkit-flex; display: flex;
+  -webkit-box-align: center; -webkit-align-items: center; align-items: center;
+  -webkit-box-pack: center; -webkit-justify-content: center; justify-content: center;
+}
+.cdr-chrono {
+  font-size: 46px;
+  font-weight: 900;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -1px;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  text-align: center;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.cdr-chrono-pause {
+  animation: etirement-pulse-pause 1.5s ease-in-out infinite;
+}
+.cdr-presets {
+  display: -webkit-box; display: -webkit-flex; display: flex;
+  -webkit-flex-wrap: wrap; flex-wrap: wrap;
+  -webkit-box-pack: center; -webkit-justify-content: center; justify-content: center;
+  margin-bottom: 12px;
+}
+.cdr-chip {
+  padding: 8px 14px;
+  margin: 0 6px 6px 0;
+  border-radius: 20px;
+  border: 1px solid var(--couleur-bordure);
+  background: var(--couleur-carte-creux);
+  color: var(--couleur-texte);
+  font-family: var(--police-donnees);
+  font-size: 13px;
+  font-weight: 700;
+}
+.cdr-chip:active { opacity: 0.7; }
+.cdr-champs-mini {
+  display: -webkit-box; display: -webkit-flex; display: flex;
+  -webkit-box-align: center; -webkit-align-items: center; align-items: center;
+  -webkit-box-pack: center; -webkit-justify-content: center; justify-content: center;
+}
+.cdr-champs-mini input {
+  width: 52px;
+  padding: 8px 4px;
+  margin: 0 3px;
+  border: 1px solid var(--couleur-bordure);
+  border-radius: 6px;
+  background: var(--couleur-carte-creux);
+  color: var(--couleur-texte);
+  font-family: var(--police-donnees);
+  text-align: center;
+  font-size: 18px;
+}
+.cdr-deux-points {
+  font-family: var(--police-donnees);
+  font-size: 18px;
+  color: var(--couleur-texte-att);
+}
+.cdr-bouton-lancer {
+  margin-left: 10px;
+  width: 40px; height: 40px;
+  min-width: 40px;
+  border-radius: 50%;
+  background: var(--couleur-degrade);
+  color: #0B1114;
+  font-size: 15px;
+}
 .cdr-champ label { font-size: 11px; color: var(--couleur-texte-att); text-transform: uppercase; margin-bottom: 4px; display: block; }
 .cdr-champ input {
   width: 70px;

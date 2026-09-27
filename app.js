@@ -3026,11 +3026,32 @@ function annulerSeance() {
    BLOC 13 : MINUTEUR DE REPOS (compte a rebours, toujours accessible en seance)
    ============================================================ */
 
-var compteARebours = { actif: false, finMs: null };
+var compteARebours = { actif: false, finMs: null, dureeTotaleMs: 0, enPause: false, resteMsPause: null };
 var intervalleCompteARebours = null;
 var derniereMinutesReglees = 1;
 var dernieresSecondesReglees = 30;
 var contexteAudio = null;
+
+/* Rayon/circonférence de l'anneau de progression du minuteur */
+var CDR_RAYON = 96;
+var CDR_CIRCONFERENCE = 2 * Math.PI * CDR_RAYON;
+
+/* Couleurs du dégradé dynamique (violet au lancement -> rose -> orange à 0) */
+var COULEUR_CDR_DEBUT = '#B98EF0';
+var COULEUR_CDR_MILIEU = '#FF3D9A';
+var COULEUR_CDR_FIN = '#FF7A18';
+
+function couleurCompteARebours(fractionRestante) {
+  if (isNaN(fractionRestante)) { fractionRestante = 0; }
+  if (fractionRestante < 0) { fractionRestante = 0; }
+  if (fractionRestante > 1) { fractionRestante = 1; }
+  if (fractionRestante >= 0.5) {
+    var t1 = (fractionRestante - 0.5) / 0.5;
+    return interpolerCouleur(COULEUR_CDR_MILIEU, COULEUR_CDR_DEBUT, t1);
+  }
+  var t2 = fractionRestante / 0.5;
+  return interpolerCouleur(COULEUR_CDR_FIN, COULEUR_CDR_MILIEU, t2);
+}
 
 function obtenirContexteAudio() {
   if (contexteAudio) { return contexteAudio; }
@@ -3070,19 +3091,57 @@ function jouerSonnerie() {
 function rendreZoneCompteARebours() {
   var conteneur = document.getElementById('seance-zone-cdr');
   if (!conteneur) { return; }
-  var html = '<h2 class="carte-titre">Minuteur de repos</h2>';
+  var html = '';
   if (compteARebours.actif) {
-    html += '<div class="chrono texte-degrade" id="cdr-affichage">--:--</div>';
-    html += '<button class="btn btn-contour btn-bloc" style="margin-top:10px;" data-action="arreter-cdr">Arrêter</button>';
+    html += '<div class="cdr-cercle-zone" id="cdr-cercle-zone">';
+    html += '<svg viewBox="0 0 220 220" class="cdr-svg">';
+    html += '<defs><linearGradient id="degradeMinuteur" x1="0%" y1="0%" x2="100%" y2="100%">';
+    html += '<stop offset="0%" stop-color="#1FD9C4"></stop>';
+    html += '<stop id="cdr-degrade-stop2" offset="100%" stop-color="' + COULEUR_CDR_DEBUT + '"></stop>';
+    html += '</linearGradient></defs>';
+    html += '<circle class="cdr-cercle-fond" cx="110" cy="110" r="' + CDR_RAYON + '"></circle>';
+    html += '<circle id="cdr-cercle-progression" class="cdr-cercle-progression" cx="110" cy="110" r="' + CDR_RAYON + '" stroke="url(#degradeMinuteur)" stroke-dasharray="' + CDR_CIRCONFERENCE.toFixed(1) + '" stroke-dashoffset="0"></circle>';
+    html += '</svg>';
+    html += '<div class="cdr-centre"><span id="cdr-affichage" class="cdr-chrono">--:--</span></div>';
+    html += '</div>';
   } else {
-    html += '<div class="cdr-champs">';
-    html += '<div class="cdr-champ"><label>Min</label><input type="number" step="1" min="0" id="cdr-minutes" value="' + derniereMinutesReglees + '"></div>';
-    html += '<div class="cdr-champ"><label>Sec</label><input type="number" step="1" min="0" max="59" id="cdr-secondes" value="' + dernieresSecondesReglees + '"></div>';
-    html += '<button class="btn btn-plein" data-action="lancer-cdr">Lancer</button>';
+    html += '<div class="cdr-presets">';
+    html += '<button class="cdr-chip" data-action="lancer-cdr-rapide" data-secondes="30">30s</button>';
+    html += '<button class="cdr-chip" data-action="lancer-cdr-rapide" data-secondes="60">1:00</button>';
+    html += '<button class="cdr-chip" data-action="lancer-cdr-rapide" data-secondes="90">1:30</button>';
+    html += '<button class="cdr-chip" data-action="lancer-cdr-rapide" data-secondes="120">2:00</button>';
+    html += '<button class="cdr-chip" data-action="lancer-cdr-rapide" data-secondes="180">3:00</button>';
+    html += '</div>';
+    html += '<div class="cdr-champs-mini">';
+    html += '<input type="number" step="1" min="0" id="cdr-minutes" value="' + derniereMinutesReglees + '" aria-label="Minutes">';
+    html += '<span class="cdr-deux-points">:</span>';
+    html += '<input type="number" step="1" min="0" max="59" id="cdr-secondes" value="' + dernieresSecondesReglees + '" aria-label="Secondes">';
+    html += '<button class="cdr-bouton-lancer" data-action="lancer-cdr" title="Lancer le minuteur">&#9654;</button>';
     html += '</div>';
   }
   conteneur.innerHTML = html;
-  if (compteARebours.actif) { afficherCompteARebours(compteARebours.finMs - Date.now()); }
+  if (compteARebours.actif) {
+    afficherCompteARebours(compteARebours.enPause ? compteARebours.resteMsPause : (compteARebours.finMs - Date.now()));
+    configurerGestesMinuteur();
+  }
+}
+
+function demarrerCompteARebours(totalMs) {
+  derniereMinutesReglees = Math.floor(totalMs / 60000);
+  dernieresSecondesReglees = Math.floor((totalMs % 60000) / 1000);
+
+  obtenirContexteAudio();
+
+  compteARebours.actif = true;
+  compteARebours.dureeTotaleMs = totalMs;
+  compteARebours.finMs = Date.now() + totalMs;
+  compteARebours.enPause = false;
+  compteARebours.resteMsPause = null;
+
+  if (intervalleCompteARebours) { window.clearInterval(intervalleCompteARebours); }
+  intervalleCompteARebours = window.setInterval(mettreAJourCompteARebours, 250);
+
+  rendreZoneCompteARebours();
 }
 
 function lancerCompteARebours() {
@@ -3094,26 +3153,68 @@ function lancerCompteARebours() {
   if (isNaN(secondes) || secondes < 0) { secondes = 0; }
   var totalMs = (minutes * 60 + secondes) * 1000;
   if (totalMs <= 0) { afficherToast('Choisis une durée supérieure à zéro.'); return; }
+  demarrerCompteARebours(totalMs);
+}
 
-  derniereMinutesReglees = minutes;
-  dernieresSecondesReglees = secondes;
-
-  obtenirContexteAudio();
-
-  compteARebours.actif = true;
-  compteARebours.finMs = Date.now() + totalMs;
-
-  if (intervalleCompteARebours) { window.clearInterval(intervalleCompteARebours); }
-  intervalleCompteARebours = window.setInterval(mettreAJourCompteARebours, 250);
-
-  rendreZoneCompteARebours();
+function lancerCompteARebourDepuisPreset(secondes) {
+  if (isNaN(secondes) || secondes <= 0) { return; }
+  demarrerCompteARebours(secondes * 1000);
 }
 
 function arreterCompteARebours() {
   compteARebours.actif = false;
   compteARebours.finMs = null;
+  compteARebours.dureeTotaleMs = 0;
+  compteARebours.enPause = false;
+  compteARebours.resteMsPause = null;
   if (intervalleCompteARebours) { window.clearInterval(intervalleCompteARebours); intervalleCompteARebours = null; }
   rendreZoneCompteARebours();
+}
+
+function basculerPauseCompteARebours() {
+  if (!compteARebours.actif) { return; }
+  if (compteARebours.enPause) {
+    compteARebours.enPause = false;
+    compteARebours.finMs = Date.now() + compteARebours.resteMsPause;
+    compteARebours.resteMsPause = null;
+    if (intervalleCompteARebours) { window.clearInterval(intervalleCompteARebours); }
+    intervalleCompteARebours = window.setInterval(mettreAJourCompteARebours, 250);
+    afficherCompteARebours(compteARebours.finMs - Date.now());
+  } else {
+    compteARebours.enPause = true;
+    compteARebours.resteMsPause = Math.max(0, compteARebours.finMs - Date.now());
+    if (intervalleCompteARebours) { window.clearInterval(intervalleCompteARebours); intervalleCompteARebours = null; }
+    afficherCompteARebours(compteARebours.resteMsPause);
+  }
+}
+
+function configurerGestesMinuteur() {
+  var zone = document.getElementById('cdr-cercle-zone');
+  if (!zone) { return; }
+  var yDepart = null;
+  var aDeplaceAssez = false;
+  var aAnnule = false;
+  var SEUIL_SWIPE = 45;
+  var SEUIL_TAP = 10;
+
+  function debut(y) { yDepart = y; aDeplaceAssez = false; aAnnule = false; }
+  function deplace(y) {
+    if (yDepart === null || aAnnule) { return; }
+    var delta = yDepart - y;
+    if (delta > SEUIL_TAP) { aDeplaceAssez = true; }
+    if (delta > SEUIL_SWIPE) { aAnnule = true; arreterCompteARebours(); }
+  }
+  function fin() {
+    if (!aAnnule && !aDeplaceAssez && yDepart !== null) { basculerPauseCompteARebours(); }
+    yDepart = null;
+  }
+
+  zone.addEventListener('touchstart', function (e) { debut(e.touches[0].clientY); }, { passive: true });
+  zone.addEventListener('touchmove', function (e) { deplace(e.touches[0].clientY); }, { passive: true });
+  zone.addEventListener('touchend', fin, false);
+  zone.addEventListener('mousedown', function (e) { debut(e.clientY); });
+  zone.addEventListener('mousemove', function (e) { deplace(e.clientY); });
+  zone.addEventListener('mouseup', fin);
 }
 
 function mettreAJourCompteARebours() {
@@ -3121,6 +3222,9 @@ function mettreAJourCompteARebours() {
   var resteMs = compteARebours.finMs - Date.now();
   if (resteMs <= 0) {
     compteARebours.actif = false;
+    compteARebours.dureeTotaleMs = 0;
+    compteARebours.enPause = false;
+    compteARebours.resteMsPause = null;
     if (intervalleCompteARebours) { window.clearInterval(intervalleCompteARebours); intervalleCompteARebours = null; }
     jouerSonnerie();
     rendreZoneCompteARebours();
@@ -3133,9 +3237,30 @@ function afficherCompteARebours(resteMs) {
   var affichage = document.getElementById('cdr-affichage');
   if (!affichage) { return; }
   var totalSecondes = Math.ceil(resteMs / 1000);
+  if (totalSecondes < 0) { totalSecondes = 0; }
   var minutes = Math.floor(totalSecondes / 60);
   var secondes = totalSecondes % 60;
   affichage.innerHTML = completerZero(minutes) + ':' + completerZero(secondes);
+
+  var fractionRestante = compteARebours.dureeTotaleMs > 0 ? (resteMs / compteARebours.dureeTotaleMs) : 0;
+  if (fractionRestante < 0) { fractionRestante = 0; }
+  if (fractionRestante > 1) { fractionRestante = 1; }
+
+  affichage.classList.toggle('cdr-chrono-pause', compteARebours.enPause);
+
+  var couleur = compteARebours.enPause ? '#8996A3' : couleurCompteARebours(fractionRestante);
+  var couleurDepart = compteARebours.enPause ? '#555555' : '#1FD9C4';
+
+  var stop2 = document.getElementById('cdr-degrade-stop2');
+  if (stop2) { stop2.setAttribute('stop-color', couleur); }
+
+  affichage.style.backgroundImage = 'linear-gradient(135deg, ' + couleurDepart + ', ' + couleur + ')';
+
+  var anneau = document.getElementById('cdr-cercle-progression');
+  if (anneau) {
+    var decalage = CDR_CIRCONFERENCE * (1 - fractionRestante);
+    anneau.style.strokeDashoffset = decalage.toFixed(1);
+  }
 }
 
 /* ============================================================
@@ -4960,7 +5085,7 @@ ajouterEcouteurClicDelegue(document.body, function (cible) {
   if (action === 'basculer-note-serie') { basculerNoteSerie(parseInt(cible.getAttribute('data-ex'), 10), parseInt(cible.getAttribute('data-serie'), 10)); return; }
 
   if (action === 'lancer-cdr') { lancerCompteARebours(); return; }
-  if (action === 'arreter-cdr') { arreterCompteARebours(); return; }
+  if (action === 'lancer-cdr-rapide') { lancerCompteARebourDepuisPreset(parseInt(cible.getAttribute('data-secondes'), 10)); return; }
 
   if (action === 'toggle-checklist') {
     var tache = cible.getAttribute('data-tache');
