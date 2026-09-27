@@ -454,7 +454,8 @@ function etatParDefaut() {
   return {
     profil: {
       poidsCorporel: 75, objectifProteines: 150, objectifGlucides: 250, objectifLipides: 70,
-      latitudeGym: 44.558, longitudeGym: 4.750, seuilTempMax: null, seuilTempMin: null
+      latitudeGym: 44.558, longitudeGym: 4.750, seuilTempMax: null, seuilTempMin: null,
+      theme: 'sombre', sonnerieMinuteur: 'classique'
     },
     exercices: [],
     seances: [],
@@ -486,6 +487,8 @@ function completerChampsEtat(donnees) {
   if (donnees.profil.longitudeGym === undefined) { donnees.profil.longitudeGym = 4.750; }
   if (donnees.profil.seuilTempMax === undefined) { donnees.profil.seuilTempMax = null; }
   if (donnees.profil.seuilTempMin === undefined) { donnees.profil.seuilTempMin = null; }
+  if (donnees.profil.theme === undefined) { donnees.profil.theme = 'sombre'; }
+  if (donnees.profil.sonnerieMinuteur === undefined) { donnees.profil.sonnerieMinuteur = 'classique'; }
   if (!donnees.exercices) { donnees.exercices = []; }
   if (!donnees.seances) { donnees.seances = []; }
   if (!donnees.programmes) { donnees.programmes = []; }
@@ -3082,10 +3085,24 @@ function jouerBip(ctx, debut, frequence, duree) {
   oscillateur.stop(debut + duree + 0.05);
 }
 
-function jouerSonnerie() {
+function jouerSonnerie(typeForce) {
   var ctx = obtenirContexteAudio();
   if (!ctx) { return; }
+  var type = typeForce || etat.profil.sonnerieMinuteur || 'classique';
   var maintenant = ctx.currentTime;
+
+  if (type === 'douce') {
+    jouerBip(ctx, maintenant, 523.25, 0.7);
+    return;
+  }
+  if (type === 'alarme') {
+    jouerBip(ctx, maintenant, 1568, 0.09);
+    jouerBip(ctx, maintenant + 0.13, 1568, 0.09);
+    jouerBip(ctx, maintenant + 0.26, 1568, 0.09);
+    jouerBip(ctx, maintenant + 0.39, 1568, 0.09);
+    jouerBip(ctx, maintenant + 0.52, 1568, 0.16);
+    return;
+  }
   jouerBip(ctx, maintenant, 1046.5, 0.16);
   jouerBip(ctx, maintenant + 0.2, 1046.5, 0.16);
   jouerBip(ctx, maintenant + 0.4, 1318.5, 0.32);
@@ -5049,6 +5066,11 @@ ajouterEcouteurClicDelegue(document.body, function (cible) {
   if (action === 'passer-echauffement') { passerEchauffement(); return; }
   if (action === 'terminer-echauffement') { terminerEchauffement(); return; }
   if (action === 'ouvrir-reglages') { ouvrirReglages(); return; }
+  if (action === 'reglages-ouvrir-section') { rendreReglages(cible.getAttribute('data-section')); return; }
+  if (action === 'reglages-retour') { rendreReglages('menu'); return; }
+  if (action === 'enregistrer-meteo-profil') { enregistrerMeteoProfil(); return; }
+  if (action === 'enregistrer-personnalisation') { enregistrerPersonnalisation(); return; }
+  if (action === 'tester-sonnerie-minuteur') { testerSonnerieMinuteur(); return; }
   if (action === 'ouvrir-export-donnees') { ouvrirExportDonnees(); return; }
   if (action === 'tenter-telechargement-json') { tenterTelechargementJson(); return; }
   if (action === 'ouvrir-import-donnees') { ouvrirImportDonnees(); return; }
@@ -5247,6 +5269,7 @@ document.getElementById('modal-overlay').addEventListener('click', function (evt
 
 /* BLOC 18 : INITIALISATION */
 
+appliquerTheme();
 allerVersPage('accueil');
 
 if (syncEstConfiguree()) {
