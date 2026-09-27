@@ -538,7 +538,7 @@ a { color: inherit; }
   animation: tourneRayons1 24s linear infinite;
 }
 
-.particule-emoji {
+.particule.particule-emoji {
   background: none;
   border-radius: 0;
   line-height: 1;
