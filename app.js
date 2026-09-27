@@ -3091,7 +3091,7 @@ function jouerSonnerie() {
   jouerBip(ctx, maintenant + 0.4, 1318.5, 0.32);
 }
 
-/* --- Réglage de la durée avant lancement : glissement horizontal (comme le champ sommeil), pas de 15 secondes --- */
+/* --- Réglage de la durée avant lancement : glissement horizontal, pas de 15 secondes --- */
 
 var glissementDureeEnCours = false;
 var glissementDureeXDepart = 0;
@@ -3162,6 +3162,7 @@ function configurerGlissementDuree() {
 function rendreZoneCompteARebours() {
   var conteneur = document.getElementById('seance-zone-cdr');
   if (!conteneur) { return; }
+  conteneur.classList.toggle('carte-cdr-actif', compteARebours.actif);
   var html = '';
   if (compteARebours.actif) {
     html += '<div class="cdr-cercle-zone" id="cdr-cercle-zone">';
@@ -3256,21 +3257,42 @@ function configurerGestesMinuteur() {
   var zone = document.getElementById('cdr-cercle-zone');
   if (!zone) { return; }
   var yDepart = null;
+  var deltaCourant = 0;
   var aDeplaceAssez = false;
-  var aAnnule = false;
-  var SEUIL_SWIPE = 45;
+  var SEUIL_SWIPE = 70;
   var SEUIL_TAP = 10;
 
-  function debut(y) { yDepart = y; aDeplaceAssez = false; aAnnule = false; }
+  function debut(y) {
+    yDepart = y;
+    deltaCourant = 0;
+    aDeplaceAssez = false;
+    zone.style.transition = 'none';
+  }
   function deplace(y) {
-    if (yDepart === null || aAnnule) { return; }
+    if (yDepart === null) { return; }
     var delta = yDepart - y;
-    if (delta > SEUIL_TAP) { aDeplaceAssez = true; }
-    if (delta > SEUIL_SWIPE) { aAnnule = true; arreterCompteARebours(); }
+    if (delta < 0) { delta = delta / 3; } /* résistance si on tire vers le bas */
+    deltaCourant = delta;
+    if (Math.abs(delta) > SEUIL_TAP) { aDeplaceAssez = true; }
+    var opacite = Math.max(0, 1 - Math.max(0, delta) / (SEUIL_SWIPE * 1.6));
+    zone.style.transform = 'translateY(' + (-delta) + 'px)';
+    zone.style.opacity = opacite;
   }
   function fin() {
-    if (!aAnnule && !aDeplaceAssez && yDepart !== null) { basculerPauseCompteARebours(); }
+    if (yDepart === null) { return; }
+    if (deltaCourant > SEUIL_SWIPE) {
+      zone.style.transition = 'transform 0.2s ease-in, opacity 0.2s ease-in';
+      zone.style.transform = 'translateY(-180px)';
+      zone.style.opacity = '0';
+      window.setTimeout(function () { arreterCompteARebours(); }, 190);
+    } else {
+      zone.style.transition = 'transform 0.25s cubic-bezier(0.34,1.56,0.64,1), opacity 0.2s ease';
+      zone.style.transform = 'translateY(0)';
+      zone.style.opacity = '1';
+      if (!aDeplaceAssez) { basculerPauseCompteARebours(); }
+    }
     yDepart = null;
+    deltaCourant = 0;
   }
 
   zone.addEventListener('touchstart', function (e) { debut(e.touches[0].clientY); }, { passive: true });
