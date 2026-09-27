@@ -4741,6 +4741,7 @@ function ouvrirDetailHistorique(idEntree) {
   if (!entree || !entree.resultat) { return; }
   var seance = trouverParId(etat.seances, entree.seanceId);
   var nomSeance = seance ? seance.nom : '(séance supprimée)';
+  var complete = seanceEstComplete(entree);
 
   var html = '';
   html += '<div class="modal-entete"><h2>' + echapperHtml(nomSeance) + '</h2>';
@@ -4749,6 +4750,7 @@ function ouvrirDetailHistorique(idEntree) {
   if (entree.dureeMinutes) { html += ' · ' + entree.dureeMinutes + ' min'; }
   if (entree.caloriesEstimees) { html += ' · ' + Math.round(entree.caloriesEstimees) + ' kcal'; }
   html += '</div>';
+  html += '<div class="badge-technique' + (complete ? ' badge-record' : '') + '" style="display:inline-block; margin-bottom:12px;">' + (complete ? 'Complète' : 'Incomplète') + '</div>';
 
   for (var i = 0; i < entree.resultat.exercices.length; i++) {
     var ligneEx = entree.resultat.exercices[i];
@@ -4757,27 +4759,57 @@ function ouvrirDetailHistorique(idEntree) {
 
     html += '<div class="carte" style="padding:10px; margin-bottom:10px;">';
     html += '<strong>' + echapperHtml(nomEx) + '</strong>';
-    html += '<table style="width:100%; margin-top:8px; font-size:13px;">';
-    html += '<tr class="texte-att"><td>Série</td><td>Poids</td><td>Reps</td><td>Fait</td></tr>';
-    var compteurEchHist = 0;
-    var compteurTravHist = 0;
     for (var s = 0; s < ligneEx.series.length; s++) {
       var serie = ligneEx.series[s];
-      var libelleSerieHist;
-      if (serie.echauffement) { compteurEchHist++; libelleSerieHist = 'É' + compteurEchHist; }
-      else { compteurTravHist++; libelleSerieHist = compteurTravHist; }
-      html += '<tr' + (serie.echauffement ? ' class="texte-att"' : '') + '>';
-      html += '<td>' + libelleSerieHist + '</td>';
-      html += '<td>' + serie.poids + ' kg</td>';
-      html += '<td>' + serie.reps + '</td>';
-      html += '<td>' + (serie.fait ? '&#10003;' : '&#10007;') + '</td>';
-      html += '</tr>';
+      html += '<div class="serie-ligne">';
+      html += '<div class="serie-num">#' + (s + 1) + '</div>';
+      html += '<div class="serie-champ"><input type="number" step="0.5" inputmode="decimal" data-role="hist-poids" data-entree="' + entree.id + '" data-ex="' + i + '" data-serie="' + s + '" value="' + serie.poids + '"></div>';
+      html += '<div class="serie-unite">kg</div>';
+      html += '<div class="serie-champ"><input type="number" step="1" inputmode="numeric" data-role="hist-reps" data-entree="' + entree.id + '" data-ex="' + i + '" data-serie="' + s + '" value="' + serie.reps + '"></div>';
+      html += '<div class="serie-unite">reps</div>';
+      html += '<button class="bulle-validation' + (serie.fait ? ' bulle-validation-faite' : '') + '" data-action="basculer-serie-historique" data-entree="' + entree.id + '" data-ex="' + i + '" data-serie="' + s + '">&#10003;</button>';
+      html += '</div>';
     }
-    html += '</table>';
     html += '</div>';
   }
 
+  html += '<button class="btn btn-contour btn-bloc" style="margin-top:6px;" data-action="tout-marquer-fait-historique" data-id="' + entree.id + '">Tout marquer fait (complète)</button>';
+  html += '<button class="btn btn-contour btn-bloc" style="margin-top:8px;" data-action="tout-marquer-non-fait-historique" data-id="' + entree.id + '">Tout marquer non fait (incomplète)</button>';
+
   ouvrirModal(html);
+}
+
+function basculerSerieFaiteHistorique(entreeId, exIndex, serieIndex) {
+  var entree = trouverParId(etat.agenda, entreeId);
+  if (!entree || !entree.resultat) { return; }
+  var serie = entree.resultat.exercices[exIndex].series[serieIndex];
+  serie.fait = !serie.fait;
+  sauvegarderEtat();
+  ouvrirDetailHistorique(entreeId);
+  rendreHistoriqueSeances();
+  rendreCalendrier();
+}
+
+function modifierValeurSerieHistorique(role, entreeId, exIndex, serieIndex, valeur) {
+  var entree = trouverParId(etat.agenda, entreeId);
+  if (!entree || !entree.resultat) { return; }
+  var serie = entree.resultat.exercices[exIndex].series[serieIndex];
+  if (role === 'hist-poids') { serie.poids = parseFloat(valeur) || 0; }
+  if (role === 'hist-reps') { serie.reps = parseInt(valeur, 10) || 0; }
+  sauvegarderEtat();
+}
+
+function toutMarquerHistorique(entreeId, valeur) {
+  var entree = trouverParId(etat.agenda, entreeId);
+  if (!entree || !entree.resultat) { return; }
+  for (var i = 0; i < entree.resultat.exercices.length; i++) {
+    var series = entree.resultat.exercices[i].series;
+    for (var j = 0; j < series.length; j++) { series[j].fait = valeur; }
+  }
+  sauvegarderEtat();
+  ouvrirDetailHistorique(entreeId);
+  rendreHistoriqueSeances();
+  rendreCalendrier();
 }
 
 /* ============================================================
@@ -4850,6 +4882,13 @@ ajouterEcouteurClicDelegue(document.body, function (cible) {
     }
     return;
   }
+  if (action === 'voir-detail-historique') { ouvrirDetailHistorique(id); return; }
+  if (action === 'basculer-serie-historique') {
+    basculerSerieFaiteHistorique(cible.getAttribute('data-entree'), parseInt(cible.getAttribute('data-ex'), 10), parseInt(cible.getAttribute('data-serie'), 10));
+    return;
+  }
+  if (action === 'tout-marquer-fait-historique') { toutMarquerHistorique(id, true); return; }
+  if (action === 'tout-marquer-non-fait-historique') { toutMarquerHistorique(id, false); return; }
 
   if (action === 'toggle-vue-combinee-etat') { basculerVueCombineeEtat(); return; }
   if (action === 'toggle-courbe-etat') { basculerCourbeEtat(cible.getAttribute('data-courbe')); return; }
@@ -4947,6 +4986,15 @@ document.body.addEventListener('change', function (evt) {
   if (evt.target.id === 'progression-select-exercice') { changerExerciceProgression(); }
   if (evt.target.id === 'champ-ex-groupe') { rafraichirDiagrammeMuscles(); }
   if (evt.target.id === 'champ-import-fichier') { chargerFichierImport(); }
+  if (role === 'hist-poids' || role === 'hist-reps') {
+    modifierValeurSerieHistorique(
+      role,
+      evt.target.getAttribute('data-entree'),
+      parseInt(evt.target.getAttribute('data-ex'), 10),
+      parseInt(evt.target.getAttribute('data-serie'), 10),
+      evt.target.value
+    );
+  }
 }, false);
 
 document.body.addEventListener('input', function (evt) {
