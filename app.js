@@ -3673,10 +3673,76 @@ function calculerObjectifsNutritionAuto() {
   afficherToast('Objectifs recalculés selon ton profil.');
 }
 
-function ouvrirReglages() {
-  var html = '';
-  html += '<div class="modal-entete"><h2>Réglages</h2><button class="bouton-fermer" data-action="fermer-modal">&times;</button></div>';
+/* ============================================================
+   REGLAGES — navigation par sous-pages
+   ============================================================ */
 
+var vueReglagesActuelle = 'menu';
+
+var TITRES_REGLAGES = {
+  menu: 'Réglages',
+  profil: 'Profil & objectifs',
+  meteo: 'Météo du lieu d\'entraînement',
+  sync: 'Synchronisation',
+  rappels: 'Rappels & notifications',
+  personnalisation: 'Personnalisation',
+  sauvegarde: 'Sauvegarde manuelle'
+};
+
+function ouvrirReglages() {
+  rendreReglages('menu');
+}
+
+function rendreReglages(vue) {
+  vueReglagesActuelle = vue;
+  var html = '';
+
+  html += '<div class="modal-entete"><div class="modal-entete-gauche">';
+  if (vue !== 'menu') {
+    html += '<button class="bouton-retour" data-action="reglages-retour">&#8249;</button>';
+  }
+  html += '<h2>' + TITRES_REGLAGES[vue] + '</h2>';
+  html += '</div><button class="bouton-fermer" data-action="fermer-modal">&times;</button></div>';
+
+  if (vue === 'menu') { html += construireMenuReglages(); }
+  if (vue === 'profil') { html += construireReglagesProfil(); }
+  if (vue === 'meteo') { html += construireReglagesMeteo(); }
+  if (vue === 'sync') { html += construireReglagesSync(); }
+  if (vue === 'rappels') { html += construireReglagesRappels(); }
+  if (vue === 'personnalisation') { html += construireReglagesPersonnalisation(); }
+  if (vue === 'sauvegarde') { html += construireReglagesSauvegarde(); }
+
+  ouvrirModal(html);
+
+  if (vue === 'sync') { rendreZoneSync(); }
+  if (vue === 'rappels') { renderRemindersSettings(); }
+}
+
+function construireMenuReglages() {
+  var html = '<ul class="reglages-menu">';
+  html += ligneMenuReglages('👤', 'Profil & objectifs', 'profil');
+  html += ligneMenuReglages('🌤️', 'Météo du lieu d\'entraînement', 'meteo');
+  html += ligneMenuReglages('🔄', 'Synchronisation', 'sync');
+  html += ligneMenuReglages('🔔', 'Rappels & notifications', 'rappels');
+  html += ligneMenuReglages('🎨', 'Personnalisation', 'personnalisation');
+  html += ligneMenuReglages('💾', 'Sauvegarde manuelle', 'sauvegarde');
+  html += '</ul>';
+  return html;
+}
+
+function ligneMenuReglages(icone, libelle, section) {
+  var html = '<li class="reglages-menu-ligne" data-action="reglages-ouvrir-section" data-section="' + section + '">';
+  html += '<span class="reglages-menu-icone">' + icone + '</span>';
+  html += '<span class="reglages-menu-libelle">' + echapperHtml(libelle) + '</span>';
+  html += '<span class="reglages-menu-chevron">&#8250;</span>';
+  html += '</li>';
+  return html;
+}
+
+/* --- Profil & objectifs --- */
+
+function construireReglagesProfil() {
+  var html = '';
   html += '<div class="champ"><label>Poids corporel (kg)</label><input type="number" step="0.1" id="champ-profil-poids" value="' + (etat.profil.poidsCorporel || 75) + '"></div>';
   html += '<div class="champ"><label>Taille (cm)</label><input type="number" step="1" id="champ-profil-taille" value="' + (etat.profil.tailleCm || 175) + '"></div>';
   html += '<div class="champ"><label>Âge</label><input type="number" step="1" id="champ-profil-age" value="' + (etat.profil.age || 30) + '"></div>';
@@ -3685,137 +3751,13 @@ function ouvrirReglages() {
   html += '<option value="femme"' + (etat.profil.sexe === 'femme' ? ' selected' : '') + '>Femme</option>';
   html += '</select></div>';
   html += '<div class="texte-att" style="margin-bottom:10px;">Le poids et la taille servent aussi à estimer les calories dépensées pendant les séances et à calculer automatiquement tes objectifs nutritionnels ci-dessous.</div>';
-
   html += '<div class="champ"><label>Objectif calories / jour (kcal)</label><input type="number" step="1" id="champ-profil-calories" value="' + (etat.profil.objectifCalories || 2200) + '"></div>';
   html += '<div class="champ"><label>Objectif protéines / jour (g)</label><input type="number" step="1" id="champ-profil-proteines" value="' + (etat.profil.objectifProteines || 150) + '"></div>';
   html += '<div class="champ"><label>Objectif glucides / jour (g)</label><input type="number" step="1" id="champ-profil-glucides" value="' + (etat.profil.objectifGlucides || 250) + '"></div>';
   html += '<div class="champ"><label>Objectif lipides / jour (g)</label><input type="number" step="1" id="champ-profil-lipides" value="' + (etat.profil.objectifLipides || 70) + '"></div>';
   html += '<button class="btn btn-contour btn-bloc" data-action="calculer-objectifs-nutrition" style="margin-bottom:10px;">🔄 Recalculer automatiquement mes objectifs</button>';
-
-  html += '<div class="sync-separateur">';
-  html += '<h2 class="carte-titre">Météo du lieu d\'entraînement</h2>';
-  html += '<div class="texte-att" style="margin-bottom:10px;">Utilisé pour te signaler une température trop élevée ou trop basse à l\'endroit où tu t\'entraînes.</div>';
-  html += '<div class="champ"><label>Latitude</label><input type="number" step="0.001" id="champ-profil-latitude" value="' + (etat.profil.latitudeGym !== null && etat.profil.latitudeGym !== undefined ? etat.profil.latitudeGym : '') + '"></div>';
-  html += '<div class="champ"><label>Longitude</label><input type="number" step="0.001" id="champ-profil-longitude" value="' + (etat.profil.longitudeGym !== null && etat.profil.longitudeGym !== undefined ? etat.profil.longitudeGym : '') + '"></div>';
-  html += '<div class="champ"><label>Seuil température max (°C, optionnel)</label><input type="number" step="1" id="champ-profil-temp-max" value="' + (etat.profil.seuilTempMax !== null && etat.profil.seuilTempMax !== undefined ? etat.profil.seuilTempMax : '') + '" placeholder="ex. 28"></div>';
-  html += '<div class="champ"><label>Seuil température min (°C, optionnel)</label><input type="number" step="1" id="champ-profil-temp-min" value="' + (etat.profil.seuilTempMin !== null && etat.profil.seuilTempMin !== undefined ? etat.profil.seuilTempMin : '') + '" placeholder="ex. 10"></div>';
-  html += '</div>';
-
   html += '<button class="btn btn-plein btn-bloc" style="margin-top:10px;" data-action="enregistrer-profil">Enregistrer le profil</button>';
-
-  html += '<div class="sync-separateur">';
-  html += '<h2 class="carte-titre">Synchronisation (GitHub Gist)</h2>';
-  html += '<div class="champ"><label>Token d\'accès personnel GitHub</label>';
-  html += '<input type="password" id="champ-sync-token" value="' + echapperHtml(reglagesSync.token) + '" placeholder="ghp_...">';
-  html += '<div class="case-liste" style="border-bottom:none; padding-top:6px;"><input type="checkbox" id="case-afficher-token" data-action="basculer-token"><span class="texte-att">Afficher le token</span></div>';
-  html += '</div>';
-  html += '<div class="champ"><label>Identifiant du gist (si tu en as déjà un sur un autre appareil)</label>';
-  html += '<input type="text" id="champ-sync-gistid" value="' + echapperHtml(reglagesSync.gistId) + '" placeholder="colle ici l\'identifiant"></div>';
-  html += '<button class="btn btn-contour btn-bloc" data-action="enregistrer-reglages-sync">Enregistrer le token / l\'identifiant</button>';
-  html += '<div id="sync-zone-dynamique" style="margin-top:12px;"></div>';
-  html += '</div>';
-
-  html += '<div class="sync-separateur">';
-  html += '<h2 class="carte-titre">Sauvegarde manuelle</h2>';
-  html += '<div class="texte-att" style="margin-bottom:10px;">Indépendante de la synchronisation — utile en secours si le gist ne se met pas à jour ou pour garder une copie avant de changer d\'appareil.</div>';
-  html += '<button class="btn btn-contour btn-bloc" data-action="ouvrir-export-donnees" style="margin-bottom:8px;">Exporter mes données</button>';
-  html += '<button class="btn btn-contour btn-bloc" data-action="ouvrir-import-donnees">Importer des données</button>';
-  html += '</div>';
-
-  html += '<div class="sync-separateur">';
-  html += '<h2 class="carte-titre">Rappels & notifications</h2>';
-  html += '<div id="reminders-container"></div>';
-  html += '<button class="btn btn-contour btn-bloc" data-action="tester-notif" style="margin-top:8px;">🔔 Tester une notification</button>';
-  html += '</div>';
-
-  ouvrirModal(html);
-  rendreZoneSync();
-  renderRemindersSettings();
-}
-
-/* ============================================================
-   BLOC 14bis : SAUVEGARDE MANUELLE (export/import JSON, independant de la synchro)
-   ============================================================ */
-
-function ouvrirExportDonnees() {
-  var json = JSON.stringify(etat, null, 2);
-  var html = '';
-  html += '<div class="modal-entete"><h2>Exporter mes données</h2><button class="bouton-fermer" data-action="fermer-modal">&times;</button></div>';
-  html += '<div class="texte-att" style="margin-bottom:10px;">Sélectionne tout le texte ci-dessous (appui long → Sélectionner tout → Copier), puis colle-le dans l\'app Notes ou un email pour le conserver en sécurité.</div>';
-  html += '<textarea id="champ-export-json" readonly style="min-height:220px; font-family:var(--police-donnees); font-size:11px;">' + echapperHtml(json) + '</textarea>';
-  html += '<button class="btn btn-contour btn-bloc" style="margin-top:10px;" data-action="tenter-telechargement-json">Tenter le téléchargement direct (ordinateur/téléphone récent)</button>';
-  ouvrirModal(html);
-  var champ = document.getElementById('champ-export-json');
-  if (champ) { champ.focus(); champ.select(); }
-}
-
-function tenterTelechargementJson() {
-  try {
-    var champ = document.getElementById('champ-export-json');
-    var contenu = champ ? champ.value : JSON.stringify(etat, null, 2);
-    var blob = new Blob([contenu], { type: 'application/json' });
-    var url = URL.createObjectURL(blob);
-    var lien = document.createElement('a');
-    lien.href = url;
-    lien.download = 'carnet-muscu-sauvegarde-' + formaterDateISO(new Date()) + '.json';
-    document.body.appendChild(lien);
-    lien.click();
-    document.body.removeChild(lien);
-    window.setTimeout(function () { URL.revokeObjectURL(url); }, 5000);
-    afficherToast('Téléchargement lancé si ton navigateur le permet.');
-  } catch (erreur) {
-    afficherToast('Téléchargement direct impossible ici — utilise le copier-coller ci-dessus.');
-  }
-}
-
-function ouvrirImportDonnees() {
-  var html = '';
-  html += '<div class="modal-entete"><h2>Importer des données</h2><button class="bouton-fermer" data-action="fermer-modal">&times;</button></div>';
-  html += '<div class="texte-att" style="margin-bottom:10px;">Ceci remplacera TOUTES les données actuelles sur cet appareil. Colle ci-dessous le contenu exporté précédemment, ou choisis un fichier .json.</div>';
-  html += '<div class="champ"><label>Choisir un fichier .json (optionnel)</label><input type="file" accept=".json,application/json" id="champ-import-fichier"></div>';
-  html += '<textarea id="champ-import-json" placeholder="Colle ici le contenu JSON exporté..." style="min-height:180px; font-family:var(--police-donnees); font-size:11px;"></textarea>';
-  html += '<button class="btn btn-alerte btn-bloc" style="margin-top:10px;" data-action="lancer-import-json">Restaurer ces données</button>';
-  ouvrirModal(html);
-}
-
-function chargerFichierImport() {
-  var input = document.getElementById('champ-import-fichier');
-  if (!input || !input.files || input.files.length === 0) { return; }
-  var fichier = input.files[0];
-  var lecteur = new FileReader();
-  lecteur.onload = function (evt) {
-    var champTexte = document.getElementById('champ-import-json');
-    if (champTexte) { champTexte.value = evt.target.result; }
-  };
-  lecteur.onerror = function () {
-    afficherToast('Impossible de lire ce fichier.');
-  };
-  lecteur.readAsText(fichier);
-}
-
-function lancerImportJson() {
-  var champTexte = document.getElementById('champ-import-json');
-  var texte = champTexte ? champTexte.value.trim() : '';
-  if (!texte) { afficherToast('Colle ou choisis d\'abord des données à restaurer.'); return; }
-  var donnees;
-  try {
-    donnees = JSON.parse(texte);
-  } catch (erreurParse) {
-    afficherToast('Ce texte n\'est pas un JSON valide.');
-    return;
-  }
-  if (!donnees || typeof donnees !== 'object' || !donnees.exercices || !donnees.seances) {
-    afficherToast('Ce fichier ne ressemble pas à une sauvegarde de Carnet Muscu.');
-    return;
-  }
-  demanderConfirmation('Remplacer TOUTES les données actuelles de cet appareil par cette sauvegarde ? Cette action est irréversible.', function () {
-    etat = completerChampsEtat(donnees);
-    try { window.localStorage.setItem(CLE_STOCKAGE, JSON.stringify(etat)); } catch (erreurStockage) {}
-    sauvegarderEtat();
-    fermerModal();
-    afficherToast('Données restaurées.');
-    allerVersPage('accueil');
-  });
+  return html;
 }
 
 function enregistrerProfil() {
@@ -3831,7 +3773,24 @@ function enregistrerProfil() {
   etat.profil.objectifLipides = parseFloat(document.getElementById('champ-profil-lipides').value) || 70;
   etat.profil.objectifCalories = parseFloat(document.getElementById('champ-profil-calories').value) || 2200;
   etat.poidsCorporelHistorique[formaterDateISO(new Date())] = etat.profil.poidsCorporel;
+  sauvegarderEtat();
+  afficherToast('Profil enregistré.');
+}
 
+/* --- Météo --- */
+
+function construireReglagesMeteo() {
+  var html = '';
+  html += '<div class="texte-att" style="margin-bottom:10px;">Utilisé pour te signaler une température trop élevée ou trop basse à l\'endroit où tu t\'entraînes.</div>';
+  html += '<div class="champ"><label>Latitude</label><input type="number" step="0.001" id="champ-profil-latitude" value="' + (etat.profil.latitudeGym !== null && etat.profil.latitudeGym !== undefined ? etat.profil.latitudeGym : '') + '"></div>';
+  html += '<div class="champ"><label>Longitude</label><input type="number" step="0.001" id="champ-profil-longitude" value="' + (etat.profil.longitudeGym !== null && etat.profil.longitudeGym !== undefined ? etat.profil.longitudeGym : '') + '"></div>';
+  html += '<div class="champ"><label>Seuil température max (°C, optionnel)</label><input type="number" step="1" id="champ-profil-temp-max" value="' + (etat.profil.seuilTempMax !== null && etat.profil.seuilTempMax !== undefined ? etat.profil.seuilTempMax : '') + '" placeholder="ex. 28"></div>';
+  html += '<div class="champ"><label>Seuil température min (°C, optionnel)</label><input type="number" step="1" id="champ-profil-temp-min" value="' + (etat.profil.seuilTempMin !== null && etat.profil.seuilTempMin !== undefined ? etat.profil.seuilTempMin : '') + '" placeholder="ex. 10"></div>';
+  html += '<button class="btn btn-plein btn-bloc" style="margin-top:6px;" data-action="enregistrer-meteo-profil">Enregistrer</button>';
+  return html;
+}
+
+function enregistrerMeteoProfil() {
   var latitude = parseFloat(document.getElementById('champ-profil-latitude').value);
   var longitude = parseFloat(document.getElementById('champ-profil-longitude').value);
   etat.profil.latitudeGym = isNaN(latitude) ? null : latitude;
@@ -3841,9 +3800,75 @@ function enregistrerProfil() {
   etat.profil.seuilTempMax = isNaN(tempMax) ? null : tempMax;
   etat.profil.seuilTempMin = isNaN(tempMin) ? null : tempMin;
   meteoDerniereVerifMs = null;
-
   sauvegarderEtat();
-  afficherToast('Profil enregistré.');
+  afficherToast('Réglages météo enregistrés.');
+}
+
+/* --- Synchronisation --- */
+
+function construireReglagesSync() {
+  var html = '';
+  html += '<div class="champ"><label>Token d\'accès personnel GitHub</label>';
+  html += '<input type="password" id="champ-sync-token" value="' + echapperHtml(reglagesSync.token) + '" placeholder="ghp_...">';
+  html += '<div class="case-liste" style="border-bottom:none; padding-top:6px;"><input type="checkbox" id="case-afficher-token" data-action="basculer-token"><span class="texte-att">Afficher le token</span></div>';
+  html += '</div>';
+  html += '<div class="champ"><label>Identifiant du gist (si tu en as déjà un sur un autre appareil)</label>';
+  html += '<input type="text" id="champ-sync-gistid" value="' + echapperHtml(reglagesSync.gistId) + '" placeholder="colle ici l\'identifiant"></div>';
+  html += '<button class="btn btn-contour btn-bloc" data-action="enregistrer-reglages-sync">Enregistrer le token / l\'identifiant</button>';
+  html += '<div id="sync-zone-dynamique" style="margin-top:12px;"></div>';
+  return html;
+}
+
+/* --- Rappels --- */
+
+function construireReglagesRappels() {
+  var html = '<div id="reminders-container"></div>';
+  html += '<button class="btn btn-contour btn-bloc" data-action="tester-notif" style="margin-top:8px;">🔔 Tester une notification</button>';
+  return html;
+}
+
+/* --- Personnalisation --- */
+
+function construireReglagesPersonnalisation() {
+  var theme = etat.profil.theme || 'sombre';
+  var sonnerie = etat.profil.sonnerieMinuteur || 'classique';
+  var html = '';
+  html += '<div class="champ"><label>Thème de l\'application</label><select id="champ-perso-theme">';
+  html += '<option value="sombre"' + (theme === 'sombre' ? ' selected' : '') + '>Sombre</option>';
+  html += '<option value="clair"' + (theme === 'clair' ? ' selected' : '') + '>Clair</option>';
+  html += '<option value="auto"' + (theme === 'auto' ? ' selected' : '') + '>Automatique (selon l\'appareil)</option>';
+  html += '</select></div>';
+  html += '<div class="champ"><label>Sonnerie du minuteur de repos</label><select id="champ-perso-sonnerie">';
+  html += '<option value="classique"' + (sonnerie === 'classique' ? ' selected' : '') + '>Classique (3 bips)</option>';
+  html += '<option value="douce"' + (sonnerie === 'douce' ? ' selected' : '') + '>Douce (bip long grave)</option>';
+  html += '<option value="alarme"' + (sonnerie === 'alarme' ? ' selected' : '') + '>Alarme (bips rapides)</option>';
+  html += '</select></div>';
+  html += '<button class="btn btn-contour btn-bloc" data-action="tester-sonnerie-minuteur" style="margin-bottom:12px;">🔊 Tester la sonnerie</button>';
+  html += '<button class="btn btn-plein btn-bloc" data-action="enregistrer-personnalisation">Enregistrer</button>';
+  return html;
+}
+
+function enregistrerPersonnalisation() {
+  etat.profil.theme = document.getElementById('champ-perso-theme').value;
+  etat.profil.sonnerieMinuteur = document.getElementById('champ-perso-sonnerie').value;
+  appliquerTheme();
+  sauvegarderEtat();
+  afficherToast('Personnalisation enregistrée.');
+}
+
+function testerSonnerieMinuteur() {
+  var select = document.getElementById('champ-perso-sonnerie');
+  jouerSonnerie(select ? select.value : null);
+}
+
+/* --- Sauvegarde manuelle --- */
+
+function construireReglagesSauvegarde() {
+  var html = '';
+  html += '<div class="texte-att" style="margin-bottom:10px;">Indépendante de la synchronisation — utile en secours si le gist ne se met pas à jour ou pour garder une copie avant de changer d\'appareil.</div>';
+  html += '<button class="btn btn-contour btn-bloc" data-action="ouvrir-export-donnees" style="margin-bottom:8px;">Exporter mes données</button>';
+  html += '<button class="btn btn-contour btn-bloc" data-action="ouvrir-import-donnees">Importer des données</button>';
+  return html;
 }
 
 function enregistrerReglagesSync() {
@@ -3863,10 +3888,10 @@ function enregistrerReglagesSync() {
   if (!etaitDejaConfiguree && nouveauGistId && aDesDonneesLocales) {
     demanderConfirmation('Cet appareil contient déjà des données locales (exercices, séances ou historique). En reliant un gist existant, seule la version la plus récente entre cet appareil et le gist sera conservée, SANS fusion — l\'autre version sera perdue. Continuer ?', function () {
       fermerModal();
-      ouvrirReglages();
+      rendreReglages('sync');
       appliquer();
     }, function () {
-      ouvrirReglages();
+      rendreReglages('sync');
     });
   } else {
     appliquer();
