@@ -3091,6 +3091,74 @@ function jouerSonnerie() {
   jouerBip(ctx, maintenant + 0.4, 1318.5, 0.32);
 }
 
+/* --- Réglage de la durée avant lancement : glissement horizontal (comme le champ sommeil), pas de 15 secondes --- */
+
+var glissementDureeEnCours = false;
+var glissementDureeXDepart = 0;
+var glissementDureeTotalDepart = 0;
+var evenementsGlissementDureeInitialises = false;
+
+function totalSecondesReglageCdr() {
+  var champM = document.getElementById('cdr-minutes');
+  var champS = document.getElementById('cdr-secondes');
+  var minutes = champM ? (parseInt(champM.value, 10) || 0) : derniereMinutesReglees;
+  var secondes = champS ? (parseInt(champS.value, 10) || 0) : dernieresSecondesReglees;
+  return minutes * 60 + secondes;
+}
+
+function appliquerReglageDureeCdr(totalSecondes) {
+  if (totalSecondes < 5) { totalSecondes = 5; }
+  if (totalSecondes > 3599) { totalSecondes = 3599; }
+  var minutes = Math.floor(totalSecondes / 60);
+  var secondes = totalSecondes % 60;
+  derniereMinutesReglees = minutes;
+  dernieresSecondesReglees = secondes;
+  var champM = document.getElementById('cdr-minutes');
+  var champS = document.getElementById('cdr-secondes');
+  if (champM) { champM.value = minutes; }
+  if (champS) { champS.value = secondes; }
+  var affichage = document.getElementById('cdr-duree-affichage');
+  if (affichage) { affichage.innerHTML = completerZero(minutes) + ':' + completerZero(secondes); }
+}
+
+function demarrerGlissementDuree(x) {
+  glissementDureeEnCours = true;
+  glissementDureeXDepart = x;
+  glissementDureeTotalDepart = totalSecondesReglageCdr();
+  var ligne = document.getElementById('cdr-duree-glissable');
+  if (ligne) { ligne.classList.add('glisse-actif'); }
+}
+
+function deplacerGlissementDuree(x) {
+  if (!glissementDureeEnCours) { return; }
+  var delta = x - glissementDureeXDepart;
+  var pas = Math.trunc(delta / 24); /* 24px de glissement = 15 secondes */
+  appliquerReglageDureeCdr(glissementDureeTotalDepart + pas * 15);
+}
+
+function terminerGlissementDuree() {
+  glissementDureeEnCours = false;
+  var ligne = document.getElementById('cdr-duree-glissable');
+  if (ligne) { ligne.classList.remove('glisse-actif'); }
+}
+
+function configurerGlissementDuree() {
+  var ligne = document.getElementById('cdr-duree-glissable');
+  if (!ligne) { return; }
+  ligne.addEventListener('mousedown', function (e) { demarrerGlissementDuree(e.clientX); });
+  ligne.addEventListener('touchstart', function (e) { demarrerGlissementDuree(e.touches[0].clientX); }, { passive: true });
+
+  if (!evenementsGlissementDureeInitialises) {
+    evenementsGlissementDureeInitialises = true;
+    document.addEventListener('mousemove', function (e) { deplacerGlissementDuree(e.clientX); });
+    document.addEventListener('mouseup', terminerGlissementDuree);
+    document.addEventListener('touchmove', function (e) { deplacerGlissementDuree(e.touches[0].clientX); }, { passive: true });
+    document.addEventListener('touchend', terminerGlissementDuree);
+  }
+}
+
+/* --- Affichage / cycle de vie du minuteur --- */
+
 function rendreZoneCompteARebours() {
   var conteneur = document.getElementById('seance-zone-cdr');
   if (!conteneur) { return; }
@@ -3108,17 +3176,13 @@ function rendreZoneCompteARebours() {
     html += '<div class="cdr-centre"><span id="cdr-affichage" class="cdr-chrono">--:--</span></div>';
     html += '</div>';
   } else {
-    html += '<div class="cdr-presets">';
-    html += '<button class="cdr-chip" data-action="lancer-cdr-rapide" data-secondes="30">30s</button>';
-    html += '<button class="cdr-chip" data-action="lancer-cdr-rapide" data-secondes="60">1:00</button>';
-    html += '<button class="cdr-chip" data-action="lancer-cdr-rapide" data-secondes="90">1:30</button>';
-    html += '<button class="cdr-chip" data-action="lancer-cdr-rapide" data-secondes="120">2:00</button>';
-    html += '<button class="cdr-chip" data-action="lancer-cdr-rapide" data-secondes="180">3:00</button>';
+    html += '<div class="cdr-reglage-ligne">';
+    html += '<div class="cdr-duree-glissable" id="cdr-duree-glissable">';
+    html += '<input type="hidden" id="cdr-minutes" value="' + derniereMinutesReglees + '">';
+    html += '<input type="hidden" id="cdr-secondes" value="' + dernieresSecondesReglees + '">';
+    html += '<span class="cdr-duree-icone">⏱</span>';
+    html += '<span id="cdr-duree-affichage" class="cdr-duree-affichage">' + completerZero(derniereMinutesReglees) + ':' + completerZero(dernieresSecondesReglees) + '</span>';
     html += '</div>';
-    html += '<div class="cdr-champs-mini">';
-    html += '<input type="number" step="1" min="0" id="cdr-minutes" value="' + derniereMinutesReglees + '" aria-label="Minutes">';
-    html += '<span class="cdr-deux-points">:</span>';
-    html += '<input type="number" step="1" min="0" max="59" id="cdr-secondes" value="' + dernieresSecondesReglees + '" aria-label="Secondes">';
     html += '<button class="cdr-bouton-lancer" data-action="lancer-cdr" title="Lancer le minuteur">&#9654;</button>';
     html += '</div>';
   }
@@ -3126,6 +3190,8 @@ function rendreZoneCompteARebours() {
   if (compteARebours.actif) {
     afficherCompteARebours(compteARebours.enPause ? compteARebours.resteMsPause : (compteARebours.finMs - Date.now()));
     configurerGestesMinuteur();
+  } else {
+    configurerGlissementDuree();
   }
 }
 
@@ -3157,11 +3223,6 @@ function lancerCompteARebours() {
   var totalMs = (minutes * 60 + secondes) * 1000;
   if (totalMs <= 0) { afficherToast('Choisis une durée supérieure à zéro.'); return; }
   demarrerCompteARebours(totalMs);
-}
-
-function lancerCompteARebourDepuisPreset(secondes) {
-  if (isNaN(secondes) || secondes <= 0) { return; }
-  demarrerCompteARebours(secondes * 1000);
 }
 
 function arreterCompteARebours() {
@@ -5097,7 +5158,6 @@ ajouterEcouteurClicDelegue(document.body, function (cible) {
   if (action === 'basculer-note-serie') { basculerNoteSerie(parseInt(cible.getAttribute('data-ex'), 10), parseInt(cible.getAttribute('data-serie'), 10)); return; }
 
   if (action === 'lancer-cdr') { lancerCompteARebours(); return; }
-  if (action === 'lancer-cdr-rapide') { lancerCompteARebourDepuisPreset(parseInt(cible.getAttribute('data-secondes'), 10)); return; }
 
   if (action === 'toggle-checklist') {
     var tache = cible.getAttribute('data-tache');

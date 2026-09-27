@@ -808,10 +808,9 @@ a { color: inherit; }
 }
 
 /* =============================================
-   MINUTEUR
+   MINUTEUR DE REPOS
 ============================================= */
 
-/* Minuteur de repos (compte a rebours) */
 .cdr-cercle-zone {
   position: relative;
   width: 200px;
@@ -861,66 +860,52 @@ a { color: inherit; }
 .cdr-chrono-pause {
   animation: etirement-pulse-pause 1.5s ease-in-out infinite;
 }
-.cdr-presets {
-  display: -webkit-box; display: -webkit-flex; display: flex;
-  -webkit-flex-wrap: wrap; flex-wrap: wrap;
-  -webkit-box-pack: center; -webkit-justify-content: center; justify-content: center;
-  margin-bottom: 12px;
-}
-.cdr-chip {
-  padding: 8px 14px;
-  margin: 0 6px 6px 0;
-  border-radius: 20px;
-  border: 1px solid var(--couleur-bordure);
-  background: var(--couleur-carte-creux);
-  color: var(--couleur-texte);
-  font-family: var(--police-donnees);
-  font-size: 13px;
-  font-weight: 700;
-}
-.cdr-chip:active { opacity: 0.7; }
-.cdr-champs-mini {
+
+/* Réglage avant lancement : pill violette glissable + bouton, une seule ligne */
+.cdr-reglage-ligne {
   display: -webkit-box; display: -webkit-flex; display: flex;
   -webkit-box-align: center; -webkit-align-items: center; align-items: center;
   -webkit-box-pack: center; -webkit-justify-content: center; justify-content: center;
 }
-.cdr-champs-mini input {
-  width: 52px;
-  padding: 8px 4px;
-  margin: 0 3px;
-  border: 1px solid var(--couleur-bordure);
-  border-radius: 6px;
-  background: var(--couleur-carte-creux);
-  color: var(--couleur-texte);
-  font-family: var(--police-donnees);
-  text-align: center;
-  font-size: 18px;
+.cdr-duree-glissable {
+  display: -webkit-box; display: -webkit-flex; display: flex;
+  -webkit-box-align: center; -webkit-align-items: center; align-items: center;
+  -webkit-box-pack: center; -webkit-justify-content: center; justify-content: center;
+  border: 1.5px solid var(--couleur-nutrition);
+  border-radius: 999px;
+  padding: 10px 22px;
+  margin-right: 12px;
+  background: rgba(185, 142, 240, 0.08);
+  cursor: ew-resize;
+  -webkit-user-select: none;
+  user-select: none;
+  touch-action: pan-y;
+  transition: background-color 0.15s ease, border-color 0.15s ease;
 }
-.cdr-deux-points {
+.cdr-duree-glissable.glisse-actif {
+  background: rgba(185, 142, 240, 0.18);
+  border-color: #cdb0f7;
+}
+.cdr-duree-icone {
+  font-size: 16px;
+  margin-right: 8px;
+  color: var(--couleur-nutrition);
+}
+.cdr-duree-affichage {
   font-family: var(--police-donnees);
-  font-size: 18px;
-  color: var(--couleur-texte-att);
+  font-size: 20px;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  color: var(--couleur-texte);
+  font-variant-numeric: tabular-nums;
 }
 .cdr-bouton-lancer {
-  margin-left: 10px;
   width: 40px; height: 40px;
   min-width: 40px;
   border-radius: 50%;
   background: var(--couleur-degrade);
   color: #0B1114;
   font-size: 15px;
-}
-.cdr-champ label { font-size: 11px; color: var(--couleur-texte-att); text-transform: uppercase; margin-bottom: 4px; display: block; }
-.cdr-champ input {
-  width: 70px;
-  padding: 8px 6px;
-  border: 1px solid var(--couleur-bordure);
-  border-radius: 6px;
-  background: var(--couleur-carte-creux);
-  color: var(--couleur-texte);
-  font-family: var(--police-donnees);
-  text-align: center;
-  font-size: 18px;
 }
 
 /* Calendrier agenda */
