@@ -480,6 +480,8 @@ function completerChampsEtat(donnees) {
   if (!donnees.profil.objectifProteines) { donnees.profil.objectifProteines = 150; }
   if (!donnees.profil.objectifGlucides) { donnees.profil.objectifGlucides = 250; }
   if (!donnees.profil.objectifLipides) { donnees.profil.objectifLipides = 70; }
+  if (!donnees.profil.age) { donnees.profil.age = 30; }
+  if (!donnees.profil.sexe) { donnees.profil.sexe = 'homme'; }
   if (donnees.profil.latitudeGym === undefined) { donnees.profil.latitudeGym = 44.558; }
   if (donnees.profil.longitudeGym === undefined) { donnees.profil.longitudeGym = 4.750; }
   if (donnees.profil.seuilTempMax === undefined) { donnees.profil.seuilTempMax = null; }
@@ -3547,9 +3549,9 @@ function calculerObjectifsNutritionAuto() {
   var typeObjectif = programmeActif ? (programmeActif.typeMesocycle || '') : '';
 
   var calories = maintenance;
-  if (typeObjectif === 'Force' || typeObjectif === 'Hypertrophie') {
+  if (typeObjectif === 'force' || typeObjectif === 'hypertrophie') {
     calories = maintenance + 250; // léger surplus
-  } else if (typeObjectif === 'Décharge') {
+  } else if (typeObjectif === 'decharge') {
     calories = maintenance - 200; // léger déficit
   }
   // "Personnalisé" ou vide -> maintenance
@@ -3575,6 +3577,11 @@ function ouvrirReglages() {
 
   html += '<div class="champ"><label>Poids corporel (kg)</label><input type="number" step="0.1" id="champ-profil-poids" value="' + (etat.profil.poidsCorporel || 75) + '"></div>';
   html += '<div class="champ"><label>Taille (cm)</label><input type="number" step="1" id="champ-profil-taille" value="' + (etat.profil.tailleCm || 175) + '"></div>';
+  html += '<div class="champ"><label>Âge</label><input type="number" step="1" id="champ-profil-age" value="' + (etat.profil.age || 30) + '"></div>';
+  html += '<div class="champ"><label>Sexe (utilisé uniquement pour le calcul du métabolisme de base)</label><select id="champ-profil-sexe">';
+  html += '<option value="homme"' + (etat.profil.sexe !== 'femme' ? ' selected' : '') + '>Homme</option>';
+  html += '<option value="femme"' + (etat.profil.sexe === 'femme' ? ' selected' : '') + '>Femme</option>';
+  html += '</select></div>';
   html += '<div class="texte-att" style="margin-bottom:10px;">Le poids et la taille servent aussi à estimer les calories dépensées pendant les séances et à calculer automatiquement tes objectifs nutritionnels ci-dessous.</div>';
 
   html += '<div class="champ"><label>Objectif calories / jour (kcal)</label><input type="number" step="1" id="champ-profil-calories" value="' + (etat.profil.objectifCalories || 2200) + '"></div>';
@@ -3714,6 +3721,9 @@ function enregistrerProfil() {
   etat.profil.poidsCorporel = poids > 0 ? poids : 75;
   var taille = parseFloat(document.getElementById('champ-profil-taille').value);
   etat.profil.tailleCm = taille > 0 ? taille : 175;
+  var age = parseInt(document.getElementById('champ-profil-age').value, 10);
+  etat.profil.age = (!isNaN(age) && age > 0) ? age : 30;
+  etat.profil.sexe = (document.getElementById('champ-profil-sexe').value === 'femme') ? 'femme' : 'homme';
   etat.profil.objectifProteines = parseFloat(document.getElementById('champ-profil-proteines').value) || 150;
   etat.profil.objectifGlucides = parseFloat(document.getElementById('champ-profil-glucides').value) || 250;
   etat.profil.objectifLipides = parseFloat(document.getElementById('champ-profil-lipides').value) || 70;
@@ -4349,8 +4359,8 @@ function verifierMeteoGym(callback) {
 function evaluerTemperature(temperature) {
   var idealMin = 12;
   var idealMax = 20;
-  var acceptableMin = 5;
-  var acceptableMax = 28;
+  var acceptableMin = (etat.profil.seuilTempMin !== null && etat.profil.seuilTempMin !== undefined) ? etat.profil.seuilTempMin : 5;
+  var acceptableMax = (etat.profil.seuilTempMax !== null && etat.profil.seuilTempMax !== undefined) ? etat.profil.seuilTempMax : 28;
   if (temperature >= idealMin && temperature <= idealMax) { return 'ideal'; }
   if (temperature >= acceptableMin && temperature <= acceptableMax) { return 'moyen'; }
   return 'mauvais';
