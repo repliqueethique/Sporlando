@@ -2238,25 +2238,50 @@ function rendreCarteSeanceJour() {
   conteneur.innerHTML = html;
 }
 
+var PARTICULES_PAR_THEME = {
+  automnal: ['🍂', '🍁', '🍃'],
+  effroi: ['👻', '🎃', '🦇', '💀'],
+  hivernal: ['❄', '❅', '❆'],
+  paindepice: ['⭐', '✨', '🍪'],
+  printanier: ['🌸', '🌷', '🦋'],
+  pastel: ['🔔', '🌼', '🌷'],
+  estival: ['☀', '🌴', '🍉'],
+  cyberpunk: ['⚡', '💠', '🔷'],
+  steampunk: ['⚙', '🕰', '🔧']
+};
+
 function genererParticules(nombre) {
+  var jeuEmoji = PARTICULES_PAR_THEME[etat.profil.theme];
   var html = '<div class="particules">';
   for (var i = 0; i < nombre; i++) {
-    var taille = (Math.random() * 4 + 2).toFixed(1); // 2px à 6px
-    var duree = (Math.random() * 3 + 3).toFixed(2); // 3s à 6s
-    var delai = (Math.random() * 5).toFixed(2); // 0 à 5s
+    var duree = (Math.random() * 3 + 3).toFixed(2);
+    var delai = (Math.random() * 5).toFixed(2);
     var angle = Math.random() * 360;
-    var distance = Math.random() * 40 + 20; // 20px à 60px
+    var distance = Math.random() * 40 + 20;
     var x = (Math.cos(angle * Math.PI / 180) * distance).toFixed(1);
     var y = (Math.sin(angle * Math.PI / 180) * distance).toFixed(1);
 
-    html += '<span class="particule" style="' +
-      'width:' + taille + 'px;' +
-      'height:' + taille + 'px;' +
-      'animation-duration:' + duree + 's;' +
-      'animation-delay:' + delai + 's;' +
-      '--tx:' + x + 'px;' +
-      '--ty:' + y + 'px;' +
-      '"></span>';
+    if (jeuEmoji) {
+      var emoji = jeuEmoji[Math.floor(Math.random() * jeuEmoji.length)];
+      var tailleEmoji = (Math.random() * 10 + 14).toFixed(1);
+      html += '<span class="particule particule-emoji" style="' +
+        'font-size:' + tailleEmoji + 'px;' +
+        'animation-duration:' + duree + 's;' +
+        'animation-delay:' + delai + 's;' +
+        '--tx:' + x + 'px;' +
+        '--ty:' + y + 'px;' +
+        '">' + emoji + '</span>';
+    } else {
+      var taille = (Math.random() * 4 + 2).toFixed(1);
+      html += '<span class="particule" style="' +
+        'width:' + taille + 'px;' +
+        'height:' + taille + 'px;' +
+        'animation-duration:' + duree + 's;' +
+        'animation-delay:' + delai + 's;' +
+        '--tx:' + x + 'px;' +
+        '--ty:' + y + 'px;' +
+        '"></span>';
+    }
   }
   html += '</div>';
   return html;
@@ -3828,12 +3853,26 @@ function construireReglagesRappels() {
 }
 
 /* --- Personnalisation --- */
+var THEMES_PERSONNALISATION = [
+  { valeur: 'sombre', libelle: 'Sombre' },
+  { valeur: 'clair', libelle: 'Clair' },
+  { valeur: 'auto', libelle: 'Automatique (selon l\'appareil)' },
+  { valeur: 'automnal', libelle: '🍁 Automnal' },
+  { valeur: 'effroi', libelle: '🎃 Effroi' },
+  { valeur: 'hivernal', libelle: '❄️ Hivernal' },
+  { valeur: 'paindepice', libelle: '🍪 Pain d\'épice (Noël)' },
+  { valeur: 'printanier', libelle: '🌸 Printanier' },
+  { valeur: 'pastel', libelle: '🦄 Pastel' },
+  { valeur: 'estival', libelle: '☀️ Estival' },
+  { valeur: 'cyberpunk', libelle: '☢️ Cyberpunk' },
+  { valeur: 'steampunk', libelle: '⚙️ Steampunk' }
+];
 
 function construireReglagesPersonnalisation() {
   var theme = etat.profil.theme || 'sombre';
   var sonnerie = etat.profil.sonnerieMinuteur || 'classique';
   var html = '';
-  html += '<div class="champ"><label>Thème de l\'application</label><select id="champ-perso-theme">';
+  html += '<div class="champ"><label>Thème de l\'application</label><select id="champ-perso-theme">' + optionsListeValeurLibelle(THEMES_PERSONNALISATION, theme) + '</select></div>';
   html += '<option value="sombre"' + (theme === 'sombre' ? ' selected' : '') + '>Sombre</option>';
   html += '<option value="clair"' + (theme === 'clair' ? ' selected' : '') + '>Clair</option>';
   html += '<option value="auto"' + (theme === 'auto' ? ' selected' : '') + '>Automatique (selon l\'appareil)</option>';

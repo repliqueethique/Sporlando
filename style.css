@@ -34,6 +34,78 @@
   --ombre: 0 2px 6px rgba(0,0,0,0.08);
 }
 
+:root[data-theme="automnal"] {
+  --couleur-fond: #1A1410; --couleur-carte: #241C16; --couleur-carte-creux: #170F0B; --couleur-bordure: #3A2A1E;
+  --couleur-turquoise: #E08D3C; --couleur-cyan: #B23A2E;
+  --couleur-degrade: linear-gradient(135deg, #E08D3C 0%, #B23A2E 100%);
+  --degrade-seance: linear-gradient(135deg, #E08D3C, #B23A2E, #6B4226);
+  --police-titre: 'Yeseva One', serif;
+}
+
+:root[data-theme="effroi"] {
+  --couleur-fond: #0D0710; --couleur-carte: #170A1F; --couleur-carte-creux: #0A0510; --couleur-bordure: #3B1F4D;
+  --couleur-turquoise: #FF7A1A; --couleur-cyan: #7B2FF7;
+  --couleur-degrade: linear-gradient(135deg, #FF7A1A 0%, #7B2FF7 100%);
+  --degrade-seance: linear-gradient(135deg, #FF7A1A, #7B2FF7, #0D0710);
+  --police-titre: 'Creepster', cursive;
+}
+
+:root[data-theme="hivernal"] {
+  --couleur-fond: #0B141C; --couleur-carte: #101E29; --couleur-carte-creux: #08121A; --couleur-bordure: #22384A;
+  --couleur-turquoise: #7FD8F2; --couleur-cyan: #3E7CB1;
+  --couleur-degrade: linear-gradient(135deg, #7FD8F2 0%, #3E7CB1 100%);
+  --degrade-seance: linear-gradient(135deg, #CFEFFF, #7FD8F2, #3E7CB1);
+  --police-titre: 'Josefin Sans', sans-serif;
+}
+
+:root[data-theme="paindepice"] {
+  --couleur-fond: #1C120A; --couleur-carte: #26170D; --couleur-carte-creux: #150D07; --couleur-bordure: #4A2E17;
+  --couleur-turquoise: #E3A857; --couleur-cyan: #C1272D;
+  --couleur-degrade: linear-gradient(135deg, #E3A857 0%, #C1272D 100%);
+  --degrade-seance: linear-gradient(135deg, #E3A857, #C1272D, #6B3A1F);
+  --police-titre: 'Mountains of Christmas', cursive;
+}
+
+:root[data-theme="printanier"] {
+  --couleur-fond: #10160F; --couleur-carte: #172018; --couleur-carte-creux: #0B0F0A; --couleur-bordure: #2A3B27;
+  --couleur-turquoise: #8FD694; --couleur-cyan: #F2A6C7;
+  --couleur-degrade: linear-gradient(135deg, #8FD694 0%, #F2A6C7 100%);
+  --degrade-seance: linear-gradient(135deg, #8FD694, #F2A6C7, #FCE38A);
+  --police-titre: 'Quicksand', sans-serif;
+}
+
+:root[data-theme="pastel"] {
+  --couleur-fond: #17141C; --couleur-carte: #201C29; --couleur-carte-creux: #100D16; --couleur-bordure: #362F45;
+  --couleur-turquoise: #B8A3E0; --couleur-cyan: #F7C6D9;
+  --couleur-degrade: linear-gradient(135deg, #B8A3E0 0%, #F7C6D9 100%);
+  --degrade-seance: linear-gradient(135deg, #B8A3E0, #F7C6D9, #BEE7E8);
+  --police-titre: 'Baloo 2', cursive;
+}
+
+:root[data-theme="estival"] {
+  --couleur-fond: #0E1A1D; --couleur-carte: #12262A; --couleur-carte-creux: #091417; --couleur-bordure: #1F3E42;
+  --couleur-turquoise: #2FE0C6; --couleur-cyan: #FFC857;
+  --couleur-degrade: linear-gradient(135deg, #2FE0C6 0%, #FFC857 100%);
+  --degrade-seance: linear-gradient(135deg, #2FE0C6, #FFC857, #FF6F59);
+  --police-titre: 'Bungee', cursive;
+}
+
+:root[data-theme="cyberpunk"] {
+  --couleur-fond: #0A0612; --couleur-carte: #150B24; --couleur-carte-creux: #08040E; --couleur-bordure: #2E1650;
+  --couleur-turquoise: #00F0FF; --couleur-cyan: #FF2BD6;
+  --couleur-degrade: linear-gradient(135deg, #00F0FF 0%, #FF2BD6 100%);
+  --degrade-seance: linear-gradient(135deg, #00F0FF, #FF2BD6, #7B2FF7);
+  --police-titre: 'Orbitron', sans-serif;
+}
+
+:root[data-theme="steampunk"] {
+  --couleur-fond: #14100A; --couleur-carte: #1D160D; --couleur-carte-creux: #0C0906; --couleur-bordure: #3D2E17;
+  --couleur-turquoise: #C68A3D; --couleur-cyan: #6E7B7C;
+  --couleur-degrade: linear-gradient(135deg, #C68A3D 0%, #6E7B7C 100%);
+  --degrade-seance: linear-gradient(135deg, #C68A3D, #6E7B7C, #8A5A2E);
+  --police-titre: 'Cinzel', serif;
+}
+
 .modal-entete-gauche {
   display: -webkit-box; display: -webkit-flex; display: flex;
   -webkit-box-align: center; -webkit-align-items: center; align-items: center;
@@ -94,6 +166,7 @@ a { color: inherit; }
   font-weight: 800;
   text-transform: uppercase;
   letter-spacing: 0.04em;
+  font-family: var(--police-titre, inherit);
 }
 .donnee-num {
   font-family: var(--police-donnees);
@@ -383,7 +456,7 @@ a { color: inherit; }
 .accueil-carte.seance-a-faire {
   position: relative;
   overflow: hidden;
-  background: linear-gradient(135deg, var(--couleur-turquoise), var(--couleur-cyan), var(--couleur-nutrition));
+  background: var(--degrade-seance, linear-gradient(135deg, var(--couleur-turquoise), var(--couleur-cyan), var(--couleur-nutrition)));
   background-size: 200% 200%;
   animation: degradeSeanceDuJour 8s ease infinite;
   color: #fff;
@@ -463,6 +536,14 @@ a { color: inherit; }
   z-index: 0;
   pointer-events: none;
   animation: tourneRayons1 24s linear infinite;
+}
+
+.particule-emoji {
+  background: none;
+  border-radius: 0;
+  line-height: 1;
+  display: inline-block;
+  filter: drop-shadow(0 0 3px rgba(0,0,0,0.35));
 }
 
 @keyframes tourneRayons1 {
