@@ -3207,8 +3207,11 @@ function configurerGlissementDuree() {
 function rendreZoneCompteARebours() {
   var conteneur = document.getElementById('seance-zone-cdr');
   if (!conteneur) { return; }
-  conteneur.classList.remove('carte', 'carte-cdr-actif', 'carte-cdr-reglage');
-  conteneur.classList.add(compteARebours.actif ? 'carte-cdr-actif' : 'carte-cdr-reglage');
+  conteneur.className = '';
+  conteneur.style.cssText =
+    'background:none; border:none; box-shadow:none; padding:0; ' +
+    'margin:0 auto 12px auto; display:flex; justify-content:center; align-items:center; ' +
+    (compteARebours.actif ? 'width:200px; height:200px;' : 'width:auto; height:auto;');
   var html = '';
   if (compteARebours.actif) {
     html += '<div class="cdr-cercle-zone" id="cdr-cercle-zone">';
