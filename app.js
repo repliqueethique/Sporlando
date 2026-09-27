@@ -29,7 +29,7 @@ window.echapperHtml = echapperHtml;
 
 var EMOJIS_HUMEUR = ['😭', '😢', '😟', '😕', '😐', '🙂', '😊', '😁', '🤩'];
 var EMOJIS_FATIGUE = ['😴', '😪', '🫩', '🥱', '🤭', '😌', '🤗', '😀', '🤪'];
-var EMOJIS_STRESS = ['😤', '😖', '😬', '😥', '😮‍💨', '😗', '☺️', '😋', '🥰'];
+var EMOJIS_STRESS = ['😤', '😖', '😬', '😰', '😥', '😗', '☺️', '😋', '🥰'];
 var COULEURS_NIVEAU = ['#000000', '#7a0000', '#e30000', '#ff8c00', '#ffd700', '#c6e600', '#4caf50', '#00e676', '#1de9b6'];
 
 
@@ -517,6 +517,7 @@ function completerChampsEtat(donnees) {
   if (donnees.checklistQuotidienne.eau === undefined) { donnees.checklistQuotidienne.eau = false; }
   if (donnees.checklistQuotidienne.etirements === undefined) { donnees.checklistQuotidienne.etirements = false; }
   if (donnees.checklistQuotidienne.pesee === undefined) { donnees.checklistQuotidienne.pesee = false; }
+  if (entree.insomnie === undefined) { entree.insomnie = false; }
   return donnees;
 }
 
@@ -2428,7 +2429,7 @@ function rendreRessentiJour() {
   mettreAJourApparenceSlider('stress', donnees.stress);
   mettreAJourApparenceSlider('humeur', donnees.humeur);
 
-  ['colere', 'blessure', 'maladie'].forEach(function (champ) {
+  ['colere', 'blessure', 'maladie', 'insomnie'].forEach(function (champ) {
     var bouton = document.querySelector('[data-action="basculer-booleen-ressenti"][data-champ="' + champ + '"]');
     if (bouton) {
       bouton.setAttribute('data-actif', donnees[champ] ? 'true' : 'false');
@@ -2566,7 +2567,7 @@ function initialiserBooleensRessenti() {
   var aujourdHui = formaterDateISO(new Date());
   var donneesJour = etat.ressentiQuotidien[aujourdHui];
   if (!donneesJour) return;
-  ['colere', 'blessure', 'maladie'].forEach(function (champ) {
+  ['colere', 'blessure', 'maladie', 'insomnie'].forEach(function (champ) {
     var bouton = document.querySelector('[data-role="booleen-' + champ + '"]');
     if (bouton) {
       bouton.setAttribute('data-actif', donneesJour[champ] ? 'true' : 'false');
@@ -2588,7 +2589,7 @@ function basculerBooleenRessenti(champ, element) {
   if (!etat.ressentiQuotidien[aujourdHui]) {
     etat.ressentiQuotidien[aujourdHui] = {
       sommeil: 7, fatigue: 5, stress: 5, humeur: 4,
-      colere: false, blessure: false, maladie: false
+      colere: false, blessure: false, maladie: false, insomnie: false
     };
   }
   var valeurActuelle = !!etat.ressentiQuotidien[aujourdHui][champ];
@@ -4127,6 +4128,7 @@ function rendreListeEvenementsEtat(dates) {
     if (j.colere) { badges.push('🤬'); }
     if (j.blessure) { badges.push('🤕'); }
     if (j.maladie) { badges.push('🤒'); }
+    if (j.insomnie) { badges.push('😶'); }
     if (badges.length > 0) {
       lignes.push('<div class="ligne-evenement-etat"><span>' + date + '</span><span>' + badges.join(' ') + '</span></div>');
     }
