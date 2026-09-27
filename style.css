@@ -811,6 +811,26 @@ a { color: inherit; }
    MINUTEUR DE REPOS
 ============================================= */
 
+.carte-cdr-actif,
+.carte-cdr-reglage {
+  background: none;
+  border: none;
+  box-shadow: none;
+  padding: 0;
+  width: -webkit-fit-content;
+  width: -moz-fit-content;
+  width: fit-content;
+  margin: 0 auto 12px auto;
+  display: -webkit-box; display: -webkit-flex; display: flex;
+  -webkit-box-pack: center; -webkit-justify-content: center; justify-content: center;
+}
+.carte-cdr-actif {
+  width: 200px;
+  height: 200px;
+  -webkit-box-align: center; -webkit-align-items: center; align-items: center;
+  overflow: visible;
+}
+
 .cdr-cercle-zone {
   position: relative;
   width: 200px;
@@ -861,35 +881,23 @@ a { color: inherit; }
   animation: etirement-pulse-pause 1.5s ease-in-out infinite;
 }
 
-/* Réglage avant lancement : pill violette glissable + bouton, une seule ligne */
-.cdr-reglage-ligne {
+/* Pastille unique : durée + bouton lancer, taille au contenu */
+.cdr-pill {
   display: -webkit-box; display: -webkit-flex; display: flex;
   -webkit-box-align: center; -webkit-align-items: center; align-items: center;
-  -webkit-box-pack: center; -webkit-justify-content: center; justify-content: center;
-}
-.cdr-duree-glissable {
-  display: -webkit-box; display: -webkit-flex; display: flex;
-  -webkit-box-align: center; -webkit-align-items: center; align-items: center;
-  -webkit-box-pack: center; -webkit-justify-content: center; justify-content: center;
   border: 1.5px solid var(--couleur-nutrition);
   border-radius: 999px;
-  padding: 10px 22px;
-  margin-right: 12px;
   background: rgba(185, 142, 240, 0.08);
+  padding: 6px 6px 6px 20px;
   cursor: ew-resize;
   -webkit-user-select: none;
   user-select: none;
   touch-action: pan-y;
   transition: background-color 0.15s ease, border-color 0.15s ease;
 }
-.cdr-duree-glissable.glisse-actif {
+.cdr-pill.glisse-actif {
   background: rgba(185, 142, 240, 0.18);
   border-color: #cdb0f7;
-}
-.cdr-duree-icone {
-  font-size: 16px;
-  margin-right: 8px;
-  color: var(--couleur-nutrition);
 }
 .cdr-duree-affichage {
   font-family: var(--police-donnees);
@@ -898,29 +906,19 @@ a { color: inherit; }
   letter-spacing: 0.02em;
   color: var(--couleur-texte);
   font-variant-numeric: tabular-nums;
+  margin-right: 16px;
+  white-space: nowrap;
 }
 .cdr-bouton-lancer {
   width: 40px; height: 40px;
   min-width: 40px;
   border-radius: 50%;
-  background: var(--couleur-degrade);
-  color: #0B1114;
-  font-size: 15px;
-}
-/* Neutralise le grand rectangle de .carte quand le minuteur tourne : le conteneur devient rond, taille exacte du cercle */
-.carte-cdr-actif {
-  background: none;
-  border: none;
-  box-shadow: none;
-  padding: 0;
-  width: 200px;
-  height: 200px;
-  margin: 0 auto 12px auto;
-  overflow: visible;
+  background: var(--couleur-nutrition);
   display: -webkit-box; display: -webkit-flex; display: flex;
   -webkit-box-align: center; -webkit-align-items: center; align-items: center;
   -webkit-box-pack: center; -webkit-justify-content: center; justify-content: center;
 }
+.cdr-bouton-lancer svg { display: block; }
 
 /* Calendrier agenda */
 .cal-entete {

@@ -3121,7 +3121,8 @@ function appliquerReglageDureeCdr(totalSecondes) {
   if (affichage) { affichage.innerHTML = completerZero(minutes) + ':' + completerZero(secondes); }
 }
 
-function demarrerGlissementDuree(x) {
+function demarrerGlissementDuree(x, cible) {
+  if (cible && cible.closest && cible.closest('.cdr-bouton-lancer')) { return; }
   glissementDureeEnCours = true;
   glissementDureeXDepart = x;
   glissementDureeTotalDepart = totalSecondesReglageCdr();
@@ -3145,8 +3146,8 @@ function terminerGlissementDuree() {
 function configurerGlissementDuree() {
   var ligne = document.getElementById('cdr-duree-glissable');
   if (!ligne) { return; }
-  ligne.addEventListener('mousedown', function (e) { demarrerGlissementDuree(e.clientX); });
-  ligne.addEventListener('touchstart', function (e) { demarrerGlissementDuree(e.touches[0].clientX); }, { passive: true });
+  ligne.addEventListener('mousedown', function (e) { demarrerGlissementDuree(e.clientX, e.target); });
+  ligne.addEventListener('touchstart', function (e) { demarrerGlissementDuree(e.touches[0].clientX, e.target); }, { passive: true });
 
   if (!evenementsGlissementDureeInitialises) {
     evenementsGlissementDureeInitialises = true;
@@ -3162,7 +3163,8 @@ function configurerGlissementDuree() {
 function rendreZoneCompteARebours() {
   var conteneur = document.getElementById('seance-zone-cdr');
   if (!conteneur) { return; }
-  conteneur.classList.toggle('carte-cdr-actif', compteARebours.actif);
+  conteneur.classList.remove('carte-cdr-actif', 'carte-cdr-reglage');
+  conteneur.classList.add(compteARebours.actif ? 'carte-cdr-actif' : 'carte-cdr-reglage');
   var html = '';
   if (compteARebours.actif) {
     html += '<div class="cdr-cercle-zone" id="cdr-cercle-zone">';
@@ -3177,14 +3179,13 @@ function rendreZoneCompteARebours() {
     html += '<div class="cdr-centre"><span id="cdr-affichage" class="cdr-chrono">--:--</span></div>';
     html += '</div>';
   } else {
-    html += '<div class="cdr-reglage-ligne">';
-    html += '<div class="cdr-duree-glissable" id="cdr-duree-glissable">';
+    html += '<div class="cdr-pill" id="cdr-duree-glissable">';
     html += '<input type="hidden" id="cdr-minutes" value="' + derniereMinutesReglees + '">';
     html += '<input type="hidden" id="cdr-secondes" value="' + dernieresSecondesReglees + '">';
-    html += '<span class="cdr-duree-icone">⏱</span>';
     html += '<span id="cdr-duree-affichage" class="cdr-duree-affichage">' + completerZero(derniereMinutesReglees) + ':' + completerZero(dernieresSecondesReglees) + '</span>';
-    html += '</div>';
-    html += '<button class="cdr-bouton-lancer" data-action="lancer-cdr" title="Lancer le minuteur">&#9654;</button>';
+    html += '<button class="cdr-bouton-lancer" data-action="lancer-cdr" title="Lancer le minuteur">';
+    html += '<svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M8 5v14l11-7z" fill="#ffffff"></path></svg>';
+    html += '</button>';
     html += '</div>';
   }
   conteneur.innerHTML = html;
