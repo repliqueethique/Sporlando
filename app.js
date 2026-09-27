@@ -5290,7 +5290,15 @@ document.getElementById('modal-overlay').addEventListener('click', function (evt
   if (evt.target.id === 'modal-overlay') { fermerModal(); }
 }, false);
 
-
+function appliquerTheme() {
+  var theme = etat.profil.theme || 'sombre';
+  var themeEffectif = theme;
+  if (theme === 'auto') {
+    var prefereClair = window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches;
+    themeEffectif = prefereClair ? 'clair' : 'sombre';
+  }
+  document.documentElement.setAttribute('data-theme', themeEffectif);
+}
 
 /* BLOC 18 : INITIALISATION */
 
