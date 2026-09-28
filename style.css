@@ -212,7 +212,14 @@ a { color: inherit; }
   padding: 14px 16px;
 }
 .entete h1 {
-  font-size: 15px;
+  font-size: 28px;
+  line-height: 0;
+  white-space: nowrap;
+  margin: 0;
+}
+
+@media (max-width: 380px) {
+  .entete h1 { font-size: 22px; }
 }
 .bouton-entete {
   color: var(--couleur-texte);
