@@ -3066,6 +3066,8 @@ var intervalleCompteARebours = null;
 var derniereMinutesReglees = 1;
 var dernieresSecondesReglees = 30;
 var contexteAudio = null;
+var cdrReglageDeplie = false;      /* pastille repliée (bouton seul) ou dépliée (durée visible) */
+var DUREE_APPUI_LONG_MS = 450;
 
 /* Rayon/circonférence de l'anneau de progression du minuteur */
 var CDR_RAYON = 96;
@@ -3168,7 +3170,7 @@ function appliquerReglageDureeCdr(totalSecondes) {
 }
 
 function demarrerGlissementDuree(x, cible) {
-  if (cible && cible.closest && cible.closest('.cdr-bouton-lancer')) { return; }
+  if (!cdrReglageDeplie) { return; }
   glissementDureeEnCours = true;
   glissementDureeXDepart = x;
   glissementDureeTotalDepart = totalSecondesReglageCdr();
@@ -3204,6 +3206,65 @@ function configurerGlissementDuree() {
   }
 }
 
+function basculerDepliageReglageCdr() {
+  cdrReglageDeplie = !cdrReglageDeplie;
+  var pill = document.getElementById('cdr-duree-glissable');
+  if (pill) { pill.classList.toggle('cdr-pill-deplie', cdrReglageDeplie); }
+}
+
+/* Appui court = lancer ; appui long = déplier/replier le réglage de durée */
+function configurerBoutonMinuteur() {
+  var bouton = document.getElementById('cdr-bouton-lancer');
+  if (!bouton) { return; }
+  var minuteur = null;
+  var actif = false;
+  var appuiLongFait = false;
+  var aBouge = false;
+  var x0 = 0, y0 = 0;
+
+  function effacerMinuteur() {
+    if (minuteur) { window.clearTimeout(minuteur); minuteur = null; }
+  }
+  function debut(x, y) {
+    actif = true; appuiLongFait = false; aBouge = false; x0 = x; y0 = y;
+    bouton.classList.add('cdr-bouton-appuye');
+    effacerMinuteur();
+    minuteur = window.setTimeout(function () {
+      minuteur = null;
+      appuiLongFait = true;
+      basculerDepliageReglageCdr();
+      if (navigator.vibrate) { navigator.vibrate(15); }
+    }, DUREE_APPUI_LONG_MS);
+  }
+  function bouge(x, y) {
+    if (!actif || aBouge) { return; }
+    if (Math.abs(x - x0) > 10 || Math.abs(y - y0) > 10) { aBouge = true; effacerMinuteur(); }
+  }
+  function fin() {
+    if (!actif) { return; }
+    actif = false;
+    bouton.classList.remove('cdr-bouton-appuye');
+    effacerMinuteur();
+    if (!appuiLongFait && !aBouge) {
+      cdrReglageDeplie = false; /* on relance repliée pour gagner de la place */
+      lancerCompteARebours();
+    }
+  }
+  function annuler() {
+    actif = false;
+    bouton.classList.remove('cdr-bouton-appuye');
+    effacerMinuteur();
+  }
+
+  bouton.addEventListener('touchstart', function (e) { debut(e.touches[0].clientX, e.touches[0].clientY); }, false);
+  bouton.addEventListener('touchmove', function (e) { bouge(e.touches[0].clientX, e.touches[0].clientY); }, false);
+  bouton.addEventListener('touchend', function (e) { e.preventDefault(); fin(); }, false);
+  bouton.addEventListener('touchcancel', annuler, false);
+  bouton.addEventListener('mousedown', function (e) { debut(e.clientX, e.clientY); });
+  bouton.addEventListener('mouseup', fin);
+  bouton.addEventListener('mouseleave', annuler);
+}
+
 /* --- Affichage / cycle de vie du minuteur --- */
 
 function rendreZoneCompteARebours() {
@@ -3211,9 +3272,10 @@ function rendreZoneCompteARebours() {
   if (!conteneur) { return; }
   conteneur.className = '';
   conteneur.style.cssText =
-    'background:none; border:none; box-shadow:none; padding:0; ' +
-    'margin:0 auto 12px auto; display:flex; justify-content:center; align-items:center; ' +
-    (compteARebours.actif ? 'width:200px; height:200px;' : 'width:auto; height:auto;');
+    'background:none; border:none; box-shadow:none; padding:0; display:flex; align-items:center; ' +
+    (compteARebours.actif
+      ? 'margin:0 auto 12px auto; justify-content:center; width:200px; height:200px;'
+      : 'margin:0 0 12px 0; justify-content:flex-end; width:auto; height:auto;');
   var html = '';
   if (compteARebours.actif) {
     html += '<div class="cdr-cercle-zone" id="cdr-cercle-zone">';
@@ -3228,11 +3290,11 @@ function rendreZoneCompteARebours() {
     html += '<div class="cdr-centre"><span id="cdr-affichage" class="cdr-chrono">--:--</span></div>';
     html += '</div>';
   } else {
-    html += '<div class="cdr-pill" id="cdr-duree-glissable">';
+    html += '<div class="cdr-pill' + (cdrReglageDeplie ? ' cdr-pill-deplie' : '') + '" id="cdr-duree-glissable">';
     html += '<input type="hidden" id="cdr-minutes" value="' + derniereMinutesReglees + '">';
     html += '<input type="hidden" id="cdr-secondes" value="' + dernieresSecondesReglees + '">';
     html += '<span id="cdr-duree-affichage" class="cdr-duree-affichage">' + completerZero(derniereMinutesReglees) + ':' + completerZero(dernieresSecondesReglees) + '</span>';
-    html += '<button class="cdr-bouton-lancer" data-action="lancer-cdr" title="Lancer le minuteur">';
+    html += '<button class="cdr-bouton-lancer" id="cdr-bouton-lancer" title="Appui court : lancer / appui long : régler la durée">';
     html += '<svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M8 5v14l11-7z" fill="#ffffff"></path></svg>';
     html += '</button>';
     html += '</div>';
@@ -3243,6 +3305,7 @@ function rendreZoneCompteARebours() {
     configurerGestesMinuteur();
   } else {
     configurerGlissementDuree();
+    configurerBoutonMinuteur();
   }
 }
 

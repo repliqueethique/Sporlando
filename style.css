@@ -1016,19 +1016,25 @@ a { color: inherit; }
 }
 
 /* Pastille unique : durée + bouton lancer, taille au contenu */
+/* Pastille : repliée = bouton seul, dépliée = durée + bouton (transition ease-in-out) */
 .cdr-pill {
   display: -webkit-box; display: -webkit-flex; display: flex;
   -webkit-box-align: center; -webkit-align-items: center; align-items: center;
   border: 1.5px solid var(--couleur-nutrition);
   border-radius: 999px;
-    background: #1F1F2B;
+  background: #1F1F2B;
   box-shadow: var(--ombre);
-  padding: 6px 6px 6px 20px;
-  cursor: ew-resize;
+  padding: 5px;
   -webkit-user-select: none;
   user-select: none;
+  -webkit-touch-callout: none;
   touch-action: pan-y;
-  transition: background-color 0.15s ease, border-color 0.15s ease;
+  -webkit-transition: padding-left 0.35s cubic-bezier(0.65, 0, 0.35, 1), background-color 0.15s ease, border-color 0.15s ease;
+  transition: padding-left 0.35s cubic-bezier(0.65, 0, 0.35, 1), background-color 0.15s ease, border-color 0.15s ease;
+}
+.cdr-pill-deplie {
+  padding-left: 20px;
+  cursor: ew-resize;
 }
 .cdr-pill.glisse-actif {
   background: #2A2540;
@@ -1041,8 +1047,18 @@ a { color: inherit; }
   letter-spacing: 0.02em;
   color: var(--couleur-texte);
   font-variant-numeric: tabular-nums;
-  margin-right: 16px;
   white-space: nowrap;
+  overflow: hidden;
+  max-width: 0;
+  margin-right: 0;
+  opacity: 0;
+  -webkit-transition: max-width 0.35s cubic-bezier(0.65, 0, 0.35, 1), margin-right 0.35s cubic-bezier(0.65, 0, 0.35, 1), opacity 0.25s ease-in-out;
+  transition: max-width 0.35s cubic-bezier(0.65, 0, 0.35, 1), margin-right 0.35s cubic-bezier(0.65, 0, 0.35, 1), opacity 0.25s ease-in-out;
+}
+.cdr-pill-deplie .cdr-duree-affichage {
+  max-width: 72px;
+  margin-right: 16px;
+  opacity: 1;
 }
 .cdr-bouton-lancer {
   width: 40px; height: 40px;
@@ -1052,6 +1068,12 @@ a { color: inherit; }
   display: -webkit-box; display: -webkit-flex; display: flex;
   -webkit-box-align: center; -webkit-align-items: center; align-items: center;
   -webkit-box-pack: center; -webkit-justify-content: center; justify-content: center;
+  -webkit-transition: -webkit-transform 0.12s ease;
+  transition: transform 0.12s ease;
+}
+.cdr-bouton-appuye {
+  -webkit-transform: scale(0.92);
+  transform: scale(0.92);
 }
 .cdr-bouton-lancer svg { display: block; }
 
