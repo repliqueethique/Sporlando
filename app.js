@@ -2254,10 +2254,10 @@ function genererParticules(nombre) {
   var jeuEmoji = PARTICULES_PAR_THEME[etat.profil.theme];
   var html = '<div class="particules">';
   for (var i = 0; i < nombre; i++) {
-    var duree = (Math.random() * 3 + 3).toFixed(2);
+    var duree = jeuEmoji ? (Math.random() * 4 + 6).toFixed(2) : (Math.random() * 3 + 3).toFixed(2);
     var delai = (Math.random() * 5).toFixed(2);
     var angle = Math.random() * 360;
-    var distance = Math.random() * 40 + 20;
+    var distance = jeuEmoji ? (Math.random() * 220 + 100) : (Math.random() * 40 + 20);
     var x = (Math.cos(angle * Math.PI / 180) * distance).toFixed(1);
     var y = (Math.sin(angle * Math.PI / 180) * distance).toFixed(1);
 
