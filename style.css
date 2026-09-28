@@ -213,7 +213,7 @@ a { color: inherit; }
 }
 .entete h1 {
   font-size: 28px;
-  line-height: 0;
+  line-height: 1;
   white-space: nowrap;
   margin: 0;
 }
