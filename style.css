@@ -1870,6 +1870,28 @@ a { color: inherit; }
   letter-spacing: 0.02em;
 }
 
+.btn-action-serie {
+  flex: 1 1 auto;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.btn-action-echauffement {
+  flex: 0 0 auto;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  line-height: 1;
+  border-color: var(--couleur-avertissement);
+  color: var(--couleur-avertissement);
+}
+.btn-action-echauffement:active { opacity: 0.7; }
+
 .etat-combine-legende {
   display: flex;
   flex-wrap: wrap;

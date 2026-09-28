@@ -2774,8 +2774,8 @@ function rendreExercicesActifs() {
     html += '<input type="number" class="rpe-input" min="0" max="10" step="1" data-role="live-rpe" data-ex="' + e + '" value="' + rpeValeur + '">';
     html += '<span class="rpe-suffixe">RPE</span>';
     html += '</div>';
-    html += '<button class="btn btn-contour" style="flex:1;" data-action="ajouter-serie" data-ex="' + e + '">+ Série</button>';
-    html += '<button class="btn btn-contour" style="flex:1;" data-action="ajouter-serie-echauffement" data-ex="' + e + '">+ Échauffement</button>';
+    html += '<button class="btn btn-contour btn-action-serie" data-action="ajouter-serie" data-ex="' + e + '">+ Série</button>';
+    html += '<button class="btn btn-contour btn-action-echauffement" data-action="ajouter-serie-echauffement" data-ex="' + e + '" title="Ajouter une série d\'échauffement">🔥</button>';
     html += '</div>';
     if (ligneEx.technique === 'drop_set') {
       html += '<button class="btn btn-contour btn-bloc" style="margin-top:6px;" data-action="ajouter-serie-degressive" data-ex="' + e + '">+ Série dégressive (~70%)</button>';
