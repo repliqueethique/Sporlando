@@ -2239,7 +2239,7 @@ function rendreCarteSeanceJour() {
 }
 
 var PARTICULES_PAR_THEME = {
-  automnal: ['🍂', '🍁', '🌰', '🍁', '🍄', '🍄‍🟫'],
+  automnal: ['🍂', '🍁', '🌰', '🍁', '🍄'],
   effroi: ['👻', '🎃', '🦇', '💀'],
   hivernal: ['❄', '❅', '❆'],
   paindepice: ['⭐', '🌟', '🍪', '💝', '🎁', '🎄'],
@@ -2247,7 +2247,9 @@ var PARTICULES_PAR_THEME = {
   pastel: ['🔔', '🌼', '🌷', '🧁', '🍩'],
   estival: ['☀️', '🌴', '🍉', '🍹', '🥭', '🍍', '🍧'],
   cyberpunk: ['⚡', '💠', '🔷'],
-  steampunk: ['⚙', '🕰', '🔧']
+  steampunk: ['⚙', '🕰', '🔧'],
+  flibuste: ['⚓', '🦜', '💰', '🗝️', '☠️', '🦑', '🧭'],
+  ruedor: ['🤠', '🌵', '⭐', '🐎', '🐂', '🥾', '🌾']
 };
 
 function genererParticules(nombre) {
@@ -3865,12 +3867,14 @@ var THEMES_PERSONNALISATION = [
   { valeur: 'automnal', libelle: '🍁 Automnal' },
   { valeur: 'effroi', libelle: '🎃 Effroi' },
   { valeur: 'hivernal', libelle: '❄️ Hivernal' },
-  { valeur: 'paindepice', libelle: '🍪 Pain d\'épice (Noël)' },
+  { valeur: 'paindepice', libelle: '🍪 Pain d\'épice' },
   { valeur: 'printanier', libelle: '🌸 Printanier' },
   { valeur: 'pastel', libelle: '🦄 Pastel' },
   { valeur: 'estival', libelle: '☀️ Estival' },
   { valeur: 'cyberpunk', libelle: '☢️ Cyberpunk' },
-  { valeur: 'steampunk', libelle: '⚙️ Steampunk' }
+  { valeur: 'steampunk', libelle: '⚙️ Steampunk' },
+  { valeur: 'flibuste', libelle: '🏴‍☠️ Flibuste' },
+  { valeur: 'ruedor', libelle: '🤠 Western' }
 ];
 
 function construireReglagesPersonnalisation() {

@@ -106,6 +106,22 @@
   --police-titre: 'Cinzel', serif;
 }
 
+:root[data-theme="flibuste"] {
+  --couleur-fond: #0B1620; --couleur-carte: #10202D; --couleur-carte-creux: #08111A; --couleur-bordure: #1F3A4D;
+  --couleur-turquoise: #E0AE45; --couleur-cyan: #2A9D8F;
+  --couleur-degrade: linear-gradient(135deg, #E0AE45 0%, #2A9D8F 100%);
+  --degrade-seance: linear-gradient(135deg, #E0AE45, #1F6F78, #0B2A3D);
+  --police-titre: 'Pirata One', cursive;
+}
+
+:root[data-theme="ruedor"] {
+  --couleur-fond: #1B130E; --couleur-carte: #271A13; --couleur-carte-creux: #130C08; --couleur-bordure: #4A2F22;
+  --couleur-turquoise: #F2C14E; --couleur-cyan: #C4582F;
+  --couleur-degrade: linear-gradient(135deg, #F2C14E 0%, #C4582F 100%);
+  --degrade-seance: linear-gradient(135deg, #F2C14E, #D9783B, #8C3B2A);
+  --police-titre: 'Rye', cursive;
+}
+
 .modal-entete-gauche {
   display: -webkit-box; display: -webkit-flex; display: flex;
   -webkit-box-align: center; -webkit-align-items: center; align-items: center;
