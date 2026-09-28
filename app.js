@@ -2239,13 +2239,13 @@ function rendreCarteSeanceJour() {
 }
 
 var PARTICULES_PAR_THEME = {
-  automnal: ['🍂', '🍁', '🌰'],
+  automnal: ['🍂', '🍁', '🌰', '🍁', '🍄', '🍄‍🟫'],
   effroi: ['👻', '🎃', '🦇', '💀'],
   hivernal: ['❄', '❅', '❆'],
-  paindepice: ['⭐', '✨', '🍪'],
-  printanier: ['🌸', '🌷', '🦋'],
-  pastel: ['🔔', '🌼', '🌷'],
-  estival: ['☀', '🌴', '🍉'],
+  paindepice: ['⭐', '🌟', '🍪', '💝', '🎁', '🎄'],
+  printanier: ['🌸', '🌷', '🦋', '🍀', '🍃', '🌻', '🧚‍♀️'],
+  pastel: ['🔔', '🌼', '🌷', '🧁', '🍩'],
+  estival: ['☀️', '🌴', '🍉', '🍹', '🥭', '🍍', '🍧'],
   cyberpunk: ['⚡', '💠', '🔷'],
   steampunk: ['⚙', '🕰', '🔧']
 };
