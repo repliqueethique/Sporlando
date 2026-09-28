@@ -3295,7 +3295,7 @@ function rendreZoneCompteARebours() {
     html += '<input type="hidden" id="cdr-secondes" value="' + dernieresSecondesReglees + '">';
     html += '<span id="cdr-duree-affichage" class="cdr-duree-affichage">' + completerZero(derniereMinutesReglees) + ':' + completerZero(dernieresSecondesReglees) + '</span>';
     html += '<button class="cdr-bouton-lancer" id="cdr-bouton-lancer" title="Appui court : lancer / appui long : régler la durée">';
-    html += '<svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M8 5v14l11-7z" fill="#ffffff"></path></svg>';
+    html += '<svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M8 5v14l11-7z" fill="#ffffff"></path></svg>';
     html += '</button>';
     html += '</div>';
   }

@@ -1024,7 +1024,7 @@ a { color: inherit; }
   border-radius: 999px;
   background: #1F1F2B;
   box-shadow: var(--ombre);
-  padding: 5px;
+  padding: 8px;
   -webkit-user-select: none;
   user-select: none;
   -webkit-touch-callout: none;
@@ -1033,7 +1033,7 @@ a { color: inherit; }
   transition: padding-left 0.35s cubic-bezier(0.65, 0, 0.35, 1), background-color 0.15s ease, border-color 0.15s ease;
 }
 .cdr-pill-deplie {
-  padding-left: 20px;
+  padding-left: 28px;
   cursor: ew-resize;
 }
 .cdr-pill.glisse-actif {
@@ -1042,7 +1042,7 @@ a { color: inherit; }
 }
 .cdr-duree-affichage {
   font-family: var(--police-donnees);
-  font-size: 20px;
+  font-size: 26px;
   font-weight: 800;
   letter-spacing: 0.02em;
   color: var(--couleur-texte);
@@ -1056,13 +1056,13 @@ a { color: inherit; }
   transition: max-width 0.35s cubic-bezier(0.65, 0, 0.35, 1), margin-right 0.35s cubic-bezier(0.65, 0, 0.35, 1), opacity 0.25s ease-in-out;
 }
 .cdr-pill-deplie .cdr-duree-affichage {
-  max-width: 72px;
-  margin-right: 16px;
+  max-width: 92px;
+  margin-right: 20px;
   opacity: 1;
 }
 .cdr-bouton-lancer {
-  width: 40px; height: 40px;
-  min-width: 40px;
+  width: 56px; height: 56px;
+  min-width: 56px;
   border-radius: 50%;
   background: var(--couleur-nutrition);
   display: -webkit-box; display: -webkit-flex; display: flex;
