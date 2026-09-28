@@ -59,10 +59,10 @@
 }
 
 :root[data-theme="paindepice"] {
-  --couleur-fond: #1C120A; --couleur-carte: #26170D; --couleur-carte-creux: #150D07; --couleur-bordure: #4A2E17;
-  --couleur-turquoise: #E3A857; --couleur-cyan: #C1272D;
-  --couleur-degrade: linear-gradient(135deg, #E3A857 0%, #C1272D 100%);
-  --degrade-seance: linear-gradient(135deg, #E3A857, #C1272D, #6B3A1F);
+  --couleur-fond: #0B1C13; --couleur-carte: #10261A; --couleur-carte-creux: #08140D; --couleur-bordure: #1F3D2A;
+  --couleur-turquoise: #D4AF37; --couleur-cyan: #C1272D;
+  --couleur-degrade: linear-gradient(135deg, #D4AF37 0%, #C1272D 100%);
+  --degrade-seance: linear-gradient(135deg, #D4AF37, #C1272D, #1F6B3B);
   --police-titre: 'Mountains of Christmas', cursive;
 }
 
