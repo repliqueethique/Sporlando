@@ -2716,7 +2716,7 @@ function rendreExercicesActifs() {
 
     var derniereFois = derniereOccurrenceExercice(ligneEx.exerciceId);
     if (derniereFois) {
-      html += '<div class="texte-att donnee-num" style="margin:4px 0;">Dernière (' + formaterDateCourte(derniereFois.date) + ') : ' + formaterResumeSeries(derniereFois.ligneEx) + '</div>';
+      html += '<div class="texte-att donnee-num" style="margin:4px 0;">' + formaterDateCourte(derniereFois.date) + ' : ' + formaterResumeSeries(derniereFois.ligneEx) + '</div>';
     }
 
     var recordAnterieur = meilleurPoidsHistorique(ligneEx.exerciceId);
