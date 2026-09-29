@@ -694,7 +694,7 @@ function choisirEchauffement(type) {
 
   html += '<ul class="echauf-liste">';
   data.exercices.forEach(function (ex) {
-    html += '<li class="echauf-ligne" data-action="echauffement-toggle">';
+    html += '<li class="echauf-ligne">';
     html += '<span class="echauf-check">&#10003;</span>';
     html += '<span class="echauf-nom">' + echapperHtml(ex.nom) + '</span>';
     html += '<span class="echauf-duree donnee-num">' + echapperHtml(ex.duree) + '</span>';
@@ -704,6 +704,12 @@ function choisirEchauffement(type) {
 
   html += '<button class="btn btn-plein btn-bloc" data-action="terminer-echauffement">Démarrer la séance</button>';
   ouvrirModal(html);
+  var lignes = document.querySelectorAll('.echauf-ligne');
+  for (var i = 0; i < lignes.length; i++) {
+    lignes[i].addEventListener('click', function () {
+      basculerEtapeEchauffement(this);
+    });
+  }
 }
 
 function basculerEtapeEchauffement(ligne) {
