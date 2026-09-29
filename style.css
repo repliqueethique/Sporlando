@@ -35,6 +35,10 @@
   --couleur-texte-att: #5B6572;
   --couleur-bordure: #D8DEE4;
   --ombre: 0 2px 6px rgba(0,0,0,0.08);
+  --couleur-nutrition: #8B5FBF;
+  --couleur-nutrition-fond: #F1EAFB;
+  --couleur-nutrition-fond-actif: #E4D6F7;
+  --couleur-nutrition-clair: #A47FD1;
 }
 
 :root[data-theme="automnal"] {
@@ -43,6 +47,10 @@
   --couleur-degrade: linear-gradient(135deg, #E08D3C 0%, #B23A2E 100%);
   --degrade-seance: linear-gradient(135deg, #E08D3C, #B23A2E, #6B4226);
   --police-titre: 'Yeseva One', serif;
+  --couleur-nutrition: #8E5A6B;
+  --couleur-nutrition-fond: #241318;
+  --couleur-nutrition-fond-actif: #351D24;
+  --couleur-nutrition-clair: #C08FA0;
 }
 
 :root[data-theme="effroi"] {
@@ -51,6 +59,10 @@
   --couleur-degrade: linear-gradient(135deg, #FF7A1A 0%, #7B2FF7 100%);
   --degrade-seance: linear-gradient(135deg, #FF7A1A, #7B2FF7, #0D0710);
   --police-titre: 'Creepster', cursive;
+  --couleur-nutrition: #7B2FF7;
+  --couleur-nutrition-fond: #1D0F2E;
+  --couleur-nutrition-fond-actif: #2E1650;
+  --couleur-nutrition-clair: #C9A6FF;
 }
 
 :root[data-theme="hivernal"] {
@@ -59,6 +71,10 @@
   --couleur-degrade: linear-gradient(135deg, #7FD8F2 0%, #3E7CB1 100%);
   --degrade-seance: linear-gradient(135deg, #CFEFFF, #7FD8F2, #3E7CB1);
   --police-titre: 'Josefin Sans', sans-serif;
+  --couleur-nutrition: #9BA9E0;
+  --couleur-nutrition-fond: #101B2E;
+  --couleur-nutrition-fond-actif: #1B2E4A;
+  --couleur-nutrition-clair: #C3CEF2;
 }
 
 :root[data-theme="paindepice"] {
@@ -67,6 +83,10 @@
   --couleur-degrade: linear-gradient(135deg, #D4AF37 0%, #C1272D 100%);
   --degrade-seance: linear-gradient(135deg, #D4AF37, #C1272D, #1F6B3B);
   --police-titre: 'Mountains of Christmas', cursive;
+  --couleur-nutrition: #8B2D5C;
+  --couleur-nutrition-fond: #200E17;
+  --couleur-nutrition-fond-actif: #331526;
+  --couleur-nutrition-clair: #C77FA8;
 }
 
 :root[data-theme="printanier"] {
@@ -75,6 +95,10 @@
   --couleur-degrade: linear-gradient(135deg, #8FD694 0%, #F2A6C7 100%);
   --degrade-seance: linear-gradient(135deg, #8FD694, #F2A6C7, #FCE38A);
   --police-titre: 'Quicksand', sans-serif;
+  --couleur-nutrition: #C9A6E0;
+  --couleur-nutrition-fond: #1A1420;
+  --couleur-nutrition-fond-actif: #2A2033;
+  --couleur-nutrition-clair: #E2C9F2;
 }
 
 :root[data-theme="pastel"] {
@@ -83,6 +107,10 @@
   --couleur-degrade: linear-gradient(135deg, #B8A3E0 0%, #F7C6D9 100%);
   --degrade-seance: linear-gradient(135deg, #B8A3E0, #F7C6D9, #BEE7E8);
   --police-titre: 'Baloo 2', cursive;
+  --couleur-nutrition: #B8A3E0;
+  --couleur-nutrition-fond: #201C29;
+  --couleur-nutrition-fond-actif: #302847;
+  --couleur-nutrition-clair: #D3C4EE;
 }
 
 :root[data-theme="estival"] {
@@ -91,6 +119,10 @@
   --couleur-degrade: linear-gradient(135deg, #2FE0C6 0%, #FFC857 100%);
   --degrade-seance: linear-gradient(135deg, #2FE0C6, #FFC857, #FF6F59);
   --police-titre: 'Bungee', cursive;
+  --couleur-nutrition: #C77DFF;
+  --couleur-nutrition-fond: #1A0E29;
+  --couleur-nutrition-fond-actif: #2B1745;
+  --couleur-nutrition-clair: #DCA9FF;
 }
 
 :root[data-theme="cyberpunk"] {
@@ -99,6 +131,10 @@
   --couleur-degrade: linear-gradient(135deg, #00F0FF 0%, #FF2BD6 100%);
   --degrade-seance: linear-gradient(135deg, #00F0FF, #FF2BD6, #7B2FF7);
   --police-titre: 'Orbitron', sans-serif;
+  --couleur-nutrition: #B026FF;
+  --couleur-nutrition-fond: #150B24;
+  --couleur-nutrition-fond-actif: #241541;
+  --couleur-nutrition-clair: #D9A8FF;
 }
 
 :root[data-theme="steampunk"] {
@@ -107,6 +143,10 @@
   --couleur-degrade: linear-gradient(135deg, #C68A3D 0%, #6E7B7C 100%);
   --degrade-seance: linear-gradient(135deg, #C68A3D, #6E7B7C, #8A5A2E);
   --police-titre: 'Cinzel', serif;
+  --couleur-nutrition: #8A6BA1;
+  --couleur-nutrition-fond: #1A1410;
+  --couleur-nutrition-fond-actif: #2B2016;
+  --couleur-nutrition-clair: #B79BC9;
 }
 
 :root[data-theme="flibuste"] {
@@ -115,6 +155,10 @@
   --couleur-degrade: linear-gradient(135deg, #E0AE45 0%, #2A9D8F 100%);
   --degrade-seance: linear-gradient(135deg, #E0AE45, #1F6F78, #0B2A3D);
   --police-titre: 'Pirata One', cursive;
+  --couleur-nutrition: #6A4C93;
+  --couleur-nutrition-fond: #141A2A;
+  --couleur-nutrition-fond-actif: #212C46;
+  --couleur-nutrition-clair: #A594D1;
 }
 
 :root[data-theme="ruedor"] {
@@ -123,6 +167,10 @@
   --couleur-degrade: linear-gradient(135deg, #F2C14E 0%, #C4582F 100%);
   --degrade-seance: linear-gradient(135deg, #F2C14E, #D9783B, #8C3B2A);
   --police-titre: 'Rye', cursive;
+  --couleur-nutrition: #8B5A7A;
+  --couleur-nutrition-fond: #1D1017;
+  --couleur-nutrition-fond-actif: #301A26;
+  --couleur-nutrition-clair: #C79BB0;
 }
 
 .modal-entete-gauche {
