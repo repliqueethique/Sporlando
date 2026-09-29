@@ -629,74 +629,91 @@ function allerVersRessentiJour() {
 
 var DONNEES_ECHAUFFEMENT = {
   hautDuCorps: {
-    titre: '💪 Haut du Corps',
-    description: 'Échauffement dynamique (3-4 min)',
+    titre: 'Haut du corps',
+    icone: '💪',
     exercices: [
-      { nom: 'Jumping Jacks', duree: '45 sec' },
-      { nom: 'Shadow Boxing', duree: '45 sec' },
-      { nom: 'Tirage Élastique', duree: '30 sec' },
-      { nom: 'Rotations d\'épaules', duree: '30 sec' }
+      { nom: 'Jumping Jacks', duree: '45 s' },
+      { nom: 'Shadow Boxing', duree: '45 s' },
+      { nom: 'Tirage élastique', duree: '30 s' },
+      { nom: 'Rotations d\'épaules', duree: '30 s' }
     ]
   },
   basDuCorps: {
-    titre: '🦵 Bas du Corps',
-    description: 'Échauffement dynamique (3-4 min)',
+    titre: 'Bas du corps',
+    icone: '🦵',
     exercices: [
-      { nom: 'Jumping Jacks', duree: '45 sec' },
-      { nom: 'Air Squats', duree: '45 sec' },
-      { nom: 'Fentes marchées', duree: '45 sec' },
-      { nom: 'Talons-fesses', duree: '30 sec' }
+      { nom: 'Jumping Jacks', duree: '45 s' },
+      { nom: 'Air Squats', duree: '45 s' },
+      { nom: 'Fentes marchées', duree: '45 s' },
+      { nom: 'Talons-fesses', duree: '30 s' }
     ]
   }
 };
 
-// Stocke temporairement ce qu'il faut faire une fois l'échauffement terminé/passé
 var callbackApresEchauffement = null;
 
+/* Étape 1 : choix du type (volontairement sans détail des exercices) */
 function demanderEchauffement(callbackSuite) {
   callbackApresEchauffement = callbackSuite;
 
   var html = '';
-  html += '<h2>🔥 Échauffement de séance</h2>';
-  html += '<p class="subtitle">Sélectionne ton échauffement dynamique (3-4 min) pour faire monter le rythme cardiaque :</p>';
-  html += '<div class="choix-echauffement-buttons">';
-  html += '  <button class="btn-echauffement" data-action="choisir-echauffement" data-type="hautDuCorps">';
-  html += '    <strong>💪 Haut du Corps</strong>';
-  html += '    <span>Jumping Jacks, Shadow Boxing, Tirage Élastique...</span>';
-  html += '  </button>';
-  html += '  <button class="btn-echauffement" data-action="choisir-echauffement" data-type="basDuCorps">';
-  html += '    <strong>🦵 Bas du Corps</strong>';
-  html += '    <span>Jumping Jacks, Air Squats, Fentes marchées...</span>';
-  html += '  </button>';
+  html += '<div class="echauf-entete">';
+  html += '<div><h2 class="echauf-titre">Échauffement</h2>';
+  html += '<p class="echauf-sous-titre">3 à 4 min pour monter en température</p></div>';
+  html += '<button class="bouton-fermer" data-action="fermer-modal">&times;</button>';
   html += '</div>';
-  html += '<button class="btn-secondary" data-action="passer-echauffement">Passer l\'échauffement</button>';
 
+  html += '<div class="echauf-choix">';
+  ['hautDuCorps', 'basDuCorps'].forEach(function (type) {
+    var d = DONNEES_ECHAUFFEMENT[type];
+    html += '<button class="echauf-carte" data-action="choisir-echauffement" data-type="' + type + '">';
+    html += '<span class="echauf-carte-icone">' + d.icone + '</span>';
+    html += '<span class="echauf-carte-titre">' + echapperHtml(d.titre) + '</span>';
+    html += '</button>';
+  });
+  html += '</div>';
+
+  html += '<button class="echauf-passer" data-action="passer-echauffement">Passer l\'échauffement</button>';
   ouvrirModal(html);
 }
 
+/* Étape 2 : liste à cocher, tap sur une ligne pour valider */
 function choisirEchauffement(type) {
   var data = DONNEES_ECHAUFFEMENT[type];
   if (!data) { return; }
 
   var html = '';
-  html += '<h2>' + echapperHtml(data.titre) + '</h2>';
-  html += '<p class="subtitle">' + echapperHtml(data.description) + '</p>';
-  html += '<ul class="echauffement-list">';
-  data.exercices.forEach(function (ex, i) {
-    html += '<li class="item-echauffement">';
-    html += '  <label class="checkbox-container">';
-    html += '    <input type="checkbox">';
-    html += '    <span class="exo-info">';
-    html += '      <strong>' + echapperHtml(ex.nom) + '</strong>';
-    html += '      <span class="duree">' + echapperHtml(ex.duree) + '</span>';
-    html += '    </span>';
-    html += '  </label>';
+  html += '<div class="echauf-entete">';
+  html += '<button class="echauf-retour" data-action="echauffement-retour">&#8249;</button>';
+  html += '<h2 class="echauf-titre echauf-titre-centre">' + echapperHtml(data.titre) + '</h2>';
+  html += '<button class="bouton-fermer" data-action="fermer-modal">&times;</button>';
+  html += '</div>';
+
+  html += '<div class="echauf-compteur donnee-num" id="echauf-compteur">0 / ' + data.exercices.length + '</div>';
+  html += '<div class="echauf-progression"><div class="echauf-barre" id="echauf-barre"></div></div>';
+
+  html += '<ul class="echauf-liste">';
+  data.exercices.forEach(function (ex) {
+    html += '<li class="echauf-ligne" data-action="echauffement-toggle">';
+    html += '<span class="echauf-check">&#10003;</span>';
+    html += '<span class="echauf-nom">' + echapperHtml(ex.nom) + '</span>';
+    html += '<span class="echauf-duree donnee-num">' + echapperHtml(ex.duree) + '</span>';
     html += '</li>';
   });
   html += '</ul>';
-  html += '<button class="btn-primary" data-action="terminer-echauffement">✅ Terminer l\'échauffement & Démarrer la séance</button>';
 
+  html += '<button class="btn btn-plein btn-bloc" data-action="terminer-echauffement">Démarrer la séance</button>';
   ouvrirModal(html);
+}
+
+function basculerEtapeEchauffement(ligne) {
+  ligne.classList.toggle('echauf-ligne-faite');
+  var total = document.querySelectorAll('.echauf-ligne').length;
+  var faites = document.querySelectorAll('.echauf-ligne-faite').length;
+  var compteur = document.getElementById('echauf-compteur');
+  var barre = document.getElementById('echauf-barre');
+  if (compteur) { compteur.innerHTML = faites + ' / ' + total; }
+  if (barre) { barre.style.width = (total > 0 ? Math.round(faites / total * 100) : 0) + '%'; }
 }
 
 function passerEchauffement() {
