@@ -3102,10 +3102,20 @@ var DUREE_APPUI_LONG_MS = 450;
 var CDR_RAYON = 96;
 var CDR_CIRCONFERENCE = 2 * Math.PI * CDR_RAYON;
 
-/* Couleurs du dégradé dynamique (violet au lancement -> rose -> orange à 0) */
-var COULEUR_CDR_DEBUT = '#B98EF0';
+/* Couleurs du dégradé dynamique (violet du thème au lancement -> rose -> orange à 0) */
 var COULEUR_CDR_MILIEU = '#FF3D9A';
 var COULEUR_CDR_FIN = '#FF7A18';
+
+/* Lit le violet défini par le thème (--couleur-nutrition dans :root) : si tu changes
+   cette variable (nouveau thème, dark/light...), le minuteur suit automatiquement. */
+function couleurThemeMinuteur() {
+  try {
+    var valeur = getComputedStyle(document.documentElement).getPropertyValue('--couleur-nutrition');
+    valeur = valeur ? valeur.trim() : '';
+    if (valeur) { return valeur; }
+  } catch (erreur) {}
+  return '#B98EF0';
+}
 
 function couleurCompteARebours(fractionRestante) {
   if (isNaN(fractionRestante)) { fractionRestante = 0; }
@@ -3113,7 +3123,7 @@ function couleurCompteARebours(fractionRestante) {
   if (fractionRestante > 1) { fractionRestante = 1; }
   if (fractionRestante >= 0.5) {
     var t1 = (fractionRestante - 0.5) / 0.5;
-    return interpolerCouleur(COULEUR_CDR_MILIEU, COULEUR_CDR_DEBUT, t1);
+    return interpolerCouleur(COULEUR_CDR_MILIEU, couleurThemeMinuteur(), t1);
   }
   var t2 = fractionRestante / 0.5;
   return interpolerCouleur(COULEUR_CDR_FIN, COULEUR_CDR_MILIEU, t2);
@@ -3311,7 +3321,7 @@ function rendreZoneCompteARebours() {
     html += '<svg viewBox="0 0 220 220" class="cdr-svg">';
     html += '<defs><linearGradient id="degradeMinuteur" x1="0%" y1="0%" x2="100%" y2="100%">';
     html += '<stop offset="0%" stop-color="#1FD9C4"></stop>';
-    html += '<stop id="cdr-degrade-stop2" offset="100%" stop-color="' + COULEUR_CDR_DEBUT + '"></stop>';
+    html += '<stop id="cdr-degrade-stop2" offset="100%" stop-color="' + couleurThemeMinuteur() + '"></stop>';
     html += '</linearGradient></defs>';
     html += '<circle class="cdr-cercle-fond" cx="110" cy="110" r="' + CDR_RAYON + '"></circle>';
     html += '<circle id="cdr-cercle-progression" class="cdr-cercle-progression" cx="110" cy="110" r="' + CDR_RAYON + '" stroke="url(#degradeMinuteur)" stroke-dasharray="' + CDR_CIRCONFERENCE.toFixed(1) + '" stroke-dashoffset="0"></circle>';

@@ -16,6 +16,9 @@
   --couleur-avertissement: #E0A73D;
   --couleur-piscine: #0bdaff;
   --couleur-nutrition: #B98EF0;
+  --couleur-nutrition-fond: #1F1F2B;
+  --couleur-nutrition-fond-actif: #2A2540;
+  --couleur-nutrition-clair: #CDB0F7;
   --couleur-bordure: #2A313B;
   --couleur-checklist: #6624ff;
   --rayon: 10px;
@@ -1022,7 +1025,7 @@ a { color: inherit; }
   -webkit-box-align: center; -webkit-align-items: center; align-items: center;
   border: 1.5px solid var(--couleur-nutrition);
   border-radius: 999px;
-  background: #1F1F2B;
+  background: var(--couleur-nutrition-fond);
   box-shadow: var(--ombre);
   padding: 8px;
   -webkit-user-select: none;
@@ -1037,8 +1040,8 @@ a { color: inherit; }
   cursor: ew-resize;
 }
 .cdr-pill.glisse-actif {
-  background: #2A2540;
-  border-color: #cdb0f7;
+  background: var(--couleur-nutrition-fond-actif);
+  border-color: var(--couleur-nutrition-clair);
 }
 .cdr-duree-affichage {
   font-family: var(--police-donnees);
