@@ -5223,6 +5223,7 @@ ajouterEcouteurClicDelegue(document.body, function (cible) {
   if (action === 'confirmation-annuler') { annulerConfirmation(); return; }
   if (action === 'choisir-echauffement') { choisirEchauffement(cible.getAttribute('data-type')); return; }
   if (action === 'passer-echauffement') { passerEchauffement(); return; }
+  if (action === 'echauffement-retour') { demanderEchauffement(callbackApresEchauffement); return; }
   if (action === 'terminer-echauffement') { terminerEchauffement(); return; }
   if (action === 'ouvrir-reglages') { ouvrirReglages(); return; }
   if (action === 'reglages-ouvrir-section') { rendreReglages(cible.getAttribute('data-section')); return; }
