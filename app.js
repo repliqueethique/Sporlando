@@ -2772,7 +2772,8 @@ function rendreExercicesActifs() {
       if (estEchauffement) { compteurEchauffement++; libelleNumSerie = 'É' + compteurEchauffement; }
       else { compteurTravail++; libelleNumSerie = '#' + compteurTravail; }
       var estCible = (s === indexProchaineSerie);
-      html += '<div class="serie-ligne' + (estCible ? ' serie-cible' : '') + (estEchauffement ? ' serie-echauffement' : '') + '">';
+      var estNouvelle = !!(dernierAjoutSerie && dernierAjoutSerie.ex === e && dernierAjoutSerie.serie === s);
+      html += '<div class="serie-ligne' + (estCible ? ' serie-cible' : '') + (estEchauffement ? ' serie-echauffement' : '') + (estNouvelle ? ' serie-nouvelle' : '') + '">';
       html += '<div class="serie-num">' + libelleNumSerie + '</div>';
       html += '<div class="serie-champ"><input type="number" step="0.5" inputmode="decimal" data-role="live-poids" data-ex="' + e + '" data-serie="' + s + '" value="' + serie.poids + '"></div>';
       html += '<div class="serie-unite">kg</div>';
@@ -2798,7 +2799,7 @@ function rendreExercicesActifs() {
     html += '<span class="rpe-suffixe">RPE</span>';
     html += '</div>';
     html += '<button class="btn btn-contour btn-action-serie" data-action="ajouter-serie" data-ex="' + e + '">+ Série</button>';
-    html += '<button class="btn btn-contour btn-action-echauffement" data-action="ajouter-serie-echauffement" data-ex="' + e + '" title="Ajouter une série d\'échauffement">🔥</button>';
+    html += '<button class="btn-action-echauffement" data-action="ajouter-serie-echauffement" data-ex="' + e + '" title="Ajouter une série d\'échauffement"><span class="icone-echauffement">🔥</span></button>';
     html += '</div>';
     if (ligneEx.technique === 'drop_set') {
       html += '<button class="btn btn-contour btn-bloc" style="margin-top:6px;" data-action="ajouter-serie-degressive" data-ex="' + e + '">+ Série dégressive (~70%)</button>';
@@ -2806,6 +2807,7 @@ function rendreExercicesActifs() {
     html += '</div></div>'; // Fermeture de la carte
   }
   document.getElementById('seance-liste-exercices').innerHTML = html;
+  dernierAjoutSerie = null;
 
   // Gestion automatique des exercices terminés
   document.querySelectorAll('.bloc-exercice').forEach(exercice => {
@@ -2951,6 +2953,7 @@ function basculerSerieFaite(exIndex, serieIndex) {
 }
 
 var notesSerieOuvertes = {};
+var dernierAjoutSerie = null;
 
 function basculerNoteSerie(exIndex, serieIndex) {
   var cle = exIndex + '_' + serieIndex;
@@ -2968,6 +2971,7 @@ function ajouterSerieLive(exIndex) {
   var seriesTab = etat.seanceActive.exercices[exIndex].series;
   var derniere = seriesTab.length > 0 ? seriesTab[seriesTab.length - 1] : { poids: 0, reps: 0 };
   seriesTab.push({ poids: derniere.poids, reps: derniere.reps, fait: false, note: '', echauffement: false });
+  dernierAjoutSerie = { ex: exIndex, serie: seriesTab.length - 1 };
   sauvegarderEtat();
   rendreExercicesActifs();
 }
@@ -2992,6 +2996,7 @@ function ajouterSerieEchauffementLive(exIndex) {
   }
   var poidsEchauffement = arrondirPoids(poidsReference * 0.5);
   seriesTab.splice(indexInsertion, 0, { poids: poidsEchauffement, reps: 12, fait: false, note: '', echauffement: true });
+  dernierAjoutSerie = { ex: exIndex, serie: indexInsertion };
   sauvegarderEtat();
   rendreExercicesActifs();
 }
@@ -3001,6 +3006,7 @@ function ajouterSerieDegressive(exIndex) {
   var derniere = seriesTab.length > 0 ? seriesTab[seriesTab.length - 1] : { poids: 0, reps: 0 };
   var poidsReduit = arrondirPoids(derniere.poids * 0.7);
   seriesTab.push({ poids: poidsReduit, reps: derniere.reps, fait: false, note: '', echauffement: false });
+  dernierAjoutSerie = { ex: exIndex, serie: seriesTab.length - 1 };
   sauvegarderEtat();
   rendreExercicesActifs();
 }
