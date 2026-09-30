@@ -310,22 +310,20 @@ function rendreChecklistQuotidienne() {
   carte.style.display = '';
   carte.classList.remove('carte-checklist-disparition');
 
-  var boutons = carte.querySelectorAll('.checklist-bouton');
+  var boutons = carte.querySelectorAll('.todo-bouton');
+  var nbFaites = 0;
   boutons.forEach(function (bouton) {
     var tache = bouton.getAttribute('data-tache');
     if (checklist[tache]) {
       bouton.classList.add('bulle-validation-faite');
-      bouton.innerHTML = '✓';
+      nbFaites++;
     } else {
       bouton.classList.remove('bulle-validation-faite');
-      bouton.innerHTML = obtenirIconeChecklist(tache);
     }
-    var nbFaites = (checklist.eau ? 1 : 0) + (checklist.etirements ? 1 : 0) + (checklist.pesee ? 1 : 0);
-    var compteur = document.getElementById('todo-compteur');
-    var remplie = document.getElementById('todo-progression-remplie');
-    if (compteur) { compteur.innerHTML = nbFaites + '/3 fait' + (nbFaites > 1 ? 's' : ''); }
-    if (remplie) { remplie.style.width = Math.round((nbFaites / 3) * 100) + '%'; }
   });
+
+  var remplie = document.getElementById('todo-progression-remplie');
+  if (remplie) { remplie.style.width = Math.round((nbFaites / 3) * 100) + '%'; }
 }
 
 function fermerCarteChecklistAvecAnimation() {

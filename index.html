@@ -53,9 +53,15 @@
         <span class="titre-affichage texte-degrade todo-titre">Routine</span>
       </div>
       <div class="todo-icones">
-        <button class="bulle-validation checklist-bouton todo-bouton" data-action="toggle-checklist" data-tache="eau" title="Boire de l'eau" aria-label="Boire de l'eau">💧</button>
-        <button class="bulle-validation checklist-bouton todo-bouton" data-action="toggle-checklist" data-tache="etirements" title="Faire mes étirements" aria-label="Faire mes étirements">🤸</button>
-        <button class="bulle-validation checklist-bouton todo-bouton" data-action="toggle-checklist" data-tache="pesee" title="Me peser" aria-label="Me peser">⚖️</button>
+        <button class="todo-bouton" data-action="toggle-checklist" data-tache="eau" title="Boire de l'eau" aria-label="Boire de l'eau">
+          <svg class="todo-ico" viewBox="0 0 24 24"><path d="M12 3C12 3 5.5 10.2 5.5 14.6a6.5 6.5 0 0 0 13 0C18.5 10.2 12 3 12 3z"/></svg>
+        </button>
+        <button class="todo-bouton" data-action="toggle-checklist" data-tache="etirements" title="Faire mes étirements" aria-label="Faire mes étirements">
+          <svg class="todo-ico" viewBox="0 0 24 24"><circle cx="12" cy="4.5" r="2"/><path d="M12 8v6M12 10L7 5.5M12 10l5-4.5M12 14l-4 7M12 14l4 7"/></svg>
+        </button>
+        <button class="todo-bouton" data-action="toggle-checklist" data-tache="pesee" title="Me peser" aria-label="Me peser">
+          <svg class="todo-ico" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="4.5"/><path d="M8 10.5a4.5 4.5 0 0 1 8 0M12 11l1.6-2.4"/></svg>
+        </button>
       </div>
       <div class="todo-progression"><div class="todo-progression-remplie" id="todo-progression-remplie"></div></div>
     </div>
