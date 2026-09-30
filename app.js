@@ -4146,6 +4146,20 @@ var TITRES_REGLAGES = {
   sauvegarde: 'Sauvegarde manuelle'
 };
 
+function htmlSelecteurSonnerie() {
+  var courant = etat.profil.sonnerie || 'auto';
+  var html = '<div class="champ"><label>Sonnerie du minuteur</label>';
+  html += '<select id="champ-profil-sonnerie">';
+  html += '<option value="auto"' + (courant === 'auto' ? ' selected' : '') + '>🎨 Assortie au thème</option>';
+  for (var i = 0; i < SONNERIES.length; i++) {
+    var sel = (courant === SONNERIES[i].valeur) ? ' selected' : '';
+    html += '<option value="' + SONNERIES[i].valeur + '"' + sel + '>' + echapperHtml(SONNERIES[i].libelle) + '</option>';
+  }
+  html += '</select></div>';
+  html += '<button class="btn btn-contour btn-bloc" data-action="tester-sonnerie" style="margin-bottom:10px;">▶ Écouter la sonnerie</button>';
+  return html;
+}
+
 function ouvrirReglages() {
   rendreReglages('menu');
 }
@@ -4318,7 +4332,6 @@ function construireReglagesPersonnalisation() {
   html += '</select></div>';
   html += '<button class="btn btn-contour btn-bloc" data-action="tester-sonnerie-minuteur" style="margin-bottom:12px;">🔊 Tester la sonnerie</button>';
   html += '<button class="btn btn-plein btn-bloc" data-action="enregistrer-personnalisation">Enregistrer</button>';
-  html += htmlSelecteurSonnerie();
   return html;
 }
 
