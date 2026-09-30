@@ -1054,10 +1054,11 @@ main::after {
 
 .echauf-flamme {
   display: inline-block;
-  font-size: 18px;
-  -webkit-filter: grayscale(100%) opacity(0.35);
-  filter: grayscale(100%) opacity(0.35);
-  -webkit-transition: -webkit-filter 0.25s ease, -webkit-transform 0.25s ease;
+  font-size: 28px;
+  line-height: 1;
+  filter:
+    drop-shadow(0 0 4px var(--couleur-avertissement))
+    drop-shadow(0 3px 6px rgba(0, 0, 0, 0.4));
   transition: filter 0.25s ease, transform 0.25s ease;
 }
 
