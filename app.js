@@ -3325,47 +3325,96 @@ function configurerBoutonMinuteur() {
 function rendreZoneCompteARebours() {
   var conteneur = document.getElementById('seance-zone-cdr');
   if (!conteneur) { return; }
-  conteneur.className = '';
-  conteneur.style.cssText =
-    'background:none; border:none; box-shadow:none; padding:0; display:flex; align-items:center; ' +
-    (compteARebours.actif
-      ? 'margin:0 auto 12px auto; justify-content:center; width:200px; height:200px;'
-      : 'margin:0 0 12px 0; justify-content:flex-end; width:auto; height:auto;');
+  var zoneHaute = conteneur.parentNode;
   var html = '';
+
   if (compteARebours.actif) {
-    html += '<div class="cdr-cercle-zone" id="cdr-cercle-zone">';
-    html += '<svg viewBox="0 0 220 220" class="cdr-svg">';
-    html += '<defs><linearGradient id="degradeMinuteur" x1="0%" y1="0%" x2="100%" y2="100%">';
-    html += '<stop offset="0%" stop-color="#1FD9C4"></stop>';
-    html += '<stop id="cdr-degrade-stop2" offset="100%" stop-color="' + couleurThemeMinuteur() + '"></stop>';
-    html += '</linearGradient></defs>';
-    html += '<circle class="cdr-cercle-fond" cx="110" cy="110" r="' + CDR_RAYON + '"></circle>';
-    html += '<circle id="cdr-cercle-progression" class="cdr-cercle-progression" cx="110" cy="110" r="' + CDR_RAYON + '" stroke="url(#degradeMinuteur)" stroke-dasharray="' + CDR_CIRCONFERENCE.toFixed(1) + '" stroke-dashoffset="0"></circle>';
-    html += '</svg>';
-    html += '<div class="cdr-centre"><span id="cdr-affichage" class="cdr-chrono">--:--</span></div>';
+    conteneur.classList.add('cdr-verre');
+    if (zoneHaute) { zoneHaute.classList.add('cdr-en-cours'); }
+    html += '<div class="cdr-contenu">';
+    html += '<h2 class="carte-titre">Minuteur de repos</h2>';
+    html += '<div class="chrono texte-degrade" id="cdr-affichage">--:--</div>';
+    html += '<button class="btn btn-verre btn-verre-alerte btn-bloc" style="margin-top:10px;" data-action="arreter-cdr">Arrêter</button>';
     html += '</div>';
   } else {
-    html += '<div class="cdr-pill' + (cdrReglageDeplie ? ' cdr-pill-deplie' : '') + '" id="cdr-duree-glissable">';
-    html += '<input type="hidden" id="cdr-minutes" value="' + derniereMinutesReglees + '">';
-    html += '<input type="hidden" id="cdr-secondes" value="' + dernieresSecondesReglees + '">';
-    html += '<span id="cdr-duree-affichage" class="cdr-duree-affichage">' + completerZero(derniereMinutesReglees) + ':' + completerZero(dernieresSecondesReglees) + '</span>';
-    html += '<button class="cdr-bouton-lancer" id="cdr-bouton-lancer" title="Appui court : lancer / appui long : régler la durée">';
-    html += '<svg viewBox="0 0 24 24" width="40" height="40" aria-hidden="true" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">';
-    html += '<line x1="9" y1="2" x2="15" y2="2"></line>';
-    html += '<circle cx="12" cy="14" r="8"></circle>';
-    html += '<line x1="12" y1="14" x2="15" y2="11"></line>';
-    html += '</svg>';
-    html += '</button>';
+    conteneur.classList.remove('cdr-verre');
+    if (zoneHaute) { zoneHaute.classList.remove('cdr-en-cours'); }
+    html += '<h2 class="carte-titre">Minuteur de repos</h2>';
+    html += '<div class="cdr-champs">';
+    html += '<div class="cdr-champ"><label>Min</label><input type="number" step="1" min="0" id="cdr-minutes" value="' + derniereMinutesReglees + '"></div>';
+    html += '<div class="cdr-champ"><label>Sec</label><input type="number" step="1" min="0" max="59" id="cdr-secondes" value="' + dernieresSecondesReglees + '"></div>';
+    html += '<button class="btn btn-verre" data-action="lancer-cdr">Lancer</button>';
     html += '</div>';
   }
   conteneur.innerHTML = html;
-  if (compteARebours.actif) {
-    afficherCompteARebours(compteARebours.enPause ? compteARebours.resteMsPause : (compteARebours.finMs - Date.now()));
-    configurerGestesMinuteur();
-  } else {
-    configurerGlissementDuree();
-    configurerBoutonMinuteur();
-  }
+  if (compteARebours.actif) { afficherCompteARebours(compteARebours.finMs - Date.now()); }
+}
+
+/* Anime un élément depuis le rectangle de départ (le bouton) jusqu'à sa place finale */
+function animerZoomDepuisRect(element, rectDepart) {
+  if (!element || !rectDepart) { return; }
+  var rectFin = element.getBoundingClientRect();
+  if (!rectFin.width || !rectFin.height) { return; }
+
+  var dx = rectDepart.left - rectFin.left;
+  var dy = rectDepart.top - rectFin.top;
+  var sx = rectDepart.width / rectFin.width;
+  var sy = rectDepart.height / rectFin.height;
+  var depart = 'translate(' + dx + 'px,' + dy + 'px) scale(' + sx + ',' + sy + ')';
+  var s = element.style;
+
+  s.webkitTransformOrigin = '0 0';
+  s.transformOrigin = '0 0';
+  s.webkitTransition = 'none';
+  s.transition = 'none';
+  s.webkitTransform = depart;
+  s.transform = depart;
+
+  void element.offsetWidth; /* force le navigateur à appliquer l'état de départ */
+
+  var trans = 'transform 0.5s cubic-bezier(0.2, 0.9, 0.25, 1)';
+  s.webkitTransition = '-webkit-' + trans;
+  s.transition = trans;
+  s.webkitTransform = 'translate(0,0) scale(1,1)';
+  s.transform = 'translate(0,0) scale(1,1)';
+
+  window.setTimeout(function () {
+    s.webkitTransition = '';
+    s.transition = '';
+    s.webkitTransform = '';
+    s.transform = '';
+    s.webkitTransformOrigin = '';
+    s.transformOrigin = '';
+  }, 560);
+}
+
+function lancerCompteARebours() {
+  var champMinutes = document.getElementById('cdr-minutes');
+  var champSecondes = document.getElementById('cdr-secondes');
+  var minutes = parseInt(champMinutes.value, 10);
+  var secondes = parseInt(champSecondes.value, 10);
+  if (isNaN(minutes) || minutes < 0) { minutes = 0; }
+  if (isNaN(secondes) || secondes < 0) { secondes = 0; }
+  var totalMs = (minutes * 60 + secondes) * 1000;
+  if (totalMs <= 0) { afficherToast('Choisis une durée supérieure à zéro.'); return; }
+
+  derniereMinutesReglees = minutes;
+  dernieresSecondesReglees = secondes;
+
+  obtenirContexteAudio();
+
+  /* On mesure le bouton AVANT de re-rendre la zone */
+  var bouton = document.querySelector('#seance-zone-cdr [data-action="lancer-cdr"]');
+  var rectBouton = bouton ? bouton.getBoundingClientRect() : null;
+
+  compteARebours.actif = true;
+  compteARebours.finMs = Date.now() + totalMs;
+
+  if (intervalleCompteARebours) { window.clearInterval(intervalleCompteARebours); }
+  intervalleCompteARebours = window.setInterval(mettreAJourCompteARebours, 250);
+
+  rendreZoneCompteARebours();
+  animerZoomDepuisRect(document.getElementById('seance-zone-cdr'), rectBouton);
 }
 
 function demarrerCompteARebours(totalMs) {
@@ -3384,18 +3433,6 @@ function demarrerCompteARebours(totalMs) {
   intervalleCompteARebours = window.setInterval(mettreAJourCompteARebours, 250);
 
   rendreZoneCompteARebours();
-}
-
-function lancerCompteARebours() {
-  var champMinutes = document.getElementById('cdr-minutes');
-  var champSecondes = document.getElementById('cdr-secondes');
-  var minutes = parseInt(champMinutes.value, 10);
-  var secondes = parseInt(champSecondes.value, 10);
-  if (isNaN(minutes) || minutes < 0) { minutes = 0; }
-  if (isNaN(secondes) || secondes < 0) { secondes = 0; }
-  var totalMs = (minutes * 60 + secondes) * 1000;
-  if (totalMs <= 0) { afficherToast('Choisis une durée supérieure à zéro.'); return; }
-  demarrerCompteARebours(totalMs);
 }
 
 function arreterCompteARebours() {
