@@ -3345,17 +3345,36 @@ function jouerMotFinMinuteur() {
   var rect = zone ? zone.getBoundingClientRect() : { top: 80, height: 60 };
   var centreY = rect.top + rect.height / 2;
 
-  /* taille adaptée à la largeur d'écran */
-  var taille = Math.min(60, Math.floor((window.innerWidth - 32) / (phrase.length * 0.62)));
+  /* Le "!" reste collé au mot précédent (espace insécable) : jamais de "!" seul sur une ligne */
+  var mots = phrase.replace(' !', '\u00A0!').split(' ');
+
+  /* Taille : on ajuste pour que le mot le plus large tienne dans l'écran (pas de césure) */
+  var largeurMaxEm = 0;
+  var totalLettres = 0;
+  var m, k, largeurMot;
+  for (m = 0; m < mots.length; m++) {
+    largeurMot = 0;
+    for (k = 0; k < mots[m].length; k++) {
+      if (mots[m].charAt(k) === '\u00A0') { largeurMot += 0.3; } else { largeurMot += 0.7; totalLettres++; }
+    }
+    if (largeurMot > largeurMaxEm) { largeurMaxEm = largeurMot; }
+  }
+  var taille = Math.max(36, Math.min(120, Math.floor((window.innerWidth - 40) / largeurMaxEm)));
   var inclinaison = -(5 + Math.random() * 5); /* entre -5° et -10° */
 
-  var lettres = '';
-  var total = phrase.length;
-  for (var i = 0; i < total; i++) {
-    var c = phrase.charAt(i);
-    if (c === ' ') { lettres += '<span class="cdr-mot-espace"></span>'; continue; }
-    var couleur = interpolerCouleur('#1FD9C4', '#22A7E5', total > 1 ? i / (total - 1) : 0);
-    lettres += '<span class="cdr-mot-lettre" style="color:' + couleur + '; animation-delay:' + (i * 0.045).toFixed(3) + 's;">' + echapperHtml(c) + '</span>';
+  var html = '';
+  var index = 0;
+  for (m = 0; m < mots.length; m++) {
+    html += '<span class="cdr-mot-mot">';
+    for (k = 0; k < mots[m].length; k++) {
+      var c = mots[m].charAt(k);
+      if (c === '\u00A0') { html += '<span class="cdr-mot-espace"></span>'; continue; }
+      var couleur = interpolerCouleur('#1FD9C4', '#22A7E5', totalLettres > 1 ? index / (totalLettres - 1) : 0);
+      html += '<span class="cdr-mot-lettre" style="color:' + couleur + '; animation-delay:' + (index * 0.045).toFixed(3) + 's;">' + echapperHtml(c) + '</span>';
+      index++;
+    }
+    html += '</span>';
+    if (m < mots.length - 1) { html += ' '; }
   }
 
   var overlay = document.createElement('div');
@@ -3363,22 +3382,41 @@ function jouerMotFinMinuteur() {
   overlay.className = 'cdr-mot-fin';
   overlay.style.top = centreY + 'px';
   overlay.innerHTML = '<div class="cdr-mot-inclinaison" style="font-size:' + taille + 'px; transform:rotate(' + inclinaison.toFixed(1) + 'deg);">' +
-    '<div class="cdr-mot-texte">' + lettres + '</div></div>';
+    '<div class="cdr-mot-texte">' + html + '</div></div>';
   document.body.appendChild(overlay);
+
+  /* Si le mot est sur plusieurs lignes, on évite qu'il sorte de l'écran par le haut */
+  var centre = Math.max(centreY, overlay.offsetHeight / 2 + 64);
+  overlay.style.top = centre + 'px';
 
   if (navigator.vibrate) { try { navigator.vibrate([30, 40, 30]); } catch (e) {} }
 
-  /* sortie du mot, puis pop du bouton */
-  window.setTimeout(function () { overlay.classList.add('cdr-mot-sortie'); }, 1050);
+  /* Timing : lecture, sortie lettre par lettre, pop du bouton, nettoyage */
+  var delaiLecture = 1150;
+  var pasSortie = 0.03;
+  var dureeLettre = 0.38;
+  var dureeSortieMs = Math.round((dureeLettre + (totalLettres - 1) * pasSortie) * 1000);
+
   window.setTimeout(function () {
-    if (overlay.parentNode) { overlay.parentNode.removeChild(overlay); }
+    var lettresEl = overlay.querySelectorAll('.cdr-mot-lettre');
+    for (var i = 0; i < lettresEl.length; i++) {
+      lettresEl[i].style.animationDelay = (i * pasSortie).toFixed(3) + 's';
+    }
+    overlay.classList.add('cdr-mot-sortie');
+  }, delaiLecture);
+
+  window.setTimeout(function () {
     cdrCacherBouton = false;
     var pill = document.getElementById('cdr-duree-glissable');
     if (pill) {
       pill.classList.remove('cdr-pill-cache');
       pill.classList.add('cdr-pill-pop');
     }
-  }, 1200);
+  }, delaiLecture + dureeSortieMs - 180);
+
+  window.setTimeout(function () {
+    if (overlay.parentNode) { overlay.parentNode.removeChild(overlay); }
+  }, delaiLecture + dureeSortieMs + 60);
 }
 
 function rendreZoneCompteARebours() {
