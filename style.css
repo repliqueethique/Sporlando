@@ -2227,3 +2227,58 @@ main::after {
 }
 @-webkit-keyframes cdrFondu { from { opacity: 0; } to { opacity: 1; } }
 @keyframes cdrFondu { from { opacity: 0; } to { opacity: 1; } }
+
+/* ============================================================
+   FIN DE MINUTEUR : mot en lettrage animé + pop du bouton
+   ============================================================ */
+.cdr-mot-fin {
+  position: fixed;
+  left: 0; right: 0;
+  z-index: 60;
+  display: flex;
+  justify-content: center;
+  pointer-events: none;
+  transform: translateY(-50%);
+}
+.cdr-mot-inclinaison {
+  font-style: italic;
+  font-weight: 900;
+  letter-spacing: -0.02em;
+  line-height: 1;
+  white-space: nowrap;
+  text-transform: uppercase;
+}
+.cdr-mot-texte { text-shadow: 0 0 18px rgba(31, 217, 196, 0.55), 0 4px 14px rgba(0, 0, 0, 0.5); }
+.cdr-mot-espace { display: inline-block; width: 0.3em; }
+
+.cdr-mot-lettre {
+  display: inline-block;
+  transform-origin: 50% 100%;
+  animation: cdrLettreEntree 0.55s cubic-bezier(0.2, 1.4, 0.3, 1) backwards;
+}
+@keyframes cdrLettreEntree {
+  0%   { opacity: 0; transform: translateY(0.7em) scale(0.2) rotate(18deg); filter: blur(6px); }
+  55%  { opacity: 1; transform: translateY(-0.12em) scale(1.3) rotate(-5deg); filter: blur(0); }
+  100% { opacity: 1; transform: none; }
+}
+
+/* Sortie : le mot s'élargit et s'efface */
+.cdr-mot-sortie .cdr-mot-inclinaison {
+  animation: cdrMotSortie 0.25s cubic-bezier(0.5, 0, 0.9, 0.4) forwards;
+}
+@keyframes cdrMotSortie {
+  to { opacity: 0; transform: scale(1.5); filter: blur(4px); }
+}
+
+/* Bouton : caché pendant le mot, puis pop avec changement d'échelle */
+.cdr-pill-cache { opacity: 0; transform: scale(0); pointer-events: none; }
+.cdr-pill-pop { animation: cdrBoutonPop 0.55s cubic-bezier(0.2, 1.5, 0.35, 1) backwards; }
+@keyframes cdrBoutonPop {
+  0%   { opacity: 0; transform: scale(0); }
+  60%  { opacity: 1; transform: scale(1.18); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cdr-mot-lettre, .cdr-pill-pop, .cdr-mot-sortie .cdr-mot-inclinaison { animation-duration: 0.01s; }
+}

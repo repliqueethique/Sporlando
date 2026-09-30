@@ -3322,6 +3322,65 @@ function configurerBoutonMinuteur() {
 
 /* --- Affichage / cycle de vie du minuteur --- */
 
+/* --- Animation de fin de minuteur --- */
+var EXPRESSIONS_FIN_MINUTEUR = ['Go !', 'Reprise !', 'Aller !', 'C\'est tipar !', 'Pousse !', 'Let\'s go !', 'Chaud !', 'Next !'];
+var derniereExpressionFin = -1;
+var cdrCacherBouton = false; /* vrai pendant que le mot s'affiche : le bouton attend son pop */
+
+function choisirExpressionFin() {
+  var index;
+  do {
+    index = Math.floor(Math.random() * EXPRESSIONS_FIN_MINUTEUR.length);
+  } while (index === derniereExpressionFin && EXPRESSIONS_FIN_MINUTEUR.length > 1);
+  derniereExpressionFin = index;
+  return EXPRESSIONS_FIN_MINUTEUR[index];
+}
+
+function jouerMotFinMinuteur() {
+  var ancien = document.getElementById('cdr-mot-fin');
+  if (ancien && ancien.parentNode) { ancien.parentNode.removeChild(ancien); }
+
+  var phrase = choisirExpressionFin();
+  var zone = document.getElementById('seance-zone-cdr');
+  var rect = zone ? zone.getBoundingClientRect() : { top: 80, height: 60 };
+  var centreY = rect.top + rect.height / 2;
+
+  /* taille adaptée à la largeur d'écran */
+  var taille = Math.min(60, Math.floor((window.innerWidth - 32) / (phrase.length * 0.62)));
+  var inclinaison = -(5 + Math.random() * 5); /* entre -5° et -10° */
+
+  var lettres = '';
+  var total = phrase.length;
+  for (var i = 0; i < total; i++) {
+    var c = phrase.charAt(i);
+    if (c === ' ') { lettres += '<span class="cdr-mot-espace"></span>'; continue; }
+    var couleur = interpolerCouleur('#1FD9C4', '#22A7E5', total > 1 ? i / (total - 1) : 0);
+    lettres += '<span class="cdr-mot-lettre" style="color:' + couleur + '; animation-delay:' + (i * 0.045).toFixed(3) + 's;">' + echapperHtml(c) + '</span>';
+  }
+
+  var overlay = document.createElement('div');
+  overlay.id = 'cdr-mot-fin';
+  overlay.className = 'cdr-mot-fin';
+  overlay.style.top = centreY + 'px';
+  overlay.innerHTML = '<div class="cdr-mot-inclinaison" style="font-size:' + taille + 'px; transform:rotate(' + inclinaison.toFixed(1) + 'deg);">' +
+    '<div class="cdr-mot-texte">' + lettres + '</div></div>';
+  document.body.appendChild(overlay);
+
+  if (navigator.vibrate) { try { navigator.vibrate([30, 40, 30]); } catch (e) {} }
+
+  /* sortie du mot, puis pop du bouton */
+  window.setTimeout(function () { overlay.classList.add('cdr-mot-sortie'); }, 1050);
+  window.setTimeout(function () {
+    if (overlay.parentNode) { overlay.parentNode.removeChild(overlay); }
+    cdrCacherBouton = false;
+    var pill = document.getElementById('cdr-duree-glissable');
+    if (pill) {
+      pill.classList.remove('cdr-pill-cache');
+      pill.classList.add('cdr-pill-pop');
+    }
+  }, 1200);
+}
+
 function rendreZoneCompteARebours() {
   var conteneur = document.getElementById('seance-zone-cdr');
   if (!conteneur) { return; }
@@ -3345,7 +3404,7 @@ function rendreZoneCompteARebours() {
     html += '<div class="cdr-centre"><span id="cdr-affichage" class="cdr-chrono">--:--</span></div>';
     html += '</div>';
   } else {
-    html += '<div class="cdr-pill' + (cdrReglageDeplie ? ' cdr-pill-deplie' : '') + '" id="cdr-duree-glissable">';
+    html += '<div class="cdr-pill' + (cdrReglageDeplie ? ' cdr-pill-deplie' : '') + (cdrCacherBouton ? ' cdr-pill-cache' : ' cdr-pill-pop') + '" id="cdr-duree-glissable">';
     html += '<input type="hidden" id="cdr-minutes" value="' + derniereMinutesReglees + '">';
     html += '<input type="hidden" id="cdr-secondes" value="' + dernieresSecondesReglees + '">';
     html += '<span id="cdr-duree-affichage" class="cdr-duree-affichage">' + completerZero(derniereMinutesReglees) + ':' + completerZero(dernieresSecondesReglees) + '</span>';
@@ -3527,7 +3586,9 @@ function mettreAJourCompteARebours() {
     compteARebours.resteMsPause = null;
     if (intervalleCompteARebours) { window.clearInterval(intervalleCompteARebours); intervalleCompteARebours = null; }
     jouerSonnerie();
+    cdrCacherBouton = true;
     rendreZoneCompteARebours();
+    jouerMotFinMinuteur();
     return;
   }
   afficherCompteARebours(resteMs);
