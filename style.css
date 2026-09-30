@@ -313,8 +313,8 @@ body { overflow-x: hidden; }
 main::after {
   content: '';
   display: block;
-  height: 60px;
-  height: calc(60px + env(safe-area-inset-bottom));
+  height: 55px;
+  height: calc(55px + env(safe-area-inset-bottom));
 }
 
 .nav-bas {
