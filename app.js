@@ -315,10 +315,10 @@ function rendreChecklistQuotidienne() {
   boutons.forEach(function (bouton) {
     var tache = bouton.getAttribute('data-tache');
     if (checklist[tache]) {
-      bouton.classList.add('bulle-validation-faite');
+      bouton.classList.add('todo-fait');
       nbFaites++;
     } else {
-      bouton.classList.remove('bulle-validation-faite');
+      bouton.classList.remove('todo-fait');
     }
   });
 
@@ -2815,7 +2815,7 @@ function rendreExercicesActifs() {
     html += '<span class="rpe-suffixe">RPE</span>';
     html += '</div>';
     html += '<button class="btn btn-contour btn-action-serie" data-action="ajouter-serie" data-ex="' + e + '">+ Série</button>';
-    html += '<button class="btn-action-echauffement" data-action="ajouter-serie-echauffement" data-ex="' + e + '" title="Ajouter une série d\'échauffement"><span class="icone-echauffement">🔥</span></button>';
+    html += '<button class="btn-action-echauffement" data-action="ajouter-serie-echauffement" data-ex="' + e + '" title="Ajouter une série d\'échauffement"><span class="icone-echauffement" aria-hidden="true"><svg viewBox="0 0 24 24" width="20" height="20"><path d="M12 2c.9 2.1 2.2 3.6 3.6 5.1 1.8 1.9 3.4 3.9 3.4 6.9 0 4.4-3.1 8-7 8s-7-3.6-7-8c0-2.1.7-3.7 1.6-5.1.3 1.5 1.1 2.4 2.1 2.4 1 0 1.3-.8 1-1.9-.5-1.8-.4-4 .6-5.9C10.9 2.9 11.4 2.4 12 2z"/></svg></span></button>';
     html += '</div>';
     if (ligneEx.technique === 'drop_set') {
       html += '<button class="btn btn-contour btn-bloc" style="margin-top:6px;" data-action="ajouter-serie-degressive" data-ex="' + e + '">+ Série dégressive (~70%)</button>';
