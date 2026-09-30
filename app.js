@@ -3171,27 +3171,189 @@ function jouerBip(ctx, debut, frequence, duree) {
   oscillateur.stop(debut + duree + 0.05);
 }
 
-function jouerSonnerie(typeForce) {
+/* ============================================================
+   CATALOGUE DE SONNERIES (générées, aucun fichier audio)
+   Chaque sonnerie : function (ctx, t) où t = ctx.currentTime
+   ============================================================ */
+
+/* Note simple : oscillateur + enveloppe + filtre passe-bas optionnel */
+function sonNote(ctx, t, freq, duree, type, volume, opts) {
+  opts = opts || {};
+  var osc = ctx.createOscillator();
+  var gain = ctx.createGain();
+  osc.type = type || 'sine';
+  osc.frequency.setValueAtTime(freq, t);
+  if (opts.fin) { osc.frequency.exponentialRampToValueAtTime(opts.fin, t + duree); }
+  if (opts.detune) { osc.detune.value = opts.detune; }
+  gain.gain.setValueAtTime(0.0001, t);
+  gain.gain.exponentialRampToValueAtTime(volume || 0.3, t + (opts.attaque || 0.01));
+  gain.gain.exponentialRampToValueAtTime(0.0001, t + duree);
+  var sortie = osc;
+  if (opts.filtre) {
+    var f = ctx.createBiquadFilter();
+    f.type = 'lowpass';
+    f.frequency.setValueAtTime(opts.filtre, t);
+    if (opts.filtreFin) { f.frequency.exponentialRampToValueAtTime(opts.filtreFin, t + duree); }
+    osc.connect(f);
+    sortie = f;
+  }
+  sortie.connect(gain);
+  gain.connect(ctx.destination);
+  osc.start(t);
+  osc.stop(t + duree + 0.05);
+}
+
+/* Cloche / métal : plusieurs partiels non harmoniques */
+function sonCloche(ctx, t, freq, duree, volume, ratios) {
+  ratios = ratios || [1, 2.76, 5.4, 8.93];
+  for (var i = 0; i < ratios.length; i++) {
+    sonNote(ctx, t, freq * ratios[i], duree / (1 + i * 0.6), 'sine', (volume || 0.25) / (1 + i * 0.8));
+  }
+}
+
+/* Bruit filtré (vapeur, souffle...) */
+function sonBruit(ctx, t, duree, volume, freqFiltre, typeFiltre) {
+  var taille = Math.floor(ctx.sampleRate * duree);
+  var buffer = ctx.createBuffer(1, taille, ctx.sampleRate);
+  var data = buffer.getChannelData(0);
+  for (var i = 0; i < taille; i++) { data[i] = Math.random() * 2 - 1; }
+  var src = ctx.createBufferSource();
+  src.buffer = buffer;
+  var filtre = ctx.createBiquadFilter();
+  filtre.type = typeFiltre || 'bandpass';
+  filtre.frequency.value = freqFiltre || 2000;
+  var gain = ctx.createGain();
+  gain.gain.setValueAtTime(0.0001, t);
+  gain.gain.exponentialRampToValueAtTime(volume || 0.2, t + duree * 0.15);
+  gain.gain.exponentialRampToValueAtTime(0.0001, t + duree);
+  src.connect(filtre);
+  filtre.connect(gain);
+  gain.connect(ctx.destination);
+  src.start(t);
+}
+
+var SONNERIES = [
+  { valeur: 'sombre', libelle: 'Sombre — pulsation grave', jouer: function (ctx, t) {
+    sonNote(ctx, t, 110, 0.35, 'sine', 0.5);
+    sonNote(ctx, t + 0.25, 146.8, 0.6, 'sine', 0.5);
+  } },
+
+  { valeur: 'clair', libelle: 'Clair — double ding', jouer: function (ctx, t) {
+    sonCloche(ctx, t, 1318.5, 0.5, 0.25, [1, 2, 3]);
+    sonCloche(ctx, t + 0.22, 1760, 0.8, 0.25, [1, 2, 3]);
+  } },
+
+  { valeur: 'automnal', libelle: '🍁 Automnal — marimba descendant', jouer: function (ctx, t) {
+    var notes = [659.3, 587.3, 493.9, 392];
+    for (var i = 0; i < notes.length; i++) {
+      sonNote(ctx, t + i * 0.16, notes[i], 0.45, 'triangle', 0.35, { filtre: 1800 });
+    }
+  } },
+
+  { valeur: 'effroi', libelle: '🎃 Effroi — glas et glissando', jouer: function (ctx, t) {
+    sonNote(ctx, t, 220, 1.1, 'sawtooth', 0.22, { fin: 110, filtre: 900, filtreFin: 200, detune: -12 });
+    sonNote(ctx, t, 311, 1.1, 'sawtooth', 0.18, { fin: 155, filtre: 900, filtreFin: 200, detune: 12 });
+    sonCloche(ctx, t + 0.05, 196, 1.4, 0.3, [1, 2.4, 4.1]);
+  } },
+
+  { valeur: 'hivernal', libelle: '❄️ Hivernal — clochettes de givre', jouer: function (ctx, t) {
+    var notes = [2093, 2637, 3136, 2637, 3520];
+    for (var i = 0; i < notes.length; i++) {
+      sonNote(ctx, t + i * 0.11, notes[i], 0.7, 'sine', 0.16);
+      sonNote(ctx, t + i * 0.11, notes[i] * 2.01, 0.35, 'sine', 0.05);
+    }
+  } },
+
+  { valeur: 'paindepice', libelle: '🍪 Pain d\'épice — boîte à musique', jouer: function (ctx, t) {
+    var notes = [784, 659.3, 784, 1046.5, 987.8, 784];
+    var rythme = [0, 0.14, 0.28, 0.46, 0.62, 0.78];
+    for (var i = 0; i < notes.length; i++) {
+      sonNote(ctx, t + rythme[i], notes[i], 0.5, 'triangle', 0.22);
+      sonNote(ctx, t + rythme[i], notes[i] * 3, 0.15, 'sine', 0.05);
+    }
+  } },
+
+  { valeur: 'printanier', libelle: '🌸 Printanier — chant d\'oiseau', jouer: function (ctx, t) {
+    sonNote(ctx, t, 2200, 0.09, 'sine', 0.2, { fin: 3400 });
+    sonNote(ctx, t + 0.12, 2600, 0.09, 'sine', 0.2, { fin: 3800 });
+    sonNote(ctx, t + 0.24, 3000, 0.07, 'sine', 0.18, { fin: 2400 });
+    sonNote(ctx, t + 0.42, 2400, 0.12, 'sine', 0.2, { fin: 4000 });
+    sonNote(ctx, t + 0.58, 3400, 0.1, 'sine', 0.18, { fin: 2600 });
+  } },
+
+  { valeur: 'pastel', libelle: '🦄 Pastel — arpège scintillant', jouer: function (ctx, t) {
+    var notes = [1046.5, 1318.5, 1568, 2093, 2637, 3136];
+    for (var i = 0; i < notes.length; i++) {
+      sonNote(ctx, t + i * 0.07, notes[i], 0.5, 'sine', 0.18);
+    }
+  } },
+
+  { valeur: 'estival', libelle: '☀️ Estival — steel drum', jouer: function (ctx, t) {
+    var notes = [523.3, 659.3, 784, 659.3, 1046.5];
+    var rythme = [0, 0.15, 0.3, 0.5, 0.65];
+    for (var i = 0; i < notes.length; i++) {
+      sonNote(ctx, t + rythme[i], notes[i], 0.4, 'sine', 0.3);
+      sonNote(ctx, t + rythme[i], notes[i] * 2, 0.25, 'sine', 0.15);
+      sonNote(ctx, t + rythme[i], notes[i] * 3.01, 0.12, 'triangle', 0.05);
+    }
+  } },
+
+  { valeur: 'cyberpunk', libelle: '☢️ Cyberpunk — laser glitch', jouer: function (ctx, t) {
+    sonNote(ctx, t, 1800, 0.12, 'square', 0.12, { fin: 200, filtre: 4000 });
+    sonNote(ctx, t + 0.15, 1800, 0.12, 'square', 0.12, { fin: 200, filtre: 4000 });
+    for (var i = 0; i < 6; i++) {
+      sonNote(ctx, t + 0.32 + i * 0.045, (i % 2 === 0) ? 880 : 1320, 0.04, 'square', 0.1);
+    }
+    sonNote(ctx, t + 0.62, 140, 0.4, 'sawtooth', 0.22, { fin: 70, filtre: 600 });
+  } },
+
+  { valeur: 'steampunk', libelle: '⚙️ Steampunk — vapeur et laiton', jouer: function (ctx, t) {
+    sonBruit(ctx, t, 0.45, 0.3, 3500, 'highpass');
+    sonCloche(ctx, t + 0.35, 523.3, 0.9, 0.3, [1, 1.5, 2.3, 3.7, 5.1]);
+    sonCloche(ctx, t + 0.7, 392, 1.0, 0.3, [1, 1.5, 2.3, 3.7, 5.1]);
+  } },
+
+  { valeur: 'flibuste', libelle: '🏴‍☠️ Flibuste — cloche de navire et cor', jouer: function (ctx, t) {
+    sonCloche(ctx, t, 880, 1.0, 0.3, [1, 2.0, 3.0, 4.2]);
+    sonCloche(ctx, t + 0.3, 880, 1.0, 0.3, [1, 2.0, 3.0, 4.2]);
+    sonNote(ctx, t + 0.7, 110, 0.8, 'sawtooth', 0.22, { filtre: 500 });
+    sonNote(ctx, t + 0.7, 165, 0.8, 'sawtooth', 0.15, { filtre: 500 });
+  } },
+
+  { valeur: 'ruedor', libelle: '🤠 Western — corde pincée', jouer: function (ctx, t) {
+    var notes = [329.6, 246.9, 196];
+    for (var i = 0; i < notes.length; i++) {
+      sonNote(ctx, t + i * 0.22, notes[i], 0.9, 'sawtooth', 0.28, { filtre: 3000, filtreFin: 400, fin: notes[i] * 0.985 });
+    }
+    sonCloche(ctx, t + 0.7, 3200, 0.3, 0.1, [1, 1.3, 1.7]);
+  } }
+];
+
+function trouverSonnerie(valeur) {
+  for (var i = 0; i < SONNERIES.length; i++) {
+    if (SONNERIES[i].valeur === valeur) { return SONNERIES[i]; }
+  }
+  return SONNERIES[0];
+}
+
+function jouerSonnerieParId(valeur) {
   var ctx = obtenirContexteAudio();
   if (!ctx) { return; }
-  var type = typeForce || etat.profil.sonnerieMinuteur || 'classique';
-  var maintenant = ctx.currentTime;
+  if (ctx.state === 'suspended' && ctx.resume) { ctx.resume(); } // iOS suspend parfois le contexte
+  trouverSonnerie(valeur).jouer(ctx, ctx.currentTime + 0.02);
+}
 
-  if (type === 'douce') {
-    jouerBip(ctx, maintenant, 523.25, 0.7);
-    return;
+function jouerSonnerie() {
+  var choix = etat.profil.sonnerie || 'auto';
+  if (choix === 'auto') {
+    // Le thème actif (remplace par ta variable réelle si elle s'appelle autrement)
+    var themeActif = etat.profil.theme || 'sombre';
+    if (themeActif === 'auto') {
+      themeActif = (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) ? 'clair' : 'sombre';
+    }
+    choix = themeActif;
   }
-  if (type === 'alarme') {
-    jouerBip(ctx, maintenant, 1568, 0.09);
-    jouerBip(ctx, maintenant + 0.13, 1568, 0.09);
-    jouerBip(ctx, maintenant + 0.26, 1568, 0.09);
-    jouerBip(ctx, maintenant + 0.39, 1568, 0.09);
-    jouerBip(ctx, maintenant + 0.52, 1568, 0.16);
-    return;
-  }
-  jouerBip(ctx, maintenant, 1046.5, 0.16);
-  jouerBip(ctx, maintenant + 0.2, 1046.5, 0.16);
-  jouerBip(ctx, maintenant + 0.4, 1318.5, 0.32);
+  jouerSonnerieParId(choix);
 }
 
 /* --- Réglage de la durée avant lancement : glissement horizontal, pas de 15 secondes --- */
@@ -4156,6 +4318,7 @@ function construireReglagesPersonnalisation() {
   html += '</select></div>';
   html += '<button class="btn btn-contour btn-bloc" data-action="tester-sonnerie-minuteur" style="margin-bottom:12px;">🔊 Tester la sonnerie</button>';
   html += '<button class="btn btn-plein btn-bloc" data-action="enregistrer-personnalisation">Enregistrer</button>';
+  html += htmlSelecteurSonnerie();
   return html;
 }
 
@@ -5550,6 +5713,13 @@ ajouterEcouteurClicDelegue(document.body, function (cible) {
   if (action === 'etirement-toggle-pause') { togglePauseChronoEtirement(); return; }
   if (action === 'ouvrir-etirement') { ouvrirSeanceEtirement(); return; }
 
+  if (action === 'tester-sonnerie') {
+    var sel = document.getElementById('champ-profil-sonnerie');
+    if (sel) { etat.profil.sonnerie = sel.value; sauvegarderEtat(); }
+    jouerSonnerie();
+    return;
+  }
+
 });
 
 document.body.addEventListener('change', function (evt) {
@@ -5635,6 +5805,21 @@ document.addEventListener('change', function (e) {
   if (e.target.getAttribute('data-action') === 'changer-heure-rappel') {
     changerHeureRappel(parseInt(e.target.getAttribute('data-index'), 10), e.target.value);
   }
+});
+
+/* BLOC 20 : SONNERIE DU MINUTEUR */
+
+document.addEventListener('change', function (e) {
+  if (e.target.id === 'champ-profil-sonnerie') {
+    etat.profil.sonnerie = e.target.value;
+    sauvegarderEtat();
+    jouerSonnerie(); // aperçu immédiat
+  }
+});
+
+document.addEventListener('click', function (e) {
+  var bouton = e.target.closest ? e.target.closest('[data-action="tester-sonnerie"]') : null;
+  if (bouton) { jouerSonnerie(); }
 });
 
 })();
