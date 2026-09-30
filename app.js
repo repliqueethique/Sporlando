@@ -693,7 +693,7 @@ function choisirEchauffement(type) {
   html += '<button class="bouton-fermer" data-action="fermer-modal">&times;</button>';
   html += '</div>';
 
-  html += '<div class="echauf-compteur donnee-num" id="echauf-compteur">0 / ' + data.exercices.length + '</div>';
+  html += '<div class="echauf-compteur donnee-num"><span class="echauf-flamme" id="echauf-flamme">&#128293;</span> <span id="echauf-compteur">0 / ' + data.exercices.length + '</span></div>';
   html += '<div class="echauf-progression"><div class="echauf-barre" id="echauf-barre"></div></div>';
 
   html += '<ul class="echauf-liste">';
@@ -724,6 +724,15 @@ function basculerEtapeEchauffement(ligne) {
   var barre = document.getElementById('echauf-barre');
   if (compteur) { compteur.innerHTML = faites + ' / ' + total; }
   if (barre) { barre.style.width = (total > 0 ? Math.round(faites / total * 100) : 0) + '%'; }
+  var flamme = document.getElementById('echauf-flamme');
+  if (flamme) {
+    var pct = total > 0 ? (faites / total) : 0;
+    var filtre = 'grayscale(' + Math.round((1 - pct) * 100) + '%) opacity(' + (0.35 + 0.65 * pct).toFixed(2) + ')';
+    flamme.style.webkitFilter = filtre;
+    flamme.style.filter = filtre;
+    flamme.style.webkitTransform = 'scale(' + (1 + 0.3 * pct).toFixed(2) + ')';
+    flamme.style.transform = 'scale(' + (1 + 0.3 * pct).toFixed(2) + ')';
+  }
 }
 
 function passerEchauffement() {

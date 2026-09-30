@@ -1022,6 +1022,15 @@ body { padding-bottom: 96px; overflow-x: hidden; }
   color: var(--couleur-avertissement);
 }
 
+.echauf-flamme {
+  display: inline-block;
+  font-size: 18px;
+  -webkit-filter: grayscale(100%) opacity(0.35);
+  filter: grayscale(100%) opacity(0.35);
+  -webkit-transition: -webkit-filter 0.25s ease, -webkit-transform 0.25s ease;
+  transition: filter 0.25s ease, transform 0.25s ease;
+}
+
 /* =============================================
    STYLES POUR LES EXERCICES (REPLIAGE + TERMINÉ)
 ============================================= */
@@ -2066,3 +2075,4 @@ body { padding-bottom: 96px; overflow-x: hidden; }
   background: var(--couleur-courbe, var(--couleur-texte-att));
   flex-shrink: 0;
 }
+
