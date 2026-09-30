@@ -1,11 +1,5 @@
-const CACHE_NAME = 'carnet-v2';
-const urlsToCache = [
-  './',             
-  './index.html',    
-  './style.css',
-  './app.js',
-  './manifest.json'
-];
+const CACHE_NAME = 'carnet-v3';
+const urlsToCache = ['./', './index.html', './style.css', './app.js', './nav.js', './manifest.json'];
 
 self.addEventListener('install', (event) => {
   event.waitUntil(

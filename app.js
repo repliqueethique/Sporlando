@@ -26,6 +26,7 @@ window.addEventListener('DOMContentLoaded', function () {
 window.formaterDateISO = formaterDateISO;
 window.completerZero = completerZero;
 window.echapperHtml = echapperHtml;
+window.allerVersPage = allerVersPage;
 
 var EMOJIS_HUMEUR = ['😭', '😢', '😟', '😕', '😐', '🙂', '😊', '😁', '🤩'];
 var EMOJIS_FATIGUE = ['😴', '😪', '🫩', '🥱', '🤭', '😌', '🤗', '😀', '🤪'];
@@ -563,6 +564,7 @@ function sauvegarderEtat() {
 var pageCourante = 'accueil';
 
 function allerVersPage(nomPage) {
+  var anciennePage = pageCourante;
   pageCourante = nomPage;
   var pages = document.querySelectorAll('.page');
   for (var i = 0; i < pages.length; i++) { pages[i].classList.remove('page-active'); }
@@ -573,6 +575,8 @@ function allerVersPage(nomPage) {
   for (var j = 0; j < onglets.length; j++) { onglets[j].classList.remove('nav-onglet-actif'); }
   var ongletCible = document.querySelector('.nav-onglet[data-page="' + nomPage + '"]');
   if (ongletCible) { ongletCible.classList.add('nav-onglet-actif'); }
+
+  if (window.NavBas) { window.NavBas.maj(nomPage, anciennePage); }
 
   if (nomPage === 'accueil') {
     rendreBanniereObjectif();

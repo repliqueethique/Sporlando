@@ -390,12 +390,31 @@
 
 </main>
 
-<nav class="nav-bas">
-  <button class="nav-onglet nav-onglet-actif" data-action="aller-page" data-page="accueil">Accueil</button>
-  <button class="nav-onglet" data-action="aller-page" data-page="seance">Séance</button>
-  <button class="nav-onglet" data-action="aller-page" data-page="nutrition">Nutrition</button>
-  <button class="nav-onglet" data-action="aller-page" data-page="bibliotheque">Biblio</button>
-  <button class="nav-onglet" data-action="aller-page" data-page="historique">Historique</button>
+<nav class="nav-bas" id="nav-bas">
+  <div class="nav-piste" id="nav-piste">
+    <span class="nav-indicateur" id="nav-indicateur"></span>
+
+    <button class="nav-onglet nav-onglet-actif" data-action="aller-page" data-page="accueil">
+      <span class="nav-icone"><svg viewBox="0 0 24 24"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h5v-6h4v6h5V10"/></svg></span>
+      <span class="nav-libelle">Accueil</span>
+    </button>
+    <button class="nav-onglet" data-action="aller-page" data-page="seance">
+      <span class="nav-icone"><svg viewBox="0 0 24 24"><path d="M6.5 6.5v11M17.5 6.5v11M3.5 9v6M20.5 9v6M6.5 12h11"/></svg></span>
+      <span class="nav-libelle">Séance</span>
+    </button>
+    <button class="nav-onglet" data-action="aller-page" data-page="nutrition">
+      <span class="nav-icone"><svg viewBox="0 0 24 24"><path d="M12 7c-2-2-6-1.5-6 3 0 4 2.5 9 6 9s6-5 6-9c0-4.5-4-5-6-3z"/><path d="M12 7c0-2 1-3.5 3-4"/></svg></span>
+      <span class="nav-libelle">Nutrition</span>
+    </button>
+    <button class="nav-onglet" data-action="aller-page" data-page="bibliotheque">
+      <span class="nav-icone"><svg viewBox="0 0 24 24"><path d="M5 4h14v16H7a2 2 0 0 1-2-2z"/><path d="M9 8h6M9 12h4"/></svg></span>
+      <span class="nav-libelle">Biblio</span>
+    </button>
+    <button class="nav-onglet" data-action="aller-page" data-page="historique">
+      <span class="nav-icone"><svg viewBox="0 0 24 24"><path d="M5 20v-8M12 20V5M19 20V9"/></svg></span>
+      <span class="nav-libelle">Historique</span>
+    </button>
+  </div>
 </nav>
 
 <div id="toast-conteneur" class="toast-conteneur"></div>
@@ -408,6 +427,7 @@
 <script src="notifications.js"></script>
 <script src="exercices.js"></script>
 <script src="nutrition.js"></script>
+<script src="nav.js"></script>
 <script src="app.js"></script>
 <script>
   if ('serviceWorker' in navigator) {
