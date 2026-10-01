@@ -34,20 +34,23 @@
 <body>
 
 <header class="entete">
-  <img src="images/sporlando-logo.png" alt="Logo Sporlando" class="app-logo" data-action="ouvrir-notice" title="Notice complète" style="cursor:pointer;">
-  <h1 class="titre-affichage texte-degrade">Sporlando</h1>
-  <div class="zone-entete-droite">
-    <button class="bouton-reglages" data-action="ouvrir-reglages" aria-label="Réglages" title="Réglages">
-      <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor"
-           stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-        <line x1="21" y1="4" x2="14" y2="4"/><line x1="10" y1="4" x2="3" y2="4"/>
-        <line x1="21" y1="12" x2="12" y2="12"/><line x1="8" y1="12" x2="3" y2="12"/>
-        <line x1="21" y1="20" x2="16" y2="20"/><line x1="12" y1="20" x2="3" y2="20"/>
-        <line x1="14" y1="2" x2="14" y2="6"/><line x1="8" y1="10" x2="8" y2="14"/>
-        <line x1="16" y1="18" x2="16" y2="22"/>
-      </svg>
-      <span class="sync-point" id="sync-point-entete" title="Statut de synchronisation"></span>
-    </button>
+  <div class="entete-carte">
+    <div class="entete-marque" data-action="ouvrir-notice" title="Notice complète">
+      <span class="entete-logo"><img src="images/sporlando-logo.png" alt="Logo Sporlando"></span>
+      <div class="entete-textes">
+        <h1 class="titre-affichage texte-degrade">Sporlando</h1>
+        <span class="entete-date" id="entete-date"></span>
+      </div>
+    </div>
+    <div class="zone-entete-droite">
+      <button class="bouton-reglages" data-action="ouvrir-reglages" aria-label="Réglages">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="3"></circle>
+          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+        </svg>
+        <span class="sync-point" id="sync-point-entete" title="Statut de synchronisation"></span>
+      </button>
+    </div>
   </div>
 </header>
 

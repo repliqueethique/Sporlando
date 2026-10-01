@@ -5797,7 +5797,15 @@ function appliquerTheme() {
 
 /* BLOC 18 : INITIALISATION */
 
+function mettreAJourDateEntete() {
+  var zoneDateEntete = document.getElementById('entete-date');
+  if (zoneDateEntete) {
+    zoneDateEntete.innerHTML = formaterDateLisible(formaterDateISO(new Date()));
+  }
+}
+
 appliquerTheme();
+mettreAJourDateEntete();
 allerVersPage('accueil');
 
 if (syncEstConfiguree()) {
@@ -5810,6 +5818,7 @@ if (syncEstConfiguree()) {
 setInterval(function () {
   verifierResetQuotidien();
   rendreChecklistQuotidienne();
+  mettreAJourDateEntete();
 }, 60000);
 
 /* BLOC 19 : NOTIFICATIONS */
