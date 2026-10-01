@@ -163,14 +163,15 @@ function marquerRappelFaitEtRafraichir(idRappel) {
 function renderRemindersSettings() {
   var zone = document.getElementById('reminders-container');
   if (!zone) { return; }
-  var html = '';
+  var html = '<div class="reglages-section">';
   reglagesRappels.forEach(function (rappel, index) {
-    html += '<div class="champ" style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">';
-    html += '<input type="checkbox" data-action="toggle-rappel-actif" data-index="' + index + '" ' + (rappel.actif ? 'checked' : '') + '>';
-    html += '<span style="flex:1; min-width:140px;">' + echapperHtml(rappel.label) + '</span>';
+    html += '<div class="reglages-rappel">';
+    html += '<span class="reglages-rappel-libelle">' + echapperHtml(rappel.label) + '</span>';
     html += '<input type="time" value="' + rappel.heure + '" data-action="changer-heure-rappel" data-index="' + index + '">';
+    html += '<input type="checkbox" data-action="toggle-rappel-actif" data-index="' + index + '" ' + (rappel.actif ? 'checked' : '') + '>';
     html += '</div>';
   });
+  html += '</div>';
   zone.innerHTML = html;
 }
 

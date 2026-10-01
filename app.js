@@ -4210,24 +4210,60 @@ function ligneMenuReglages(icone, libelle, section) {
   return html;
 }
 
+/* ============================================================
+   REGLAGES : sous-pages
+   ============================================================ */
+
+/* --- Petits utilitaires de mise en page --- */
+
+function sectionReglages(titre, contenu) {
+  var html = '<div class="reglages-section">';
+  if (titre) { html += '<h3 class="reglages-section-titre">' + echapperHtml(titre) + '</h3>'; }
+  html += contenu + '</div>';
+  return html;
+}
+
+function champReglage(libelle, id, type, pas, valeur, placeholder) {
+  var html = '<div class="champ"><label>' + echapperHtml(libelle) + '</label>';
+  html += '<input type="' + type + '"' + (pas ? ' step="' + pas + '"' : '') + ' id="' + id + '" value="' + echapperHtml(valeur) + '"';
+  if (placeholder) { html += ' placeholder="' + echapperHtml(placeholder) + '"'; }
+  html += '></div>';
+  return html;
+}
+
+function valeurOuVide(v) {
+  return (v !== null && v !== undefined) ? v : '';
+}
+
 /* --- Profil & objectifs --- */
 
 function construireReglagesProfil() {
+  var p = etat.profil;
   var html = '';
-  html += '<div class="champ"><label>Poids corporel (kg)</label><input type="number" step="0.1" id="champ-profil-poids" value="' + (etat.profil.poidsCorporel || 75) + '"></div>';
-  html += '<div class="champ"><label>Taille (cm)</label><input type="number" step="1" id="champ-profil-taille" value="' + (etat.profil.tailleCm || 175) + '"></div>';
-  html += '<div class="champ"><label>Âge</label><input type="number" step="1" id="champ-profil-age" value="' + (etat.profil.age || 30) + '"></div>';
-  html += '<div class="champ"><label>Sexe (utilisé uniquement pour le calcul du métabolisme de base)</label><select id="champ-profil-sexe">';
-  html += '<option value="homme"' + (etat.profil.sexe !== 'femme' ? ' selected' : '') + '>Homme</option>';
-  html += '<option value="femme"' + (etat.profil.sexe === 'femme' ? ' selected' : '') + '>Femme</option>';
-  html += '</select></div>';
-  html += '<div class="texte-att" style="margin-bottom:10px;">Le poids et la taille servent aussi à estimer les calories dépensées pendant les séances et à calculer automatiquement tes objectifs nutritionnels ci-dessous.</div>';
-  html += '<div class="champ"><label>Objectif calories / jour (kcal)</label><input type="number" step="1" id="champ-profil-calories" value="' + (etat.profil.objectifCalories || 2200) + '"></div>';
-  html += '<div class="champ"><label>Objectif protéines / jour (g)</label><input type="number" step="1" id="champ-profil-proteines" value="' + (etat.profil.objectifProteines || 150) + '"></div>';
-  html += '<div class="champ"><label>Objectif glucides / jour (g)</label><input type="number" step="1" id="champ-profil-glucides" value="' + (etat.profil.objectifGlucides || 250) + '"></div>';
-  html += '<div class="champ"><label>Objectif lipides / jour (g)</label><input type="number" step="1" id="champ-profil-lipides" value="' + (etat.profil.objectifLipides || 70) + '"></div>';
-  html += '<button class="btn btn-contour btn-bloc" data-action="calculer-objectifs-nutrition" style="margin-bottom:10px;">🔄 Recalculer automatiquement mes objectifs</button>';
-  html += '<button class="btn btn-plein btn-bloc" style="margin-top:10px;" data-action="enregistrer-profil">Enregistrer le profil</button>';
+
+  var corps = '<div class="reglages-grille">';
+  corps += champReglage('Poids (kg)', 'champ-profil-poids', 'number', '0.1', p.poidsCorporel || 75);
+  corps += champReglage('Taille (cm)', 'champ-profil-taille', 'number', '1', p.tailleCm || 175);
+  corps += champReglage('Âge', 'champ-profil-age', 'number', '1', p.age || 30);
+  corps += '<div class="champ"><label>Sexe</label><select id="champ-profil-sexe">';
+  corps += '<option value="homme"' + (p.sexe !== 'femme' ? ' selected' : '') + '>Homme</option>';
+  corps += '<option value="femme"' + (p.sexe === 'femme' ? ' selected' : '') + '>Femme</option>';
+  corps += '</select></div>';
+  corps += '</div>';
+  corps += '<p class="reglages-note">Le sexe sert uniquement au calcul du métabolisme de base. Le poids et la taille servent aussi à estimer les calories dépensées pendant les séances.</p>';
+  html += sectionReglages('Mon corps', corps);
+
+  var obj = champReglage('Calories (kcal / jour)', 'champ-profil-calories', 'number', '1', p.objectifCalories || 2200);
+  obj += '<div class="reglages-grille reglages-grille-3">';
+  obj += champReglage('Protéines (g)', 'champ-profil-proteines', 'number', '1', p.objectifProteines || 150);
+  obj += champReglage('Glucides (g)', 'champ-profil-glucides', 'number', '1', p.objectifGlucides || 250);
+  obj += champReglage('Lipides (g)', 'champ-profil-lipides', 'number', '1', p.objectifLipides || 70);
+  obj += '</div>';
+  obj += '<button class="btn btn-contour btn-bloc" data-action="calculer-objectifs-nutrition">🔄 Recalculer automatiquement</button>';
+  obj += '<p class="reglages-note">Le recalcul utilise le poids et la taille affichés ci-dessus, mais l\'âge et le sexe déjà enregistrés : enregistre d\'abord si tu les as modifiés.</p>';
+  html += sectionReglages('Objectifs nutritionnels', obj);
+
+  html += '<button class="btn btn-plein btn-bloc" data-action="enregistrer-profil">Enregistrer le profil</button>';
   return html;
 }
 
@@ -4251,13 +4287,24 @@ function enregistrerProfil() {
 /* --- Météo --- */
 
 function construireReglagesMeteo() {
+  var p = etat.profil;
   var html = '';
-  html += '<div class="texte-att" style="margin-bottom:10px;">Utilisé pour te signaler une température trop élevée ou trop basse à l\'endroit où tu t\'entraînes.</div>';
-  html += '<div class="champ"><label>Latitude</label><input type="number" step="0.001" id="champ-profil-latitude" value="' + (etat.profil.latitudeGym !== null && etat.profil.latitudeGym !== undefined ? etat.profil.latitudeGym : '') + '"></div>';
-  html += '<div class="champ"><label>Longitude</label><input type="number" step="0.001" id="champ-profil-longitude" value="' + (etat.profil.longitudeGym !== null && etat.profil.longitudeGym !== undefined ? etat.profil.longitudeGym : '') + '"></div>';
-  html += '<div class="champ"><label>Seuil température max (°C, optionnel)</label><input type="number" step="1" id="champ-profil-temp-max" value="' + (etat.profil.seuilTempMax !== null && etat.profil.seuilTempMax !== undefined ? etat.profil.seuilTempMax : '') + '" placeholder="ex. 28"></div>';
-  html += '<div class="champ"><label>Seuil température min (°C, optionnel)</label><input type="number" step="1" id="champ-profil-temp-min" value="' + (etat.profil.seuilTempMin !== null && etat.profil.seuilTempMin !== undefined ? etat.profil.seuilTempMin : '') + '" placeholder="ex. 10"></div>';
-  html += '<button class="btn btn-plein btn-bloc" style="margin-top:6px;" data-action="enregistrer-meteo-profil">Enregistrer</button>';
+
+  var lieu = '<div class="reglages-grille">';
+  lieu += champReglage('Latitude', 'champ-profil-latitude', 'number', '0.001', valeurOuVide(p.latitudeGym));
+  lieu += champReglage('Longitude', 'champ-profil-longitude', 'number', '0.001', valeurOuVide(p.longitudeGym));
+  lieu += '</div>';
+  lieu += '<p class="reglages-note">Les coordonnées de l\'endroit où tu t\'entraînes. La météo vient d\'Open-Meteo, sans compte.</p>';
+  html += sectionReglages('Lieu d\'entraînement', lieu);
+
+  var seuils = '<div class="reglages-grille">';
+  seuils += champReglage('Minimum (°C)', 'champ-profil-temp-min', 'number', '1', valeurOuVide(p.seuilTempMin), 'ex. 10');
+  seuils += champReglage('Maximum (°C)', 'champ-profil-temp-max', 'number', '1', valeurOuVide(p.seuilTempMax), 'ex. 28');
+  seuils += '</div>';
+  seuils += '<p class="reglages-note">Optionnels : te signalent une température trop basse ou trop élevée à ton lieu d\'entraînement.</p>';
+  html += sectionReglages('Seuils de température', seuils);
+
+  html += '<button class="btn btn-plein btn-bloc" data-action="enregistrer-meteo-profil">Enregistrer</button>';
   return html;
 }
 
@@ -4279,82 +4326,15 @@ function enregistrerMeteoProfil() {
 
 function construireReglagesSync() {
   var html = '';
-  html += '<div class="champ"><label>Token d\'accès personnel GitHub</label>';
-  html += '<input type="password" id="champ-sync-token" value="' + echapperHtml(reglagesSync.token) + '" placeholder="ghp_...">';
-  html += '<div class="case-liste" style="border-bottom:none; padding-top:6px;"><input type="checkbox" id="case-afficher-token" data-action="basculer-token"><span class="texte-att">Afficher le token</span></div>';
-  html += '</div>';
-  html += '<div class="champ"><label>Identifiant du gist (si tu en as déjà un sur un autre appareil)</label>';
-  html += '<input type="text" id="champ-sync-gistid" value="' + echapperHtml(reglagesSync.gistId) + '" placeholder="colle ici l\'identifiant"></div>';
-  html += '<button class="btn btn-contour btn-bloc" data-action="enregistrer-reglages-sync">Enregistrer le token / l\'identifiant</button>';
-  html += '<div id="sync-zone-dynamique" style="margin-top:12px;"></div>';
-  return html;
-}
 
-/* --- Rappels --- */
+  var connexion = champReglage('Token d\'accès personnel GitHub', 'champ-sync-token', 'password', '', reglagesSync.token, 'ghp_...');
+  connexion += '<label class="reglages-interrupteur"><span>Afficher le token</span><input type="checkbox" id="case-afficher-token" data-action="basculer-token"></label>';
+  connexion += champReglage('Identifiant du gist', 'champ-sync-gistid', 'text', '', reglagesSync.gistId, 'colle ici l\'identifiant');
+  connexion += '<p class="reglages-note">Si tu as déjà un gist sur un autre appareil, colle son identifiant. Sinon, enregistre le token puis crée un nouveau gist.</p>';
+  connexion += '<button class="btn btn-contour btn-bloc" data-action="enregistrer-reglages-sync">Enregistrer le token / l\'identifiant</button>';
+  html += sectionReglages('Connexion GitHub', connexion);
 
-function construireReglagesRappels() {
-  var html = '<div id="reminders-container"></div>';
-  html += '<button class="btn btn-contour btn-bloc" data-action="tester-notif" style="margin-top:8px;">🔔 Tester une notification</button>';
-  return html;
-}
-
-/* --- Personnalisation --- */
-var THEMES_PERSONNALISATION = [
-  { valeur: 'sombre', libelle: 'Sombre' },
-  { valeur: 'clair', libelle: 'Clair' },
-  { valeur: 'auto', libelle: 'Automatique (selon l\'appareil)' },
-  { valeur: 'automnal', libelle: '🍁 Automnal' },
-  { valeur: 'effroi', libelle: '🎃 Effroi' },
-  { valeur: 'hivernal', libelle: '❄️ Hivernal' },
-  { valeur: 'paindepice', libelle: '🍪 Pain d\'épice' },
-  { valeur: 'printanier', libelle: '🌸 Printanier' },
-  { valeur: 'pastel', libelle: '🦄 Pastel' },
-  { valeur: 'estival', libelle: '☀️ Estival' },
-  { valeur: 'cyberpunk', libelle: '☢️ Cyberpunk' },
-  { valeur: 'steampunk', libelle: '⚙️ Steampunk' },
-  { valeur: 'flibuste', libelle: '🏴‍☠️ Flibuste' },
-  { valeur: 'ruedor', libelle: '🤠 Western' }
-];
-
-function construireReglagesPersonnalisation() {
-  var theme = etat.profil.theme || 'sombre';
-  var sonnerie = etat.profil.sonnerieMinuteur || 'classique';
-  var html = '';
-  html += '<div class="champ"><label>Thème de l\'application</label><select id="champ-perso-theme">' + optionsListeValeurLibelle(THEMES_PERSONNALISATION, theme) + '</select></div>';
-  html += '<option value="sombre"' + (theme === 'sombre' ? ' selected' : '') + '>Sombre</option>';
-  html += '<option value="clair"' + (theme === 'clair' ? ' selected' : '') + '>Clair</option>';
-  html += '<option value="auto"' + (theme === 'auto' ? ' selected' : '') + '>Automatique (selon l\'appareil)</option>';
-  html += '</select></div>';
-  html += '<div class="champ"><label>Sonnerie du minuteur de repos</label><select id="champ-perso-sonnerie">';
-  html += '<option value="classique"' + (sonnerie === 'classique' ? ' selected' : '') + '>Classique (3 bips)</option>';
-  html += '<option value="douce"' + (sonnerie === 'douce' ? ' selected' : '') + '>Douce (bip long grave)</option>';
-  html += '<option value="alarme"' + (sonnerie === 'alarme' ? ' selected' : '') + '>Alarme (bips rapides)</option>';
-  html += '</select></div>';
-  html += '<button class="btn btn-contour btn-bloc" data-action="tester-sonnerie-minuteur" style="margin-bottom:12px;">🔊 Tester la sonnerie</button>';
-  html += '<button class="btn btn-plein btn-bloc" data-action="enregistrer-personnalisation">Enregistrer</button>';
-  return html;
-}
-
-function enregistrerPersonnalisation() {
-  etat.profil.theme = document.getElementById('champ-perso-theme').value;
-  etat.profil.sonnerieMinuteur = document.getElementById('champ-perso-sonnerie').value;
-  appliquerTheme();
-  sauvegarderEtat();
-  afficherToast('Personnalisation enregistrée.');
-}
-
-function testerSonnerieMinuteur() {
-  var select = document.getElementById('champ-perso-sonnerie');
-  jouerSonnerie(select ? select.value : null);
-}
-
-/* --- Sauvegarde manuelle --- */
-
-function construireReglagesSauvegarde() {
-  var html = '';
-  html += '<div class="texte-att" style="margin-bottom:10px;">Indépendante de la synchronisation — utile en secours si le gist ne se met pas à jour ou pour garder une copie avant de changer d\'appareil.</div>';
-  html += '<button class="btn btn-contour btn-bloc" data-action="ouvrir-export-donnees" style="margin-bottom:8px;">Exporter mes données</button>';
-  html += '<button class="btn btn-contour btn-bloc" data-action="ouvrir-import-donnees">Importer des données</button>';
+  html += '<div class="reglages-section"><div id="sync-zone-dynamique"></div></div>';
   return html;
 }
 
@@ -4383,6 +4363,110 @@ function enregistrerReglagesSync() {
   } else {
     appliquer();
   }
+}
+
+/* --- Rappels --- */
+
+function construireReglagesRappels() {
+  var html = '<p class="reglages-note" style="margin:0 2px 12px;">Les rappels s\'affichent à l\'ouverture de l\'application, à partir de l\'heure choisie.</p>';
+  html += '<div id="reminders-container"></div>';
+  html += '<button class="btn btn-contour btn-bloc" data-action="tester-notif">🔔 Tester une notification</button>';
+  return html;
+}
+
+/* --- Personnalisation --- */
+
+var THEMES_PERSONNALISATION = [
+  { valeur: 'sombre',     libelle: 'Sombre',          fond: '#12151A', a: '#1FD9C4', b: '#22A7E5' },
+  { valeur: 'clair',      libelle: 'Clair',           fond: '#F4F6F8', a: '#1FD9C4', b: '#22A7E5' },
+  { valeur: 'auto',       libelle: 'Auto',            fond: 'linear-gradient(135deg, #12151A 50%, #F4F6F8 50%)', a: '#1FD9C4', b: '#22A7E5' },
+  { valeur: 'automnal',   libelle: '🍁 Automnal',     fond: '#1A1410', a: '#E08D3C', b: '#B23A2E' },
+  { valeur: 'effroi',     libelle: '🎃 Effroi',       fond: '#0D0710', a: '#FF7A1A', b: '#7B2FF7' },
+  { valeur: 'hivernal',   libelle: '❄️ Hivernal',     fond: '#0B141C', a: '#7FD8F2', b: '#3E7CB1' },
+  { valeur: 'paindepice', libelle: '🍪 Pain d\'épice', fond: '#0B1C13', a: '#D4AF37', b: '#C1272D' },
+  { valeur: 'printanier', libelle: '🌸 Printanier',   fond: '#10160F', a: '#8FD694', b: '#F2A6C7' },
+  { valeur: 'pastel',     libelle: '🦄 Pastel',       fond: '#17141C', a: '#B8A3E0', b: '#F7C6D9' },
+  { valeur: 'estival',    libelle: '☀️ Estival',      fond: '#0E1A1D', a: '#2FE0C6', b: '#FFC857' },
+  { valeur: 'cyberpunk',  libelle: '☢️ Cyberpunk',    fond: '#0A0612', a: '#00F0FF', b: '#FF2BD6' },
+  { valeur: 'steampunk',  libelle: '⚙️ Steampunk',    fond: '#14100A', a: '#C68A3D', b: '#6E7B7C' },
+  { valeur: 'flibuste',   libelle: '🏴‍☠️ Flibuste',    fond: '#0B1620', a: '#E0AE45', b: '#2A9D8F' },
+  { valeur: 'ruedor',     libelle: '🤠 Western',      fond: '#1B130E', a: '#F2C14E', b: '#C4582F' }
+];
+
+var SONNERIES_PERSONNALISATION = [
+  { valeur: 'classique', libelle: 'Classique' },
+  { valeur: 'douce', libelle: 'Douce' },
+  { valeur: 'alarme', libelle: 'Alarme' }
+];
+
+function construireReglagesPersonnalisation() {
+  var theme = etat.profil.theme || 'sombre';
+  var sonnerie = etat.profil.sonnerieMinuteur || 'classique';
+  var html = '';
+
+  var themes = '<input type="hidden" id="champ-perso-theme" value="' + echapperHtml(theme) + '">';
+  themes += '<div class="reglages-themes">';
+  for (var i = 0; i < THEMES_PERSONNALISATION.length; i++) {
+    var t = THEMES_PERSONNALISATION[i];
+    themes += '<div class="reglages-theme"><button class="reglages-theme-bouton' + (t.valeur === theme ? ' reglage-option-active' : '') + '" data-action="choisir-option" data-champ="champ-perso-theme" data-valeur="' + t.valeur + '">';
+    themes += '<span class="reglages-theme-apercu" style="background:' + t.fond + ';"><span class="reglages-theme-pastille" style="background:linear-gradient(135deg, ' + t.a + ', ' + t.b + ');"></span></span>';
+    themes += '<span class="reglages-theme-nom">' + echapperHtml(t.libelle) + '</span>';
+    themes += '</button></div>';
+  }
+  themes += '</div>';
+  html += sectionReglages('Thème', themes);
+
+  var son = '<input type="hidden" id="champ-perso-sonnerie" value="' + echapperHtml(sonnerie) + '">';
+  son += '<div class="reglages-segments">';
+  for (var j = 0; j < SONNERIES_PERSONNALISATION.length; j++) {
+    var s = SONNERIES_PERSONNALISATION[j];
+    son += '<button class="reglages-segment' + (s.valeur === sonnerie ? ' reglage-option-active' : '') + '" data-action="choisir-option" data-champ="champ-perso-sonnerie" data-valeur="' + s.valeur + '">' + echapperHtml(s.libelle) + '</button>';
+  }
+  son += '</div>';
+  son += '<p class="reglages-note">Classique : 3 bips. Douce : un bip long et grave. Alarme : des bips rapides.</p>';
+  son += '<button class="btn btn-contour btn-bloc" data-action="tester-sonnerie-minuteur">🔊 Tester la sonnerie</button>';
+  html += sectionReglages('Sonnerie du minuteur de repos', son);
+
+  html += '<button class="btn btn-plein btn-bloc" data-action="enregistrer-personnalisation">Enregistrer</button>';
+  return html;
+}
+
+/* Sélection d'une pastille (thème, sonnerie) : met à jour le champ caché et la surbrillance */
+function choisirOptionReglage(bouton) {
+  var champ = document.getElementById(bouton.getAttribute('data-champ'));
+  if (champ) { champ.value = bouton.getAttribute('data-valeur'); }
+  var conteneur = bouton.closest('.reglages-section');
+  var actifs = conteneur ? conteneur.querySelectorAll('.reglage-option-active') : [];
+  for (var i = 0; i < actifs.length; i++) { actifs[i].classList.remove('reglage-option-active'); }
+  bouton.classList.add('reglage-option-active');
+}
+
+function enregistrerPersonnalisation() {
+  etat.profil.theme = document.getElementById('champ-perso-theme').value;
+  etat.profil.sonnerieMinuteur = document.getElementById('champ-perso-sonnerie').value;
+  appliquerTheme();
+  sauvegarderEtat();
+  afficherToast('Personnalisation enregistrée.');
+}
+
+function testerSonnerieMinuteur() {
+  var select = document.getElementById('champ-perso-sonnerie');
+  jouerSonnerie(select ? select.value : null);
+}
+
+/* --- Sauvegarde manuelle --- */
+
+function construireReglagesSauvegarde() {
+  var html = '<p class="reglages-note" style="margin:0 2px 12px;">Indépendante de la synchronisation : utile en secours si le gist ne se met pas à jour, ou pour garder une copie avant de changer d\'appareil.</p>';
+
+  var exp = '<p class="reglages-note" style="margin-top:0;">Copie toutes tes données dans un texte à coller dans Notes ou un e-mail.</p>';
+  exp += '<button class="btn btn-contour btn-bloc" data-action="ouvrir-export-donnees">Exporter mes données</button>';
+  html += sectionReglages('Exporter', exp);
+
+  var imp = '<p class="reglages-note" style="margin-top:0;">Remplace toutes les données de cet appareil par une sauvegarde précédente.</p>';
+  imp += '<button class="btn btn-contour btn-bloc" data-action="ouvrir-import-donnees">Importer des données</button>';
+  html += sectionReglages('Importer', imp);
+  return html;
 }
 
 /* ============================================================
