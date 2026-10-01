@@ -42,18 +42,113 @@ function formaterDateLisible(chaineISO) {
 }
 
 /* ============================================================
-   BLOC 6 : MODAL GENERIQUE
+   BLOC 6 : MODAL GENERIQUE (feuille animée)
    ============================================================ */
 
-function ouvrirModal(html) {
-  document.getElementById('modal-contenu').innerHTML = html;
-  document.getElementById('modal-overlay').style.display = 'flex';
+var DUREE_FERMETURE_MODAL = 320;
+var minuteurFermetureModal = null;
+var minuteurPremiereModal = null;
+
+function poserTransformModal(el, valeur) {
+  el.style.webkitTransform = valeur;
+  el.style.transform = valeur;
+}
+
+/* sens (optionnel) : 'avant' ou 'arriere' pour un glissement latéral
+   quand on navigue entre deux écrans dans une modale déjà ouverte */
+function ouvrirModal(html, sens) {
+  var overlay = document.getElementById('modal-overlay');
+  var contenu = document.getElementById('modal-contenu');
+
+  if (minuteurFermetureModal) { window.clearTimeout(minuteurFermetureModal); minuteurFermetureModal = null; }
+  if (minuteurPremiereModal) { window.clearTimeout(minuteurPremiereModal); minuteurPremiereModal = null; }
+
+  var dejaOuvert = overlay.classList.contains('modal-ouvert');
+
+  contenu.className = 'modal-contenu';
+  contenu.style.webkitTransition = '';
+  contenu.style.transition = '';
+  poserTransformModal(contenu, '');
+  contenu.innerHTML = '<div class="modal-poignee"></div>' + html;
+
+  if (!dejaOuvert) {
+    contenu.scrollTop = 0;
+    contenu.className = 'modal-contenu modal-premiere';
+    overlay.style.display = 'flex';
+    void overlay.offsetWidth; /* force le calcul de style avant de lancer la transition */
+    overlay.classList.add('modal-ouvert');
+    minuteurPremiereModal = window.setTimeout(function () {
+      minuteurPremiereModal = null;
+      contenu.className = contenu.className.replace(' modal-premiere', '');
+    }, 1000);
+  } else if (sens) {
+    contenu.scrollTop = 0;
+    contenu.className = 'modal-contenu ' + (sens === 'arriere' ? 'modal-sens-arriere' : 'modal-sens-avant');
+  }
 }
 
 function fermerModal() {
-  document.getElementById('modal-overlay').style.display = 'none';
-  document.getElementById('modal-contenu').innerHTML = '';
+  var overlay = document.getElementById('modal-overlay');
+  var contenu = document.getElementById('modal-contenu');
+  if (overlay.style.display === 'none') { return; }
+
+  overlay.classList.remove('modal-ouvert');
+  poserTransformModal(contenu, '');
+
+  if (minuteurFermetureModal) { window.clearTimeout(minuteurFermetureModal); }
+  minuteurFermetureModal = window.setTimeout(function () {
+    minuteurFermetureModal = null;
+    overlay.style.display = 'none';
+    contenu.innerHTML = '';
+    contenu.className = 'modal-contenu';
+  }, DUREE_FERMETURE_MODAL);
 }
+
+/* Glisser la poignée ou l'en-tête vers le bas pour fermer */
+(function () {
+  var contenu = document.getElementById('modal-contenu');
+  if (!contenu) { return; }
+  var actif = false;
+  var y0 = 0;
+  var dy = 0;
+
+  function estZoneDeGlisse(cible) {
+    if (!cible || !cible.closest) { return false; }
+    if (cible.closest('button, input, select, textarea, a')) { return false; }
+    return !!cible.closest('.modal-poignee, .modal-entete, .echauf-entete');
+  }
+
+  contenu.addEventListener('touchstart', function (e) {
+    if (e.touches.length !== 1 || !estZoneDeGlisse(e.target)) { return; }
+    actif = true;
+    dy = 0;
+    y0 = e.touches[0].clientY;
+    contenu.style.webkitTransition = 'none';
+    contenu.style.transition = 'none';
+  }, false);
+
+  contenu.addEventListener('touchmove', function (e) {
+    if (!actif) { return; }
+    dy = e.touches[0].clientY - y0;
+    if (dy < 0) { dy = dy / 5; } /* effet élastique vers le haut */
+    poserTransformModal(contenu, 'translateY(' + dy + 'px)');
+    e.preventDefault();
+  }, false);
+
+  function relacher() {
+    if (!actif) { return; }
+    actif = false;
+    contenu.style.webkitTransition = '';
+    contenu.style.transition = '';
+    if (dy > 100) {
+      fermerModal();
+    } else {
+      poserTransformModal(contenu, ''); /* retour avec le rebond du CSS */
+    }
+  }
+  contenu.addEventListener('touchend', relacher, false);
+  contenu.addEventListener('touchcancel', relacher, false);
+})();
 
 /* Notifications "toast" */
 var fileToasts = [];
