@@ -299,10 +299,14 @@
         <div class="svg-conteneur" id="progression-zone-poids-corporel"></div>
       </div>
       <div class="carte">
-        <div class="champ" style="margin-bottom:0;">
-          <label for="progression-select-exercice">Exercice</label>
-          <select id="progression-select-exercice" data-action="changer-exercice-progression"></select>
-        </div>
+        <button class="selecteur-exercice" id="progression-bouton-exercice" data-action="ouvrir-selecteur-exercice-progression">
+          <span class="selecteur-exercice-textes">
+            <span class="selecteur-exercice-label">Exercice</span>
+            <span class="selecteur-exercice-nom" id="progression-exercice-nom">-</span>
+            <span class="selecteur-exercice-groupe" id="progression-exercice-groupe"></span>
+          </span>
+          <span class="selecteur-exercice-chevron">&#8964;</span>
+        </button>
       </div>
       <div class="carte" id="progression-zone-graphique"></div>
       <div class="carte">
