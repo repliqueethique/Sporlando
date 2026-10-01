@@ -219,4 +219,81 @@ window.demanderConfirmation = demanderConfirmation;
 window.validerConfirmation = validerConfirmation;
 window.annulerConfirmation = annulerConfirmation;
 
+/* ============================================================
+   SOUS-ONGLETS : pastille glissante (comme la barre du bas)
+   ============================================================ */
+(function () {
+  var planifie = false;
+
+  function placer(conteneur) {
+    if (conteneur.offsetWidth === 0) { return; } /* masqué : on ne mesure pas */
+
+    var actif = conteneur.querySelector('.sous-onglet-actif');
+    var indic = conteneur.querySelector('.sous-indicateur');
+    var neuf = false;
+    if (!indic) {
+      indic = document.createElement('span');
+      indic.className = 'sous-indicateur';
+      conteneur.insertBefore(indic, conteneur.firstChild);
+      neuf = true;
+    }
+
+    if (!actif) {
+      if (!indic.classList.contains('sous-sans-actif')) { indic.classList.add('sous-sans-actif'); }
+      return;
+    }
+    if (indic.classList.contains('sous-sans-actif')) { indic.classList.remove('sous-sans-actif'); }
+
+    var x = actif.offsetLeft;
+    var l = actif.offsetWidth;
+    var cle = x + ':' + l;
+    if (!neuf && conteneur._sousCle === cle) { return; } /* rien n'a bougé */
+
+    var sansAnimation = neuf || !conteneur._sousCle;
+    if (sansAnimation) {
+      indic.style.webkitTransition = 'none';
+      indic.style.transition = 'none';
+    }
+    indic.style.width = l + 'px';
+    indic.style.webkitTransform = 'translateX(' + x + 'px)';
+    indic.style.transform = 'translateX(' + x + 'px)';
+    if (sansAnimation) {
+      void indic.offsetWidth;
+      indic.style.webkitTransition = '';
+      indic.style.transition = '';
+    }
+    conteneur._sousCle = cle;
+
+    /* si la barre défile, on recentre l'onglet actif (seulement quand il change) */
+    if (conteneur.scrollWidth > conteneur.clientWidth + 1) {
+      conteneur.scrollLeft = Math.max(0, x - (conteneur.clientWidth - l) / 2);
+    }
+  }
+
+  function majSousOnglets() {
+    var liste = document.querySelectorAll('.sous-onglets');
+    for (var i = 0; i < liste.length; i++) { placer(liste[i]); }
+  }
+
+  function planifier() {
+    if (planifie) { return; }
+    planifie = true;
+    var rafraichir = window.requestAnimationFrame || function (f) { return window.setTimeout(f, 16); };
+    rafraichir(function () {
+      planifie = false;
+      majSousOnglets();
+    });
+  }
+
+  if (window.MutationObserver) {
+    new MutationObserver(planifier).observe(document.body, {
+      childList: true, subtree: true, attributes: true, attributeFilter: ['class']
+    });
+  }
+  window.addEventListener('resize', planifier, false);
+  window.addEventListener('orientationchange', planifier, false);
+  window.addEventListener('load', planifier, false);
+  planifier();
+})();
+
 })();
