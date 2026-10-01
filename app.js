@@ -4164,7 +4164,7 @@ function ouvrirReglages() {
   rendreReglages('menu');
 }
 
-function rendreReglages(vue) {
+function rendreReglages(vue, sens) {
   vueReglagesActuelle = vue;
   var html = '';
 
@@ -4183,7 +4183,7 @@ function rendreReglages(vue) {
   if (vue === 'personnalisation') { html += construireReglagesPersonnalisation(); }
   if (vue === 'sauvegarde') { html += construireReglagesSauvegarde(); }
 
-  ouvrirModal(html);
+  ouvrirModal(html, sens);
 
   if (vue === 'sync') { rendreZoneSync(); }
   if (vue === 'rappels') { renderRemindersSettings(); }
@@ -5579,8 +5579,8 @@ ajouterEcouteurClicDelegue(document.body, function (cible) {
   if (action === 'echauffement-retour') { demanderEchauffement(callbackApresEchauffement); return; }
   if (action === 'terminer-echauffement') { terminerEchauffement(); return; }
   if (action === 'ouvrir-reglages') { ouvrirReglages(); return; }
-  if (action === 'reglages-ouvrir-section') { rendreReglages(cible.getAttribute('data-section')); return; }
-  if (action === 'reglages-retour') { rendreReglages('menu'); return; }
+  if (action === 'reglages-ouvrir-section') { rendreReglages(cible.getAttribute('data-section'), 'avant'); return; }
+  if (action === 'reglages-retour') { rendreReglages('menu', 'arriere'); return; }
   if (action === 'enregistrer-meteo-profil') { enregistrerMeteoProfil(); return; }
   if (action === 'enregistrer-personnalisation') { enregistrerPersonnalisation(); return; }
   if (action === 'tester-sonnerie-minuteur') { testerSonnerieMinuteur(); return; }
