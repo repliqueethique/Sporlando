@@ -4494,22 +4494,87 @@ function exercicesAvecHistorique() {
 var exerciceSelectionneProgression = null;
 
 function rendreSelectProgression() {
-  var select = document.getElementById('progression-select-exercice');
+  var nomEl = document.getElementById('progression-exercice-nom');
+  var groupeEl = document.getElementById('progression-exercice-groupe');
+  if (!nomEl || !groupeEl) { return; }
   var liste = exercicesAvecHistorique();
   if (liste.length === 0) {
-    select.innerHTML = '<option value="">Aucun historique</option>';
     exerciceSelectionneProgression = null;
+    nomEl.innerHTML = 'Aucun historique';
+    groupeEl.innerHTML = 'Termine une séance pour commencer';
     return;
   }
   if (!exerciceSelectionneProgression || !trouverParId(liste, exerciceSelectionneProgression)) {
     exerciceSelectionneProgression = liste[0].id;
   }
-  select.innerHTML = optionsExercicesGroupeesDepuisListe(liste, exerciceSelectionneProgression);
+  var ex = trouverParId(liste, exerciceSelectionneProgression);
+  nomEl.innerHTML = echapperHtml(ex.nom);
+  groupeEl.innerHTML = echapperHtml(ex.groupe);
 }
 
-function changerExerciceProgression() {
-  exerciceSelectionneProgression = document.getElementById('progression-select-exercice').value;
+function changerExerciceProgression(id) {
+  exerciceSelectionneProgression = id;
+  rendreSelectProgression();
   rendreGraphiqueProgression();
+}
+
+/* --- Feuille de sélection de l'exercice --- */
+
+function ouvrirSelecteurExerciceProgression() {
+  if (exercicesAvecHistorique().length === 0) {
+    afficherToast('Aucun exercice réalisé pour le moment.');
+    return;
+  }
+  var html = '';
+  html += '<div class="modal-entete"><h2>Choisir un exercice</h2><button class="bouton-fermer" data-action="fermer-modal">&times;</button></div>';
+  html += '<div class="selecteur-recherche"><input type="search" id="champ-selecteur-exercice" placeholder="Rechercher un exercice ou un groupe" autocomplete="off"></div>';
+  html += '<div id="selecteur-exercice-liste"></div>';
+  ouvrirModal(html);
+  dessinerListeSelecteurExercice('');
+  var champ = document.getElementById('champ-selecteur-exercice');
+  if (champ) {
+    champ.addEventListener('input', function () { dessinerListeSelecteurExercice(champ.value); });
+  }
+}
+
+function dessinerListeSelecteurExercice(filtre) {
+  var zone = document.getElementById('selecteur-exercice-liste');
+  if (!zone) { return; }
+  var terme = normaliserTexteRecherche((filtre || '').trim());
+  var liste = exercicesAvecHistorique().filter(function (ex) {
+    return terme === '' ||
+      normaliserTexteRecherche(ex.nom).indexOf(terme) !== -1 ||
+      normaliserTexteRecherche(ex.groupe).indexOf(terme) !== -1;
+  });
+  if (liste.length === 0) {
+    zone.innerHTML = '<div class="etat-vide">Aucun exercice ne correspond.</div>';
+    return;
+  }
+  var html = '';
+  for (var g = 0; g < GROUPES_MUSCULAIRES.length; g++) {
+    var nomGroupe = GROUPES_MUSCULAIRES[g];
+    var sousListe = liste.filter(function (ex) { return ex.groupe === nomGroupe; });
+    if (sousListe.length === 0) { continue; }
+    sousListe.sort(function (a, b) { return a.nom.localeCompare(b.nom); });
+    html += '<div class="selecteur-groupe">' + echapperHtml(nomGroupe) + '</div>';
+    for (var i = 0; i < sousListe.length; i++) {
+      var ex = sousListe[i];
+      var points = pointsPoidsMaxParSeance(ex.id);
+      var record = null;
+      for (var p = 0; p < points.length; p++) {
+        if (record === null || points[p].valeur > record) { record = points[p].valeur; }
+      }
+      var meta = points.length + ' séance' + (points.length > 1 ? 's' : '');
+      if (record !== null) { meta += ' · record ' + record + ' kg'; }
+      var actif = (ex.id === exerciceSelectionneProgression);
+      html += '<button class="selecteur-ligne' + (actif ? ' selecteur-ligne-active' : '') + '" data-action="choisir-exercice-progression" data-id="' + ex.id + '">';
+      html += '<span class="selecteur-ligne-textes"><span class="selecteur-ligne-nom">' + echapperHtml(ex.nom) + '</span>';
+      html += '<span class="selecteur-ligne-meta donnee-num">' + meta + '</span></span>';
+      html += '<span class="selecteur-coche">&#10003;</span>';
+      html += '</button>';
+    }
+  }
+  zone.innerHTML = html;
 }
 
 function pointsPoidsMaxParSeance(exerciceId) {
@@ -5730,6 +5795,9 @@ ajouterEcouteurClicDelegue(document.body, function (cible) {
   if (action === 'tout-marquer-fait-historique') { toutMarquerHistorique(id, true); return; }
   if (action === 'tout-marquer-non-fait-historique') { toutMarquerHistorique(id, false); return; }
 
+  if (action === 'ouvrir-selecteur-exercice-progression') { ouvrirSelecteurExerciceProgression(); return; }
+  if (action === 'choisir-exercice-progression') { changerExerciceProgression(id); fermerModal(); return; }
+
   if (action === 'toggle-vue-combinee-etat') { basculerVueCombineeEtat(); return; }
   if (action === 'toggle-courbe-etat') { basculerCourbeEtat(cible.getAttribute('data-courbe')); return; }
 
@@ -5829,7 +5897,6 @@ document.body.addEventListener('change', function (evt) {
   if (role === 'live-rpe') {
     modifierRpeExercice(parseInt(evt.target.getAttribute('data-ex'), 10), evt.target.value);
   }
-  if (evt.target.id === 'progression-select-exercice') { changerExerciceProgression(); }
   if (evt.target.id === 'champ-ex-groupe') { rafraichirDiagrammeMuscles(); }
   if (evt.target.id === 'champ-import-fichier') { chargerFichierImport(); }
   if (role === 'hist-poids' || role === 'hist-reps') {
