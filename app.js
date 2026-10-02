@@ -4168,10 +4168,12 @@ function rendreReglages(vue, sens) {
   if (vue !== 'personnalisation') { annulerApercuTheme(); }
   vueReglagesActuelle = vue;
 
-  html += '<div class="modal-entete"><div class="modal-entete-gauche">';
+  let html = '<div class="modal-entete"><div class="modal-entete-gauche">';
+  
   if (vue !== 'menu') {
     html += '<button class="bouton-retour" data-action="reglages-retour">&#8249;</button>';
   }
+  
   html += '<h2>' + TITRES_REGLAGES[vue] + '</h2>';
   html += '</div><button class="bouton-fermer" data-action="fermer-modal">&times;</button></div>';
 
