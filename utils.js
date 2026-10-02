@@ -91,6 +91,7 @@ function fermerModal() {
   var overlay = document.getElementById('modal-overlay');
   var contenu = document.getElementById('modal-contenu');
   if (overlay.style.display === 'none') { return; }
+  if (typeof window.surFermetureModal === 'function') { window.surFermetureModal(); }
 
   overlay.classList.remove('modal-ouvert');
   poserTransformModal(contenu, '');
