@@ -4165,8 +4165,8 @@ function ouvrirReglages() {
 }
 
 function rendreReglages(vue, sens) {
+  if (vue !== 'personnalisation') { annulerApercuTheme(); }
   vueReglagesActuelle = vue;
-  var html = '';
 
   html += '<div class="modal-entete"><div class="modal-entete-gauche">';
   if (vue !== 'menu') {
@@ -4431,17 +4431,43 @@ function construireReglagesPersonnalisation() {
   return html;
 }
 
-/* Sélection d'une pastille (thème, sonnerie) : met à jour le champ caché et la surbrillance */
+/* --- Aperçu en direct du thème (annulé si on ne valide pas) --- */
+
+var themeAvantApercu = null;
+
+function apercuTheme(valeur) {
+  if (themeAvantApercu === null) { themeAvantApercu = etat.profil.theme || 'sombre'; }
+  etat.profil.theme = valeur;
+  appliquerTheme();
+}
+
+function annulerApercuTheme() {
+  if (themeAvantApercu === null) { return; }
+  etat.profil.theme = themeAvantApercu;
+  themeAvantApercu = null;
+  appliquerTheme();
+}
+
+/* appelé par fermerModal() (croix, glissement, clic sur le fond) */
+window.surFermetureModal = annulerApercuTheme;
+
 function choisirOptionReglage(bouton) {
-  var champ = document.getElementById(bouton.getAttribute('data-champ'));
-  if (champ) { champ.value = bouton.getAttribute('data-valeur'); }
+  var idChamp = bouton.getAttribute('data-champ');
+  var valeur = bouton.getAttribute('data-valeur');
+  var champ = document.getElementById(idChamp);
+  if (champ) { champ.value = valeur; }
+
   var conteneur = bouton.closest('.reglages-section');
   var actifs = conteneur ? conteneur.querySelectorAll('.reglage-option-active') : [];
   for (var i = 0; i < actifs.length; i++) { actifs[i].classList.remove('reglage-option-active'); }
   bouton.classList.add('reglage-option-active');
+
+  if (idChamp === 'champ-perso-theme') { apercuTheme(valeur); }
+  if (idChamp === 'champ-perso-sonnerie') { jouerSonnerie(valeur); }
 }
 
 function enregistrerPersonnalisation() {
+  themeAvantApercu = null; /* choix validé : plus rien à annuler */
   etat.profil.theme = document.getElementById('champ-perso-theme').value;
   etat.profil.sonnerieMinuteur = document.getElementById('champ-perso-sonnerie').value;
   appliquerTheme();
@@ -5741,6 +5767,7 @@ ajouterEcouteurClicDelegue(document.body, function (cible) {
   if (action === 'ouvrir-verif-objectif') { ouvrirVerificationObjectif(); return; }
   if (action === 'confirmer-objectif') { confirmerObjectif(); return; }
   if (action === 'enregistrer-profil') { enregistrerProfil(); return; }
+  if (action === 'choisir-option') { choisirOptionReglage(cible); return; }
   if (action === 'enregistrer-reglages-sync') { enregistrerReglagesSync(); return; }
   if (action === 'creer-gist') { creerNouveauGist(); return; }
   if (action === 'synchroniser-maintenant') { synchroniserMaintenant(); return; }
