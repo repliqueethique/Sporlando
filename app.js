@@ -5774,7 +5774,6 @@ ajouterEcouteurClicDelegue(document.body, function (cible) {
   if (action === 'creer-gist') { creerNouveauGist(); return; }
   if (action === 'synchroniser-maintenant') { synchroniserMaintenant(); return; }
   if (action === 'basculer-token') { basculerAffichageToken(); return; }
-  if (action === 'basculer-token') { basculerAffichageToken(); return; }
   if (action === 'aller-vers-ressenti') {
     allerVersRessentiJour();
     return;
