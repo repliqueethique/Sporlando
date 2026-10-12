@@ -2360,6 +2360,7 @@ function demarrerSeanceDepuisModele(seanceModeleId, agendaEntryId) {
       };
     });
 
+    exercicesDeplies = {};
     etat.seanceActive = {
       seanceModeleId: seanceModeleId,
       agendaEntryId: agendaEntryId || null,
@@ -2709,169 +2710,214 @@ function formaterResumeSeries(ligneEx) {
 
 var exercicesDeplies = {};
 
-function rendreExercicesActifs() {
-  var html = '';
+var PAS_POIDS_STEPPER = 2.5;  /* kg ajoutés/retirés par les boutons − / + (change-le si tu veux) */
+var PAS_REPS_STEPPER = 1;
 
-  // Trouve le premier exercice non terminé = exercice actif
+function htmlStepper(e, s, champ, valeur, unite, pas) {
+  var role = (champ === 'poids') ? 'live-poids' : 'live-reps';
+  var h = '<div class="sx-hero-champ">';
+  h += '<div class="sx-hero-valeur"><input type="number" step="' + (champ === 'poids' ? '0.5' : '1') + '" inputmode="' + (champ === 'poids' ? 'decimal' : 'numeric') + '" data-role="' + role + '" data-ex="' + e + '" data-serie="' + s + '" value="' + valeur + '">';
+  h += '<span class="sx-hero-unite">' + unite + '</span></div>';
+  h += '<div class="sx-hero-pas">';
+  h += '<button class="sx-pas" data-action="ajuster-serie" data-ex="' + e + '" data-serie="' + s + '" data-champ="' + champ + '" data-delta="' + (-pas) + '">&minus;</button>';
+  h += '<button class="sx-pas" data-action="ajuster-serie" data-ex="' + e + '" data-serie="' + s + '" data-champ="' + champ + '" data-delta="' + pas + '">+</button>';
+  h += '</div></div>';
+  return h;
+}
+
+function htmlNoteSerie(e, s, serie) {
+  if (!noteSerieEstOuverte(e, s, serie)) { return ''; }
+  return '<div class="note-serie-zone"><input type="text" data-role="live-note" data-ex="' + e + '" data-serie="' + s + '" value="' + echapperHtml(serie.note || '') + '" placeholder="Note : changement, douleur, ressenti..."></div>';
+}
+
+function mettreAJourProgressionSeance(faites, total) {
+  var barre = document.getElementById('seance-progression-remplie');
+  var compteur = document.getElementById('seance-compteur');
+  if (barre) { barre.style.width = (total > 0 ? Math.round(faites / total * 100) : 0) + '%'; }
+  if (compteur) { compteur.innerHTML = faites + ' / ' + total + ' séries'; }
+}
+
+/* Boutons − / + : modifie la valeur sans tout redessiner */
+function ajusterSerieLive(exIndex, serieIndex, champ, delta) {
+  var serie = etat.seanceActive.exercices[exIndex].series[serieIndex];
+  var cle = (champ === 'poids') ? 'poids' : 'reps';
+  var valeur = (serie[cle] || 0) + delta;
+  if (valeur < 0) { valeur = 0; }
+  valeur = Math.round(valeur * 100) / 100;
+  serie[cle] = valeur;
+  sauvegarderEtat();
+  var saisie = document.querySelector('[data-role="live-' + cle + '"][data-ex="' + exIndex + '"][data-serie="' + serieIndex + '"]');
+  if (saisie) { saisie.value = valeur; }
+}
+
+/* Déplier / replier un exercice en touchant son en-tête */
+function basculerExercice(exIndex, etaitOuvert) {
+  exercicesDeplies[exIndex] = !etaitOuvert;
+  rendreExercicesActifs();
+}
+
+function rendreExercicesActifs() {
+  var seance = etat.seanceActive;
+  if (!seance) { return; }
+  var html = '';
+  var totalSeries = 0;
+  var seriesFaites = 0;
+
+  /* Exercice en cours = premier exercice pas encore terminé */
   var indexExerciceActif = -1;
-  for (var ea = 0; ea < etat.seanceActive.exercices.length; ea++) {
-    var estTermine = etat.seanceActive.exercices[ea].series.every(function (serie) { return serie.fait; });
-    if (!estTermine) { indexExerciceActif = ea; break; }
+  for (var ea = 0; ea < seance.exercices.length; ea++) {
+    var toutesFaites = seance.exercices[ea].series.every(function (sr) { return sr.fait; });
+    if (!toutesFaites) { indexExerciceActif = ea; break; }
   }
 
-  for (var e = 0; e < etat.seanceActive.exercices.length; e++) {
-    var ligneEx = etat.seanceActive.exercices[e];
+  for (var e = 0; e < seance.exercices.length; e++) {
+    var ligneEx = seance.exercices[e];
     var exRef = trouverParId(etat.exercices, ligneEx.exerciceId);
     var nomEx = exRef ? exRef.nom : '(exercice supprimé)';
+    var groupeEx = exRef ? exRef.groupe : '';
+    var exerciceTermine = ligneEx.series.every(function (sr) { return sr.fait; });
+    var estActif = (e === indexExerciceActif);
+    var ouvert = (exercicesDeplies[e] !== undefined) ? exercicesDeplies[e] : estActif;
 
-    // Détecter si l'exercice est terminé (toutes les séries sont "fait")
-    var exerciceTermine = ligneEx.series.every(serie => serie.fait);
-
-    html += '<div class="carte bloc-exercice' + (exerciceTermine ? ' bloc-exercice-termine' : ' bloc-exercice-actif') + '" data-exercice-id="' + ligneEx.exerciceId + '">';
-
-    html += '<div class="ligne"><strong>' + echapperHtml(nomEx) + '</strong>';
-    html += '<div class="barre-charge">';
-    for (var b = 0; b < ligneEx.series.length; b++) {
-      html += '<div class="bloc-charge' + (ligneEx.series[b].fait ? ' bloc-charge-fait' : '') + (ligneEx.series[b].echauffement ? ' bloc-charge-echauffement' : '') + '"></div>';
-    }
-    html += '</div></div>';
-
-    var derniereFois = derniereOccurrenceExercice(ligneEx.exerciceId);
-    if (derniereFois) {
-      html += '<div class="texte-att donnee-num" style="margin:4px 0;">' + formaterDateCourte(derniereFois.date) + ' : ' + formaterResumeSeries(derniereFois.ligneEx) + '</div>';
+    var nbTravail = 0;
+    var nbTravailFaites = 0;
+    for (var c = 0; c < ligneEx.series.length; c++) {
+      if (!ligneEx.series[c].echauffement) {
+        nbTravail++; totalSeries++;
+        if (ligneEx.series[c].fait) { nbTravailFaites++; seriesFaites++; }
+      }
     }
 
+    /* Nouveau record ? */
     var recordAnterieur = meilleurPoidsHistorique(ligneEx.exerciceId);
-    var meilleurPoidsAujourdhui = null;
+    var meilleurAujourdhui = null;
     for (var s2 = 0; s2 < ligneEx.series.length; s2++) {
       if (ligneEx.series[s2].echauffement) { continue; }
-      if (ligneEx.series[s2].fait && (meilleurPoidsAujourdhui === null || ligneEx.series[s2].poids > meilleurPoidsAujourdhui)) {
-        meilleurPoidsAujourdhui = ligneEx.series[s2].poids;
+      if (ligneEx.series[s2].fait && (meilleurAujourdhui === null || ligneEx.series[s2].poids > meilleurAujourdhui)) {
+        meilleurAujourdhui = ligneEx.series[s2].poids;
       }
     }
-    var nouveauRecord = meilleurPoidsAujourdhui !== null && (recordAnterieur === null || meilleurPoidsAujourdhui > recordAnterieur);
+    var nouveauRecord = meilleurAujourdhui !== null && (recordAnterieur === null || meilleurAujourdhui > recordAnterieur);
 
-    var badges = '';
-    if (nouveauRecord) {
-      badges += '<span class="badge-technique badge-record">&#9733; Nouveau record</span>';
-    }
-    if (ligneEx.structure && ligneEx.structure !== 'lineaire') {
-      badges += '<span class="badge-technique">' + echapperHtml(libelleDepuisValeur(STRUCTURES_SERIES, ligneEx.structure)) + '</span>';
-    }
-    if (ligneEx.technique && ligneEx.technique !== 'aucune') {
-      badges += '<span class="badge-technique badge-technique-intensif">Dernière série : ' + echapperHtml(libelleDepuisValeur(TECHNIQUES_INTENSIFICATION, ligneEx.technique)) + '</span>';
-    }
-    if (ligneEx.tempo) {
-      badges += '<span class="badge-technique">Tempo ' + echapperHtml(ligneEx.tempo) + '</span>';
-    }
-    if (badges) { html += '<div class="badges-zone">' + badges + '</div>'; }
+    var meta = exerciceTermine
+      ? echapperHtml(formaterResumeSeries(ligneEx))
+      : (groupeEx ? echapperHtml(groupeEx) + ' · ' : '') + nbTravailFaites + '/' + nbTravail + ' séries';
 
-    // Détecter si l'exercice est terminé (toutes les séries sont "fait")
-    var exerciceTermine = ligneEx.series.every(serie => serie.fait);
-
-    html += '<div class="exercice-series-zone">';
-
-    // On calcule l'index de la prochaine série à faire pour cet exercice
-    var indexProchaineSerie = -1;
-    if (!exerciceTermine && e === indexExerciceActif) {
-      for (var sc = 0; sc < ligneEx.series.length; sc++) {
-        if (!ligneEx.series[sc].fait) { indexProchaineSerie = sc; break; }
+    /* ----- En-tête de la carte ----- */
+    html += '<div class="sx-exo' + (exerciceTermine ? ' sx-exo-termine' : (estActif ? ' sx-exo-actif' : '')) + '">';
+    html += '<div class="sx-exo-tete" data-action="basculer-exercice" data-ex="' + e + '" data-ouvert="' + (ouvert ? '1' : '0') + '">';
+    html += '<span class="sx-exo-pastille">' + (exerciceTermine ? '&#10003;' : (e + 1)) + '</span>';
+    html += '<span class="sx-exo-titres"><span class="sx-exo-nom">' + echapperHtml(nomEx) + (nouveauRecord ? ' <span class="sx-exo-record">&#9733;</span>' : '') + '</span>';
+    html += '<span class="sx-exo-meta">' + meta + '</span></span>';
+    if (!exerciceTermine) {
+      html += '<span class="barre-charge sx-exo-blocs">';
+      for (var b = 0; b < ligneEx.series.length; b++) {
+        html += '<span class="bloc-charge' + (ligneEx.series[b].fait ? ' bloc-charge-fait' : '') + (ligneEx.series[b].echauffement ? ' bloc-charge-echauffement' : '') + '"></span>';
       }
+      html += '</span>';
     }
+    html += '<span class="sx-exo-chevron">' + (ouvert ? '&#9662;' : '&#9656;') + '</span>';
+    html += '</div>';
 
-    var compteurEchauffement = 0;
-    var compteurTravail = 0;
-    for (var s = 0; s < ligneEx.series.length; s++) {
-      var serie = ligneEx.series[s];
-      var estEchauffement = !!serie.echauffement;
-      var libelleNumSerie;
-      if (estEchauffement) { compteurEchauffement++; libelleNumSerie = 'É' + compteurEchauffement; }
-      else { compteurTravail++; libelleNumSerie = '#' + compteurTravail; }
-      var estCible = (s === indexProchaineSerie);
-      var estNouvelle = !!(dernierAjoutSerie && dernierAjoutSerie.ex === e && dernierAjoutSerie.serie === s);
-      html += '<div class="serie-ligne' + (estCible ? ' serie-cible' : '') + (estEchauffement ? ' serie-echauffement' : '') + (estNouvelle ? ' serie-nouvelle' : '') + '">';
-      html += '<div class="serie-num">' + libelleNumSerie + '</div>';
-      html += '<div class="serie-champ"><input type="number" step="0.5" inputmode="decimal" data-role="live-poids" data-ex="' + e + '" data-serie="' + s + '" value="' + serie.poids + '"></div>';
-      html += '<div class="serie-unite">kg</div>';
-      html += '<div class="serie-champ"><input type="number" step="1" inputmode="numeric" data-role="live-reps" data-ex="' + e + '" data-serie="' + s + '" value="' + serie.reps + '"></div>';
-      html += '<div class="serie-unite">reps</div>';
+    /* ----- Corps (seulement si ouvert) ----- */
+    if (ouvert) {
+      html += '<div class="sx-exo-corps">';
 
-      html += '<button class="bulle-validation' + (serie.fait ? ' bulle-validation-faite' : '') + '" data-action="basculer-serie-faite" data-ex="' + e + '" data-serie="' + s + '">&#10003;</button>';
-      html += '<button class="bouton-note' + (serie.note ? ' bouton-note-remplie' : '') + '" data-action="basculer-note-serie" data-ex="' + e + '" data-serie="' + s + '">&#9998;</button>';
-      html += '<button class="serie-suppr" data-action="supprimer-serie" data-ex="' + e + '" data-serie="' + s + '">&times;</button>';
+      var derniereFois = derniereOccurrenceExercice(ligneEx.exerciceId);
+      if (derniereFois) {
+        html += '<div class="sx-derniere donnee-num">Dernière fois · ' + formaterDateCourte(derniereFois.date) + ' : ' + echapperHtml(formaterResumeSeries(derniereFois.ligneEx)) + '</div>';
+      }
+
+      var badges = '';
+      if (nouveauRecord) { badges += '<span class="badge-technique badge-record">&#9733; Nouveau record</span>'; }
+      if (ligneEx.structure && ligneEx.structure !== 'lineaire') {
+        badges += '<span class="badge-technique">' + echapperHtml(libelleDepuisValeur(STRUCTURES_SERIES, ligneEx.structure)) + '</span>';
+      }
+      if (ligneEx.technique && ligneEx.technique !== 'aucune') {
+        badges += '<span class="badge-technique badge-technique-intensif">Dernière série : ' + echapperHtml(libelleDepuisValeur(TECHNIQUES_INTENSIFICATION, ligneEx.technique)) + '</span>';
+      }
+      if (ligneEx.tempo) { badges += '<span class="badge-technique">Tempo ' + echapperHtml(ligneEx.tempo) + '</span>'; }
+      if (badges) { html += '<div class="badges-zone">' + badges + '</div>'; }
+
+      /* Prochaine série à faire (uniquement sur l'exercice en cours) */
+      var indexProchaineSerie = -1;
+      if (estActif) {
+        for (var sc = 0; sc < ligneEx.series.length; sc++) {
+          if (!ligneEx.series[sc].fait) { indexProchaineSerie = sc; break; }
+        }
+      }
+
+      var compteurEchauffement = 0;
+      var compteurTravail = 0;
+      for (var s = 0; s < ligneEx.series.length; s++) {
+        var serie = ligneEx.series[s];
+        var estEchauffement = !!serie.echauffement;
+        var libelleNum;
+        if (estEchauffement) { compteurEchauffement++; libelleNum = 'É' + compteurEchauffement; }
+        else { compteurTravail++; libelleNum = '#' + compteurTravail; }
+        var estNouvelle = !!(dernierAjoutSerie && dernierAjoutSerie.ex === e && dernierAjoutSerie.serie === s);
+        var attrs = ' data-ex="' + e + '" data-serie="' + s + '"';
+
+        if (s === indexProchaineSerie) {
+          /* ===== SÉRIE EN COURS : grand format ===== */
+          html += '<div class="sx-hero' + (estEchauffement ? ' sx-hero-echauf' : '') + (estNouvelle ? ' sx-nouvelle' : '') + '">';
+          html += '<div class="sx-hero-tete"><span class="sx-hero-label">' + (estEchauffement ? 'Échauffement ' + compteurEchauffement : 'Série ' + compteurTravail + ' / ' + nbTravail) + '</span>';
+          html += '<span class="sx-hero-outils">';
+          html += '<button class="bouton-note' + (serie.note ? ' bouton-note-remplie' : '') + '" data-action="basculer-note-serie"' + attrs + '>&#9998;</button>';
+          html += '<button class="serie-suppr" data-action="supprimer-serie"' + attrs + '>&times;</button>';
+          html += '</span></div>';
+          html += '<div class="sx-hero-champs">';
+          html += htmlStepper(e, s, 'poids', serie.poids, 'kg', PAS_POIDS_STEPPER);
+          html += htmlStepper(e, s, 'reps', serie.reps, 'reps', PAS_REPS_STEPPER);
+          html += '</div>';
+          html += '<button class="sx-valider" data-action="basculer-serie-faite"' + attrs + '>&#10003; Valider la série</button>';
+          html += '</div>';
+          html += htmlNoteSerie(e, s, serie);
+          continue;
+        }
+
+        /* ===== Autres séries : ligne compacte ===== */
+        html += '<div class="sx-serie' + (serie.fait ? ' sx-serie-faite' : '') + (estEchauffement ? ' sx-serie-echauf' : '') + (estNouvelle ? ' sx-nouvelle' : '') + '">';
+        html += '<span class="sx-serie-num">' + libelleNum + '</span>';
+        html += '<span class="serie-champ"><input type="number" step="0.5" inputmode="decimal" data-role="live-poids"' + attrs + ' value="' + serie.poids + '"></span><span class="serie-unite">kg</span>';
+        html += '<span class="serie-champ"><input type="number" step="1" inputmode="numeric" data-role="live-reps"' + attrs + ' value="' + serie.reps + '"></span><span class="serie-unite">reps</span>';
+        html += '<button class="bulle-validation' + (serie.fait ? ' bulle-validation-faite' : '') + '" data-action="basculer-serie-faite"' + attrs + '>&#10003;</button>';
+        html += '<button class="bouton-note' + (serie.note ? ' bouton-note-remplie' : '') + '" data-action="basculer-note-serie"' + attrs + '>&#9998;</button>';
+        html += '<button class="serie-suppr" data-action="supprimer-serie"' + attrs + '>&times;</button>';
+        html += '</div>';
+        html += htmlNoteSerie(e, s, serie);
+      }
+
+      /* RPE + boutons d'ajout */
+      var rpeValeur = (ligneEx.rpe !== null && ligneEx.rpe !== undefined) ? ligneEx.rpe : 3;
+      html += '<div class="ligne-actions-exercice">';
+      html += '<div class="rpe-ligne rpe-glissable" data-role="rpe-ligne" data-ex="' + e + '" title="RPE ressenti — glisser pour ajuster (0 à 10)">';
+      html += '<input type="number" class="rpe-input" min="0" max="10" step="1" data-role="live-rpe" data-ex="' + e + '" value="' + rpeValeur + '">';
+      html += '<span class="rpe-suffixe">RPE</span></div>';
+      html += '<button class="btn btn-contour btn-action-serie" data-action="ajouter-serie" data-ex="' + e + '">+ Série</button>';
+      html += '<button class="btn-action-echauffement" data-action="ajouter-serie-echauffement" data-ex="' + e + '" title="Ajouter une série d\'échauffement"><span class="icone-echauffement" aria-hidden="true"><svg viewBox="0 0 24 24" width="20" height="20"><path d="M12 2c.9 2.1 2.2 3.6 3.6 5.1 1.8 1.9 3.4 3.9 3.4 6.9 0 4.4-3.1 8-7 8s-7-3.6-7-8c0-2.1.7-3.7 1.6-5.1.3 1.5 1.1 2.4 2.1 2.4 1 0 1.3-.8 1-1.9-.5-1.8-.4-4 .6-5.9C10.9 2.9 11.4 2.4 12 2z"/></svg></span></button>';
       html += '</div>';
-      if (noteSerieEstOuverte(e, s, serie)) {
-        html += '<div class="note-serie-zone"><input type="text" data-role="live-note" data-ex="' + e + '" data-serie="' + s + '" value="' + echapperHtml(serie.note || '') + '" placeholder="Note : changement, douleur, ressenti..."></div>';
+      if (ligneEx.technique === 'drop_set') {
+        html += '<button class="btn btn-contour btn-bloc" style="margin-top:6px;" data-action="ajouter-serie-degressive" data-ex="' + e + '">+ Série dégressive (~70%)</button>';
       }
+      html += '</div>'; /* fin corps */
     }
-
-    html += '</div>'; // Fermeture de .exercice-series-zone
-
-    // RPE (glissable) et boutons, sur une seule ligne pour gagner de la place
-    var rpeValeur = (ligneEx.rpe !== null && ligneEx.rpe !== undefined) ? ligneEx.rpe : 3;
-    html += '<div class="ligne-actions-exercice">';
-    html += '<div class="rpe-ligne rpe-glissable" data-role="rpe-ligne" data-ex="' + e + '" title="RPE ressenti — glisser pour ajuster (0 à 10)">';
-    html += '<input type="number" class="rpe-input" min="0" max="10" step="1" data-role="live-rpe" data-ex="' + e + '" value="' + rpeValeur + '">';
-    html += '<span class="rpe-suffixe">RPE</span>';
-    html += '</div>';
-    html += '<button class="btn btn-contour btn-action-serie" data-action="ajouter-serie" data-ex="' + e + '">+ Série</button>';
-    html += '<button class="btn-action-echauffement" data-action="ajouter-serie-echauffement" data-ex="' + e + '" title="Ajouter une série d\'échauffement"><span class="icone-echauffement" aria-hidden="true"><svg viewBox="0 0 24 24" width="20" height="20"><path d="M12 2c.9 2.1 2.2 3.6 3.6 5.1 1.8 1.9 3.4 3.9 3.4 6.9 0 4.4-3.1 8-7 8s-7-3.6-7-8c0-2.1.7-3.7 1.6-5.1.3 1.5 1.1 2.4 2.1 2.4 1 0 1.3-.8 1-1.9-.5-1.8-.4-4 .6-5.9C10.9 2.9 11.4 2.4 12 2z"/></svg></span></button>';
-    html += '</div>';
-    if (ligneEx.technique === 'drop_set') {
-      html += '<button class="btn btn-contour btn-bloc" style="margin-top:6px;" data-action="ajouter-serie-degressive" data-ex="' + e + '">+ Série dégressive (~70%)</button>';
-    }
-    html += '</div></div>'; // Fermeture de la carte
+    html += '</div>'; /* fin carte */
   }
+
+  /* Tout est fait : invitation à terminer */
+  if (seance.exercices.length > 0 && indexExerciceActif === -1) {
+    html += '<div class="sx-fin"><div class="sx-fin-titre">Séance terminée &#127881;</div>';
+    html += '<button class="sx-valider" data-action="terminer-seance">Enregistrer la séance</button></div>';
+  }
+
   document.getElementById('seance-liste-exercices').innerHTML = html;
   dernierAjoutSerie = null;
+  mettreAJourProgressionSeance(seriesFaites, totalSeries);
 
-  // Gestion automatique des exercices terminés
-  document.querySelectorAll('.bloc-exercice').forEach(exercice => {
-    // Vérifier l'état de l'exercice au chargement
-    const exerciceId = exercice.getAttribute('data-exercice-id');
-    const exerciceData = etat.seanceActive.exercices.find(ex => ex.exerciceId == exerciceId);
-    const exerciceTermine = exerciceData && exerciceData.series.every(serie => serie.fait);
-
-    if (exerciceTermine) {
-      exercice.classList.remove('bloc-exercice-actif');
-      exercice.classList.add('bloc-exercice-termine');
-    } else {
-      exercice.classList.remove('bloc-exercice-termine');
-      exercice.classList.add('bloc-exercice-actif');
-    }
-
-    // Applique l'état déplié/replié mémorisé
-    if (exercicesDeplies[exerciceId]) {
-      exercice.classList.add('exercice-deplie');
-    } else {
-      exercice.classList.remove('exercice-deplie');
-    }
-
-    // Écouter les clics sur les boutons de validation des séries
-      exercice.querySelectorAll('[data-action="basculer-serie-faite"]').forEach(bouton => {
-        bouton.addEventListener('click', function(e) {
-          e.stopPropagation(); // <-- AJOUT ICI
-          var exIndex = parseInt(this.getAttribute('data-ex'));
-          var serieIndex = parseInt(this.getAttribute('data-serie'));
-          etat.seanceActive.exercices[exIndex].series[serieIndex].fait = !etat.seanceActive.exercices[exIndex].series[serieIndex].fait;
-          rendreExercicesActifs(); // Re-génère pour mettre à jour l'état
-        });
-      });
-
-    // Active le glissé sur la ligne RPE de cet exercice
-    var ligneRpe = exercice.querySelector('.rpe-ligne');
-    if (ligneRpe) { configurerGlisseRpe(ligneRpe); }
-
-    // Écouter le clic sur l'exercice pour déplier/replier
-    exercice.addEventListener('click', function(e) {
-      if (e.target.closest('[data-action], .bouton-note, .serie-suppr, [data-role]')) {
-        return;
-      }
-      this.classList.toggle('exercice-deplie');
-      exercicesDeplies[exerciceId] = this.classList.contains('exercice-deplie');
-    });
-  });
-} // <-- Fermeture de la fonction
+  var lignesRpe = document.querySelectorAll('#seance-liste-exercices .rpe-ligne');
+  for (var r = 0; r < lignesRpe.length; r++) { configurerGlisseRpe(lignesRpe[r]); }
+}
 
 function mettreAJourChrono() {
   if (!etat.seanceActive) { return; }
@@ -5894,6 +5940,8 @@ ajouterEcouteurClicDelegue(document.body, function (cible) {
   if (action === 'supprimer-serie') { supprimerSerieLive(parseInt(cible.getAttribute('data-ex'), 10), parseInt(cible.getAttribute('data-serie'), 10)); return; }
   if (action === 'basculer-serie-faite') { basculerSerieFaite(parseInt(cible.getAttribute('data-ex'), 10), parseInt(cible.getAttribute('data-serie'), 10)); return; }
   if (action === 'basculer-note-serie') { basculerNoteSerie(parseInt(cible.getAttribute('data-ex'), 10), parseInt(cible.getAttribute('data-serie'), 10)); return; }
+  if (action === 'ajuster-serie') { ajusterSerieLive(parseInt(cible.getAttribute('data-ex'), 10), parseInt(cible.getAttribute('data-serie'), 10), cible.getAttribute('data-champ'), parseFloat(cible.getAttribute('data-delta'))); return; }
+  if (action === 'basculer-exercice') { basculerExercice(parseInt(cible.getAttribute('data-ex'), 10), cible.getAttribute('data-ouvert') === '1'); return; }
 
   if (action === 'lancer-cdr') { lancerCompteARebours(); return; }
 

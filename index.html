@@ -172,15 +172,21 @@
 
     <div id="seance-zone-active" style="display:none;">
       <div class="seance-sticky-haut">
-        <div class="carte" id="seance-entete-active">
-          <div class="ligne">
-            <h2 class="titre-affichage" id="seance-active-nom">-</h2>
-            <button class="btn-annuler-seance" data-action="annuler-seance" title="Annuler la séance">✕</button>
+        <div class="sx-entete" id="seance-entete-active">
+          <div class="sx-entete-haut">
+            <button class="sx-btn-rond" data-action="annuler-seance" title="Annuler la séance">&times;</button>
+            <div class="sx-entete-centre">
+              <h2 class="titre-affichage sx-nom" id="seance-active-nom">-</h2>
+              <div class="chrono texte-degrade sx-chrono" id="seance-chrono">00:00</div>
+            </div>
+            <button class="sx-btn-fin" data-action="terminer-seance">Fin</button>
           </div>
-          <div class="chrono texte-degrade" id="seance-chrono">00:00</div>
-          <button class="btn btn-plein btn-petit" style="width:100%; margin-top:8px;" data-action="terminer-seance">Fin</button>
+          <div class="sx-ligne-progression">
+            <div class="sx-progression"><div class="sx-progression-remplie" id="seance-progression-remplie"></div></div>
+            <span class="sx-compteur donnee-num" id="seance-compteur">0 / 0 séries</span>
+          </div>
         </div>
-        <div class="carte" id="seance-zone-cdr"></div>
+        <div id="seance-zone-cdr"></div>
       </div>
       <div id="seance-liste-exercices"></div>
     </div>

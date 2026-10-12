@@ -2920,3 +2920,271 @@ main::after {
   border-color: transparent;
   color: #0B1114;
 }
+
+/* ============================================================
+   SÉANCE ACTIVE : refonte
+   ============================================================ */
+.seance-sticky-haut {
+  top: 0;
+  top: calc(env(safe-area-inset-top) + 6px);
+  padding-top: 0;
+  margin-bottom: 10px;
+}
+
+/* ---- En-tête en verre ---- */
+.sx-entete {
+  position: relative;
+  padding: 10px 12px;
+  border: 1px solid var(--couleur-bordure);
+  border-radius: 22px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+}
+.sx-entete::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  border-radius: 21px;
+  background: var(--couleur-carte-creux);
+  opacity: 0.94;
+  z-index: -1;
+}
+@supports ((-webkit-backdrop-filter: blur(1px)) or (backdrop-filter: blur(1px))) {
+  .sx-entete {
+    -webkit-backdrop-filter: blur(18px) saturate(160%);
+    backdrop-filter: blur(18px) saturate(160%);
+  }
+  .sx-entete::before { opacity: 0.72; }
+}
+.sx-entete-haut { display: flex; align-items: center; }
+.sx-entete-centre { flex: 1; min-width: 0; text-align: center; padding: 0 8px; }
+.sx-nom {
+  font-size: 12px;
+  color: var(--couleur-texte-att);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.sx-chrono { font-size: 30px; font-weight: 800; line-height: 1.15; }
+
+.sx-btn-rond {
+  width: 40px; height: 40px; min-width: 40px;
+  display: flex; align-items: center; justify-content: center;
+  border: 1px solid var(--couleur-bordure);
+  border-radius: 14px;
+  background: var(--couleur-carte-creux);
+  color: var(--couleur-texte-att);
+  font-size: 22px;
+  line-height: 1;
+  transition: transform 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+.sx-btn-rond:active { transform: scale(0.9); color: var(--couleur-alerte); border-color: var(--couleur-alerte); }
+.sx-btn-fin {
+  height: 40px;
+  padding: 0 18px;
+  border-radius: 14px;
+  background: var(--couleur-degrade);
+  color: #0B1114;
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+.sx-btn-fin:active { transform: scale(0.94); opacity: 0.85; }
+
+.sx-ligne-progression { display: flex; align-items: center; margin-top: 10px; }
+.sx-progression { flex: 1; height: 6px; border-radius: 3px; background: var(--couleur-carte); overflow: hidden; }
+.sx-progression-remplie {
+  height: 100%; width: 0;
+  border-radius: 3px;
+  background: var(--couleur-degrade);
+  transition: width 0.4s ease;
+}
+.sx-compteur { margin-left: 10px; font-size: 11px; color: var(--couleur-texte-att); white-space: nowrap; }
+
+/* ---- Cartes d'exercice ---- */
+.sx-exo {
+  background: var(--couleur-carte);
+  border: 1px solid var(--couleur-bordure);
+  border-radius: 20px;
+  box-shadow: var(--ombre);
+  margin-bottom: 10px;
+  overflow: hidden;
+}
+.sx-exo-actif {
+  border-color: var(--couleur-turquoise);
+  box-shadow: 0 0 22px -8px var(--couleur-turquoise);
+}
+.sx-exo-tete {
+  display: flex;
+  align-items: center;
+  padding: 12px 14px;
+  cursor: pointer;
+  -webkit-user-select: none; user-select: none;
+  -webkit-touch-callout: none;
+}
+.sx-exo-pastille {
+  width: 32px; height: 32px; min-width: 32px;
+  margin-right: 12px;
+  border-radius: 50%;
+  border: 2px solid var(--couleur-bordure);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--couleur-texte-att);
+}
+.sx-exo-actif .sx-exo-pastille { background: var(--couleur-degrade); border-color: transparent; color: #0B1114; }
+.sx-exo-termine .sx-exo-pastille { background: var(--couleur-succes); border-color: transparent; color: #0B1114; }
+.sx-exo-titres { flex: 1; min-width: 0; }
+.sx-exo-nom {
+  display: block;
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.sx-exo-termine .sx-exo-nom { color: var(--couleur-texte-att); }
+.sx-exo-record { color: var(--couleur-succes); }
+.sx-exo-meta {
+  display: block;
+  margin-top: 3px;
+  font-size: 12px;
+  color: var(--couleur-texte-att);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.sx-exo-blocs { display: flex; flex-wrap: nowrap; margin: 0 10px; }
+.sx-exo-blocs .bloc-charge { width: 10px; height: 10px; margin: 0 3px 0 0; border-width: 2px; }
+.sx-exo-chevron { width: 16px; text-align: center; font-size: 16px; color: var(--couleur-texte-att); }
+.sx-exo-corps { padding: 12px 12px 14px 12px; border-top: 1px solid var(--couleur-bordure); }
+.sx-derniere { font-size: 12px; color: var(--couleur-texte-att); margin-bottom: 6px; }
+.sx-exo-corps .note-serie-zone { padding: 6px 0 8px 0; }
+
+/* ---- Série en cours (grand format) ---- */
+.sx-hero {
+  margin: 8px 0 10px 0;
+  padding: 14px 12px 12px 12px;
+  border-radius: 20px;
+  border: 1px solid var(--couleur-turquoise);
+  background: var(--couleur-carte-creux);
+  box-shadow: 0 0 24px -10px var(--couleur-turquoise);
+}
+.sx-hero-echauf { border-color: var(--couleur-avertissement); box-shadow: 0 0 24px -10px var(--couleur-avertissement); }
+.sx-hero-tete { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+.sx-hero-label {
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--couleur-turquoise);
+}
+.sx-hero-echauf .sx-hero-label { color: var(--couleur-avertissement); }
+.sx-hero-outils { display: flex; align-items: center; }
+.sx-hero-outils .bouton-note { margin-right: 6px; }
+.sx-hero-champs { display: flex; }
+.sx-hero-champ { flex: 1 1 0; min-width: 0; text-align: center; }
+.sx-hero-champ + .sx-hero-champ { margin-left: 10px; }
+.sx-hero-valeur {
+  padding: 8px 4px 8px 4px;
+  border-radius: 16px;
+  background: var(--couleur-carte);
+  border: 1px solid var(--couleur-bordure);
+}
+.sx-hero-valeur input {
+  display: block;
+  width: 100%;
+  padding: 0; margin: 0;
+  border: 0;
+  outline: none;
+  background: transparent;
+  color: var(--couleur-turquoise);
+  font-family: var(--police-donnees);
+  font-size: 46px;
+  font-weight: 800;
+  line-height: 1.1;
+  text-align: center;
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+.sx-hero-echauf .sx-hero-valeur input { color: var(--couleur-avertissement); }
+.sx-hero-valeur input::-webkit-inner-spin-button,
+.sx-hero-valeur input::-webkit-outer-spin-button { margin: 0; -webkit-appearance: none; }
+.sx-hero-unite {
+  display: block;
+  padding-top: 2px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--couleur-texte-att);
+}
+.sx-hero-pas { display: flex; margin-top: 8px; }
+.sx-pas {
+  flex: 1 1 0;
+  height: 44px;
+  border-radius: 14px;
+  border: 1px solid var(--couleur-bordure);
+  background: var(--couleur-carte);
+  color: var(--couleur-texte);
+  font-size: 24px;
+  font-weight: 700;
+  line-height: 1;
+  transition: transform 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+.sx-pas + .sx-pas { margin-left: 8px; }
+.sx-pas:active { transform: scale(0.92); border-color: var(--couleur-turquoise); color: var(--couleur-turquoise); }
+
+.sx-valider {
+  display: block;
+  width: 100%;
+  margin-top: 12px;
+  padding: 16px;
+  border-radius: 16px;
+  background: var(--couleur-degrade);
+  color: #0B1114;
+  font-size: 16px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  box-shadow: 0 8px 20px -8px var(--couleur-turquoise);
+  transition: transform 0.15s ease, opacity 0.15s ease;
+}
+.sx-valider:active { transform: scale(0.97); opacity: 0.9; }
+.sx-hero-echauf .sx-valider { background: var(--couleur-avertissement); box-shadow: none; }
+
+/* ---- Autres séries (lignes compactes) ---- */
+.sx-serie {
+  display: flex;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--couleur-bordure);
+}
+.sx-serie-num { width: 26px; font-size: 12px; font-weight: 800; color: var(--couleur-texte-att); }
+.sx-serie-faite .sx-serie-num { color: var(--couleur-succes); }
+.sx-serie-faite .serie-champ input { color: var(--couleur-texte-att); }
+.sx-serie-echauf { padding-left: 6px; border-radius: 10px; background: rgba(224, 167, 61, 0.07); }
+.sx-serie-echauf .sx-serie-num { color: var(--couleur-avertissement); }
+
+/* ---- Fin de séance ---- */
+.sx-fin {
+  padding: 18px 14px;
+  margin-bottom: 10px;
+  text-align: center;
+  border: 1px dashed var(--couleur-succes);
+  border-radius: 20px;
+}
+.sx-fin-titre { font-size: 16px; font-weight: 800; }
+
+/* ---- Apparition d'une série ajoutée ---- */
+@keyframes sxApparition {
+  from { opacity: 0; transform: translateY(8px) scale(0.98); }
+  to   { opacity: 1; transform: none; }
+}
+.sx-nouvelle { animation: sxApparition 0.35s cubic-bezier(0.22, 1, 0.36, 1); }
+
+@media (max-width: 360px) {
+  .sx-hero-valeur input { font-size: 38px; }
+}
