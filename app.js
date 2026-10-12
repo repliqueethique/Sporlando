@@ -2715,13 +2715,13 @@ var PAS_REPS_STEPPER = 1;
 
 function htmlStepper(e, s, champ, valeur, unite, pas) {
   var role = (champ === 'poids') ? 'live-poids' : 'live-reps';
+  var attrs = ' data-action="ajuster-serie" data-ex="' + e + '" data-serie="' + s + '" data-champ="' + champ + '"';
   var h = '<div class="sx-hero-champ">';
+  h += '<button class="sx-pas"' + attrs + ' data-delta="' + (-pas) + '">&minus;</button>';
   h += '<div class="sx-hero-valeur"><input type="number" step="' + (champ === 'poids' ? '0.5' : '1') + '" inputmode="' + (champ === 'poids' ? 'decimal' : 'numeric') + '" data-role="' + role + '" data-ex="' + e + '" data-serie="' + s + '" value="' + valeur + '">';
   h += '<span class="sx-hero-unite">' + unite + '</span></div>';
-  h += '<div class="sx-hero-pas">';
-  h += '<button class="sx-pas" data-action="ajuster-serie" data-ex="' + e + '" data-serie="' + s + '" data-champ="' + champ + '" data-delta="' + (-pas) + '">&minus;</button>';
-  h += '<button class="sx-pas" data-action="ajuster-serie" data-ex="' + e + '" data-serie="' + s + '" data-champ="' + champ + '" data-delta="' + pas + '">+</button>';
-  h += '</div></div>';
+  h += '<button class="sx-pas"' + attrs + ' data-delta="' + pas + '">+</button>';
+  h += '</div>';
   return h;
 }
 

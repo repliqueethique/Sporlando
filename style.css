@@ -3188,3 +3188,35 @@ main::after {
 @media (max-width: 360px) {
   .sx-hero-valeur input { font-size: 38px; }
 }
+
+/* ---- Série en cours : chiffres XXL, kg et reps empilés ---- */
+.sx-hero-champs { display: block; }
+.sx-hero-champ {
+  display: flex;
+  align-items: center;
+  margin: 0 0 8px 0;
+}
+.sx-hero-champ + .sx-hero-champ { margin-left: 0; }
+.sx-hero-valeur {
+  flex: 1;
+  min-width: 0;
+  margin: 0 8px;
+  padding: 6px 4px 6px 4px;
+}
+.sx-hero-valeur input {
+  font-size: 68px;
+  line-height: 1;
+}
+.sx-hero-unite {
+  font-size: 13px;
+  padding-top: 4px;
+}
+.sx-pas {
+  flex: 0 0 56px;
+  width: 56px;
+  height: 56px;
+  font-size: 30px;
+}
+@media (max-width: 360px) {
+  .sx-hero-valeur input { font-size: 54px; }
+}
