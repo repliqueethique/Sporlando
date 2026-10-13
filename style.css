@@ -1,3 +1,9 @@
+@font-face {
+  font-family: 'Metrim';
+  src: url('fonts/metrim.woff2') format('woff2');
+  font-display: swap;
+}
+
 /* ============================================================
    BLOC 1 : VARIABLES & RESET (theme sombre anthracite)
    ============================================================ */
@@ -58,7 +64,7 @@
   --couleur-turquoise: #FF7A1A; --couleur-cyan: #7B2FF7;
   --couleur-degrade: linear-gradient(135deg, #FF7A1A 0%, #7B2FF7 100%);
   --degrade-seance: linear-gradient(135deg, #FF7A1A, #7B2FF7, #0D0710);
-  --police-titre: 'Creepster', cursive;
+  --police-titre: 'Metrim', 'Creepster', cursive;
   --couleur-nutrition: #7B2FF7;
   --couleur-nutrition-fond: #1D0F2E;
   --couleur-nutrition-fond-actif: #2E1650;
