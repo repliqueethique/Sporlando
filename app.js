@@ -3191,7 +3191,42 @@ function couleurCompteARebours(fractionRestante) {
   return interpolerCouleur(COULEUR_CDR_FIN, COULEUR_CDR_MILIEU, t2);
 }
 
-/* Sons chargés depuis des fichiers (ex. sonneries Audition) */
+/* ============================================================
+   SONNERIES PAR THÈME : une ligne par thème.
+   Mets les noms de fichiers SANS ".mp3" (dossier sons/).
+   Plusieurs noms = tirage au hasard. Liste vide [] = sonnerie générée par défaut.
+   ============================================================ */
+var SONS_PAR_THEME = {
+  sombre:     [],
+  clair:      [],
+  automnal:   [],
+  effroi:     ['effroi1', 'effroi2', 'effroi3'],
+  hivernal:   [],
+  paindepice: [],
+  printanier: [],
+  pastel:     [],
+  estival:    [],
+  cyberpunk:  [],
+  steampunk:  [],
+  flibuste:   [],
+  ruedor:     []
+};
+
+var dernierSonParTheme = {};
+
+/* Tire un son au hasard pour ce thème, jamais deux fois le même d'affilée */
+function choisirSon(theme) {
+  var liste = SONS_PAR_THEME[theme];
+  if (!liste || liste.length === 0) { return null; }
+  if (liste.length === 1) { return liste[0]; }
+  var index;
+  do {
+    index = Math.floor(Math.random() * liste.length);
+  } while (index === dernierSonParTheme[theme]);
+  dernierSonParTheme[theme] = index;
+  return liste[index];
+}
+
 var tamponsSons = {};
 
 function chargerSonFichier(ctx, cle, url) {
@@ -3220,7 +3255,12 @@ function obtenirContexteAudio() {
   if (!ConstructeurAudio) { return null; }
   try {
     contexteAudio = new ConstructeurAudio();
-    chargerSonFichier(contexteAudio, 'effroi', 'sons/effroi.mp3');
+    for (var theme in SONS_PAR_THEME) {
+      for (var s = 0; s < SONS_PAR_THEME[theme].length; s++) {
+        var nomSon = SONS_PAR_THEME[theme][s];
+        chargerSonFichier(contexteAudio, nomSon, 'sons/' + nomSon + '.mp3');
+      }
+    }
   } catch (erreur) {
     contexteAudio = null;
   }
@@ -3320,8 +3360,9 @@ var SONNERIES = [
     }
   } },
 
-  { valeur: 'effroi', libelle: '🎃 Effroi — orgue, foudre et rire', jouer: function (ctx, t) {
-    jouerTampon(ctx, t, 'effroi');
+  { valeur: 'effroi', libelle: '🎃 Effroi', jouer: function (ctx, t) {
+    sonNote(ctx, t, 110, 0.35, 'sine', 0.5);
+    sonNote(ctx, t + 0.25, 146.8, 0.6, 'sine', 0.5);
   } },
 
   { valeur: 'hivernal', libelle: '❄️ Hivernal — clochettes de givre', jouer: function (ctx, t) {
@@ -3408,6 +3449,8 @@ function jouerSonnerieParId(valeur) {
   var ctx = obtenirContexteAudio();
   if (!ctx) { return; }
   if (ctx.state === 'suspended' && ctx.resume) { ctx.resume(); } // iOS suspend parfois le contexte
+  var cleSon = choisirSon(valeur);
+  if (cleSon && tamponsSons[cleSon]) { jouerTampon(ctx, ctx.currentTime + 0.02, cleSon); return; }
   trouverSonnerie(valeur).jouer(ctx, ctx.currentTime + 0.02);
 }
 
