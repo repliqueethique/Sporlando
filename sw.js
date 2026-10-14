@@ -11,14 +11,14 @@ const urlsToCache = [
   './fonts/metrim.woff2',
 
   /* Sons */
-  './sons/effroi1.mp3'
-  './sons/effroi2.mp3'
-  './sons/effroi3.mp3'
-  './sons/effroi4.mp3'
-  './sons/effroi5.mp3'
-  './sons/effroi6.mp3'
-  './sons/effroi7.mp3'
-  './sons/effroi8.mp3'
+  './sons/effroi1.mp3',
+  './sons/effroi2.mp3',
+  './sons/effroi3.mp3',
+  './sons/effroi4.mp3',
+  './sons/effroi5.mp3',
+  './sons/effroi6.mp3',
+  './sons/effroi7.mp3',
+  './sons/effroi8.mp3',
 ];
 self.addEventListener('install', (event) => {
   event.waitUntil(
