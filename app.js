@@ -3206,7 +3206,7 @@ var SONS_PAR_THEME = {
   printanier: [],
   pastel:     [],
   estival:    [],
-  cyberpunk:  ['cyberpunk1', 'cyberpunk2'],
+  cyberpunk:  ['cyberpunk1', 'cyberpunk2', 'cyberpunk3', 'cyberpunk4', 'cyberpunk5', 'cyberpunk6', 'cyberpunk7', 'cyberpunk8', 'cyberpunk9', 'cyberpunk10'],
   steampunk:  [],
   flibuste:   [],
   ruedor:     ['western1', 'western2', "western3"]
