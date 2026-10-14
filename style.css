@@ -3330,3 +3330,41 @@ main::after {
   :root[data-theme="effroi"] .modal-entete h2,
   :root[data-theme="cyberpunk"] .titre-affichage { animation: none; }
 }
+
+/* ============================================================
+   THÈME WASTELAND (rouille, sable, nitro)
+   ============================================================ */
+:root[data-theme="wasteland"] {
+  --couleur-fond: #17100B; --couleur-carte: #231710; --couleur-carte-creux: #120B07; --couleur-bordure: #4A2E1C;
+  --couleur-turquoise: #FF6A1F; --couleur-cyan: #F5C518;
+  --couleur-degrade: linear-gradient(135deg, #FF6A1F 0%, #F5C518 100%);
+  --degrade-seance: linear-gradient(135deg, #FF6A1F, #F5C518, #8A2A0E);
+  --police-titre: 'Black Ops One', cursive;
+  --couleur-nutrition: #9BE000;
+  --couleur-nutrition-fond: #1B2008;
+  --couleur-nutrition-fond-actif: #2B3510;
+  --couleur-nutrition-clair: #C6F55C;
+  --couleur-texte: #F0DFC4; --couleur-texte-att: #A8927A;
+  --couleur-texte-titre: #FFB347;
+  --effet-texte: 0 2px 0 #3A1A08, 0 0 10px rgba(255,106,31,.55);
+  --effet-halo: drop-shadow(0 0 5px rgba(255,106,31,.75));
+}
+
+/* Police à une seule graisse : pas de faux gras */
+:root[data-theme="wasteland"] .titre-affichage,
+:root[data-theme="wasteland"] .modal-entete h2 { font-weight: 400; }
+
+/* Chaleur : la lueur des titres vacille comme une flamme */
+@keyframes chaleurWasteland {
+  0%, 100% { text-shadow: 0 2px 0 #3A1A08, 0 0 8px rgba(255,106,31,.5), 0 -4px 14px rgba(245,197,24,.25); }
+  35%      { text-shadow: 0 2px 0 #3A1A08, 0 0 12px rgba(255,106,31,.8), 0 -7px 20px rgba(245,197,24,.4); }
+  60%      { text-shadow: 0 2px 0 #3A1A08, 0 0 9px rgba(255,106,31,.6), 0 -5px 16px rgba(245,197,24,.3); }
+}
+:root[data-theme="wasteland"] .titre-affichage:not(.texte-degrade),
+:root[data-theme="wasteland"] .modal-entete h2 {
+  animation: chaleurWasteland 2.5s ease-in-out infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  :root[data-theme="wasteland"] .titre-affichage,
+  :root[data-theme="wasteland"] .modal-entete h2 { animation: none; }
+}

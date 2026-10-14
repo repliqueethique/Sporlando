@@ -2288,7 +2288,8 @@ var PARTICULES_PAR_THEME = {
   cyberpunk: ['⚡', '💠', '🔷'],
   steampunk: ['⚙', '🕰', '🔧'],
   flibuste: ['⚓', '🦜', '💰', '🗝️', '☠️', '🦑', '🧭'],
-  ruedor: ['🤠', '🌵', '⭐', '🐎', '🐂', '🥾', '🌾']
+  ruedor: ['🤠', '🌵', '⭐', '🐎', '🐂', '🥾', '🌾'],
+  wasteland: ['⚠️', '💥', '⚙', '💀', '🛢️', '⛔', '🪓', '🎸', '☢️']
 };
 
 function genererParticules(nombre) {
@@ -3210,6 +3211,7 @@ var SONS_PAR_THEME = {
   steampunk:  [],
   flibuste:   [],
   ruedor:     ['western1', 'western2', "western3"]
+  wasteland:  []
 };
 
 var dernierSonParTheme = {};
@@ -3435,6 +3437,15 @@ var SONNERIES = [
       sonNote(ctx, t + i * 0.22, notes[i], 0.9, 'sawtooth', 0.28, { filtre: 3000, filtreFin: 400, fin: notes[i] * 0.985 });
     }
     sonCloche(ctx, t + 0.7, 3200, 0.3, 0.1, [1, 1.3, 1.7]);
+  } }
+  { valeur: 'wasteland', libelle: '🔥 Wasteland — moteur et explosion', jouer: function (ctx, t) {
+    /* Moteur qui monte dans les tours */
+    sonNote(ctx, t, 70, 0.9, 'sawtooth', 0.25, { fin: 260, filtre: 700, filtreFin: 2200, attaque: 0.05 });
+    sonNote(ctx, t, 72, 0.9, 'square', 0.12, { fin: 262, filtre: 600, detune: 20 });
+    /* Coup d'accélérateur, puis explosion */
+    sonNote(ctx, t + 0.9, 260, 0.25, 'sawtooth', 0.2, { fin: 120, filtre: 1500 });
+    sonBruit(ctx, t + 1.0, 0.9, 0.5, 300, 'lowpass');
+    sonNote(ctx, t + 1.0, 80, 0.7, 'sine', 0.5, { fin: 30 });
   } }
 ];
 
@@ -4500,10 +4511,11 @@ var THEMES_PERSONNALISATION = [
   { valeur: 'printanier', libelle: '🌸 Printanier',   fond: '#10160F', a: '#8FD694', b: '#F2A6C7' },
   { valeur: 'pastel',     libelle: '🦄 Pastel',       fond: '#17141C', a: '#B8A3E0', b: '#F7C6D9' },
   { valeur: 'estival',    libelle: '☀️ Estival',      fond: '#0E1A1D', a: '#2FE0C6', b: '#FFC857' },
-  { valeur: 'cyberpunk',  libelle: '☢️ Cyberpunk',    fond: '#0A0612', a: '#00F0FF', b: '#FF2BD6' },
+  { valeur: 'cyberpunk',  libelle: '🦾 Cyberpunk',    fond: '#0A0612', a: '#00F0FF', b: '#FF2BD6' },
   { valeur: 'steampunk',  libelle: '⚙️ Steampunk',    fond: '#14100A', a: '#C68A3D', b: '#6E7B7C' },
   { valeur: 'flibuste',   libelle: '🏴‍☠️ Flibuste',    fond: '#0B1620', a: '#E0AE45', b: '#2A9D8F' },
-  { valeur: 'ruedor',     libelle: '🤠 Western',      fond: '#1B130E', a: '#F2C14E', b: '#C4582F' }
+  { valeur: 'ruedor',     libelle: '🤠 Western',      fond: '#1B130E', a: '#F2C14E', b: '#C4582F' },
+  { valeur: 'wasteland',  libelle: '☢️ Wasteland', fond: '#17100B', a: '#FF6A1F', b: '#F5C518' },
 ];
 
 var SONNERIES_PERSONNALISATION = [
