@@ -1,6 +1,25 @@
-const CACHE_NAME = 'carnet-v3';
-const urlsToCache = ['./', './index.html', './style.css', './app.js', './nav.js', './manifest.json', './sons/effroi.mp3', './fonts/metrim.woff2'];
+const CACHE_NAME = 'carnet-v6';
+const urlsToCache = [
+  './',
+  './index.html',
+  './style.css',
+  './app.js',
+  './nav.js',
+  './manifest.json',
 
+  /* Polices */
+  './fonts/metrim.woff2',
+
+  /* Sons */
+  './sons/effroi1.mp3'
+  './sons/effroi2.mp3'
+  './sons/effroi3.mp3'
+  './sons/effroi4.mp3'
+  './sons/effroi5.mp3'
+  './sons/effroi6.mp3'
+  './sons/effroi7.mp3'
+  './sons/effroi8.mp3'
+];
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => cache.addAll(urlsToCache))
