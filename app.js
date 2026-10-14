@@ -3200,7 +3200,7 @@ var SONS_PAR_THEME = {
   sombre:     [],
   clair:      [],
   automnal:   [],
-  effroi:     ['effroi1', 'effroi2', 'effroi3'],
+  effroi:     ['effroi1', 'effroi2', 'effroi3', 'effroi4', 'effroi5', 'effroi6', 'effroi7', 'effroi8'],
   hivernal:   [],
   paindepice: [],
   printanier: [],
