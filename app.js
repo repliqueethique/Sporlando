@@ -3206,10 +3206,10 @@ var SONS_PAR_THEME = {
   printanier: [],
   pastel:     [],
   estival:    [],
-  cyberpunk:  [],
+  cyberpunk:  ['cyberpunk1', 'cyberpunk2'],
   steampunk:  [],
   flibuste:   [],
-  ruedor:     []
+  ruedor:     ['western1', 'western2', "western3"]
 };
 
 var dernierSonParTheme = {};

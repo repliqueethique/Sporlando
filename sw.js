@@ -19,6 +19,11 @@ const urlsToCache = [
   './sons/effroi6.mp3',
   './sons/effroi7.mp3',
   './sons/effroi8.mp3',
+  './sons/cyberpunk1.mp3',
+  './sons/cyberpunk2.mp3',
+  './sons/western1.mp3',
+  './sons/western2.mp3',
+  './sons/western3.mp3',
 ];
 self.addEventListener('install', (event) => {
   event.waitUntil(
