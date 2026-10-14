@@ -29,9 +29,22 @@ const urlsToCache = [
   './sons/cyberpunk8.mp3',
   './sons/cyberpunk9.mp3',
   './sons/cyberpunk10.mp3',
+  './sons/pirate1.mp3',
+  './sons/pirate2.mp3',
+  './sons/pirate3.mp3',
   './sons/western1.mp3',
   './sons/western2.mp3',
   './sons/western3.mp3',
+  './sons/wasteland1.mp3',
+  './sons/wasteland2.mp3',
+  './sons/wasteland3.mp3',
+  './sons/wasteland4.mp3',
+  './sons/wasteland5.mp3',
+  './sons/wasteland6.mp3',
+  './sons/wasteland7.mp3',
+  './sons/wasteland8.mp3',
+  './sons/wasteland9.mp3',
+  './sons/wasteland10.mp3',
 ];
 self.addEventListener('install', (event) => {
   event.waitUntil(

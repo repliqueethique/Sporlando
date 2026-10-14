@@ -3209,9 +3209,9 @@ var SONS_PAR_THEME = {
   estival:    [],
   cyberpunk:  ['cyberpunk1', 'cyberpunk2', 'cyberpunk3', 'cyberpunk4', 'cyberpunk5', 'cyberpunk6', 'cyberpunk7', 'cyberpunk8', 'cyberpunk9', 'cyberpunk10'],
   steampunk:  [],
-  flibuste:   [],
+  flibuste:   ['pirate1', 'pirate2', 'pirate3'],
   ruedor:     ['western1', 'western2', "western3"],
-  wasteland:  []
+  wasteland:  ['wasteland1', 'wasteland2', 'wasteland3', 'wasteland4', 'wasteland5', 'wasteland6', 'wasteland7', 'wasteland8', 'wasteland9', 'wasteland10']
 };
 
 var dernierSonParTheme = {};
