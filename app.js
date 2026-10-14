@@ -3191,12 +3191,36 @@ function couleurCompteARebours(fractionRestante) {
   return interpolerCouleur(COULEUR_CDR_FIN, COULEUR_CDR_MILIEU, t2);
 }
 
+/* Sons chargés depuis des fichiers (ex. sonneries Audition) */
+var tamponsSons = {};
+
+function chargerSonFichier(ctx, cle, url) {
+  var xhr = new XMLHttpRequest();
+  xhr.open('GET', url, true);
+  xhr.responseType = 'arraybuffer';
+  xhr.onload = function () {
+    if (xhr.status !== 200 && xhr.status !== 0) { return; }
+    ctx.decodeAudioData(xhr.response, function (tampon) { tamponsSons[cle] = tampon; }, function () {});
+  };
+  xhr.send();
+}
+
+function jouerTampon(ctx, t, cle) {
+  var tampon = tamponsSons[cle];
+  if (!tampon) { jouerBip(ctx, t, 880, 0.3); return; } /* secours si pas encore chargé */
+  var source = ctx.createBufferSource();
+  source.buffer = tampon;
+  source.connect(ctx.destination);
+  source.start(t);
+}
+
 function obtenirContexteAudio() {
   if (contexteAudio) { return contexteAudio; }
   var ConstructeurAudio = window.AudioContext || window.webkitAudioContext;
   if (!ConstructeurAudio) { return null; }
   try {
     contexteAudio = new ConstructeurAudio();
+    chargerSonFichier(contexteAudio, 'effroi', 'sons/effroi.mp3');
   } catch (erreur) {
     contexteAudio = null;
   }
@@ -3296,37 +3320,8 @@ var SONNERIES = [
     }
   } },
 
-  { valeur: 'effroi', libelle: '🎃 Effroi — orgue, foudre et rire démoniaque', jouer: function (ctx, t) {
-    /* Accord d'orgue : chaque note = 3 oscillateurs (fondamentale, octave carrée, octave +2) */
-    function orgue(t0, notes, duree) {
-      for (var i = 0; i < notes.length; i++) {
-        sonNote(ctx, t0, notes[i], duree, 'sawtooth', 0.09, { attaque: 0.05, filtre: 1400, filtreFin: 500 });
-        sonNote(ctx, t0, notes[i] * 2, duree, 'square', 0.04, { attaque: 0.05, filtre: 1800 });
-        sonNote(ctx, t0, notes[i] * 4, duree, 'sine', 0.03, { attaque: 0.05 });
-      }
-    }
-    /* 2 accords dissonants (triton + seconde mineure) */
-    orgue(t, [65.4, 130.8, 185, 196], 1.0);
-    orgue(t + 0.9, [61.7, 123.5, 174.6, 185], 1.3);
-
-    /* Foudre : craquement aigu + grondement grave + choc sourd */
-    sonBruit(ctx, t + 2.0, 0.15, 0.6, 3000, 'highpass');
-    sonBruit(ctx, t + 2.05, 1.6, 0.5, 250, 'lowpass');
-    sonNote(ctx, t + 2.0, 90, 0.6, 'sine', 0.5, { fin: 35 });
-
-    /* Rire démoniaque : "Mwaaa-ha-ha-ha-haaa", voix grave descendante */
-    var rire = [
-      { d: 0,    l: 0.35, f: 150, e: 105 },
-      { d: 0.42, l: 0.12, f: 135, e: 110 },
-      { d: 0.60, l: 0.12, f: 128, e: 100 },
-      { d: 0.78, l: 0.12, f: 120, e: 95 },
-      { d: 0.96, l: 0.20, f: 110, e: 80 }
-    ];
-    for (var r = 0; r < rire.length; r++) {
-      var debut = t + 2.7 + rire[r].d;
-      sonNote(ctx, debut, rire[r].f, rire[r].l, 'sawtooth', 0.22, { fin: rire[r].e, filtre: 1100, filtreFin: 400, attaque: 0.02 });
-      sonNote(ctx, debut, rire[r].f, rire[r].l, 'square', 0.10, { fin: rire[r].e, filtre: 900, attaque: 0.02, detune: 35 });
-    }
+  { valeur: 'effroi', libelle: '🎃 Effroi — orgue, foudre et rire', jouer: function (ctx, t) {
+    jouerTampon(ctx, t, 'effroi');
   } },
 
   { valeur: 'hivernal', libelle: '❄️ Hivernal — clochettes de givre', jouer: function (ctx, t) {
