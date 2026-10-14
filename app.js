@@ -3210,7 +3210,7 @@ var SONS_PAR_THEME = {
   cyberpunk:  ['cyberpunk1', 'cyberpunk2', 'cyberpunk3', 'cyberpunk4', 'cyberpunk5', 'cyberpunk6', 'cyberpunk7', 'cyberpunk8', 'cyberpunk9', 'cyberpunk10'],
   steampunk:  [],
   flibuste:   [],
-  ruedor:     ['western1', 'western2', "western3"]
+  ruedor:     ['western1', 'western2', "western3"],
   wasteland:  []
 };
 
@@ -3437,7 +3437,7 @@ var SONNERIES = [
       sonNote(ctx, t + i * 0.22, notes[i], 0.9, 'sawtooth', 0.28, { filtre: 3000, filtreFin: 400, fin: notes[i] * 0.985 });
     }
     sonCloche(ctx, t + 0.7, 3200, 0.3, 0.1, [1, 1.3, 1.7]);
-  } }
+  } },
   { valeur: 'wasteland', libelle: '🔥 Wasteland — moteur et explosion', jouer: function (ctx, t) {
     /* Moteur qui monte dans les tours */
     sonNote(ctx, t, 70, 0.9, 'sawtooth', 0.25, { fin: 260, filtre: 700, filtreFin: 2200, attaque: 0.05 });
