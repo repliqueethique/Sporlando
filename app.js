@@ -6148,7 +6148,7 @@ function appliquerTheme() {
    ============================================================ */
 var INDEX_PAGES_FOND = { accueil: 0, seance: 1, nutrition: 2, bibliotheque: 3, historique: 4 };
 var DECALAGE_PAGE_PX = 24;       /* décalage horizontal par onglet */
-var VITESSE_SCROLL_FOND = 0.25;  /* 0 = fond immobile, 1 = suit le contenu */
+var VITESSE_SCROLL_FOND = 0.5;  /* 0 = fond immobile, 1 = suit le contenu */
 var PERIODE_MOTIF_PX = 240;      /* ne pas changer */
 var fondExt = null;
 var fondMotif = null;
