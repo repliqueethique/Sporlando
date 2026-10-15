@@ -580,6 +580,7 @@ function allerVersPage(nomPage) {
   if (ongletCible) { ongletCible.classList.add('nav-onglet-actif'); }
 
   if (window.NavBas) { window.NavBas.maj(nomPage, anciennePage); }
+  majFondParallaxe(nomPage);
 
   if (nomPage === 'accueil') {
     rendreBanniereObjectif();
@@ -6142,6 +6143,56 @@ function appliquerTheme() {
   document.documentElement.setAttribute('data-theme', themeEffectif);
 }
 
+/* ============================================================
+   PARALLAXE DU FOND
+   ============================================================ */
+var INDEX_PAGES_FOND = { accueil: 0, seance: 1, nutrition: 2, bibliotheque: 3, historique: 4 };
+var DECALAGE_PAGE_PX = 24;       /* décalage horizontal par onglet */
+var VITESSE_SCROLL_FOND = 0.25;  /* 0 = fond immobile, 1 = suit le contenu */
+var PERIODE_MOTIF_PX = 240;      /* ne pas changer */
+var fondExt = null;
+var fondMotif = null;
+var fondScrollEnAttente = false;
+
+function appliquerTransformFond(element, x, y) {
+  var valeur = 'translate3d(' + x + 'px,' + y + 'px,0)';
+  element.style.webkitTransform = valeur;
+  element.style.transform = valeur;
+}
+
+function majFondScroll() {
+  if (!fondMotif) { return; }
+  var y = -((window.pageYOffset * VITESSE_SCROLL_FOND) % PERIODE_MOTIF_PX);
+  appliquerTransformFond(fondMotif, 0, y);
+}
+
+/* Appelé à chaque changement d'onglet */
+function majFondParallaxe(nomPage) {
+  if (!fondExt || INDEX_PAGES_FOND[nomPage] === undefined) { return; }
+  appliquerTransformFond(fondExt, -INDEX_PAGES_FOND[nomPage] * DECALAGE_PAGE_PX, 0);
+  majFondScroll();
+}
+
+function creerFondParallaxe() {
+  if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    VITESSE_SCROLL_FOND = 0;
+  }
+  fondExt = document.createElement('div');
+  fondExt.className = 'fond-theme';
+  fondMotif = document.createElement('div');
+  fondMotif.className = 'fond-motif';
+  fondExt.appendChild(fondMotif);
+  document.body.insertBefore(fondExt, document.body.firstChild);
+  window.addEventListener('scroll', function () {
+    if (fondScrollEnAttente) { return; }
+    fondScrollEnAttente = true;
+    window.requestAnimationFrame(function () {
+      fondScrollEnAttente = false;
+      majFondScroll();
+    });
+  }, false);
+}
+
 /* BLOC 18 : INITIALISATION */
 
 function mettreAJourDateEntete() {
@@ -6153,6 +6204,7 @@ function mettreAJourDateEntete() {
 
 appliquerTheme();
 mettreAJourDateEntete();
+creerFondParallaxe();
 allerVersPage('accueil');
 
 if (syncEstConfiguree()) {

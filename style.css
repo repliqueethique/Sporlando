@@ -3367,3 +3367,89 @@ main::after {
 :root[data-theme="effroi"] .modal-entete h2 {
   animation: respirationEffroi 4s ease-in-out infinite;
 }
+
+/* ============================================================
+   FOND À MOTIF + PARALLAXE
+   ============================================================ */
+body { background: transparent; }
+
+.fond-theme {
+  position: fixed;
+  top: -240px; bottom: -240px; left: -160px; right: -160px;
+  z-index: -1;
+  pointer-events: none;
+  overflow: hidden;
+  -webkit-transition: -webkit-transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+  transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.fond-motif {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+}
+
+/* Effroi : fragments de toile d'araignée */
+:root[data-theme="effroi"] .fond-motif {
+  background-size: 120px 120px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cg fill='none' stroke='%23A0FFBE' stroke-opacity='.10'%3E%3Cpath d='M0 0L120 120M0 0L120 60M0 0L60 120'/%3E%3Cpath d='M30 0A30 30 0 0 1 0 30M60 0A60 60 0 0 1 0 60M90 0A90 90 0 0 1 0 90'/%3E%3C/g%3E%3C/svg%3E");
+}
+/* Hivernal : flocons */
+:root[data-theme="hivernal"] .fond-motif {
+  background-size: 120px 120px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cg fill='%23CFEFFF' fill-opacity='.14'%3E%3Ccircle cx='20' cy='25' r='2'/%3E%3Ccircle cx='80' cy='15' r='1.5'/%3E%3Ccircle cx='55' cy='70' r='2.5'/%3E%3Ccircle cx='105' cy='95' r='1.5'/%3E%3Ccircle cx='15' cy='105' r='1.5'/%3E%3C/g%3E%3Cpath d='M60 20v14M53 27h14M55 22l10 10M65 22l-10 10' stroke='%23CFEFFF' stroke-opacity='.12' fill='none'/%3E%3C/svg%3E");
+}
+/* Cyberpunk : grille néon */
+:root[data-theme="cyberpunk"] .fond-motif {
+  background-size: 48px 48px;
+  background-image:
+    linear-gradient(rgba(0,240,255,.07) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,43,214,.06) 1px, transparent 1px);
+}
+/* Steampunk : rivets */
+:root[data-theme="steampunk"] .fond-motif {
+  background-size: 40px 40px;
+  background-image: radial-gradient(circle, rgba(198,138,61,.14) 2px, transparent 3px);
+}
+/* Wasteland : bandes de danger en diagonale */
+:root[data-theme="wasteland"] .fond-motif {
+  background-size: 40px 40px;
+  background-image: linear-gradient(135deg, rgba(255,106,31,.07) 25%, transparent 25%, transparent 50%, rgba(255,106,31,.07) 50%, rgba(255,106,31,.07) 75%, transparent 75%);
+}
+/* Automnal : feuilles */
+:root[data-theme="automnal"] .fond-motif {
+  background-size: 120px 120px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cg fill='%23E08D3C' fill-opacity='.13'%3E%3Cellipse cx='30' cy='30' rx='7' ry='3.5' transform='rotate(35 30 30)'/%3E%3Cellipse cx='90' cy='55' rx='6' ry='3' transform='rotate(-30 90 55)'/%3E%3Cellipse cx='50' cy='95' rx='7' ry='3.5' transform='rotate(70 50 95)'/%3E%3C/g%3E%3C/svg%3E");
+}
+/* Pain d'épice : étoiles dorées */
+:root[data-theme="paindepice"] .fond-motif {
+  background-size: 120px 120px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cg fill='%23D4AF37' fill-opacity='.14'%3E%3Cpath d='M30 22l2 6 6 2-6 2-2 6-2-6-6-2 6-2z'/%3E%3Cpath d='M90 70l2 6 6 2-6 2-2 6-2-6-6-2 6-2z'/%3E%3Ccircle cx='85' cy='20' r='1.5'/%3E%3Ccircle cx='25' cy='90' r='1.5'/%3E%3C/g%3E%3C/svg%3E");
+}
+/* Printanier : pétales */
+:root[data-theme="printanier"] .fond-motif {
+  background-size: 120px 120px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cg fill='%23F2A6C7' fill-opacity='.14'%3E%3Cellipse cx='30' cy='30' rx='5' ry='2.5' transform='rotate(40 30 30)'/%3E%3Cellipse cx='85' cy='80' rx='5' ry='2.5' transform='rotate(-40 85 80)'/%3E%3C/g%3E%3Cg fill='%238FD694' fill-opacity='.12'%3E%3Ccircle cx='90' cy='25' r='2'/%3E%3Ccircle cx='30' cy='95' r='2'/%3E%3C/g%3E%3C/svg%3E");
+}
+/* Pastel : pois */
+:root[data-theme="pastel"] .fond-motif {
+  background-size: 80px 80px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80'%3E%3Ccircle cx='20' cy='20' r='3' fill='%23B8A3E0' fill-opacity='.14'/%3E%3Ccircle cx='60' cy='60' r='3' fill='%23F7C6D9' fill-opacity='.14'/%3E%3C/svg%3E");
+}
+/* Estival : vagues dorées */
+:root[data-theme="estival"] .fond-motif {
+  background-size: 120px 120px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cg fill='none' stroke='%23FFC857' stroke-opacity='.11' stroke-width='1.5'%3E%3Cpath d='M0 30q15-10 30 0t30 0t30 0t30 0'/%3E%3Cpath d='M0 90q15-10 30 0t30 0t30 0t30 0'/%3E%3C/g%3E%3C/svg%3E");
+}
+/* Flibuste : vagues */
+:root[data-theme="flibuste"] .fond-motif {
+  background-size: 120px 120px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cg fill='none' stroke='%232A9D8F' stroke-opacity='.14' stroke-width='1.5'%3E%3Cpath d='M0 30q15-10 30 0t30 0t30 0t30 0'/%3E%3Cpath d='M0 90q15-10 30 0t30 0t30 0t30 0'/%3E%3C/g%3E%3C/svg%3E");
+}
+/* Western : étoiles */
+:root[data-theme="ruedor"] .fond-motif {
+  background-size: 120px 120px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cg fill='%23F2C14E' fill-opacity='.12'%3E%3Cpath d='M30 20l3 8h8l-6.5 5 2.5 8-7-5-7 5 2.5-8-6.5-5h8z'/%3E%3Cpath d='M90 75l3 8h8l-6.5 5 2.5 8-7-5-7 5 2.5-8-6.5-5h8z'/%3E%3C/g%3E%3C/svg%3E");
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fond-theme { -webkit-transition: none; transition: none; }
+}
