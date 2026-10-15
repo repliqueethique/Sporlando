@@ -180,7 +180,7 @@ function terminerSeanceEtirement() {
   checklist.etirements = true;
   sauvegarderEtat();
 
-  afficherToast('Séance d\'étirements terminée !');
+  afficherToast(messageTheme('etirementsTermines', 'Séance d\'étirements terminée !'));
   allerVersPage('accueil');
   rendreChecklistQuotidienne();
 
@@ -391,7 +391,7 @@ function validerPoidsJour() {
   sauvegarderEtat();
 
   fermerModal();
-  afficherToast('Poids enregistré');
+  afficherToast(messageTheme('poidsEnregistre', 'Poids enregistré'));
   rendreChecklistQuotidienne();
 
   if (typeof rendreGraphiquePoidsCorporel === 'function') {
@@ -3131,7 +3131,7 @@ function terminerSeance() {
     if (chronoIntervalle) { window.clearInterval(chronoIntervalle); chronoIntervalle = null; }
     sauvegarderEtat();
     fermerModal();
-    afficherToast('Séance enregistrée : ' + dureeMinutes + ' min · ' + Math.round(calories) + ' kcal estimées.');
+    afficherToast(messageTheme('seanceEnregistree', 'Séance enregistrée') + ' : ' + dureeMinutes + ' min · ' + Math.round(calories) + ' kcal estimées.');
     allerVersPage('accueil');
   });
 }
@@ -3144,7 +3144,7 @@ function annulerSeance() {
     if (chronoIntervalle) { window.clearInterval(chronoIntervalle); chronoIntervalle = null; }
     sauvegarderEtat();
     fermerModal();
-    afficherToast('Séance annulée.');
+    afficherToast(messageTheme('seanceAnnulee', 'Séance annulée.'));
     allerVersPage('accueil');
   });
 }
@@ -3607,17 +3607,60 @@ function configurerBoutonMinuteur() {
 /* --- Affichage / cycle de vie du minuteur --- */
 
 /* --- Animation de fin de minuteur --- */
-var EXPRESSIONS_FIN_MINUTEUR = ['Go !', 'Reprise !', 'Aller !', 'C\'est tipar !', 'Pousse !', 'Let\'s go !', 'Chaud !', 'Next !'];
+/* Mots de fin de minuteur : une ligne par thème.
+   Garde-les courts. Pour un "!", écris un espace avant (ex. "Go !").
+   Un thème absent de la liste utilise "defaut". */
+var EXPRESSIONS_FIN_PAR_THEME = {
+  defaut:     ["Go !", "Reprise !", "Aller !", "C'est tipar !", "Pousse !", "Let's go !", "Chaud !", "Next !"],
+  effroi:     ["Debout !", "Ressuscite !", "Encore !", "Lève-toi !", "Mwahaha !", "Réveille-toi !"],
+  flibuste:   ["À l'abordage !", "Hisse !", "Cap !", "Largue les amarres !", "Tonnerre !"],
+  wasteland:  ["Nitro !", "Vroum !", "Pied au plancher !", "Witness me !", "Boom !", "Plein gaz !"],
+  cyberpunk:  ["Reboot !", "Connexion !", "Charge !", "Hack !", "Online !", "Overdrive !"],
+  paindepice: ["Ho ho ho !", "Biscuit !", "Ding dong !", "Magique !", "À table !"],
+  hivernal:   ["Brrr !", "Givre !", "Dégèle !", "Avalanche !", "Glisse !"],
+  automnal:   ["Ça tombe !", "Feuille !", "Craque !", "Ramasse !", "Encore !"],
+  steampunk:  ["Vapeur !", "Engrenage !", "Pression !", "Tout à bord !", "Chauffe !"],
+  ruedor:     ["Yeehaw !", "Au galop !", "Dégaine !", "Hue !", "Duel !"],
+  estival:    ["Soleil !", "Plouf !", "Vacances !", "Chaud devant !", "Allez !"],
+  printanier: ["Éclos !", "Fleuris !", "Pousse !", "Bourgeon !", "Réveil !"],
+  pastel:     ["Magique !", "Étoile !", "Allez !", "Paillettes !", "Hop !"]
+};
 var derniereExpressionFin = -1;
 var cdrCacherBouton = false; /* vrai pendant que le mot s'affiche : le bouton attend son pop */
 
 function choisirExpressionFin() {
+  var theme = etat.profil.theme || 'sombre';
+  var liste = EXPRESSIONS_FIN_PAR_THEME[theme] || EXPRESSIONS_FIN_PAR_THEME.defaut;
   var index;
   do {
-    index = Math.floor(Math.random() * EXPRESSIONS_FIN_MINUTEUR.length);
-  } while (index === derniereExpressionFin && EXPRESSIONS_FIN_MINUTEUR.length > 1);
+    index = Math.floor(Math.random() * liste.length);
+  } while (index === derniereExpressionFin && liste.length > 1);
   derniereExpressionFin = index;
-  return EXPRESSIONS_FIN_MINUTEUR[index];
+  return liste[index];
+}
+
+/* Messages de notification : une ligne par thème.
+   Clés : seanceEnregistree, seanceAnnulee, etirementsTermines, poidsEnregistre.
+   Une clé absente = message normal. */
+var MESSAGES_PAR_THEME = {
+  effroi:     { seanceEnregistree: "Âme rendue au carnet", seanceAnnulee: "La séance retourne au tombeau.", etirementsTermines: "Tes os craquent, tu es prêt !", poidsEnregistre: "La balance a parlé..." },
+  flibuste:   { seanceEnregistree: "Butin consigné au journal de bord", seanceAnnulee: "Séance jetée par-dessus bord.", etirementsTermines: "Gréements souples, moussaillon !", poidsEnregistre: "Poids noté sur la carte" },
+  wasteland:  { seanceEnregistree: "Carburant brûlé, séance enregistrée", seanceAnnulee: "Panne sèche, séance abandonnée.", etirementsTermines: "Moteur chaud, direction la route !", poidsEnregistre: "Châssis pesé" },
+  cyberpunk:  { seanceEnregistree: "Données sauvegardées", seanceAnnulee: "Connexion interrompue.", etirementsTermines: "Calibrage terminé !", poidsEnregistre: "Masse mise à jour" },
+  paindepice: { seanceEnregistree: "Séance glacée et rangée", seanceAnnulee: "Séance croquée en route.", etirementsTermines: "Souple comme une pâte !", poidsEnregistre: "Pesé sur la balance du pâtissier" },
+  hivernal:   { seanceEnregistree: "Séance gravée dans la glace", seanceAnnulee: "Séance fondue.", etirementsTermines: "Dégelé et prêt !", poidsEnregistre: "Poids noté dans la neige" },
+  automnal:   { seanceEnregistree: "Séance ramassée comme une belle feuille", seanceAnnulee: "Séance emportée par le vent.", etirementsTermines: "Souple comme une branche !", poidsEnregistre: "Poids noté" },
+  steampunk:  { seanceEnregistree: "Séance consignée dans le grimoire mécanique", seanceAnnulee: "Pression relâchée, séance annulée.", etirementsTermines: "Engrenages huilés !", poidsEnregistre: "Poids calibré" },
+  ruedor:     { seanceEnregistree: "Séance inscrite au registre du shérif", seanceAnnulee: "Duel annulé.", etirementsTermines: "Prêt à dégainer !", poidsEnregistre: "Pesé à la ferme" },
+  estival:    { seanceEnregistree: "Séance au soleil enregistrée", seanceAnnulee: "Séance reportée à demain.", etirementsTermines: "Souple comme en vacances !", poidsEnregistre: "Poids noté" },
+  printanier: { seanceEnregistree: "Séance fleurie et enregistrée", seanceAnnulee: "Séance fanée.", etirementsTermines: "Tu as éclos !", poidsEnregistre: "Poids noté" },
+  pastel:     { seanceEnregistree: "Séance enregistrée avec des paillettes", seanceAnnulee: "Séance envolée.", etirementsTermines: "Doux et souple !", poidsEnregistre: "Poids noté" }
+};
+
+function messageTheme(cle, messageParDefaut) {
+  var messages = MESSAGES_PAR_THEME[etat.profil.theme];
+  if (messages && messages[cle]) { return messages[cle]; }
+  return messageParDefaut;
 }
 
 function jouerMotFinMinuteur() {
