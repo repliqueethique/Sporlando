@@ -6382,43 +6382,55 @@ function majEclair(theme) {
 var ROUAGES_ACTIF = true;
 
 var ROUAGES_CHAINES = [
-  { x: 0.02, y: 0.14, mode: 'continu', t: 90, sens: 1,
-    gears: [{ n: 22 }, { n: 14, ang: 20 }, { n: 26, ang: -28 }] },
-  { x: 0.98, y: 0.52, mode: 'oscille', d: 10, amp: 35, sens: 1,
-    gears: [{ n: 30 }, { n: 18, ang: 158 }] },
-  { x: 0.12, y: 0.88, mode: 'coups', tick: 1.8, sens: -1,
+  { prof: 0.0, x: 0.12, y: 0.88, mode: 'coups', tick: 1.8, sens: -1,
     gears: [{ n: 20 }, { n: 12, ang: -35 }, { n: 16, ang: 15 }] },
-  { x: 0.88, y: 0.92, mode: 'continu', t: 160, sens: -1,
-    gears: [{ n: 24 }] }
+  { prof: 0.3, x: 0.88, y: 0.92, mode: 'continu', t: 160, sens: -1,
+    gears: [{ n: 24 }] },
+  { prof: 0.6, x: 0.98, y: 0.52, mode: 'oscille', d: 10, amp: 35, sens: 1,
+    gears: [{ n: 30 }, { n: 18, ang: 158 }] },
+  { prof: 1.0, x: 0.02, y: 0.14, mode: 'continu', t: 90, sens: 1,
+    gears: [{ n: 22 }, { n: 14, ang: 20 }, { n: 26, ang: -28 }] }
 ];
 
 function modPositif(a, b) { return ((a % b) + b) % b; }
 
-/* Dessine un rouage : dents, anneau, bras et moyeu. off = décalage des dents (degrés) */
-function svgRouage(n, m, off) {
+/* Dessine un rouage en silhouette pleine (dents + ouvertures entre les bras). couleur = remplissage */
+function svgRouage(n, m, off, couleur) {
   var r = n * m / 2, ro = r + m, rr = r - 1.25 * m;
   var S = Math.ceil(2 * ro + 8), c = S / 2, p = 360 / n;
   function pt(rayon, deg) {
     var a = deg * Math.PI / 180;
     return (c + rayon * Math.cos(a)).toFixed(1) + ',' + (c + rayon * Math.sin(a)).toFixed(1);
   }
+  /* Contour avec les dents */
   var d = '';
   for (var k = 0; k < n; k++) {
     var ct = off + k * p;
     d += (k === 0 ? 'M' : 'L') + pt(rr, ct - 0.30 * p) + ' L' + pt(ro, ct - 0.14 * p) + ' L' + pt(ro, ct + 0.14 * p) + ' L' + pt(rr, ct + 0.30 * p);
     d += ' A' + rr.toFixed(1) + ' ' + rr.toFixed(1) + ' 0 0 1 ' + pt(rr, ct + 0.70 * p) + ' ';
   }
-  d += 'Z';
-  var anneau = rr * 0.78, moyeu = Math.max(m * 1.6, rr * 0.16);
+  d += 'Z ';
+
+  /* Ouvertures entre les bras (évidements) */
   var nbBras = (n >= 20) ? 6 : 5;
-  var svg = '<svg width="' + S + '" height="' + S + '" viewBox="0 0 ' + S + ' ' + S + '" style="display:block">';
-  svg += '<path d="' + d + '" fill="rgba(198,138,61,.07)" stroke="rgba(214,160,80,.38)" stroke-width="2" stroke-linejoin="round"/>';
-  svg += '<circle cx="' + c + '" cy="' + c + '" r="' + anneau.toFixed(1) + '" fill="none" stroke="rgba(214,160,80,.3)" stroke-width="' + (m * 0.6).toFixed(1) + '"/>';
-  for (var b = 0; b < nbBras; b++) {
-    var ab = off + b * 360 / nbBras;
-    svg += '<path d="M' + pt(moyeu, ab) + ' L' + pt(anneau, ab) + '" stroke="rgba(214,160,80,.3)" stroke-width="' + (m * 0.8).toFixed(1) + '" fill="none"/>';
+  var pasBras = 360 / nbBras;
+  var rh = Math.max(m * 1.6, rr * 0.16) * 1.35;   /* rayon intérieur : autour du moyeu */
+  var rw = rr * 0.78 * 0.9;                        /* rayon extérieur : sous l'anneau */
+  var delta = (m * 0.9 / ((rh + rw) / 2)) * 180 / Math.PI;
+  if (rw > rh + m) {
+    for (var b = 0; b < nbBras; b++) {
+      var a1 = off + b * pasBras + delta, a2 = off + (b + 1) * pasBras - delta;
+      d += 'M' + pt(rh, a1) + ' L' + pt(rw, a1) + ' A' + rw.toFixed(1) + ' ' + rw.toFixed(1) + ' 0 0 1 ' + pt(rw, a2) +
+           ' L' + pt(rh, a2) + ' A' + rh.toFixed(1) + ' ' + rh.toFixed(1) + ' 0 0 0 ' + pt(rh, a1) + ' Z ';
+    }
   }
-  svg += '<circle cx="' + c + '" cy="' + c + '" r="' + moyeu.toFixed(1) + '" fill="rgba(198,138,61,.12)" stroke="rgba(214,160,80,.4)" stroke-width="2"/>';
+  /* Trou d'axe */
+  var ra = Math.max(m * 0.5, rh * 0.3);
+  d += 'M' + (c + ra).toFixed(1) + ',' + c + ' A' + ra.toFixed(1) + ' ' + ra.toFixed(1) + ' 0 1 0 ' + (c - ra).toFixed(1) + ',' + c +
+       ' A' + ra.toFixed(1) + ' ' + ra.toFixed(1) + ' 0 1 0 ' + (c + ra).toFixed(1) + ',' + c + ' Z';
+
+  var svg = '<svg width="' + S + '" height="' + S + '" viewBox="0 0 ' + S + ' ' + S + '" style="display:block">';
+  svg += '<path d="' + d + '" fill="' + couleur + '" fill-rule="evenodd"/>';
   svg += '</svg>';
   return { svg: svg, taille: S };
 }
@@ -6439,12 +6451,13 @@ function construireRouages() {
 
   for (var c = 0; c < ROUAGES_CHAINES.length; c++) {
     var chaine = ROUAGES_CHAINES[c];
-    var n0 = chaine.gears[0].n;
+    var mc = m * (0.8 + 0.5 * chaine.prof);                              /* plus proche = plus gros */
+    var couleur = interpolerCouleur('#1E170F', '#3B2D1B', chaine.prof);  /* loin = sombre, proche = moins sombre */
     var prec = null;
 
     for (var g = 0; g < chaine.gears.length; g++) {
       var n = chaine.gears[g].n;
-      var r = n * m / 2;
+      var r = n * mc / 2;
       var p = 360 / n;
       var cx, cy, off;
 
@@ -6473,7 +6486,7 @@ function construireRouages() {
         anim = 'animation-duration:' + (chaine.tick * n).toFixed(1) + 's;animation-timing-function:steps(' + n + ',end);--tour:' + (sens * 360) + 'deg;';
       }
 
-      var dessin = svgRouage(n, m, off);
+      var dessin = svgRouage(n, mc, off, couleur);
       html += '<div class="' + classe + '" style="left:' + (cx - dessin.taille / 2).toFixed(1) + 'px;top:' + (cy - dessin.taille / 2).toFixed(1) + 'px;width:' + dessin.taille + 'px;height:' + dessin.taille + 'px;' + anim + '">' + dessin.svg + '</div>';
 
       prec = { cx: cx, cy: cy, r: r, n: n, p: p, off: off };
