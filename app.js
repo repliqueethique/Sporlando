@@ -5391,159 +5391,149 @@ function trouverProchainCreneauIdealBanniere(heures, temps) {
   return null;
 }
 
+function libelleCreneauMeteo(etatTemp) {
+  if (etatTemp === 'ideal') { return 'Idéal à'; }
+  if (etatTemp === 'moyen') { return 'Correct à'; }
+  return 'Le moins pire à';
+}
+
+function heureCourte(hhmm) { return parseInt(hhmm.substring(0, 2), 10) + 'h'; }
+
 function rendreBanniereMeteo() {
-  console.log('rendreBanniereMeteo appelée');
   var zone = document.getElementById('zone-banniere-meteo');
-  console.log('zone trouvée:', zone);
   if (!zone) { return; }
-  if (etat.profil.latitudeGym === null || etat.profil.longitudeGym === null) {
-    console.log('lat/lng manquantes, arrêt');
-    zone.innerHTML = '';
-    return;
-  }
-  console.log('avant appel verifierMeteoGym');
+  if (etat.profil.latitudeGym === null || etat.profil.longitudeGym === null) { zone.innerHTML = ''; return; }
   verifierMeteoGym(function (resultat) {
-    console.log('callback verifierMeteoGym reçu:', resultat);
     if (!resultat) { zone.innerHTML = ''; return; }
     var etatTemp = evaluerTemperature(resultat.actuelle);
     var tranche = trouverProchainCreneauIdealBanniere(resultat.heures, resultat.temperatures);
-    console.log('tranche trouvée:', tranche);
+    var heureNow = new Date().getHours();
 
-    var html = '<div class="banniere-meteo banniere-meteo-' + etatTemp + '" data-action="ouvrir-modale-meteo" style="cursor:pointer;">';
-    html += '<span class="banniere-meteo-actuelle">' + resultat.actuelle.toFixed(1) + '°C actuellement</span>';
+    var html = '<div class="meteo-carte meteo-' + etatTemp + '" data-action="ouvrir-modale-meteo">';
+    html += '<span class="meteo-icone"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M14 14.76V3.5a2.5 2.5 0 0 0-5 0v11.26a4.5 4.5 0 1 0 5 0z"/></svg></span>';
+    html += '<span class="meteo-textes"><span class="meteo-temp donnee-num">' + resultat.actuelle.toFixed(1) + '°C</span>';
     if (tranche) {
-      html += '<span class="banniere-meteo-tranche">idéal à ' + tranche.heure + '-' + Math.round(tranche.temperature) + '°</span>';
+      html += '<span class="meteo-sous">' + libelleCreneauMeteo(evaluerTemperature(tranche.temperature)) + ' ' + heureCourte(tranche.heure) + ' · ' + Math.round(tranche.temperature) + '°</span>';
+    } else {
+      html += '<span class="meteo-sous">actuellement</span>';
     }
-    html += '</div>';
+    html += '</span><span class="meteo-chevron">&#8250;</span>';
+
+    /* Frise de la journée : une case par heure, l'heure actuelle est plus haute */
+    html += '<div class="meteo-frise">';
+    for (var i = 0; i < resultat.temperatures.length; i++) {
+      var h = parseInt(resultat.heures[i].substring(11, 13), 10);
+      var cl = 'fr-' + evaluerTemperature(resultat.temperatures[i]);
+      if (h < heureNow) { cl += ' fr-passe'; }
+      if (h === heureNow) { cl += ' fr-now'; }
+      html += '<span class="' + cl + '"></span>';
+    }
+    html += '</div></div>';
     zone.innerHTML = html;
   });
 }
 
+function fermerModaleMeteo() { fermerModal(); }
+
 function ouvrirModaleMeteo() {
   if (!meteoDernierResultat) { return; }
-  document.getElementById('modale-meteo').style.display = 'flex';
-  dessinerGraphiqueMeteo(meteoDernierResultat);
-}
+  var r = meteoDernierResultat;
+  var etatNow = evaluerTemperature(r.actuelle);
+  var tranche = trouverProchainCreneauIdealBanniere(r.heures, r.temperatures);
+  var tmin = Math.min.apply(null, r.temperatures);
+  var tmax = Math.max.apply(null, r.temperatures);
 
-function fermerModaleMeteo() {
-  document.getElementById('modale-meteo').style.display = 'none';
-}
+  var html = '';
+  html += '<div class="modal-entete"><h2>Météo du jour</h2><button class="bouton-fermer" data-action="fermer-modal">&times;</button></div>';
 
-function dessinerGraphiqueMeteo(resultat) {
-  var svg = document.getElementById('svg-meteo');
-  svg.innerHTML = '';
-  var largeur = 320, hauteur = 220, marge = 28;
-  var temps = resultat.temperatures;
-  var heures = resultat.heures;
-  var min = Math.min.apply(null, temps), max = Math.max.apply(null, temps);
-  if (min === max) { max = min + 1; }
+  html += '<div class="meteo-tuiles">';
+  html += '<div class="meteo-tuile meteo-tuile-now meteo-' + etatNow + '"><span class="meteo-tuile-label">Maintenant</span><span class="meteo-tuile-valeur donnee-num">' + r.actuelle.toFixed(1) + '°</span></div>';
+  html += '<div class="meteo-tuile"><span class="meteo-tuile-label">Min</span><span class="meteo-tuile-valeur donnee-num">' + Math.round(tmin) + '°</span></div>';
+  html += '<div class="meteo-tuile"><span class="meteo-tuile-label">Max</span><span class="meteo-tuile-valeur donnee-num">' + Math.round(tmax) + '°</span></div>';
+  html += '</div>';
 
-  function x(i) { return marge + (i / (temps.length - 1)) * (largeur - marge * 1.5); }
-  function y(t) { return hauteur - marge - ((t - min) / (max - min)) * (hauteur - marge * 1.8); }
+  html += '<div class="meteo-graphe svg-conteneur">' + construireSvgMeteo(r, tranche) + '</div>';
 
-  // repères Y
-  [min, (min + max) / 2, max].forEach(function (val) {
-    var ligne = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-    ligne.setAttribute('x', 2); ligne.setAttribute('y', y(val));
-    ligne.setAttribute('class', 'axe-label');
-    ligne.textContent = val.toFixed(0) + '°';
-    svg.appendChild(ligne);
-  });
+  html += '<div class="meteo-legende">';
+  html += '<span><i class="meteo-pastille fr-ideal"></i>Idéal 12–20°</span>';
+  html += '<span><i class="meteo-pastille fr-moyen"></i>Correct</span>';
+  html += '<span><i class="meteo-pastille fr-mauvais"></i>À éviter</span>';
+  html += '</div>';
 
-  // --- Points et lissage (Catmull-Rom -> Bézier) ---
-  var points = temps.map(function (t, i) { return { x: x(i), y: y(t) }; });
-
-  function segmentBezier(p0, p1, p2, p3) {
-    var cp1x = p1.x + (p2.x - p0.x) / 6;
-    var cp1y = p1.y + (p2.y - p0.y) / 6;
-    var cp2x = p2.x - (p3.x - p1.x) / 6;
-    var cp2y = p2.y - (p3.y - p1.y) / 6;
-    return { cp1x: cp1x, cp1y: cp1y, cp2x: cp2x, cp2y: cp2y };
-  }
-
-  // segments colorés lissés (un path par segment pour garder la couleur par tranche)
-  for (var i = 0; i < points.length - 1; i++) {
-    var p0 = points[i - 1] || points[i];
-    var p1 = points[i];
-    var p2 = points[i + 1];
-    var p3 = points[i + 2] || p2;
-    var cp = segmentBezier(p0, p1, p2, p3);
-
-    var etatSeg = evaluerTemperature((temps[i] + temps[i + 1]) / 2);
-    var seg = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-    var d = 'M' + p1.x + ',' + p1.y + ' C' + cp.cp1x + ',' + cp.cp1y + ' ' + cp.cp2x + ',' + cp.cp2y + ' ' + p2.x + ',' + p2.y;
-    seg.setAttribute('d', d);
-    seg.setAttribute('fill', 'none');
-    seg.setAttribute('class', 'segment-' + etatSeg);
-    seg.setAttribute('stroke-width', '3');
-    seg.setAttribute('stroke-linecap', 'round');
-    svg.appendChild(seg);
-  }
-
-  // labels heures toutes les 3h
-  for (var j = 0; j < heures.length; j += 3) {
-    var label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-    label.setAttribute('x', x(j) - 8); label.setAttribute('y', hauteur - 8);
-    label.setAttribute('class', 'axe-label');
-    label.textContent = heures[j].substring(11, 16);
-    svg.appendChild(label);
-  }
-
-  // point tranche idéale
-  var tranche = trouverTrancheIdeale(heures, temps);
   if (tranche) {
-    var idx = heures.findIndex(function (h) { return h.substring(11, 16) === tranche.heure; });
-    if (idx !== -1) {
-      var point = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-      point.setAttribute('cx', x(idx)); point.setAttribute('cy', y(temps[idx]));
-      point.setAttribute('r', '5');
-      point.setAttribute('class', 'point-ideal');
-      svg.appendChild(point);
+    html += '<p class="reglages-note">Prochain meilleur créneau : ' + libelleCreneauMeteo(evaluerTemperature(tranche.temperature)) + ' ' + heureCourte(tranche.heure) + ' (' + Math.round(tranche.temperature) + '°)</p>';
+  }
+  ouvrirModal(html);
+}
+
+function construireSvgMeteo(r, tranche) {
+  var temps = r.temperatures, heures = r.heures, n = temps.length;
+  if (n < 2) { return ''; }
+  var L = 320, H = 190, mg = 30, md = 10, mh = 18, mb = 22;
+  var zw = L - mg - md, zh = H - mh - mb;
+  var vmin = Math.floor(Math.min.apply(null, temps) - 1);
+  var vmax = Math.ceil(Math.max.apply(null, temps) + 1);
+  function x(i) { return mg + (i / (n - 1)) * zw; }
+  function y(t) { return mh + zh - ((t - vmin) / (vmax - vmin)) * zh; }
+
+  var svg = '<svg viewBox="0 0 ' + L + ' ' + H + '" xmlns="http://www.w3.org/2000/svg">';
+
+  /* Bande idéale (12 à 20°) */
+  var hautBande = Math.min(20, vmax), basBande = Math.max(12, vmin);
+  if (hautBande > basBande) {
+    svg += '<rect class="meteo-bande" x="' + mg + '" y="' + y(hautBande).toFixed(1) + '" width="' + zw + '" height="' + (y(basBande) - y(hautBande)).toFixed(1) + '" rx="4"/>';
+  }
+
+  /* Grille et repères de température */
+  for (var g = 0; g <= 3; g++) {
+    var val = vmin + (g / 3) * (vmax - vmin);
+    var yg = y(val);
+    svg += '<line class="meteo-grille" x1="' + mg + '" y1="' + yg.toFixed(1) + '" x2="' + (L - md) + '" y2="' + yg.toFixed(1) + '"/>';
+    svg += '<text class="axe-label" x="' + (mg - 5) + '" y="' + (yg + 3).toFixed(1) + '" text-anchor="end">' + Math.round(val) + '°</text>';
+  }
+
+  /* Heures, toutes les 3 h */
+  for (var j = 0; j < n; j += 3) {
+    svg += '<text class="axe-label" x="' + x(j).toFixed(1) + '" y="' + (H - 6) + '" text-anchor="middle">' + parseInt(heures[j].substring(11, 13), 10) + 'h</text>';
+  }
+
+  /* Courbe lissée, colorée par tranche */
+  var pts = [];
+  for (var i = 0; i < n; i++) { pts.push({ x: x(i), y: y(temps[i]) }); }
+  for (var k = 0; k < n - 1; k++) {
+    var p0 = pts[k - 1] || pts[k], p1 = pts[k], p2 = pts[k + 1], p3 = pts[k + 2] || p2;
+    var c1x = p1.x + (p2.x - p0.x) / 6, c1y = p1.y + (p2.y - p0.y) / 6;
+    var c2x = p2.x - (p3.x - p1.x) / 6, c2y = p2.y - (p3.y - p1.y) / 6;
+    svg += '<path class="segment-' + evaluerTemperature((temps[k] + temps[k + 1]) / 2) + '" fill="none" stroke-width="3" stroke-linecap="round" d="M' +
+      p1.x.toFixed(1) + ',' + p1.y.toFixed(1) + ' C' + c1x.toFixed(1) + ',' + c1y.toFixed(1) + ' ' + c2x.toFixed(1) + ',' + c2y.toFixed(1) + ' ' + p2.x.toFixed(1) + ',' + p2.y.toFixed(1) + '"/>';
+  }
+
+  /* Point du meilleur créneau */
+  if (tranche) {
+    for (var q = 0; q < n; q++) {
+      if (heures[q].substring(11, 16) === tranche.heure) {
+        svg += '<circle class="point-ideal" cx="' + pts[q].x.toFixed(1) + '" cy="' + pts[q].y.toFixed(1) + '" r="5"/>';
+        break;
+      }
     }
   }
 
-  // --- Heure actuelle : ligne verticale + point ---
+  /* Heure actuelle : ligne pointillée + point + température */
   var maintenant = new Date();
   var minuteActuelle = maintenant.getHours() * 60 + maintenant.getMinutes();
-  var indexActuel = -1, meilleurEcart = Infinity;
-  for (var k = 0; k < heures.length; k++) {
-    var hMin = parseInt(heures[k].substring(11, 13), 10) * 60 + parseInt(heures[k].substring(14, 16), 10);
+  var indexActuel = 0, meilleurEcart = Infinity;
+  for (var m = 0; m < n; m++) {
+    var hMin = parseInt(heures[m].substring(11, 13), 10) * 60 + parseInt(heures[m].substring(14, 16), 10);
     var ecart = Math.abs(hMin - minuteActuelle);
-    if (ecart < meilleurEcart) { meilleurEcart = ecart; indexActuel = k; }
+    if (ecart < meilleurEcart) { meilleurEcart = ecart; indexActuel = m; }
   }
+  var xa = pts[indexActuel].x;
+  svg += '<line class="meteo-now-ligne" x1="' + xa.toFixed(1) + '" y1="' + (mh - 4) + '" x2="' + xa.toFixed(1) + '" y2="' + (H - mb) + '"/>';
+  svg += '<circle class="meteo-now-point" cx="' + xa.toFixed(1) + '" cy="' + pts[indexActuel].y.toFixed(1) + '" r="5"/>';
+  svg += '<text class="meteo-now-label" x="' + (xa > L * 0.8 ? xa - 6 : xa + 6).toFixed(1) + '" y="12" text-anchor="' + (xa > L * 0.8 ? 'end' : 'start') + '">' + Math.round(r.actuelle) + '°</text>';
 
-  if (indexActuel !== -1) {
-    var xActuel = x(indexActuel);
-
-    var ligneActuelle = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-    ligneActuelle.setAttribute('x1', xActuel);
-    ligneActuelle.setAttribute('x2', xActuel);
-    ligneActuelle.setAttribute('y1', 4);
-    ligneActuelle.setAttribute('y2', hauteur - marge);
-    ligneActuelle.setAttribute('stroke', '#f2f2f2');
-    ligneActuelle.setAttribute('stroke-width', '1');
-    ligneActuelle.setAttribute('stroke-dasharray', '3,3');
-    ligneActuelle.setAttribute('opacity', '0.5');
-    svg.appendChild(ligneActuelle);
-
-    var pointActuel = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-    pointActuel.setAttribute('cx', xActuel);
-    pointActuel.setAttribute('cy', y(temps[indexActuel]));
-    pointActuel.setAttribute('r', '5');
-    pointActuel.setAttribute('fill', '#0a84ff');
-    pointActuel.setAttribute('stroke', '#1c1c1e');
-    pointActuel.setAttribute('stroke-width', '2');
-    svg.appendChild(pointActuel);
-
-    var labelActuel = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-    labelActuel.setAttribute('x', xActuel + 6);
-    labelActuel.setAttribute('y', 14);
-    labelActuel.setAttribute('fill', '#0a84ff');
-    labelActuel.setAttribute('font-size', '10');
-    labelActuel.setAttribute('font-weight', '700');
-    labelActuel.textContent = Math.round(temps[indexActuel]) + '°';
-    svg.appendChild(labelActuel);
-  }
+  svg += '</svg>';
+  return svg;
 }
 
 document.addEventListener('click', function (e) {
@@ -5552,10 +5542,6 @@ document.addEventListener('click', function (e) {
   var action = cible.getAttribute('data-action');
   if (action === 'ouvrir-modale-meteo') { ouvrirModaleMeteo(); }
   if (action === 'fermer-modale-meteo') { fermerModaleMeteo(); }
-});
-
-document.getElementById('modale-meteo').addEventListener('click', function (e) {
-  if (e.target.id === 'modale-meteo') { fermerModaleMeteo(); }
 });
 
 function ouvrirVerificationObjectif() {
