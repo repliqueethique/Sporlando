@@ -6451,14 +6451,16 @@ function construireRouages() {
   }
   var W = window.innerWidth, H = window.innerHeight;
   var m = Math.max(7, Math.min(11, W / 44));   /* taille des dents */
+  var MARGE = 260;                             /* marge pour la parallaxe */
   var html = '';
 
   for (var c = 0; c < ROUAGES_CHAINES.length; c++) {
     var chaine = ROUAGES_CHAINES[c];
     var n0 = chaine.gears[0].n;
-    var mc = m * (0.8 + 0.5 * chaine.prof);                              /* plus proche = plus gros */
+    var mc = m * (0.8 + 0.5 * chaine.prof);
     var couleur = interpolerCouleur('#241B11', '#31261A', chaine.prof);
     var prec = null;
+    var htmlChaine = '';
 
     for (var g = 0; g < chaine.gears.length; g++) {
       var n = chaine.gears[g].n;
@@ -6473,12 +6475,10 @@ function construireRouages() {
         var rad = phi * Math.PI / 180;
         cx = prec.cx + (prec.r + r) * Math.cos(rad);
         cy = prec.cy + (prec.r + r) * Math.sin(rad);
-        /* Décalage des dents pour qu'elles s'emboîtent exactement dans celles du rouage précédent */
         var u = modPositif(phi - prec.off, prec.p);
         off = modPositif(phi + 180 + u * prec.n / n + p / 2, p);
       }
 
-      /* Rouages voisins : sens opposés, vitesses proportionnelles au nombre de dents */
       var sens = chaine.sens * (g % 2 === 0 ? 1 : -1);
       var classe = 'rouage rouage-' + chaine.mode;
       var anim = '';
@@ -6492,13 +6492,26 @@ function construireRouages() {
       }
 
       var dessin = svgRouage(n, mc, off, couleur);
-      if (cx + r + mc > 0 && cx - r - mc < W && cy + r + mc > 0 && cy - r - mc < H) {
-        html += '<div class="' + classe + '" style="left:' + (cx - dessin.taille / 2).toFixed(1) + 'px;top:' + (cy - dessin.taille / 2).toFixed(1) + 'px;width:' + dessin.taille + 'px;height:' + dessin.taille + 'px;' + anim + '">' + dessin.svg + '</div>';
+      if (cx + r + mc + MARGE > 0 && cx - r - mc - MARGE < W && cy + r + mc + MARGE > 0 && cy - r - mc - MARGE < H) {
+        htmlChaine += '<div class="' + classe + '" style="left:' + (cx - dessin.taille / 2).toFixed(1) + 'px;top:' + (cy - dessin.taille / 2).toFixed(1) + 'px;width:' + dessin.taille + 'px;height:' + dessin.taille + 'px;' + anim + '">' + dessin.svg + '</div>';
       }
+
       prec = { cx: cx, cy: cy, r: r, n: n, p: p, off: off };
     }
+    html += '<div class="rouage-plan" data-prof="' + chaine.prof + '"><div class="rouage-plan-scroll">' + htmlChaine + '</div></div>';
   }
   zone.innerHTML = html;
+
+  plansRouages = [];
+  var exts = zone.querySelectorAll('.rouage-plan');
+  for (var e = 0; e < exts.length; e++) {
+    plansRouages.push({
+      ext: exts[e],
+      int: exts[e].firstChild,
+      prof: parseFloat(exts[e].getAttribute('data-prof')) || 0
+    });
+  }
+  majRouagesParallaxe();
 }
 
 function majRouages(theme) {
@@ -6555,12 +6568,14 @@ function appliquerTransformFond(element, x, y) {
 function majFondScroll() {
   if (!fondMotif) { return; }
   var y = -((window.pageYOffset * VITESSE_SCROLL_FOND) % PERIODE_MOTIF_PX);
+  majRouagesParallaxe();
   appliquerTransformFond(fondMotif, 0, y);
 }
 
 /* Appelé à chaque changement d'onglet */
 function majFondParallaxe(nomPage) {
   if (!fondExt || INDEX_PAGES_FOND[nomPage] === undefined) { return; }
+  indexPageRouages = INDEX_PAGES_FOND[nomPage];
   appliquerTransformFond(fondExt, -INDEX_PAGES_FOND[nomPage] * DECALAGE_PAGE_PX, 0);
   majFondScroll();
 }

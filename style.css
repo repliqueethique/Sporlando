@@ -3709,3 +3709,18 @@ body { background: transparent; }
 @media (prefers-reduced-motion: reduce) {
   .rouage { animation: none; }
 }
+
+/* Steampunk : plans de rouages (parallaxe). Le plan extérieur suit l'onglet, l'intérieur suit le scroll. */
+.rouage-plan, .rouage-plan-scroll {
+  position: absolute;
+  top: 0; left: 0;
+  width: 0; height: 0;
+  will-change: transform;
+}
+.rouage-plan {
+  -webkit-transition: -webkit-transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+  transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+}
+@media (prefers-reduced-motion: reduce) {
+  .rouage-plan { -webkit-transition: none; transition: none; }
+}
