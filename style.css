@@ -3439,15 +3439,16 @@ body { background: transparent; }
   background-size: 120px 120px;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cg fill='none' stroke='%23FFC857' stroke-opacity='.11' stroke-width='1.5'%3E%3Cpath d='M0 30q15-10 30 0t30 0t30 0t30 0'/%3E%3Cpath d='M0 90q15-10 30 0t30 0t30 0t30 0'/%3E%3C/g%3E%3C/svg%3E");
 }
-/* Flibuste : vagues */
+/* Flibuste : pont en planches calfatées + cordage */
 :root[data-theme="flibuste"] .fond-motif {
-  background-size: 120px 120px;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cg fill='none' stroke='%232A9D8F' stroke-opacity='.14' stroke-width='1.5'%3E%3Cpath d='M0 30q15-10 30 0t30 0t30 0t30 0'/%3E%3Cpath d='M0 90q15-10 30 0t30 0t30 0t30 0'/%3E%3C/g%3E%3C/svg%3E");
+  background-size: 240px 240px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Crect width='240' height='48' fill='%23B08A55' fill-opacity='.08'/%3E%3Crect y='48' width='240' height='48' fill='%23B08A55' fill-opacity='.03'/%3E%3Crect y='96' width='240' height='48' fill='%23B08A55' fill-opacity='.10'/%3E%3Crect y='144' width='240' height='48' fill='%23B08A55' fill-opacity='.04'/%3E%3Crect y='192' width='240' height='48' fill='%23B08A55' fill-opacity='.09'/%3E%3Cpath d='M0 0H240M0 48H240M0 96H240M0 144H240M0 192H240M0 240H240' stroke='%23050B10' stroke-opacity='.5' stroke-width='2' fill='none'/%3E%3Cpath d='M100 0V48M200 48V96M50 96V144M150 144V192M110 192V240' stroke='%23050B10' stroke-opacity='.4' stroke-width='1.5' fill='none'/%3E%3Cg fill='none' stroke='%23050B10' stroke-opacity='.12'%3E%3Cpath d='M0 14q30 -4 60 0t60 0t60 0t60 0'/%3E%3Cpath d='M0 36q30 -4 60 0t60 0t60 0t60 0'/%3E%3Cpath d='M0 62q30 -4 60 0t60 0t60 0t60 0'/%3E%3Cpath d='M0 84q30 -4 60 0t60 0t60 0t60 0'/%3E%3Cpath d='M0 110q30 -4 60 0t60 0t60 0t60 0'/%3E%3Cpath d='M0 132q30 -4 60 0t60 0t60 0t60 0'/%3E%3Cpath d='M0 158q30 -4 60 0t60 0t60 0t60 0'/%3E%3Cpath d='M0 180q30 -4 60 0t60 0t60 0t60 0'/%3E%3Cpath d='M0 206q30 -4 60 0t60 0t60 0t60 0'/%3E%3Cpath d='M0 228q30 -4 60 0t60 0t60 0t60 0'/%3E%3C/g%3E%3Cpath d='M120 0q14 60 0 120t0 120' stroke='%23C9A66B' stroke-opacity='.32' stroke-width='7' fill='none'/%3E%3Cpath d='M120 0q14 60 0 120t0 120' stroke='%232A1A0A' stroke-opacity='.35' stroke-width='7' stroke-dasharray='2 4' fill='none'/%3E%3C/svg%3E");
 }
-/* Western : étoiles */
+/* Western : mur en planches + taches de vieux papier */
 :root[data-theme="ruedor"] .fond-motif {
-  background-size: 120px 120px;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cg fill='%23F2C14E' fill-opacity='.12'%3E%3Cpath d='M30 20l3 8h8l-6.5 5 2.5 8-7-5-7 5 2.5-8-6.5-5h8z'/%3E%3Cpath d='M90 75l3 8h8l-6.5 5 2.5 8-7-5-7 5 2.5-8-6.5-5h8z'/%3E%3C/g%3E%3C/svg%3E");
+  background-size: 240px 240px, 240px 240px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='p' x='0' y='0' width='100%25' height='100%25'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.012 .02' numOctaves='3' seed='4' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .78 0 0 0 0 .6 0 0 0 0 .35 0 0 0 .9 -.25'/%3E%3C/filter%3E%3Crect width='240' height='240' filter='url(%23p)' opacity='.2'/%3E%3C/svg%3E"),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Crect width='80' height='240' fill='%236B4423' fill-opacity='.10'/%3E%3Crect x='80' width='80' height='240' fill='%236B4423' fill-opacity='.04'/%3E%3Crect x='160' width='80' height='240' fill='%236B4423' fill-opacity='.14'/%3E%3Cpath d='M0 0V240M80 0V240M160 0V240M240 0V240' stroke='%232A1608' stroke-opacity='.4' stroke-width='2' fill='none'/%3E%3Cg fill='none' stroke='%232A1608' stroke-opacity='.14'%3E%3Cpath d='M22 0q6 30 0 60t0 60t0 60t0 60'/%3E%3Cpath d='M55 0q-6 30 0 60t0 60t0 60t0 60'/%3E%3Cpath d='M102 0q6 30 0 60t0 60t0 60t0 60'/%3E%3Cpath d='M135 0q-6 30 0 60t0 60t0 60t0 60'/%3E%3Cpath d='M182 0q6 30 0 60t0 60t0 60t0 60'/%3E%3Cpath d='M215 0q-6 30 0 60t0 60t0 60t0 60'/%3E%3C/g%3E%3Cg fill='%232A1608' fill-opacity='.45'%3E%3Ccircle cx='40' cy='20' r='2.2'/%3E%3Ccircle cx='120' cy='20' r='2.2'/%3E%3Ccircle cx='200' cy='20' r='2.2'/%3E%3Ccircle cx='40' cy='220' r='2.2'/%3E%3Ccircle cx='120' cy='220' r='2.2'/%3E%3Ccircle cx='200' cy='220' r='2.2'/%3E%3C/g%3E%3C/svg%3E");
 }
 
 @media (prefers-reduced-motion: reduce) {
