@@ -120,7 +120,7 @@
 }
 
 :root[data-theme="estival"] {
-  --couleur-fond: #0E1A1D; --couleur-carte: #12262A; --couleur-carte-creux: #091417; --couleur-bordure: #1F3E42;
+  --couleur-fond: #05517a; --couleur-carte: #107786; --couleur-carte-creux: #0e758c; --couleur-bordure: #20abbe;
   --couleur-turquoise: #2FE0C6; --couleur-cyan: #FFC857;
   --couleur-degrade: linear-gradient(135deg, #2FE0C6 0%, #FFC857 100%);
   --degrade-seance: linear-gradient(135deg, #2FE0C6, #FFC857, #FF6F59);
