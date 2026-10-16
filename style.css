@@ -108,7 +108,7 @@
 }
 
 :root[data-theme="pastel"] {
-  --couleur-fond: #483d59; --couleur-carte: #663e71; --couleur-carte-creux: #7d518c; --couleur-bordure: #c685ce;
+  --couleur-fond: #493a5b; --couleur-carte: #593261; --couleur-carte-creux: #7d518c; --couleur-bordure: #a970b0;
   --couleur-turquoise: #B8A3E0; --couleur-cyan: #F7C6D9;
   --couleur-degrade: linear-gradient(135deg, #B8A3E0 0%, #F7C6D9 100%);
   --degrade-seance: linear-gradient(135deg, #B8A3E0, #F7C6D9, #BEE7E8);
