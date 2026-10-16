@@ -3453,3 +3453,122 @@ body { background: transparent; }
 @media (prefers-reduced-motion: reduce) {
   .fond-theme { -webkit-transition: none; transition: none; }
 }
+
+/* ============================================================
+   AMBIANCE PAR THÈME (particules plein écran)
+   ============================================================ */
+.ambiance-theme {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  z-index: 5;
+  pointer-events: none;
+  overflow: hidden;
+}
+.amb {
+  position: absolute;
+  top: 0; left: 0;
+  line-height: 1;
+  opacity: 0;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
+
+/* --- Mouvements --- */
+@keyframes ambChute {
+  0%   { transform: translate3d(0,-8vh,0) rotate(0deg); opacity: 0; }
+  10%  { opacity: var(--op, .6); }
+  90%  { opacity: var(--op, .6); }
+  100% { transform: translate3d(var(--dx, 0px),108vh,0) rotate(var(--rot, 0deg)); opacity: 0; }
+}
+@keyframes ambMonte {
+  0%   { transform: translate3d(0,108vh,0) scale(var(--sc0, 1)); opacity: 0; }
+  15%  { opacity: var(--op, .3); }
+  85%  { opacity: var(--op, .3); }
+  100% { transform: translate3d(var(--dx, 0px),-35vh,0) scale(var(--sc, 1)); opacity: 0; }
+}
+@keyframes ambDerive {
+  0%   { transform: translate3d(-40vw,0,0); opacity: 0; }
+  15%  { opacity: var(--op, .2); }
+  85%  { opacity: var(--op, .2); }
+  100% { transform: translate3d(130vw,var(--dy, 0px),0); opacity: 0; }
+}
+@keyframes ambNeon {
+  0%, 100% { opacity: .03; transform: translate3d(0,0,0) scale(1); }
+  50%      { opacity: var(--op, .2); transform: translate3d(var(--dx, 0px),var(--dy, 0px),0) scale(1.25); }
+}
+@keyframes ambScintille {
+  0%, 100% { opacity: 0; transform: scale(.3); }
+  50%      { opacity: var(--op, .85); transform: scale(1) rotate(20deg); }
+}
+
+.amb-flocon, .amb-petale, .amb-feuille { animation-name: ambChute; }
+.amb-nuage, .amb-braise, .amb-bulle    { animation-name: ambMonte; }
+.amb-brume, .amb-poussiere             { animation-name: ambDerive; }
+.amb-neon      { animation-name: ambNeon; animation-timing-function: ease-in-out; }
+.amb-etincelle { animation-name: ambScintille; animation-timing-function: ease-in-out; }
+
+.amb-nuage, .amb-brume, .amb-neon { border-radius: 50%; }
+
+/* --- Wasteland : fumée de raffinerie + braises --- */
+.amb-nuage-pollution {
+  background: radial-gradient(circle, rgba(125,98,72,.9) 0%, rgba(125,98,72,0) 70%);
+  --op: .28; --sc0: .5; --sc: 2;
+}
+.amb-braise { border-radius: 50%; background: #FF8A2A; --op: .8; --sc0: 1; --sc: .4; }
+
+/* --- Steampunk : vapeur --- */
+.amb-nuage-vapeur {
+  background: radial-gradient(circle, rgba(215,200,175,.9) 0%, rgba(215,200,175,0) 70%);
+  --op: .16; --sc0: .5; --sc: 1.8;
+}
+
+/* --- Western : brume de poussière + grains --- */
+.amb-brume-poussiere {
+  background: radial-gradient(circle, rgba(222,184,120,.75) 0%, rgba(222,184,120,0) 70%);
+  --op: .2;
+}
+.amb-poussiere { border-radius: 50%; background: rgba(235,205,150,.9); --op: .55; }
+
+/* --- Effroi : brume spectrale --- */
+.amb-brume-effroi {
+  background: radial-gradient(circle, rgba(170,255,200,.5) 0%, rgba(123,47,247,.25) 45%, rgba(123,47,247,0) 70%);
+  --op: .35;
+}
+
+/* --- Cyberpunk : variations de néons --- */
+.amb-neon-cyan   { background: radial-gradient(circle, rgba(0,240,255,.9) 0%, rgba(0,240,255,0) 70%); --op: .2; }
+.amb-neon-rose   { background: radial-gradient(circle, rgba(255,43,214,.9) 0%, rgba(255,43,214,0) 70%); --op: .2; }
+.amb-neon-violet { background: radial-gradient(circle, rgba(123,47,247,.9) 0%, rgba(123,47,247,0) 70%); --op: .25; }
+
+/* --- Hivernal : flocons --- */
+.amb-flocon { border-radius: 50%; background: rgba(225,245,255,.9); --op: .65; }
+
+/* --- Pétales (printanier, estival) --- */
+.amb-petale { border-radius: 100% 0 100% 0; --op: .55; }
+.amb-petale-rose  { background: #F7B6D2; }
+.amb-petale-chaud { background: #FF9A5C; }
+.amb-petale-jaune { background: #FFD66B; }
+
+/* --- Automnal : feuilles --- */
+.amb-feuille { border-radius: 0 100% 0 100%; --op: .6; }
+.amb-feuille-orange { background: #E08D3C; }
+.amb-feuille-rouge  { background: #B23A2E; }
+
+/* --- Pain d'épice : scintillements --- */
+.amb-etincelle { color: #F7D774; --op: .85; }
+.amb-etincelle::before { content: '\2726'; }
+
+/* --- Pastel / Flibuste : bulles --- */
+.amb-bulle { border-radius: 50%; --op: .6; --sc0: 1; --sc: 1; }
+.amb-bulle-pastel {
+  border: 1.5px solid rgba(184,163,224,.8);
+  background: radial-gradient(circle at 30% 30%, rgba(247,198,217,.35), transparent 60%);
+}
+.amb-bulle-mer {
+  border: 1.5px solid rgba(42,157,143,.8);
+  background: radial-gradient(circle at 30% 30%, rgba(160,240,230,.3), transparent 60%);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ambiance-theme { display: none; }
+}

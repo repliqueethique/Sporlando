@@ -6184,6 +6184,103 @@ function majIconeNutrition(theme) {
   zone.innerHTML = '<svg viewBox="0 0 24 24">' + contenu + '</svg>';
 }
 
+/* ============================================================
+   AMBIANCE PAR THÈME
+   c = classes CSS    n = nombre de particules
+   t = taille en px [min, max]    d = durée en secondes [min, max]
+   dx / dy = dérive horizontale / verticale max (px)    r = rotation max (deg)
+   pos = 'h' (traverse l'écran de gauche à droite, y = hauteur en %)
+         'libre' (reste en place, position au hasard)
+         rien = tombe ou monte depuis le haut / le bas
+   ============================================================ */
+var AMBIANCE_ACTIVE = true;   /* false = aucune ambiance */
+
+var AMBIANCES = {
+  wasteland: [
+    { c: 'amb-nuage amb-nuage-pollution', n: 4, t: [220, 380], d: [16, 28], dx: 60 },
+    { c: 'amb-braise', n: 8, t: [2, 4], d: [6, 12], dx: 90 }
+  ],
+  ruedor: [
+    { c: 'amb-brume amb-brume-poussiere', n: 3, t: [280, 460], d: [24, 40], pos: 'h', y: [40, 95], dy: 30 },
+    { c: 'amb-poussiere', n: 10, t: [2, 4], d: [7, 14], pos: 'h', y: [0, 100], dy: 40 }
+  ],
+  cyberpunk: [
+    { c: 'amb-neon amb-neon-cyan', n: 2, t: [260, 420], d: [7, 12], pos: 'libre', dx: 60, dy: 40 },
+    { c: 'amb-neon amb-neon-rose', n: 2, t: [260, 420], d: [8, 13], pos: 'libre', dx: -60, dy: 50 },
+    { c: 'amb-neon amb-neon-violet', n: 2, t: [260, 420], d: [9, 14], pos: 'libre', dx: 40, dy: -50 }
+  ],
+  effroi: [
+    { c: 'amb-brume amb-brume-effroi', n: 4, t: [300, 500], d: [30, 50], pos: 'h', y: [45, 95], dy: -40 }
+  ],
+  hivernal: [
+    { c: 'amb-flocon', n: 22, t: [3, 8], d: [9, 18], dx: 60 }
+  ],
+  paindepice: [
+    { c: 'amb-etincelle', n: 18, t: [8, 18], d: [2, 5], pos: 'libre' }
+  ],
+  estival: [
+    { c: 'amb-petale amb-petale-chaud', n: 7, t: [9, 15], d: [10, 18], dx: 90, r: 540 },
+    { c: 'amb-petale amb-petale-jaune', n: 5, t: [9, 15], d: [10, 18], dx: 90, r: 540 }
+  ],
+  printanier: [
+    { c: 'amb-petale amb-petale-rose', n: 12, t: [8, 14], d: [10, 18], dx: 80, r: 540 }
+  ],
+  automnal: [
+    { c: 'amb-feuille amb-feuille-orange', n: 7, t: [12, 20], d: [10, 18], dx: 100, r: 540 },
+    { c: 'amb-feuille amb-feuille-rouge', n: 5, t: [12, 20], d: [10, 18], dx: 100, r: 540 }
+  ],
+  pastel: [
+    { c: 'amb-bulle amb-bulle-pastel', n: 12, t: [10, 34], d: [12, 24], dx: 40 }
+  ],
+  flibuste: [
+    { c: 'amb-bulle amb-bulle-mer', n: 10, t: [8, 26], d: [12, 24], dx: 30 }
+  ],
+  steampunk: [
+    { c: 'amb-nuage amb-nuage-vapeur', n: 6, t: [120, 220], d: [12, 22], dx: 40 }
+  ]
+};
+
+var themeAmbianceCourant = null;
+
+function alea(min, max) { return min + Math.random() * (max - min); }
+
+function majAmbiance(theme) {
+  var zone = document.getElementById('ambiance-theme');
+  if (!zone) {
+    zone = document.createElement('div');
+    zone.id = 'ambiance-theme';
+    zone.className = 'ambiance-theme';
+    document.body.appendChild(zone);
+  }
+  var cle = AMBIANCE_ACTIVE ? theme : '';
+  if (cle === themeAmbianceCourant) { return; }
+  themeAmbianceCourant = cle;
+
+  var groupes = AMBIANCES[cle] || [];
+  var html = '';
+  for (var g = 0; g < groupes.length; g++) {
+    var gr = groupes[g];
+    for (var i = 0; i < gr.n; i++) {
+      var taille = alea(gr.t[0], gr.t[1]).toFixed(1);
+      var duree = alea(gr.d[0], gr.d[1]);
+      var s = 'width:' + taille + 'px;height:' + taille + 'px;font-size:' + taille + 'px;';
+      s += 'animation-duration:' + duree.toFixed(1) + 's;animation-delay:-' + (Math.random() * duree).toFixed(1) + 's;';
+      if (gr.pos === 'h') {
+        s += 'left:0;top:' + alea(gr.y[0], gr.y[1]).toFixed(0) + '%;';
+      } else if (gr.pos === 'libre') {
+        s += 'left:' + alea(0, 90).toFixed(0) + '%;top:' + alea(0, 90).toFixed(0) + '%;';
+      } else {
+        s += 'left:' + alea(0, 100).toFixed(0) + '%;';
+      }
+      if (gr.dx) { s += '--dx:' + alea(-Math.abs(gr.dx), Math.abs(gr.dx)).toFixed(0) + 'px;'; }
+      if (gr.dy) { s += '--dy:' + alea(-Math.abs(gr.dy), Math.abs(gr.dy)).toFixed(0) + 'px;'; }
+      if (gr.r) { s += '--rot:' + alea(-gr.r, gr.r).toFixed(0) + 'deg;'; }
+      html += '<span class="amb ' + gr.c + '" style="' + s + '"></span>';
+    }
+  }
+  zone.innerHTML = html;
+}
+
 function appliquerTheme() {
   var theme = etat.profil.theme || 'sombre';
   var themeEffectif = theme;
@@ -6193,6 +6290,7 @@ function appliquerTheme() {
   }
   document.documentElement.setAttribute('data-theme', themeEffectif);
   majIconeNutrition(themeEffectif);
+  majAmbiance(themeEffectif);
 }
 
 /* ============================================================
