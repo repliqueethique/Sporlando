@@ -6133,6 +6133,57 @@ document.getElementById('modal-overlay').addEventListener('click', function (evt
   if (evt.target.id === 'modal-overlay') { fermerModal(); }
 }, false);
 
+/* ============================================================
+   ICÔNE NUTRITION PAR THÈME (tout est végane)
+   Une ligne par thème. "defaut" sert pour sombre, clair et auto.
+   ============================================================ */
+var ICONES_NUTRITION = {
+  defaut: '<path d="M12 7c-2-2-6-1.5-6 3 0 4 2.5 9 6 9s6-5 6-9c0-4.5-4-5-6-3z"/><path d="M12 7c0-2 1-3.5 3-4"/>',
+
+  /* 🍉 pastèque */
+  estival: '<path d="M3 9h18a9 9 0 0 1-18 0z"/><path d="M5.5 9a6.5 6.5 0 0 0 13 0"/><path d="M9 12v.01M12 14v.01M15 12v.01"/>',
+
+  /* 🌰 châtaigne */
+  automnal: '<path d="M5 14c0-4 3-7 7-7s7 3 7 7c0 3.5-3 6-7 6s-7-2.5-7-6z"/><path d="M12 7V4"/><path d="M9 17c1 .8 2 1 3 1"/>',
+
+  /* 🎃 jack-o'-lantern */
+  effroi: '<path d="M12 6c-2-1-4-.5-5.5 1C4.5 8.5 4 11 4 13c0 3.5 3 7 8 7s8-3.5 8-7c0-2-.5-4.5-2.5-6C16 5.5 14 5 12 6z"/><path d="M12 6c0-1.5.5-2.5 1.5-3"/><path d="M8 11l2 2.5H6zM16 11l2 2.5h-4z"/><path d="M8 16.5l1.5 1.5 1.5-1.5 1 1.5 1.5-1.5 1.5 1.5"/>',
+
+  /* ☕ chocolat chaud végétal */
+  hivernal: '<path d="M5 10h11v6a4 4 0 0 1-4 4H9a4 4 0 0 1-4-4z"/><path d="M16 12h1.5a2.5 2.5 0 0 1 0 5H16"/><path d="M8 3c-1 1 1 2 0 3M12 3c-1 1 1 2 0 3"/>',
+
+  /* 🍪 bonhomme biscuit (pain d'épice végane) */
+  paindepice: '<circle cx="12" cy="6" r="2.5"/><path d="M9.5 8.5L4.5 9.5 5 12.5l4-1L8 20h3.2l.8-2.5.8 2.5H16l-1-8.5 4 1 .5-3-5-1"/><path d="M12 12v.01M12 14.5v.01"/>',
+
+  /* 🍓 fraise */
+  printanier: '<path d="M12 8c-4-1-7 1-6 5 1 4 4 7 6 7s5-3 6-7c1-4-2-6-6-5z"/><path d="M9.5 6.5L12 8l2.5-1.5M12 8V5"/><path d="M10 12v.01M14 12v.01M12 15v.01"/>',
+
+  /* 🧁 cupcake végane */
+  pastel: '<path d="M5.5 12c-.5-3 1.5-5 3-5.2C9 5 10.5 4 12 4s3 1 3.5 2.8c1.5.2 3.5 2.2 3 5.2z"/><path d="M6 12l1.5 8h9L18 12"/><path d="M10 14v4M14 14v4"/>',
+
+  /* 🍜 bol de ramen (nouilles et bouillon végétal) */
+  cyberpunk: '<path d="M4 12h16c0 4.4-3.6 8-8 8s-8-3.6-8-8z"/><path d="M14 3.5L10.5 12M17 4.5L13.5 12"/>',
+
+  /* 🫖 théière */
+  steampunk: '<path d="M5.5 10.5h11v3a5.5 5.5 0 0 1-11 0z"/><path d="M8 10.5a3 3 0 0 1 6 0"/><path d="M11 6v1.5"/><path d="M16.5 12.5L20 9"/><path d="M5.5 11.5H4a1.5 1.5 0 0 0 0 3h1.5"/>',
+
+  /* 🍍 ananas */
+  flibuste: '<path d="M8 12.5c0-2.5 1.5-4 4-4s4 1.5 4 4v3c0 2.5-1.5 4.5-4 4.5s-4-2-4-4.5z"/><path d="M12 8.5C10.5 6 9 5.5 8 4M12 8.5V3.5M12 8.5C13.5 6 15 5.5 16 4"/><path d="M8.5 13l7 5M15.5 13l-7 5"/>',
+
+  /* 🌵 cactus */
+  ruedor: '<path d="M10 20V8a2 2 0 0 1 4 0v12"/><path d="M10 14H8a2 2 0 0 1-2-2v-2M14 12h2a2 2 0 0 0 2-2V8"/><path d="M7 20h10"/>',
+
+  /* 🌶️ piment */
+  wasteland: '<path d="M7 6c-.5 5 4 11 11 13-1-5-3-9-6-11.5C10.5 6.2 8.5 5.5 7 6z"/><path d="M7 6L5.5 4M7 6c0-1 .5-2 1.5-2.5"/>'
+};
+
+function majIconeNutrition(theme) {
+  var zone = document.querySelector('.nav-onglet[data-page="nutrition"] .nav-icone');
+  if (!zone) { return; }
+  var contenu = ICONES_NUTRITION[theme] || ICONES_NUTRITION.defaut;
+  zone.innerHTML = '<svg viewBox="0 0 24 24">' + contenu + '</svg>';
+}
+
 function appliquerTheme() {
   var theme = etat.profil.theme || 'sombre';
   var themeEffectif = theme;
@@ -6141,6 +6192,7 @@ function appliquerTheme() {
     themeEffectif = prefereClair ? 'clair' : 'sombre';
   }
   document.documentElement.setAttribute('data-theme', themeEffectif);
+  majIconeNutrition(themeEffectif);
 }
 
 /* ============================================================
