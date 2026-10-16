@@ -6353,7 +6353,6 @@ function declencherEclair() {
     void coucheFlash.offsetWidth;   /* relance les animations */
     coucheFlash.classList.add('actif');
     coucheBolt.classList.add('actif');
-    if (navigator.vibrate) { try { navigator.vibrate([40, 60, 30]); } catch (e) {} }
   }
   planifierEclair();
 }
