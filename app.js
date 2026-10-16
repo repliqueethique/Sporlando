@@ -6237,7 +6237,7 @@ var AMBIANCES = {
     { c: 'amb-bulle amb-bulle-mer', n: 10, t: [8, 26], d: [12, 24], dx: 30 }
   ],
   steampunk: [
-    { c: 'amb-nuage amb-nuage-vapeur', n: 6, t: [120, 220], d: [12, 22], dx: 40 }
+    { c: 'amb-nuage amb-nuage-vapeur', n: 3, t: [120, 200], d: [14, 24], dx: 40 }
   ]
 };
 
@@ -6382,22 +6382,18 @@ function majEclair(theme) {
 var ROUAGES_ACTIF = true;
 
 var ROUAGES_CHAINES = [
-  { prof: 0.0, x: 0.85, y: 0.12, mode: 'continu', t: 120, sens: 1,
-    gears: [{ n: 18 }, { n: 10, ang: 140 }, { n: 8, ang: 70 }] },
-  { prof: 0.1, x: 0.10, y: 0.50, mode: 'oscille', d: 9, amp: 40, sens: -1,
-    gears: [{ n: 14 }, { n: 9, ang: -20 }, { n: 12, ang: 40 }] },
-  { prof: 0.2, x: 0.50, y: 0.95, mode: 'coups', tick: 1.5, sens: 1,
-    gears: [{ n: 12 }, { n: 8, ang: -160 }, { n: 10, ang: -120 }] },
-  { prof: 0.4, x: 0.05, y: 0.12, mode: 'continu', t: 60, sens: 1,
-    gears: [{ n: 10 }, { n: 8, ang: 30 }, { n: 12, ang: -10 }] },
-  { prof: 0.5, x: 0.95, y: 0.60, mode: 'coups', tick: 1.2, sens: -1,
-    gears: [{ n: 8 }, { n: 12, ang: 170 }, { n: 8, ang: -150 }] },
-  { prof: 0.6, x: 0.30, y: 0.75, mode: 'oscille', d: 7, amp: 50, sens: 1,
-    gears: [{ n: 9 }, { n: 14, ang: -45 }] },
-  { prof: 0.8, x: 0.75, y: 0.30, mode: 'continu', t: 45, sens: -1,
-    gears: [{ n: 8 }, { n: 10, ang: 100 }, { n: 8, ang: 30 }] },
-  { prof: 1.0, x: 0.15, y: 0.30, mode: 'coups', tick: 1, sens: 1,
-    gears: [{ n: 9 }, { n: 8, ang: 60 }] }
+  { prof: 0.0, x: 0.92, y: 0.20, mode: 'continu', t: 200, sens: 1,
+    gears: [{ n: 30 }, { n: 12, ang: 150 }] },
+  { prof: 0.1, x: 0.05, y: 0.82, mode: 'oscille', d: 12, amp: 25, sens: -1,
+    gears: [{ n: 26 }, { n: 10, ang: -50 }, { n: 8, ang: -110 }] },
+  { prof: 0.4, x: 0.08, y: 0.18, mode: 'continu', t: 70, sens: 1,
+    gears: [{ n: 12 }, { n: 8, ang: 35 }, { n: 10, ang: -10 }] },
+  { prof: 0.6, x: 0.90, y: 0.65, mode: 'coups', tick: 1.3, sens: -1,
+    gears: [{ n: 10 }, { n: 14, ang: 170 }] },
+  { prof: 0.8, x: 0.45, y: 0.93, mode: 'oscille', d: 8, amp: 45, sens: 1,
+    gears: [{ n: 9 }, { n: 8, ang: -150 }] },
+  { prof: 1.0, x: 0.22, y: 0.42, mode: 'coups', tick: 1, sens: 1,
+    gears: [{ n: 9 }, { n: 8, ang: 55 }] }
 ];
 
 function modPositif(a, b) { return ((a % b) + b) % b; }
@@ -6461,7 +6457,7 @@ function construireRouages() {
     var chaine = ROUAGES_CHAINES[c];
     var n0 = chaine.gears[0].n;
     var mc = m * (0.8 + 0.5 * chaine.prof);                              /* plus proche = plus gros */
-    var couleur = interpolerCouleur('#18120A', '#2A2013', chaine.prof);  /* loin = presque comme le fond, proche = un peu plus clair */
+    var couleur = interpolerCouleur('#241B11', '#31261A', chaine.prof);
     var prec = null;
 
     for (var g = 0; g < chaine.gears.length; g++) {
@@ -6496,8 +6492,9 @@ function construireRouages() {
       }
 
       var dessin = svgRouage(n, mc, off, couleur);
-      html += '<div class="' + classe + '" style="left:' + (cx - dessin.taille / 2).toFixed(1) + 'px;top:' + (cy - dessin.taille / 2).toFixed(1) + 'px;width:' + dessin.taille + 'px;height:' + dessin.taille + 'px;' + anim + '">' + dessin.svg + '</div>';
-
+      if (cx + r + mc > 0 && cx - r - mc < W && cy + r + mc > 0 && cy - r - mc < H) {
+        html += '<div class="' + classe + '" style="left:' + (cx - dessin.taille / 2).toFixed(1) + 'px;top:' + (cy - dessin.taille / 2).toFixed(1) + 'px;width:' + dessin.taille + 'px;height:' + dessin.taille + 'px;' + anim + '">' + dessin.svg + '</div>';
+      }
       prec = { cx: cx, cy: cy, r: r, n: n, p: p, off: off };
     }
   }
