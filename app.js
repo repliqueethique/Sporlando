@@ -6213,7 +6213,7 @@ var AMBIANCES = {
     { c: 'amb-brume amb-brume-effroi', n: 4, t: [300, 500], d: [30, 50], pos: 'h', y: [45, 95], dy: -40 }
   ],
   hivernal: [
-    { c: 'amb-flocon', n: 22, t: [3, 8], d: [9, 18], dx: 60 }
+    { c: 'amb-flocon', n: 26, t: [2, 16], d: [20, 38], dx: 170 }
   ],
   paindepice: [
     { c: 'amb-etincelle', n: 18, t: [8, 18], d: [2, 5], pos: 'libre' }
