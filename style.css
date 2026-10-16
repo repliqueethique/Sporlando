@@ -96,7 +96,7 @@
 }
 
 :root[data-theme="printanier"] {
-  --couleur-fond: #223020; --couleur-carte: #3c563f; --couleur-carte-creux: #293a25; --couleur-bordure: #2A3B27;
+  --couleur-fond: #192718; --couleur-carte: #2b422e; --couleur-carte-creux: #293a25; --couleur-bordure: #2A3B27;
   --couleur-turquoise: #8FD694; --couleur-cyan: #F2A6C7;
   --couleur-degrade: linear-gradient(135deg, #8FD694 0%, #F2A6C7 100%);
   --degrade-seance: linear-gradient(135deg, #8FD694, #F2A6C7, #FCE38A);
@@ -108,7 +108,7 @@
 }
 
 :root[data-theme="pastel"] {
-  --couleur-fond: #5e5075; --couleur-carte: #9c5dad; --couleur-carte-creux: #cd7fe7; --couleur-bordure: #9b82d3;
+  --couleur-fond: #483d59; --couleur-carte: #663e71; --couleur-carte-creux: #7d518c; --couleur-bordure: #c685ce;
   --couleur-turquoise: #B8A3E0; --couleur-cyan: #F7C6D9;
   --couleur-degrade: linear-gradient(135deg, #B8A3E0 0%, #F7C6D9 100%);
   --degrade-seance: linear-gradient(135deg, #B8A3E0, #F7C6D9, #BEE7E8);
