@@ -6288,6 +6288,86 @@ function majAmbiance(theme) {
   zone.innerHTML = html;
 }
 
+/* ============================================================
+   ÉCLAIR (thème effroi) : flash + foudre synchronisés, à intervalle aléatoire
+   ============================================================ */
+var ECLAIR_ACTIF = true;
+var ECLAIR_DELAI = [8, 25];   /* secondes entre deux éclairs (min, max) */
+var minuteurEclair = null;
+var coucheFlash = null;
+var coucheBolt = null;
+
+function creerCouchesEclair() {
+  if (coucheFlash) { return; }
+  coucheFlash = document.createElement('div');
+  coucheFlash.className = 'eclair-flash';
+  coucheBolt = document.createElement('div');
+  coucheBolt.className = 'eclair-bolt';
+  document.body.appendChild(coucheFlash);
+  document.body.appendChild(coucheBolt);
+}
+
+/* Dessine une foudre zigzagante avec une branche, différente à chaque fois */
+function dessinerFoudre() {
+  var pts = [[60, 0]];
+  var x = 60, y = 0;
+  while (y < 400) {
+    y += alea(25, 45);
+    x += alea(-24, 24);
+    if (x < 15) { x = 15; }
+    if (x > 105) { x = 105; }
+    pts.push([x, Math.min(y, 400)]);
+  }
+  var d = 'M' + pts[0][0] + ',' + pts[0][1];
+  for (var i = 1; i < pts.length; i++) { d += ' L' + pts[i][0].toFixed(0) + ',' + pts[i][1].toFixed(0); }
+
+  var depart = pts[Math.floor(pts.length * alea(.3, .6))];
+  var bx = depart[0], by = depart[1];
+  var sens = Math.random() < .5 ? -1 : 1;
+  var branche = 'M' + bx.toFixed(0) + ',' + by.toFixed(0);
+  for (var b = 0; b < 3; b++) {
+    bx += sens * alea(8, 18);
+    by += alea(20, 38);
+    branche += ' L' + bx.toFixed(0) + ',' + by.toFixed(0);
+  }
+
+  var svg = '<svg viewBox="0 0 120 400" preserveAspectRatio="none">';
+  svg += '<path d="' + d + ' ' + branche + '" fill="none" stroke="rgba(150,110,255,.55)" stroke-width="9" stroke-linejoin="round" vector-effect="non-scaling-stroke"/>';
+  svg += '<path d="' + d + '" fill="none" stroke="#FFFFFF" stroke-width="2.5" stroke-linejoin="round" vector-effect="non-scaling-stroke"/>';
+  svg += '<path d="' + branche + '" fill="none" stroke="#E8DEFF" stroke-width="1.8" stroke-linejoin="round" vector-effect="non-scaling-stroke"/>';
+  svg += '</svg>';
+  return svg;
+}
+
+function declencherEclair() {
+  minuteurEclair = null;
+  if ((etat.profil.theme || 'sombre') !== 'effroi' || !ECLAIR_ACTIF) { return; }
+  if (!document.hidden) {
+    creerCouchesEclair();
+    var posX = alea(15, 85).toFixed(0) + '%';
+    coucheBolt.innerHTML = dessinerFoudre();
+    coucheBolt.style.left = posX;
+    coucheFlash.style.setProperty('--ex', posX);
+    coucheFlash.classList.remove('actif');
+    coucheBolt.classList.remove('actif');
+    void coucheFlash.offsetWidth;   /* relance les animations */
+    coucheFlash.classList.add('actif');
+    coucheBolt.classList.add('actif');
+    if (navigator.vibrate) { try { navigator.vibrate([40, 60, 30]); } catch (e) {} }
+  }
+  planifierEclair();
+}
+
+function planifierEclair() {
+  if (minuteurEclair) { window.clearTimeout(minuteurEclair); }
+  minuteurEclair = window.setTimeout(declencherEclair, alea(ECLAIR_DELAI[0], ECLAIR_DELAI[1]) * 1000);
+}
+
+function majEclair(theme) {
+  if (minuteurEclair) { window.clearTimeout(minuteurEclair); minuteurEclair = null; }
+  if (theme === 'effroi' && ECLAIR_ACTIF) { planifierEclair(); }
+}
+
 function appliquerTheme() {
   var theme = etat.profil.theme || 'sombre';
   var themeEffectif = theme;
@@ -6298,6 +6378,7 @@ function appliquerTheme() {
   document.documentElement.setAttribute('data-theme', themeEffectif);
   majIconeNutrition(themeEffectif);
   majAmbiance(themeEffectif);
+  majEclair(themeEffectif);
 }
 
 /* ============================================================

@@ -3627,3 +3627,52 @@ body { background: transparent; }
   background: radial-gradient(circle, rgba(255,243,190,.5) 0%, rgba(255,226,140,.24) 35%, rgba(255,210,120,0) 68%);
   animation: ambSoleil 9s ease-in-out infinite;
 }
+
+/* ============================================================
+   EFFROI : ÉCLAIR (flash + foudre)
+   ============================================================ */
+.eclair-flash, .eclair-bolt {
+  position: fixed;
+  pointer-events: none;
+  opacity: 0;
+  z-index: 6;
+}
+.eclair-flash {
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: radial-gradient(ellipse at var(--ex, 50%) 0%, rgba(240,232,255,.95) 0%, rgba(170,130,255,.4) 45%, rgba(123,47,247,0) 80%);
+}
+.eclair-bolt {
+  top: 0;
+  width: 26vw; min-width: 110px; max-width: 260px;
+  height: 75vh;
+  margin-left: -13vw;
+}
+.eclair-bolt svg { width: 100%; height: 100%; display: block; }
+
+/* Flash : double éclat puis extinction */
+@keyframes eclairFlash {
+  0%   { opacity: 0; }
+  4%   { opacity: 1; }
+  10%  { opacity: .2; }
+  16%  { opacity: .85; }
+  24%  { opacity: .1; }
+  32%  { opacity: .45; }
+  100% { opacity: 0; }
+}
+/* Foudre : visible uniquement pendant les éclats, synchronisée avec le flash */
+@keyframes eclairBolt {
+  0%   { opacity: 0; }
+  4%   { opacity: 1; }
+  11%  { opacity: 1; }
+  12%  { opacity: 0; }
+  16%  { opacity: 1; }
+  23%  { opacity: .8; }
+  26%  { opacity: 0; }
+  100% { opacity: 0; }
+}
+.eclair-flash.actif { animation: eclairFlash 1.1s linear forwards; }
+.eclair-bolt.actif  { animation: eclairBolt 1.1s linear forwards; }
+
+@media (prefers-reduced-motion: reduce) {
+  .eclair-flash, .eclair-bolt { display: none; }
+}
