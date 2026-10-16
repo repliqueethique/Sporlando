@@ -3502,7 +3502,9 @@ body { background: transparent; }
   50%      { opacity: var(--op, .85); transform: scale(1) rotate(20deg); }
 }
 
-.amb-flocon, .amb-petale, .amb-feuille { animation-name: ambChute; }
+.amb-flocon, .amb-petale, .amb-feuille, .amb-erable { animation-name: ambChute; }
+.amb-rayon  { animation-name: ambRayon; animation-timing-function: ease-in-out; }
+.amb-reflet { animation-name: ambReflet; animation-timing-function: ease-in-out; }
 .amb-nuage, .amb-braise, .amb-bulle    { animation-name: ambMonte; }
 .amb-brume, .amb-poussiere             { animation-name: ambDerive; }
 .amb-neon      { animation-name: ambNeon; animation-timing-function: ease-in-out; }
@@ -3542,7 +3544,9 @@ body { background: transparent; }
 .amb-neon-violet { background: radial-gradient(circle, rgba(123,47,247,.9) 0%, rgba(123,47,247,0) 70%); --op: .25; }
 
 /* --- Hivernal : flocons --- */
-.amb-flocon { border-radius: 50%; background: rgba(225,245,255,.9); --op: .65; }
+.amb-flocon { color: rgba(225,245,255,.95); --op: .7; }
+.amb-flocon-a::before { content: '\2744'; }
+.amb-flocon-b::before { content: '\2745'; }
 
 /* --- Pétales (printanier, estival) --- */
 .amb-petale { border-radius: 100% 0 100% 0; --op: .55; }
@@ -3572,4 +3576,32 @@ body { background: transparent; }
 
 @media (prefers-reduced-motion: reduce) {
   .ambiance-theme { display: none; }
+}
+
+/* Automnal : feuille d'érable */
+.amb-erable { --op: .8; }
+.amb-erable::before { content: '\1F341'; }
+
+/* Estival : rayons de soleil + reflets sur l'eau */
+@keyframes ambRayon {
+  0%, 100% { opacity: .04; transform: rotate(17deg); }
+  50%      { opacity: var(--op, .2); transform: rotate(23deg); }
+}
+@keyframes ambReflet {
+  0%, 100% { opacity: 0; transform: scaleX(.35); }
+  50%      { opacity: var(--op, .8); transform: scaleX(1); }
+}
+.amb-rayon {
+  height: 150vh !important;
+  transform-origin: 50% 0;
+  background: linear-gradient(to right, rgba(255,232,150,0), rgba(255,232,150,.8) 50%, rgba(255,232,150,0));
+  -webkit-mask-image: linear-gradient(to bottom, #000, rgba(0,0,0,0) 85%);
+  mask-image: linear-gradient(to bottom, #000, rgba(0,0,0,0) 85%);
+  --op: .2;
+}
+.amb-reflet {
+  height: 3px !important;
+  border-radius: 50%;
+  background: radial-gradient(ellipse, rgba(255,255,255,.95), rgba(150,235,255,.5) 55%, rgba(150,235,255,0) 75%);
+  --op: .8;
 }

@@ -6213,21 +6213,23 @@ var AMBIANCES = {
     { c: 'amb-brume amb-brume-effroi', n: 4, t: [300, 500], d: [30, 50], pos: 'h', y: [45, 95], dy: -40 }
   ],
   hivernal: [
-    { c: 'amb-flocon', n: 26, t: [2, 16], d: [20, 38], dx: 170 }
+    { c: 'amb-flocon amb-flocon-a', n: 14, t: [6, 22], d: [20, 38], dx: 170, r: 360 },
+    { c: 'amb-flocon amb-flocon-b', n: 12, t: [6, 22], d: [20, 38], dx: 170, r: 360 }
   ],
   paindepice: [
     { c: 'amb-etincelle', n: 18, t: [8, 18], d: [2, 5], pos: 'libre' }
   ],
   estival: [
-    { c: 'amb-petale amb-petale-chaud', n: 7, t: [9, 15], d: [10, 18], dx: 90, r: 540 },
-    { c: 'amb-petale amb-petale-jaune', n: 5, t: [9, 15], d: [10, 18], dx: 90, r: 540 }
+    { c: 'amb-rayon', n: 4, t: [70, 160], d: [7, 13], pos: 'haut' },
+    { c: 'amb-reflet', n: 14, t: [30, 90], d: [2, 5], pos: 'libre', y: [58, 98] }
   ],
   printanier: [
     { c: 'amb-petale amb-petale-rose', n: 12, t: [8, 14], d: [10, 18], dx: 80, r: 540 }
   ],
   automnal: [
-    { c: 'amb-feuille amb-feuille-orange', n: 7, t: [12, 20], d: [10, 18], dx: 100, r: 540 },
-    { c: 'amb-feuille amb-feuille-rouge', n: 5, t: [12, 20], d: [10, 18], dx: 100, r: 540 }
+    { c: 'amb-feuille amb-feuille-orange', n: 6, t: [12, 20], d: [10, 18], dx: 100, r: 540 },
+    { c: 'amb-feuille amb-feuille-rouge', n: 4, t: [12, 20], d: [10, 18], dx: 100, r: 540 },
+    { c: 'amb-erable', n: 5, t: [14, 24], d: [11, 20], dx: 110, r: 540 }
   ],
   pastel: [
     { c: 'amb-bulle amb-bulle-pastel', n: 12, t: [10, 34], d: [12, 24], dx: 40 }
@@ -6267,8 +6269,11 @@ function majAmbiance(theme) {
       s += 'animation-duration:' + duree.toFixed(1) + 's;animation-delay:-' + (Math.random() * duree).toFixed(1) + 's;';
       if (gr.pos === 'h') {
         s += 'left:0;top:' + alea(gr.y[0], gr.y[1]).toFixed(0) + '%;';
+      } else if (gr.pos === 'haut') {
+        s += 'left:' + alea(0, 100).toFixed(0) + '%;top:-25%;';
       } else if (gr.pos === 'libre') {
-        s += 'left:' + alea(0, 90).toFixed(0) + '%;top:' + alea(0, 90).toFixed(0) + '%;';
+        var haut = gr.y ? alea(gr.y[0], gr.y[1]) : alea(0, 90);
+        s += 'left:' + alea(0, 90).toFixed(0) + '%;top:' + haut.toFixed(0) + '%;';
       } else {
         s += 'left:' + alea(0, 100).toFixed(0) + '%;';
       }
