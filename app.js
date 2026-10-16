@@ -6440,6 +6440,24 @@ function svgRouage(n, m, off, couleur) {
 }
 
 var themeRouagesCourant = null;
+var ROUAGES_PAGE_PX = [20, 40];
+var ROUAGES_SCROLL_AMP = [50, 180];
+var ROUAGES_SCROLL_ECHELLE = 500;
+var plansRouages = [];
+var indexPageRouages = 0;
+
+function majRouagesParallaxe() {
+  if (plansRouages.length === 0) { return; }
+  var sy = window.pageYOffset || 0;
+  var sat = 1 - Math.exp(-sy / ROUAGES_SCROLL_ECHELLE);
+  for (var i = 0; i < plansRouages.length; i++) {
+    var pl = plansRouages[i];
+    var x = -indexPageRouages * (ROUAGES_PAGE_PX[0] + (ROUAGES_PAGE_PX[1] - ROUAGES_PAGE_PX[0]) * pl.prof);
+    var y = -sat * (ROUAGES_SCROLL_AMP[0] + (ROUAGES_SCROLL_AMP[1] - ROUAGES_SCROLL_AMP[0]) * pl.prof);
+    appliquerTransformFond(pl.ext, x, 0);
+    appliquerTransformFond(pl.int, 0, y);
+  }
+}
 
 function construireRouages() {
   var zone = document.getElementById('rouages-theme');
