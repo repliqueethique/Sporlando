@@ -6382,14 +6382,22 @@ function majEclair(theme) {
 var ROUAGES_ACTIF = true;
 
 var ROUAGES_CHAINES = [
-  { prof: 0.0, x: 0.12, y: 0.88, mode: 'coups', tick: 1.8, sens: -1,
-    gears: [{ n: 20 }, { n: 12, ang: -35 }, { n: 16, ang: 15 }] },
-  { prof: 0.3, x: 0.88, y: 0.92, mode: 'continu', t: 160, sens: -1,
-    gears: [{ n: 24 }] },
-  { prof: 0.6, x: 0.98, y: 0.52, mode: 'oscille', d: 10, amp: 35, sens: 1,
-    gears: [{ n: 30 }, { n: 18, ang: 158 }] },
-  { prof: 1.0, x: 0.02, y: 0.14, mode: 'continu', t: 90, sens: 1,
-    gears: [{ n: 22 }, { n: 14, ang: 20 }, { n: 26, ang: -28 }] }
+  { prof: 0.0, x: 0.85, y: 0.12, mode: 'continu', t: 120, sens: 1,
+    gears: [{ n: 18 }, { n: 10, ang: 140 }, { n: 8, ang: 70 }] },
+  { prof: 0.1, x: 0.10, y: 0.50, mode: 'oscille', d: 9, amp: 40, sens: -1,
+    gears: [{ n: 14 }, { n: 9, ang: -20 }, { n: 12, ang: 40 }] },
+  { prof: 0.2, x: 0.50, y: 0.95, mode: 'coups', tick: 1.5, sens: 1,
+    gears: [{ n: 12 }, { n: 8, ang: -160 }, { n: 10, ang: -120 }] },
+  { prof: 0.4, x: 0.05, y: 0.12, mode: 'continu', t: 60, sens: 1,
+    gears: [{ n: 10 }, { n: 8, ang: 30 }, { n: 12, ang: -10 }] },
+  { prof: 0.5, x: 0.95, y: 0.60, mode: 'coups', tick: 1.2, sens: -1,
+    gears: [{ n: 8 }, { n: 12, ang: 170 }, { n: 8, ang: -150 }] },
+  { prof: 0.6, x: 0.30, y: 0.75, mode: 'oscille', d: 7, amp: 50, sens: 1,
+    gears: [{ n: 9 }, { n: 14, ang: -45 }] },
+  { prof: 0.8, x: 0.75, y: 0.30, mode: 'continu', t: 45, sens: -1,
+    gears: [{ n: 8 }, { n: 10, ang: 100 }, { n: 8, ang: 30 }] },
+  { prof: 1.0, x: 0.15, y: 0.30, mode: 'coups', tick: 1, sens: 1,
+    gears: [{ n: 9 }, { n: 8, ang: 60 }] }
 ];
 
 function modPositif(a, b) { return ((a % b) + b) % b; }
@@ -6446,14 +6454,14 @@ function construireRouages() {
     document.body.appendChild(zone);
   }
   var W = window.innerWidth, H = window.innerHeight;
-  var m = Math.max(8, Math.min(14, W / 36));   /* taille des dents */
+  var m = Math.max(7, Math.min(11, W / 44));   /* taille des dents */
   var html = '';
 
   for (var c = 0; c < ROUAGES_CHAINES.length; c++) {
     var chaine = ROUAGES_CHAINES[c];
     var n0 = chaine.gears[0].n;
     var mc = m * (0.8 + 0.5 * chaine.prof);                              /* plus proche = plus gros */
-    var couleur = interpolerCouleur('#1E170F', '#3B2D1B', chaine.prof);  /* loin = sombre, proche = moins sombre */
+    var couleur = interpolerCouleur('#18120A', '#2A2013', chaine.prof);  /* loin = presque comme le fond, proche = un peu plus clair */
     var prec = null;
 
     for (var g = 0; g < chaine.gears.length; g++) {
