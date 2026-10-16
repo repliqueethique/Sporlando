@@ -3434,11 +3434,29 @@ body { background: transparent; }
   background-size: 80px 80px;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80'%3E%3Ccircle cx='20' cy='20' r='3' fill='%23B8A3E0' fill-opacity='.14'/%3E%3Ccircle cx='60' cy='60' r='3' fill='%23F7C6D9' fill-opacity='.14'/%3E%3C/svg%3E");
 }
-/* Estival : vagues dorées */
-:root[data-theme="estival"] .fond-motif {
-  background-size: 120px 120px;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cg fill='none' stroke='%23FFC857' stroke-opacity='.11' stroke-width='1.5'%3E%3Cpath d='M0 30q15-10 30 0t30 0t30 0t30 0'/%3E%3Cpath d='M0 90q15-10 30 0t30 0t30 0t30 0'/%3E%3C/g%3E%3C/svg%3E");
+/* Estival : reflets de piscine (caustiques en bruit fractal) */
+:root[data-theme="estival"] {
+  --caustique: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='c' x='0' y='0' width='100%25' height='100%25' color-interpolation-filters='sRGB'%3E%3CfeTurbulence type='turbulence' baseFrequency='.016' numOctaves='2' seed='7' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .62 0 0 0 0 1 0 0 0 0 .95 1 0 0 0 0'/%3E%3CfeComponentTransfer%3E%3CfeFuncA type='table' tableValues='0 0 0 0 0 1 0 0 0 0 0 0'/%3E%3C/feComponentTransfer%3E%3C/filter%3E%3Crect width='240' height='240' filter='url(%23c)' opacity='.55'/%3E%3C/svg%3E");
 }
+:root[data-theme="estival"] .fond-motif::before,
+:root[data-theme="estival"] .fond-motif::after {
+  content: '';
+  position: absolute;
+  top: -240px; left: -240px; right: -240px; bottom: -240px;
+  background-image: var(--caustique);
+  will-change: transform;
+}
+:root[data-theme="estival"] .fond-motif::before {
+  background-size: 240px 240px;
+  animation: causticDeriveA 60s linear infinite;
+}
+:root[data-theme="estival"] .fond-motif::after {
+  background-size: 120px 120px;
+  opacity: .8;
+  animation: causticDeriveB 40s linear infinite;
+}
+@keyframes causticDeriveA { from { transform: translate3d(0,0,0); } to { transform: translate3d(-240px,240px,0); } }
+@keyframes causticDeriveB { from { transform: translate3d(0,0,0); } to { transform: translate3d(240px,240px,0); } }
 /* Flibuste : pont en planches calfatées + cordage */
 :root[data-theme="flibuste"] .fond-motif {
   background-size: 240px 240px;
@@ -3582,26 +3600,30 @@ body { background: transparent; }
 .amb-erable { --op: .8; }
 .amb-erable::before { content: '\1F341'; }
 
-/* Estival : rayons de soleil + reflets sur l'eau */
+/* Estival : rayons de soleil (même source hors champ, en haut à droite) */
 @keyframes ambRayon {
-  0%, 100% { opacity: .04; transform: rotate(17deg); }
-  50%      { opacity: var(--op, .2); transform: rotate(23deg); }
-}
-@keyframes ambReflet {
-  0%, 100% { opacity: 0; transform: scaleX(.35); }
-  50%      { opacity: var(--op, .8); transform: scaleX(1); }
+  0%, 100% { opacity: .06; transform: rotate(var(--a, 22deg)); }
+  50%      { opacity: var(--op, .4); transform: rotate(calc(var(--a, 22deg) + 4deg)); }
 }
 .amb-rayon {
   height: 150vh !important;
   transform-origin: 50% 0;
-  background: linear-gradient(to right, rgba(255,232,150,0), rgba(255,232,150,.8) 50%, rgba(255,232,150,0));
-  -webkit-mask-image: linear-gradient(to bottom, #000, rgba(0,0,0,0) 85%);
-  mask-image: linear-gradient(to bottom, #000, rgba(0,0,0,0) 85%);
-  --op: .2;
+  background: linear-gradient(to right, rgba(255,238,170,0), rgba(255,238,170,1) 50%, rgba(255,238,170,0));
+  -webkit-mask-image: linear-gradient(to bottom, #000, rgba(0,0,0,0) 90%);
+  mask-image: linear-gradient(to bottom, #000, rgba(0,0,0,0) 90%);
+  --op: .4;
 }
-.amb-reflet {
-  height: 3px !important;
-  border-radius: 50%;
-  background: radial-gradient(ellipse, rgba(255,255,255,.95), rgba(150,235,255,.5) 55%, rgba(150,235,255,0) 75%);
-  --op: .8;
+
+/* Zone très lumineuse en haut à droite */
+@keyframes ambSoleil {
+  0%, 100% { opacity: .75; }
+  50%      { opacity: 1; }
+}
+:root[data-theme="estival"] .ambiance-theme::before {
+  content: '';
+  position: absolute;
+  top: -35vw; right: -35vw;
+  width: 100vw; height: 100vw;
+  background: radial-gradient(circle, rgba(255,243,190,.5) 0%, rgba(255,226,140,.24) 35%, rgba(255,210,120,0) 68%);
+  animation: ambSoleil 9s ease-in-out infinite;
 }

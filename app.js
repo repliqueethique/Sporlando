@@ -3615,15 +3615,15 @@ var EXPRESSIONS_FIN_PAR_THEME = {
   defaut:     ["Go !", "Reprise !", "Aller !", "C'est tipar !", "Pousse !", "Let's go !", "Chaud !", "Next !"],
   effroi:     ["Debout !", "Ressuscite !", "Encore !", "Lève-toi !", "Mwahaha !", "Réveille-toi !"],
   flibuste:   ["À l'abordage !", "Hisse !", "Cap !", "Largue les amarres !", "Tonnerre !"],
-  wasteland:  ["Nitro !", "Vroum !", "Pied au plancher !", "Witness me !", "Boom !", "Plein gaz !"],
-  cyberpunk:  ["Reboot !", "Connexion !", "Charge !", "Hack !", "Online !", "Overdrive !"],
-  paindepice: ["Ho ho ho !", "Biscuit !", "Ding dong !", "Magique !", "À table !"],
-  hivernal:   ["Brrr !", "Givre !", "Dégèle !", "Avalanche !", "Glisse !"],
+  wasteland:  ["Nitro fueled !", "Vroum !", "Pied au plancher !", "Witness me !", "Boom !", "Plein gaz !", "Démarre !", "Ça va chauffer !", "Go faire des étincelles !", "Iron time...", "Brûle-moi ces calories !"],
+  cyberpunk:  ["Reboot !", "Connexion !", "Supercharge !", "Hack !", "Online !", "Overdrive !"],
+  paindepice: ["Lets Go ho ho !", "C'est l'heure de briller !", "Ding dong !", "Merveilleux !", "À table !"],
+  hivernal:   ["Réchauffe-toi !", "Brrrr !", "Dégèle !", "En piste !", "Glisse !"],
   automnal:   ["Ça tombe !", "Feuille !", "Craque !", "Ramasse !", "Encore !"],
   steampunk:  ["Vapeur !", "Engrenage !", "Pression !", "Tout à bord !", "Chauffe !"],
   ruedor:     ["Yeehaw !", "Au galop !", "Dégaine !", "Hue !", "Duel !"],
-  estival:    ["Soleil !", "Plouf !", "Vacances !", "Chaud devant !", "Allez !"],
-  printanier: ["Éclos !", "Fleuris !", "Pousse !", "Bourgeon !", "Réveil !"],
+  estival:    ["Soleil !", "Plouf !", "Vamos !", "Chaud devant !", "Ouiiii !"],
+  printanier: ["Éclos !", "C'est vert !", "Pousse !", "Bourgeon !", "C'est le heure !"],
   pastel:     ["Magique !", "Étoile !", "Allez !", "Paillettes !", "Hop !"]
 };
 var derniereExpressionFin = -1;
@@ -4554,10 +4554,10 @@ var THEMES_PERSONNALISATION = [
   { valeur: 'paindepice', libelle: '🍪 Pain d\'épice', fond: '#0B1C13', a: '#D4AF37', b: '#C1272D' },
   { valeur: 'printanier', libelle: '🌸 Printanier',   fond: '#10160F', a: '#8FD694', b: '#F2A6C7' },
   { valeur: 'pastel',     libelle: '🦄 Pastel',       fond: '#17141C', a: '#B8A3E0', b: '#F7C6D9' },
-  { valeur: 'estival',    libelle: '☀️ Estival',      fond: '#0E1A1D', a: '#2FE0C6', b: '#FFC857' },
+  { valeur: 'estival',    libelle: '☀️ Estival',      fond: '#03313c', a: '#00d4fe', b: '#FFC857' },
   { valeur: 'cyberpunk',  libelle: '🦾 Cyberpunk',    fond: '#0A0612', a: '#00F0FF', b: '#FF2BD6' },
-  { valeur: 'steampunk',  libelle: '⚙️ Steampunk',    fond: '#14100A', a: '#C68A3D', b: '#6E7B7C' },
-  { valeur: 'flibuste',   libelle: '🏴‍☠️ Flibuste',    fond: '#0B1620', a: '#E0AE45', b: '#2A9D8F' },
+  { valeur: 'steampunk',  libelle: '⚙️ Steampunk',    fond: '#14100A', a: '#C68A3D', b: '#58412c' },
+  { valeur: 'flibuste',   libelle: '🏴‍☠️ Flibuste',    fond: '#0B1620', a: '#72b4ff', b: '#693b13' },
   { valeur: 'ruedor',     libelle: '🤠 Western',      fond: '#1B130E', a: '#F2C14E', b: '#C4582F' },
   { valeur: 'wasteland',  libelle: '☢️ Wasteland', fond: '#17100B', a: '#FF6A1F', b: '#F5C518' },
 ];
@@ -6220,8 +6220,7 @@ var AMBIANCES = {
     { c: 'amb-etincelle', n: 18, t: [8, 18], d: [2, 5], pos: 'libre' }
   ],
   estival: [
-    { c: 'amb-rayon', n: 4, t: [70, 160], d: [7, 13], pos: 'haut' },
-    { c: 'amb-reflet', n: 14, t: [30, 90], d: [2, 5], pos: 'libre', y: [58, 98] }
+    { c: 'amb-rayon', n: 8, t: [24, 200], d: [8, 16], pos: 'haut', x: [35, 115], ang: [20, 27], op: [.25, .6] }
   ],
   printanier: [
     { c: 'amb-petale amb-petale-rose', n: 12, t: [8, 14], d: [10, 18], dx: 80, r: 540 }
@@ -6270,7 +6269,8 @@ function majAmbiance(theme) {
       if (gr.pos === 'h') {
         s += 'left:0;top:' + alea(gr.y[0], gr.y[1]).toFixed(0) + '%;';
       } else if (gr.pos === 'haut') {
-        s += 'left:' + alea(0, 100).toFixed(0) + '%;top:-25%;';
+        var gauche = gr.x ? alea(gr.x[0], gr.x[1]) : alea(0, 100);
+        s += 'left:' + gauche.toFixed(0) + '%;top:-25%;';
       } else if (gr.pos === 'libre') {
         var haut = gr.y ? alea(gr.y[0], gr.y[1]) : alea(0, 90);
         s += 'left:' + alea(0, 90).toFixed(0) + '%;top:' + haut.toFixed(0) + '%;';
@@ -6280,6 +6280,8 @@ function majAmbiance(theme) {
       if (gr.dx) { s += '--dx:' + alea(-Math.abs(gr.dx), Math.abs(gr.dx)).toFixed(0) + 'px;'; }
       if (gr.dy) { s += '--dy:' + alea(-Math.abs(gr.dy), Math.abs(gr.dy)).toFixed(0) + 'px;'; }
       if (gr.r) { s += '--rot:' + alea(-gr.r, gr.r).toFixed(0) + 'deg;'; }
+      if (gr.ang) { s += '--a:' + alea(gr.ang[0], gr.ang[1]).toFixed(1) + 'deg;'; }
+      if (gr.op) { s += '--op:' + alea(gr.op[0], gr.op[1]).toFixed(2) + ';'; }
       html += '<span class="amb ' + gr.c + '" style="' + s + '"></span>';
     }
   }
