@@ -6367,6 +6367,141 @@ function majEclair(theme) {
   if (theme === 'effroi' && ECLAIR_ACTIF) { planifierEclair(); }
 }
 
+/* ============================================================
+   STEAMPUNK : ROUAGES
+   Une "chaîne" = des rouages qui s'engrènent les uns dans les autres.
+   x, y   : position du 1er rouage (fraction de l'écran : 0 = bord gauche/haut, 1 = bord droit/bas)
+   gears  : liste des rouages. n = nombre de dents (taille).
+            ang = direction du rouage précédent vers celui-ci, en degrés
+            (0 = vers la droite, 90 = vers le bas, 180 = gauche, -90 = haut)
+   sens   : 1 = le 1er rouage tourne dans le sens horaire, -1 = antihoraire
+   mode   : 'continu' (rotation lente)  t = secondes pour un tour du 1er rouage
+            'oscille' (va-et-vient)     amp = amplitude en degrés du 1er, d = secondes par aller
+            'coups'   (à-coups)         tick = secondes entre deux claquements d'une dent
+   ============================================================ */
+var ROUAGES_ACTIF = true;
+
+var ROUAGES_CHAINES = [
+  { x: 0.02, y: 0.14, mode: 'continu', t: 90, sens: 1,
+    gears: [{ n: 22 }, { n: 14, ang: 20 }, { n: 26, ang: -28 }] },
+  { x: 0.98, y: 0.52, mode: 'oscille', d: 10, amp: 35, sens: 1,
+    gears: [{ n: 30 }, { n: 18, ang: 158 }] },
+  { x: 0.12, y: 0.88, mode: 'coups', tick: 1.8, sens: -1,
+    gears: [{ n: 20 }, { n: 12, ang: -35 }, { n: 16, ang: 15 }] },
+  { x: 0.88, y: 0.92, mode: 'continu', t: 160, sens: -1,
+    gears: [{ n: 24 }] }
+];
+
+function modPositif(a, b) { return ((a % b) + b) % b; }
+
+/* Dessine un rouage : dents, anneau, bras et moyeu. off = décalage des dents (degrés) */
+function svgRouage(n, m, off) {
+  var r = n * m / 2, ro = r + m, rr = r - 1.25 * m;
+  var S = Math.ceil(2 * ro + 8), c = S / 2, p = 360 / n;
+  function pt(rayon, deg) {
+    var a = deg * Math.PI / 180;
+    return (c + rayon * Math.cos(a)).toFixed(1) + ',' + (c + rayon * Math.sin(a)).toFixed(1);
+  }
+  var d = '';
+  for (var k = 0; k < n; k++) {
+    var ct = off + k * p;
+    d += (k === 0 ? 'M' : 'L') + pt(rr, ct - 0.30 * p) + ' L' + pt(ro, ct - 0.14 * p) + ' L' + pt(ro, ct + 0.14 * p) + ' L' + pt(rr, ct + 0.30 * p);
+    d += ' A' + rr.toFixed(1) + ' ' + rr.toFixed(1) + ' 0 0 1 ' + pt(rr, ct + 0.70 * p) + ' ';
+  }
+  d += 'Z';
+  var anneau = rr * 0.78, moyeu = Math.max(m * 1.6, rr * 0.16);
+  var nbBras = (n >= 20) ? 6 : 5;
+  var svg = '<svg width="' + S + '" height="' + S + '" viewBox="0 0 ' + S + ' ' + S + '" style="display:block">';
+  svg += '<path d="' + d + '" fill="rgba(198,138,61,.07)" stroke="rgba(214,160,80,.38)" stroke-width="2" stroke-linejoin="round"/>';
+  svg += '<circle cx="' + c + '" cy="' + c + '" r="' + anneau.toFixed(1) + '" fill="none" stroke="rgba(214,160,80,.3)" stroke-width="' + (m * 0.6).toFixed(1) + '"/>';
+  for (var b = 0; b < nbBras; b++) {
+    var ab = off + b * 360 / nbBras;
+    svg += '<path d="M' + pt(moyeu, ab) + ' L' + pt(anneau, ab) + '" stroke="rgba(214,160,80,.3)" stroke-width="' + (m * 0.8).toFixed(1) + '" fill="none"/>';
+  }
+  svg += '<circle cx="' + c + '" cy="' + c + '" r="' + moyeu.toFixed(1) + '" fill="rgba(198,138,61,.12)" stroke="rgba(214,160,80,.4)" stroke-width="2"/>';
+  svg += '</svg>';
+  return { svg: svg, taille: S };
+}
+
+var themeRouagesCourant = null;
+
+function construireRouages() {
+  var zone = document.getElementById('rouages-theme');
+  if (!zone) {
+    zone = document.createElement('div');
+    zone.id = 'rouages-theme';
+    zone.className = 'rouages-theme';
+    document.body.appendChild(zone);
+  }
+  var W = window.innerWidth, H = window.innerHeight;
+  var m = Math.max(8, Math.min(14, W / 36));   /* taille des dents */
+  var html = '';
+
+  for (var c = 0; c < ROUAGES_CHAINES.length; c++) {
+    var chaine = ROUAGES_CHAINES[c];
+    var n0 = chaine.gears[0].n;
+    var prec = null;
+
+    for (var g = 0; g < chaine.gears.length; g++) {
+      var n = chaine.gears[g].n;
+      var r = n * m / 2;
+      var p = 360 / n;
+      var cx, cy, off;
+
+      if (!prec) {
+        cx = chaine.x * W; cy = chaine.y * H; off = 0;
+      } else {
+        var phi = chaine.gears[g].ang || 0;
+        var rad = phi * Math.PI / 180;
+        cx = prec.cx + (prec.r + r) * Math.cos(rad);
+        cy = prec.cy + (prec.r + r) * Math.sin(rad);
+        /* Décalage des dents pour qu'elles s'emboîtent exactement dans celles du rouage précédent */
+        var u = modPositif(phi - prec.off, prec.p);
+        off = modPositif(phi + 180 + u * prec.n / n + p / 2, p);
+      }
+
+      /* Rouages voisins : sens opposés, vitesses proportionnelles au nombre de dents */
+      var sens = chaine.sens * (g % 2 === 0 ? 1 : -1);
+      var classe = 'rouage rouage-' + chaine.mode;
+      var anim = '';
+      if (chaine.mode === 'continu') {
+        anim = 'animation-duration:' + (chaine.t * n / n0).toFixed(1) + 's;--tour:' + (sens * 360) + 'deg;';
+      } else if (chaine.mode === 'oscille') {
+        var amp = chaine.amp * n0 / n;
+        anim = 'animation-duration:' + chaine.d + 's;--a0:' + (-sens * amp).toFixed(1) + 'deg;--a1:' + (sens * amp).toFixed(1) + 'deg;';
+      } else {
+        anim = 'animation-duration:' + (chaine.tick * n).toFixed(1) + 's;animation-timing-function:steps(' + n + ',end);--tour:' + (sens * 360) + 'deg;';
+      }
+
+      var dessin = svgRouage(n, m, off);
+      html += '<div class="' + classe + '" style="left:' + (cx - dessin.taille / 2).toFixed(1) + 'px;top:' + (cy - dessin.taille / 2).toFixed(1) + 'px;width:' + dessin.taille + 'px;height:' + dessin.taille + 'px;' + anim + '">' + dessin.svg + '</div>';
+
+      prec = { cx: cx, cy: cy, r: r, n: n, p: p, off: off };
+    }
+  }
+  zone.innerHTML = html;
+}
+
+function majRouages(theme) {
+  var actif = ROUAGES_ACTIF && theme === 'steampunk';
+  var zone = document.getElementById('rouages-theme');
+  if (!actif) {
+    if (zone) { zone.innerHTML = ''; }
+    themeRouagesCourant = null;
+    return;
+  }
+  if (themeRouagesCourant === theme) { return; }
+  themeRouagesCourant = theme;
+  construireRouages();
+}
+
+var minuteurRedimRouages = null;
+window.addEventListener('resize', function () {
+  if (themeRouagesCourant !== 'steampunk') { return; }
+  if (minuteurRedimRouages) { window.clearTimeout(minuteurRedimRouages); }
+  minuteurRedimRouages = window.setTimeout(construireRouages, 300);
+}, false);
+
 function appliquerTheme() {
   var theme = etat.profil.theme || 'sombre';
   var themeEffectif = theme;
@@ -6377,6 +6512,7 @@ function appliquerTheme() {
   document.documentElement.setAttribute('data-theme', themeEffectif);
   majIconeNutrition(themeEffectif);
   majAmbiance(themeEffectif);
+  majRouages(themeEffectif);
   majEclair(themeEffectif);
 }
 

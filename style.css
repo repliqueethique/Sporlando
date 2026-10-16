@@ -3678,3 +3678,34 @@ body { background: transparent; }
 }
 
 :root[data-theme="effroi"] .carte { background-color: rgba(23, 10, 31, 0.82); }
+
+/* ============================================================
+   STEAMPUNK : ROUAGES (arrière-plan)
+   ============================================================ */
+.rouages-theme {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  z-index: -1;
+  pointer-events: none;
+  overflow: hidden;
+}
+.rouage {
+  position: absolute;
+  will-change: transform;
+  animation-iteration-count: infinite;
+}
+@keyframes rouageTourne {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(var(--tour, 360deg)); }
+}
+@keyframes rouageOscille {
+  from { transform: rotate(var(--a0, -30deg)); }
+  to   { transform: rotate(var(--a1, 30deg)); }
+}
+.rouage-continu { animation-name: rouageTourne; animation-timing-function: linear; }
+.rouage-coups   { animation-name: rouageTourne; }
+.rouage-oscille { animation-name: rouageOscille; animation-direction: alternate; animation-timing-function: ease-in-out; }
+
+@media (prefers-reduced-motion: reduce) {
+  .rouage { animation: none; }
+}
