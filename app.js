@@ -6451,6 +6451,7 @@ function construireRouages() {
 
   for (var c = 0; c < ROUAGES_CHAINES.length; c++) {
     var chaine = ROUAGES_CHAINES[c];
+    var n0 = chaine.gears[0].n;
     var mc = m * (0.8 + 0.5 * chaine.prof);                              /* plus proche = plus gros */
     var couleur = interpolerCouleur('#1E170F', '#3B2D1B', chaine.prof);  /* loin = sombre, proche = moins sombre */
     var prec = null;
