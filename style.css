@@ -4152,29 +4152,10 @@ body { background: transparent; }
 :root[data-theme="effroi"] .sx-exo { --ct: 11px; }
 
 /* --- Pierres tombales : tuiles de l'accueil et boutons colère / blessure / maladie / insomnie --- */
-:root[data-theme="effroi"] .accueil-tuile {
-  border-radius: 50% 50% 14px 14px / 40% 40% 14px 14px;
-  border-color: var(--cadre);
-  padding-top: 26px;
-}
 :root[data-theme="effroi"] .ressenti-carte .booleen-emoji-btn {
   border-radius: 50% 50% 10px 10px / 38% 38% 10px 10px;
   border-color: var(--cadre);
   padding-top: 14px;
-}
-
-/* --- Cercueil : carte séance de l'accueil --- */
-:root[data-theme="effroi"] .accueil-carte {
-  border-radius: 0;
-  border-color: var(--cadre);
-  clip-path: polygon(0 24%, 24px 0, 70% 0, 100% 22%, 100% 78%, 70% 100%, 24px 100%, 0 76%);
-}
-:root[data-theme="effroi"] .accueil-carte:not(.seance-a-faire) {
-  background-image: var(--lg-tl), var(--lg-tr), var(--lg-bl), var(--lg-br), var(--tuile-decor, none);
-  background-repeat: no-repeat;
-  background-origin: border-box;
-  background-position: 0 0, 100% 0, 0 100%, 100% 100%, 0 0;
-  background-size: 24px 24%, 30% 22%, 24px 24%, 30% 22%, 100% 100%;
 }
 
 /* --- Fenêtres : voûte de fenêtre d'église --- */
@@ -4182,4 +4163,71 @@ body { background: transparent; }
   border-radius: 50% 50% 22px 22px / 46px 46px 22px 22px;
   border-color: var(--cadre);
   padding-top: 40px;
+}
+
+/* ============================================================
+   EFFROI : accueil gothique
+   tuiles = fenêtres d'église (arc brisé, tracerie) ; séance = fuseau à bouts en ogive
+   ============================================================ */
+:root[data-theme="effroi"] {
+  --cadre-clair: rgba(190, 150, 255, 0.85);
+  /* arc brisé (ogive) en haut, angles coupés en bas */
+  --ogive: polygon(0 36px, 10% 18px, 20% 11px, 30% 6px, 40% 3px, 50% 0, 60% 3px, 70% 6px, 80% 11px, 90% 18px, 100% 36px, 100% calc(100% - 10px), calc(100% - 10px) 100%, 10px 100%, 0 calc(100% - 10px));
+  /* fuseau symétrique : pointe à gauche et à droite */
+  --fuseau: polygon(44px 0, 23.8px 10%, 15px 20%, 8.5px 30%, 3.7px 40%, 0 50%, 3.7px 60%, 8.5px 70%, 15px 80%, 23.8px 90%, 44px 100%, calc(100% - 44px) 100%, calc(100% - 23.8px) 90%, calc(100% - 15px) 80%, calc(100% - 8.5px) 70%, calc(100% - 3.7px) 60%, 100% 50%, calc(100% - 3.7px) 40%, calc(100% - 8.5px) 30%, calc(100% - 15px) 20%, calc(100% - 23.8px) 10%, calc(100% - 44px) 0);
+}
+
+/* --- Tuiles : fenêtre gothique --- */
+:root[data-theme="effroi"] .accueil-tuile {
+  border: 0;
+  border-radius: 0;
+  padding: 26px 6px 14px 6px;
+  background: var(--cadre);          /* sert de filet */
+  background-image: none;
+  box-shadow: none;
+  clip-path: var(--ogive);
+}
+/* fond intérieur + tracerie (arc intérieur et petit losange) */
+:root[data-theme="effroi"] .accueil-tuile::after {
+  content: '';
+  position: absolute;
+  top: 2px; left: 2px; right: 2px; bottom: 2px;
+  z-index: -1;
+  background-color: var(--couleur-carte);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' preserveAspectRatio='none'%3E%3Cg fill='none' stroke='rgba(160,110,255,.32)' stroke-width='1'%3E%3Cpath vector-effect='non-scaling-stroke' d='M9 100V46C9 28 30 16 50 6C70 16 91 28 91 46V100'/%3E%3Cpath vector-effect='non-scaling-stroke' d='M50 9L55 15L50 21L45 15Z'/%3E%3C/g%3E%3C/svg%3E");
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+  clip-path: var(--ogive);
+}
+/* brume violette en bas de la fenêtre */
+:root[data-theme="effroi"] .accueil-tuile::before {
+  background: radial-gradient(ellipse at 50% 115%, rgba(123, 47, 247, 0.7), transparent 65%);
+  opacity: 0.5;
+}
+:root[data-theme="effroi"] .accueil-tuile:active { background: var(--couleur-turquoise); }
+:root[data-theme="effroi"] .accueil-tuile-icone { width: 50px; height: 50px; margin-bottom: 6px; }
+/* petite croix au-dessus du titre */
+:root[data-theme="effroi"] .accueil-tuile h2::before {
+  content: '\2020';
+  display: block;
+  margin-bottom: 3px;
+  font-size: 12px;
+  line-height: 1;
+  color: var(--cadre-clair);
+}
+
+/* --- Carte séance : fuseau symétrique à deux pointes --- */
+:root[data-theme="effroi"] .seance-cadre {
+  padding: 2px;
+  margin-bottom: 12px;
+  background: var(--cadre);
+  clip-path: var(--fuseau);
+}
+:root[data-theme="effroi"] .seance-cadre .accueil-carte {
+  margin: 0;
+  padding: 14px 34px;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  clip-path: var(--fuseau);
 }

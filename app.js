@@ -2311,7 +2311,7 @@ function rendreCarteSeanceJour() {
     html += '</div></div>';
   }
 
-  conteneur.innerHTML = html;
+  conteneur.innerHTML = '<div class="seance-cadre">' + html + '</div>';
 }
 
 var PARTICULES_PAR_THEME = {
