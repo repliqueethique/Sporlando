@@ -5399,6 +5399,32 @@ function libelleCreneauMeteo(etatTemp) {
 
 function heureCourte(hhmm) { return parseInt(hhmm.substring(0, 2), 10) + 'h'; }
 
+/* Mini-courbe de la journée (barre météo) : colorée par état, passé atténué, point = maintenant */
+function construireSparkMeteo(r) {
+  var temps = r.temperatures, n = temps.length;
+  if (n < 2) { return ''; }
+  var L = 110, H = 36, p = 4;
+  var vmin = Math.min.apply(null, temps), vmax = Math.max.apply(null, temps);
+  if (vmax - vmin < 4) { var milieu = (vmax + vmin) / 2; vmin = milieu - 2; vmax = milieu + 2; }
+  function x(i) { return p + (i / (n - 1)) * (L - 2 * p); }
+  function y(t) { return H - p - ((t - vmin) / (vmax - vmin)) * (H - 2 * p); }
+
+  var heureNow = new Date().getHours();
+  var indexNow = 0;
+  for (var i = 0; i < n; i++) {
+    if (parseInt(r.heures[i].substring(11, 13), 10) === heureNow) { indexNow = i; break; }
+  }
+
+  var svg = '<svg viewBox="0 0 ' + L + ' ' + H + '" xmlns="http://www.w3.org/2000/svg">';
+  for (var k = 0; k < n - 1; k++) {
+    var cl = 'segment-' + evaluerTemperature((temps[k] + temps[k + 1]) / 2);
+    svg += '<line class="' + cl + '" x1="' + x(k).toFixed(1) + '" y1="' + y(temps[k]).toFixed(1) + '" x2="' + x(k + 1).toFixed(1) + '" y2="' + y(temps[k + 1]).toFixed(1) + '" stroke-width="2.4" stroke-linecap="round"' + (k < indexNow ? ' opacity=".35"' : '') + '/>';
+  }
+  svg += '<circle class="meteo-now-point" cx="' + x(indexNow).toFixed(1) + '" cy="' + y(temps[indexNow]).toFixed(1) + '" r="3.4" stroke-width="1.5"/>';
+  svg += '</svg>';
+  return svg;
+}
+
 function rendreBanniereMeteo() {
   var zone = document.getElementById('zone-banniere-meteo');
   if (!zone) { return; }
@@ -5407,7 +5433,6 @@ function rendreBanniereMeteo() {
     if (!resultat) { zone.innerHTML = ''; return; }
     var etatTemp = evaluerTemperature(resultat.actuelle);
     var tranche = trouverProchainCreneauIdealBanniere(resultat.heures, resultat.temperatures);
-    var heureNow = new Date().getHours();
 
     var html = '<div class="meteo-carte meteo-' + etatTemp + '" data-action="ouvrir-modale-meteo">';
     html += '<span class="meteo-icone"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M14 14.76V3.5a2.5 2.5 0 0 0-5 0v11.26a4.5 4.5 0 1 0 5 0z"/></svg></span>';
@@ -5417,18 +5442,9 @@ function rendreBanniereMeteo() {
     } else {
       html += '<span class="meteo-sous">actuellement</span>';
     }
-    html += '</span><span class="meteo-chevron">&#8250;</span>';
-
-    /* Frise de la journée : une case par heure, l'heure actuelle est plus haute */
-    html += '<div class="meteo-frise">';
-    for (var i = 0; i < resultat.temperatures.length; i++) {
-      var h = parseInt(resultat.heures[i].substring(11, 13), 10);
-      var cl = 'fr-' + evaluerTemperature(resultat.temperatures[i]);
-      if (h < heureNow) { cl += ' fr-passe'; }
-      if (h === heureNow) { cl += ' fr-now'; }
-      html += '<span class="' + cl + '"></span>';
-    }
-    html += '</div></div>';
+    html += '</span>';
+    html += '<span class="meteo-spark">' + construireSparkMeteo(resultat) + '</span>';
+    html += '</div>';
     zone.innerHTML = html;
   });
 }

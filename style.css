@@ -3781,3 +3781,19 @@ body { background: transparent; }
 :root[data-theme="flibuste"]   { --meteo-decor: linear-gradient(180deg, rgba(42,157,143,.16), transparent 65%); --meteo-bord: rgba(224,174,69,.5); }
 :root[data-theme="ruedor"]     { --meteo-bord: rgba(242,193,78,.6); --meteo-trait: dashed; --meteo-rayon: 6px; }
 :root[data-theme="wasteland"]  { --meteo-decor: repeating-linear-gradient(135deg, rgba(255,106,31,.1) 0 10px, transparent 10px 20px); --meteo-bord: rgba(255,106,31,.6); --meteo-rayon: 6px; }
+
+/* Météo : barre compacte sur une ligne */
+.meteo-carte {
+  flex-wrap: nowrap;
+  padding: 8px 12px 8px 10px;
+  margin-bottom: 10px;
+}
+.meteo-temp { font-size: 20px; }
+.meteo-sous { margin-top: 2px; font-size: 12px; }
+.meteo-spark {
+  position: relative;
+  flex: 0 0 auto;
+  width: 110px;
+  margin-left: 10px;
+}
+.meteo-spark svg { display: block; width: 100%; height: auto; }
