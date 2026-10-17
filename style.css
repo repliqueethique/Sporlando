@@ -4084,6 +4084,34 @@ body { background: transparent; }
   background: radial-gradient(circle at 35% 35%, #E8B46A, #7A4E1E);
 }
 
+/* --- Sommeil : suffixe assorti, sans flèches --- */
+.ressenti-carte .sommeil-ligne::before,
+.ressenti-carte .sommeil-ligne::after { content: none; }
+
+.ressenti-carte .sommeil-suffixe {
+  color: inherit;                                   /* même couleur que les heures */
+  font-family: var(--police-titre, var(--police-corps));
+  font-size: 15px;
+  letter-spacing: 0.03em;
+}
+:root[data-theme="effroi"] .ressenti-carte .sommeil-suffixe { text-transform: none; }
+
+/* --- Colère / blessure / maladie / insomnie : tuiles plus larges --- */
+.ressenti-carte .booleens-ligne { margin: 12px -2px 0 -2px; }
+.ressenti-carte .booleen-emoji-btn {
+  margin: 0 2px;
+  padding-left: 0;
+  padding-right: 0;
+}
+.ressenti-carte .booleen-emoji-btn::after {
+  max-width: 100%;
+  font-size: 10.5px;
+  letter-spacing: 0;
+  text-transform: none;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
 /* ============================================================
    EFFROI : contenants gothiques
    cadres de miroir (angles coupés), pierres tombales (arche), cercueil, fenêtre d'église
