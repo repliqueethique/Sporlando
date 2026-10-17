@@ -4312,6 +4312,70 @@ body { background: transparent; }
   .wl { display: none; }
 }
 
+/* ============================================================
+   WASTELAND : plaques de métal (rouille, boulons, tôle larmée, grille)
+   ============================================================ */
+:root[data-theme="wasteland"] {
+  /* taches de rouille */
+  --wl-rouille: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='r' x='0' y='0' width='100%25' height='100%25'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.02 .035' numOctaves='3' seed='11' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .55 0 0 0 0 .28 0 0 0 0 .1 1.9 0 0 0 -.55'/%3E%3C/filter%3E%3Crect width='240' height='240' filter='url(%23r)' opacity='.55'/%3E%3C/svg%3E");
+  /* tôle larmée (losanges allongés en quinconce) */
+  --wl-diamant: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40'%3E%3Cg fill='%23FFFFFF' fill-opacity='.09' stroke='%23000000' stroke-opacity='.35'%3E%3Cellipse cx='10' cy='10' rx='7' ry='2.2' transform='rotate(45 10 10)'/%3E%3Cellipse cx='30' cy='30' rx='7' ry='2.2' transform='rotate(45 30 30)'/%3E%3Cellipse cx='30' cy='10' rx='7' ry='2.2' transform='rotate(-45 30 10)'/%3E%3Cellipse cx='10' cy='30' rx='7' ry='2.2' transform='rotate(-45 10 30)'/%3E%3C/g%3E%3C/svg%3E");
+  /* boulon */
+  --wl-boulon: radial-gradient(circle, #A89680 0, #A89680 1.4px, #140C07 1.9px, #140C07 3.8px, rgba(20,12,7,0) 4.4px);
+  /* ombrage de la plaque */
+  --wl-ombre: linear-gradient(180deg, rgba(255,255,255,.05), rgba(0,0,0,.22));
+}
+
+/* --- Plaque rouillée à 4 boulons --- */
+:root[data-theme="wasteland"] .carte,
+:root[data-theme="wasteland"] .carte-checklist,
+:root[data-theme="wasteland"] .meteo-carte,
+:root[data-theme="wasteland"] .reglages-section,
+:root[data-theme="wasteland"] .sx-exo,
+:root[data-theme="wasteland"] .ressenti-carte .sommeil-ligne,
+:root[data-theme="wasteland"] .ressenti-carte .ressenti-ligne:not(.booleens-ligne) {
+  background-color: #231710;
+  background-image: var(--wl-boulon), var(--wl-boulon), var(--wl-boulon), var(--wl-boulon), var(--wl-rouille), var(--wl-ombre);
+  background-repeat: no-repeat, no-repeat, no-repeat, no-repeat, repeat, no-repeat;
+  background-size: 9px 9px, 9px 9px, 9px 9px, 9px 9px, 240px 240px, 100% 100%;
+  background-position: left 6px top 6px, right 6px top 6px, left 6px bottom 6px, right 6px bottom 6px, 0 0, 0 0;
+  border-color: #5A3A22;
+}
+
+/* --- Tôle larmée : tuiles de l'accueil --- */
+:root[data-theme="wasteland"] .accueil-tuile {
+  background-color: #1F1510;
+  background-image: var(--wl-boulon), var(--wl-boulon), var(--wl-boulon), var(--wl-boulon), var(--wl-diamant), var(--wl-rouille), var(--wl-ombre);
+  background-repeat: no-repeat, no-repeat, no-repeat, no-repeat, repeat, repeat, no-repeat;
+  background-size: 9px 9px, 9px 9px, 9px 9px, 9px 9px, 40px 40px, 240px 240px, 100% 100%;
+  background-position: left 6px top 6px, right 6px top 6px, left 6px bottom 6px, right 6px bottom 6px, 0 0, 0 0, 0 0;
+  border-color: #5A3A22;
+}
+
+/* --- Grille de protection : carte « Séances » (sans séance prévue) --- */
+:root[data-theme="wasteland"] .accueil-carte:not(.seance-a-faire) {
+  background-color: #170E09;
+  background-image:
+    var(--wl-boulon), var(--wl-boulon), var(--wl-boulon), var(--wl-boulon),
+    repeating-linear-gradient(45deg, rgba(0,0,0,0) 0, rgba(0,0,0,0) 7px, rgba(125,105,88,.5) 7px, rgba(125,105,88,.5) 9px),
+    repeating-linear-gradient(-45deg, rgba(0,0,0,0) 0, rgba(0,0,0,0) 7px, rgba(125,105,88,.5) 7px, rgba(125,105,88,.5) 9px),
+    var(--wl-rouille), var(--wl-ombre);
+  background-repeat: no-repeat, no-repeat, no-repeat, no-repeat, repeat, repeat, repeat, no-repeat;
+  background-size: 9px 9px, 9px 9px, 9px 9px, 9px 9px, 100% 100%, 100% 100%, 240px 240px, 100% 100%;
+  background-position: left 6px top 6px, right 6px top 6px, left 6px bottom 6px, right 6px bottom 6px, 0 0, 0 0, 0 0, 0 0;
+  border-color: #5A3A22;
+}
+
+/* --- Fenêtres et boutons d'événements : rouille seule, sans boulons --- */
+:root[data-theme="wasteland"] .modal-contenu,
+:root[data-theme="wasteland"] .ressenti-carte .booleen-emoji-btn {
+  background-image: var(--wl-rouille), var(--wl-ombre);
+  background-repeat: repeat, no-repeat;
+  background-size: 240px 240px, 100% 100%;
+  background-position: 0 0, 0 0;
+  border-color: #5A3A22;
+}
+
 /* Accueil : jauge de protéines + objectif sur 2 lignes */
 .tuile-jauge {
   display: block;
