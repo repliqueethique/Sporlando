@@ -4482,3 +4482,27 @@ body { background: transparent; }
 @media (prefers-reduced-motion: reduce) {
   .nitro-zone { display: none; }
 }
+
+/* Wasteland : carte séance sur une seule ligne */
+:root[data-theme="wasteland"] .accueil-carte.seance-a-faire {
+  padding-left: 12px;
+  padding-right: 12px;
+}
+:root[data-theme="wasteland"] .accueil-carte .accueil-icone {
+  width: 58px; height: 58px;
+  margin-right: 10px;
+}
+:root[data-theme="wasteland"] .accueil-carte > div:last-child {
+  flex: 1;
+  min-width: 0;
+}
+:root[data-theme="wasteland"] .accueil-carte h2 {
+  font-size: 21px;
+  letter-spacing: 0;
+  white-space: nowrap;
+}
+:root[data-theme="wasteland"] .accueil-carte p {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}

@@ -2335,56 +2335,66 @@ var PARTICULES_PAR_THEME = {
 /* Planche de 8 images de flamme (jet vers la droite), générée une seule fois */
 var spriteFlammes = false;
 
+/* Planche de 8 images : flammes en lames acérées (style manga, inspirées du logo) */
+var spriteFlammes = false;
+
 function construireSpriteFlammes() {
   if (spriteFlammes) { return; }
   spriteFlammes = true;
-  var N = 8, Wf = 260, Hf = 100, cy = Hf / 2, n = 9;
+  var N = 8, Wf = 260, Hf = 100, cy = 50;
 
-  function segments(pts) {
-    var d = '';
-    for (var i = 1; i < pts.length - 1; i++) {
-      var mx = (pts[i][0] + pts[i + 1][0]) / 2, my = (pts[i][1] + pts[i + 1][1]) / 2;
-      d += ' Q' + pts[i][0].toFixed(1) + ',' + pts[i][1].toFixed(1) + ' ' + mx.toFixed(1) + ',' + my.toFixed(1);
-    }
-    var fin = pts[pts.length - 1];
-    return d + ' L' + fin[0].toFixed(1) + ',' + fin[1].toFixed(1);
-  }
+  function r(min, max) { return min + Math.random() * (max - min); }
+  function signe() { return Math.random() < 0.5 ? -1 : 1; }
 
-  function langue(ox, L, H, jit, off, fill, opacite) {
-    var haut = [], bas = [];
-    for (var i = 0; i < n; i++) {
-      var t = i / (n - 1);
-      var env = Math.sin(Math.PI * Math.pow(t, 0.55));
-      var w = H * (0.15 * (1 - t) + 0.85 * env) * jit[i];
-      var y = off[i] * t;
-      haut.push([ox + t * L, cy - w + y]);
-      bas.push([ox + t * L, cy + w + y]);
-    }
-    bas.reverse();
-    return '<path d="M' + haut[0][0].toFixed(1) + ',' + haut[0][1].toFixed(1) + segments(haut) + segments(bas) + 'Z" fill="url(#' + fill + ')" opacity="' + opacite + '"/>';
-  }
-
-  function aleatoires(base, amp) {
-    var tab = [];
-    for (var i = 0; i < n; i++) { tab.push(base + (Math.random() - 0.5) * amp); }
-    return tab;
+  /* Une lame : base épaisse, dos convexe, creux concave, pointe très aiguë qui se recourbe */
+  function lame(ox, oy, L, th, angle, courbe, fill) {
+    var d = 'M0,' + (-th).toFixed(1) +
+      ' Q' + (L * 0.45).toFixed(1) + ',' + (-th * 1.05 + courbe).toFixed(1) + ' ' + L.toFixed(1) + ',' + (courbe * 0.4).toFixed(1) +
+      ' Q' + (L * 0.5).toFixed(1) + ',' + (th * 0.15 + courbe * 0.5).toFixed(1) + ' 0,' + th.toFixed(1) + ' Z';
+    return '<path transform="translate(' + ox.toFixed(1) + ',' + oy.toFixed(1) + ') rotate(' + angle.toFixed(1) + ')" d="' + d + '" fill="url(#' + fill + ')"/>';
   }
 
   var corps = '';
   for (var k = 0; k < N; k++) {
     var ox = k * Wf + 2;
-    var jit = aleatoires(1, 0.5);
-    var off = aleatoires(0, 16);
-    var L = 205 + Math.random() * 45;
-    corps += langue(ox, L, 44, jit, off, 'gO', 0.9);
-    corps += langue(ox, L * 0.78, 30, jit.map(function (v) { return v * (0.85 + Math.random() * 0.3); }), off, 'gM', 0.95);
-    corps += langue(ox, L * 0.55, 17, aleatoires(1, 0.4), off.map(function (v) { return v * 0.6; }), 'gI', 1);
+    var angles = [-18, -9, 0, 9, 18];
+    var lames = [];
+
+    /* 5 lames en éventail : la centrale est la plus longue */
+    for (var i = 0; i < angles.length; i++) {
+      var a = angles[i] + r(-4, 4);
+      var forme = 1 - Math.abs(angles[i]) / 40;
+      lames.push({
+        a: a,
+        L: r(150, 215) * forme,
+        th: r(10, 16) * (0.6 + 0.4 * forme),
+        c: r(4, 16) * signe()
+      });
+    }
+
+    /* Couche extérieure : rouge-orangé */
+    for (i = 0; i < lames.length; i++) {
+      corps += lame(ox, cy + r(-3, 3), lames[i].L, lames[i].th, lames[i].a, lames[i].c, 'gO');
+    }
+    /* Couche médiane : orange-jaune, plus courte et plus fine */
+    for (i = 0; i < lames.length; i++) {
+      corps += lame(ox, cy + r(-2, 2), lames[i].L * r(0.62, 0.78), lames[i].th * 0.65, lames[i].a * 0.85, lames[i].c * 0.8, 'gM');
+    }
+    /* Cœur : 2 lames claires */
+    for (i = 1; i < 4; i += 2) {
+      corps += lame(ox + 2, cy, lames[i].L * r(0.35, 0.5), lames[i].th * 0.38, lames[i].a * 0.6, lames[i].c * 0.5, 'gI');
+    }
+    /* Éclats détachés, comme les pièces séparées du logo */
+    var nb = 3 + Math.floor(Math.random() * 2);
+    for (i = 0; i < nb; i++) {
+      corps += lame(ox + r(110, 190), cy + r(-26, 26), r(20, 38), r(3, 6), r(-30, 30), r(2, 8) * signe(), Math.random() < 0.5 ? 'gO' : 'gM');
+    }
   }
 
   var defs = '<defs>' +
-    '<linearGradient id="gO" x1="0" x2="1" y1="0" y2="0"><stop offset="0" stop-color="#FF5A1F"/><stop offset="1" stop-color="#FF3C14" stop-opacity="0"/></linearGradient>' +
-    '<linearGradient id="gM" x1="0" x2="1" y1="0" y2="0"><stop offset="0" stop-color="#FFB02E"/><stop offset="1" stop-color="#FF6A1F" stop-opacity="0"/></linearGradient>' +
-    '<linearGradient id="gI" x1="0" x2="1" y1="0" y2="0"><stop offset="0" stop-color="#FFF6C8"/><stop offset="1" stop-color="#FFC13A" stop-opacity="0"/></linearGradient>' +
+    '<linearGradient id="gO" x1="0" x2="1" y1="0.3" y2="0.7"><stop offset="0" stop-color="#FF8A1A"/><stop offset="1" stop-color="#E8300F"/></linearGradient>' +
+    '<linearGradient id="gM" x1="0" x2="1" y1="0.3" y2="0.7"><stop offset="0" stop-color="#FFC21A"/><stop offset="1" stop-color="#FF6A14"/></linearGradient>' +
+    '<linearGradient id="gI" x1="0" x2="1" y1="0" y2="0"><stop offset="0" stop-color="#FFF6C8"/><stop offset="1" stop-color="#FFC21A"/></linearGradient>' +
     '</defs>';
   var svg = '<svg xmlns="http://www.w3.org/2000/svg" width="' + (N * Wf) + '" height="' + Hf + '" viewBox="0 0 ' + (N * Wf) + ' ' + Hf + '">' + defs + corps + '</svg>';
 
