@@ -4083,3 +4083,75 @@ body { background: transparent; }
 :root[data-theme="steampunk"] .ressenti-carte .ressenti-slider-zone input[type="range"]::-webkit-slider-thumb {
   background: radial-gradient(circle at 35% 35%, #E8B46A, #7A4E1E);
 }
+
+/* ============================================================
+   EFFROI : contenants gothiques
+   cadres de miroir (angles coupés), pierres tombales (arche), cercueil, fenêtre d'église
+   ============================================================ */
+:root[data-theme="effroi"] {
+  --cadre: rgba(123, 47, 247, 0.55);
+  --ct: 16px;   /* taille des angles coupés */
+  /* traits qui dessinent les diagonales des angles coupés */
+  --lg-tl: linear-gradient(to bottom right, transparent calc(50% - .5px), var(--cadre) 50%, var(--cadre) calc(50% + 1.5px), transparent calc(50% + 1.5px));
+  --lg-tr: linear-gradient(to bottom left,  transparent calc(50% - .5px), var(--cadre) 50%, var(--cadre) calc(50% + 1.5px), transparent calc(50% + 1.5px));
+  --lg-bl: linear-gradient(to top right,    transparent calc(50% - .5px), var(--cadre) 50%, var(--cadre) calc(50% + 1.5px), transparent calc(50% + 1.5px));
+  --lg-br: linear-gradient(to top left,     transparent calc(50% - .5px), var(--cadre) 50%, var(--cadre) calc(50% + 1.5px), transparent calc(50% + 1.5px));
+}
+
+/* --- Cadres de miroir : angles coupés sur les 4 coins --- */
+:root[data-theme="effroi"] .carte,
+:root[data-theme="effroi"] .carte-checklist,
+:root[data-theme="effroi"] .meteo-carte,
+:root[data-theme="effroi"] .reglages-section,
+:root[data-theme="effroi"] .sx-exo,
+:root[data-theme="effroi"] .ressenti-carte .sommeil-ligne,
+:root[data-theme="effroi"] .ressenti-carte .ressenti-ligne:not(.booleens-ligne) {
+  border-radius: 0;
+  border-color: var(--cadre);
+  clip-path: polygon(var(--ct) 0, calc(100% - var(--ct)) 0, 100% var(--ct), 100% calc(100% - var(--ct)), calc(100% - var(--ct)) 100%, var(--ct) 100%, 0 calc(100% - var(--ct)), 0 var(--ct));
+  background-image: var(--lg-tl), var(--lg-tr), var(--lg-bl), var(--lg-br), var(--tuile-decor, none);
+  background-repeat: no-repeat;
+  background-origin: border-box;
+  background-position: 0 0, 100% 0, 0 100%, 100% 100%, 0 0;
+  background-size: var(--ct) var(--ct), var(--ct) var(--ct), var(--ct) var(--ct), var(--ct) var(--ct), 100% 100%;
+}
+:root[data-theme="effroi"] .meteo-carte {
+  background-image: var(--lg-tl), var(--lg-tr), var(--lg-bl), var(--lg-br), var(--meteo-decor, none);
+}
+/* cadres imbriqués : angles plus petits */
+:root[data-theme="effroi"] .ressenti-carte .sommeil-ligne,
+:root[data-theme="effroi"] .ressenti-carte .ressenti-ligne:not(.booleens-ligne),
+:root[data-theme="effroi"] .sx-exo { --ct: 11px; }
+
+/* --- Pierres tombales : tuiles de l'accueil et boutons colère / blessure / maladie / insomnie --- */
+:root[data-theme="effroi"] .accueil-tuile {
+  border-radius: 50% 50% 14px 14px / 40% 40% 14px 14px;
+  border-color: var(--cadre);
+  padding-top: 26px;
+}
+:root[data-theme="effroi"] .ressenti-carte .booleen-emoji-btn {
+  border-radius: 50% 50% 10px 10px / 38% 38% 10px 10px;
+  border-color: var(--cadre);
+  padding-top: 14px;
+}
+
+/* --- Cercueil : carte séance de l'accueil --- */
+:root[data-theme="effroi"] .accueil-carte {
+  border-radius: 0;
+  border-color: var(--cadre);
+  clip-path: polygon(0 24%, 24px 0, 70% 0, 100% 22%, 100% 78%, 70% 100%, 24px 100%, 0 76%);
+}
+:root[data-theme="effroi"] .accueil-carte:not(.seance-a-faire) {
+  background-image: var(--lg-tl), var(--lg-tr), var(--lg-bl), var(--lg-br), var(--tuile-decor, none);
+  background-repeat: no-repeat;
+  background-origin: border-box;
+  background-position: 0 0, 100% 0, 0 100%, 100% 100%, 0 0;
+  background-size: 24px 24%, 30% 22%, 24px 24%, 30% 22%, 100% 100%;
+}
+
+/* --- Fenêtres : voûte de fenêtre d'église --- */
+:root[data-theme="effroi"] .modal-contenu {
+  border-radius: 50% 50% 22px 22px / 46px 46px 22px 22px;
+  border-color: var(--cadre);
+  padding-top: 40px;
+}
