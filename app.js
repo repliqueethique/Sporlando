@@ -6620,6 +6620,108 @@ window.addEventListener('resize', function () {
   minuteurRedimRouages = window.setTimeout(construireRouages, 300);
 }, false);
 
+/* ============================================================
+   WASTELAND : explosions de caisses de nitro, hors champ, à intervalle aléatoire.
+   Comme dans Crash : flash vert, boule de feu, onde de choc, éclats de caisse,
+   et réactions en chaîne (une caisse fait exploser ses voisines).
+   ============================================================ */
+var NITRO_ACTIF = true;
+var NITRO_DELAI = [6, 18];    /* secondes entre deux explosions (min, max) */
+var minuteurNitro = null;
+var zoneNitro = null;
+
+function creerZoneNitro() {
+  if (zoneNitro) { return; }
+  zoneNitro = document.createElement('div');
+  zoneNitro.className = 'nitro-zone';
+  document.body.appendChild(zoneNitro);
+}
+
+function lancerExplosionNitro(x, y, R) {
+  creerZoneNitro();
+  var W = window.innerWidth, H = window.innerHeight;
+  var base = Math.atan2(H / 2 - y, W / 2 - x);   /* direction vers l'écran : tout part de ce côté */
+  var h = '';
+  var i, ang, dist, tx, ty, s, dur, ox, oy;
+
+  function ctr(taille) { return 'margin:-' + (taille / 2).toFixed(0) + 'px 0 0 -' + (taille / 2).toFixed(0) + 'px;'; }
+
+  h += '<span class="nx nx-flash" style="width:' + (R * 3).toFixed(0) + 'px;height:' + (R * 3).toFixed(0) + 'px;' + ctr(R * 3) + '"></span>';
+  h += '<span class="nx nx-boule" style="width:' + (R * 1.3).toFixed(0) + 'px;height:' + (R * 1.3).toFixed(0) + 'px;' + ctr(R * 1.3) + '"></span>';
+  h += '<span class="nx nx-onde" style="width:' + (R * 1.4).toFixed(0) + 'px;height:' + (R * 1.4).toFixed(0) + 'px;' + ctr(R * 1.4) + '"></span>';
+
+  /* Éclats : planches vertes et bois, projetés vers l'écran puis retombant */
+  var couleurs = ['#8BD21A', '#6DAF12', '#C79A5A', '#5B3A1A', '#A8E02A'];
+  for (i = 0; i < 12; i++) {
+    ang = base + alea(-1.1, 1.1);
+    dist = alea(0.5, 1.9) * R;
+    tx = Math.cos(ang) * dist;
+    ty = Math.sin(ang) * dist + alea(40, 120);
+    h += '<span class="nx nx-debris" style="width:' + alea(6, 14).toFixed(0) + 'px;height:' + alea(4, 8).toFixed(0) + 'px;background:' + couleurs[Math.floor(Math.random() * couleurs.length)] + ';' +
+      'animation-duration:' + alea(0.9, 1.5).toFixed(2) + 's;animation-delay:' + alea(0.02, 0.1).toFixed(2) + 's;' +
+      '--mx:' + (tx * 0.55).toFixed(0) + 'px;--my:' + (Math.sin(ang) * dist * 0.55 - alea(20, 60)).toFixed(0) + 'px;' +
+      '--tx:' + tx.toFixed(0) + 'px;--ty:' + ty.toFixed(0) + 'px;--rot:' + alea(-540, 540).toFixed(0) + 'deg;"></span>';
+  }
+
+  /* Fumée qui monte après l'explosion */
+  for (i = 0; i < 4; i++) {
+    s = alea(0.7, 1.2) * R;
+    ang = base + alea(-0.8, 0.8);
+    dist = alea(0.2, 0.8) * R;
+    ox = Math.cos(ang) * dist - s / 2;
+    oy = Math.sin(ang) * dist - s / 2;
+    dur = alea(1.8, 2.8);
+    h += '<span class="nx nx-fumee" style="width:' + s.toFixed(0) + 'px;height:' + s.toFixed(0) + 'px;margin:' + oy.toFixed(0) + 'px 0 0 ' + ox.toFixed(0) + 'px;' +
+      'animation-duration:' + dur.toFixed(2) + 's;animation-delay:' + alea(0.15, 0.4).toFixed(2) + 's;--ty:-' + alea(80, 200).toFixed(0) + 'px;"></span>';
+  }
+
+  var el = document.createElement('div');
+  el.className = 'nx-expl';
+  el.style.left = x.toFixed(0) + 'px';
+  el.style.top = y.toFixed(0) + 'px';
+  el.innerHTML = h;
+  zoneNitro.appendChild(el);
+  window.setTimeout(function () { if (el.parentNode) { el.parentNode.removeChild(el); } }, 3600);
+}
+
+function declencherNitro() {
+  minuteurNitro = null;
+  if ((etat.profil.theme || 'sombre') !== 'wasteland' || !NITRO_ACTIF) { return; }
+  if (!document.hidden) {
+    var W = window.innerWidth, H = window.innerHeight;
+    var tirage = Math.random();
+    var vertical = (tirage >= 0.8);                      /* 80 % : sur les côtés, 20 % : sous l'écran */
+    var x0, y0, dx = 0, dy = 0;
+    if (tirage < 0.4) { x0 = -alea(10, 70); y0 = alea(0.25, 0.9) * H; dy = alea(50, 110) * (Math.random() < 0.5 ? 1 : -1); }
+    else if (!vertical) { x0 = W + alea(10, 70); y0 = alea(0.25, 0.9) * H; dy = alea(50, 110) * (Math.random() < 0.5 ? 1 : -1); }
+    else { x0 = alea(0.1, 0.9) * W; y0 = H + alea(10, 60); dx = alea(60, 120) * (Math.random() < 0.5 ? 1 : -1); }
+
+    /* Une caisse seule, ou une réaction en chaîne de 2 à 4 */
+    var nb = Math.random() < 0.45 ? 1 : 2 + Math.floor(Math.random() * 3);
+    var delai = 0;
+    for (var k = 0; k < nb; k++) {
+      (function (px, py, R, d) {
+        window.setTimeout(function () {
+          if ((etat.profil.theme || 'sombre') === 'wasteland') { lancerExplosionNitro(px, py, R); }
+        }, d);
+      })(x0 + dx * k, y0 + dy * k, alea(170, 270) * alea(0.85, 1.15), delai);
+      delai += alea(160, 340);
+    }
+  }
+  planifierNitro();
+}
+
+function planifierNitro() {
+  if (minuteurNitro) { window.clearTimeout(minuteurNitro); }
+  minuteurNitro = window.setTimeout(declencherNitro, alea(NITRO_DELAI[0], NITRO_DELAI[1]) * 1000);
+}
+
+function majNitro(theme) {
+  if (minuteurNitro) { window.clearTimeout(minuteurNitro); minuteurNitro = null; }
+  if (zoneNitro) { zoneNitro.innerHTML = ''; }
+  if (theme === 'wasteland' && NITRO_ACTIF) { planifierNitro(); }
+}
+
 function appliquerTheme() {
   var theme = etat.profil.theme || 'sombre';
   var themeEffectif = theme;
@@ -6632,6 +6734,7 @@ function appliquerTheme() {
   majAmbiance(themeEffectif);
   majRouages(themeEffectif);
   majEclair(themeEffectif);
+  majNitro(themeEffectif);
 }
 
 /* ============================================================

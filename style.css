@@ -4400,3 +4400,82 @@ body { background: transparent; }
   white-space: normal;
   font-style: italic;
 }
+
+/* ============================================================
+   WASTELAND : explosions de caisses de nitro (arrière-plan, hors champ)
+   ============================================================ */
+.nitro-zone {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  z-index: -1;
+  pointer-events: none;
+  overflow: hidden;
+}
+.nx-expl { position: absolute; width: 0; height: 0; }
+.nx { position: absolute; top: 0; left: 0; opacity: 0; }
+
+/* 1. Flash vert nitro */
+.nx-flash {
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(215,255,140,.95) 0%, rgba(155,224,0,.55) 30%, rgba(155,224,0,0) 70%);
+  animation: nxFlash .55s ease-out forwards;
+}
+@keyframes nxFlash {
+  0%   { opacity: 0; transform: scale(.3); }
+  12%  { opacity: 1; }
+  100% { opacity: 0; transform: scale(1.25); }
+}
+
+/* 2. Boule de feu */
+.nx-boule {
+  border-radius: 50%;
+  background: radial-gradient(circle, #FFF6C8 0%, #FFC13A 24%, #FF5A1F 52%, rgba(255,60,20,0) 72%);
+  animation: nxBoule .95s ease-out forwards;
+}
+@keyframes nxBoule {
+  0%   { opacity: 0; transform: scale(.15); }
+  10%  { opacity: 1; }
+  100% { opacity: 0; transform: scale(1.15); }
+}
+
+/* 3. Onde de choc */
+.nx-onde {
+  border-radius: 50%;
+  border: 3px solid rgba(200,255,120,.85);
+  animation: nxOnde .75s ease-out forwards;
+}
+@keyframes nxOnde {
+  0%   { opacity: .9; transform: scale(.2); }
+  100% { opacity: 0;  transform: scale(2.3); }
+}
+
+/* 4. Éclats de caisse (planches vertes et bois) */
+.nx-debris {
+  border-radius: 1px;
+  animation-name: nxDebris;
+  animation-timing-function: linear;
+  animation-fill-mode: forwards;
+}
+@keyframes nxDebris {
+  0%   { opacity: 1; transform: translate(0,0) rotate(0deg); }
+  45%  { opacity: 1; transform: translate(var(--mx),var(--my)) rotate(calc(var(--rot) * .5)); }
+  100% { opacity: 0; transform: translate(var(--tx),var(--ty)) rotate(var(--rot)); }
+}
+
+/* 5. Fumée sombre teintée de vert */
+.nx-fumee {
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(44,58,28,.9) 0%, rgba(20,26,14,0) 70%);
+  animation-name: nxFumee;
+  animation-timing-function: ease-out;
+  animation-fill-mode: forwards;
+}
+@keyframes nxFumee {
+  0%   { opacity: 0;  transform: translate(0,0) scale(.4); }
+  25%  { opacity: .75; }
+  100% { opacity: 0;  transform: translate(0,var(--ty)) scale(2.4); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nitro-zone { display: none; }
+}
