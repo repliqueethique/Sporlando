@@ -566,6 +566,41 @@ function sauvegarderEtat() {
 
 var pageCourante = 'accueil';
 
+/* Sous-titres en direct des tuiles de l'accueil */
+function rendreTuilesAccueil() {
+  var aujourdHui = formaterDateISO(new Date());
+  var el;
+
+  /* Nutrition : calories du jour / objectif */
+  el = document.getElementById('tuile-nutrition-sous');
+  if (el) {
+    var entrees = etat.journalAlimentaire[aujourdHui] || [];
+    if (entrees.length === 0) {
+      el.innerHTML = 'Rien noté';
+    } else {
+      var objCal = etat.profil.objectifCalories || 0;
+      el.innerHTML = '<span class="tuile-val">' + Math.round(calculerTotauxJour(aujourdHui).calories) + '</span>' + (objCal ? ' / ' + objCal : '') + ' kcal';
+    }
+  }
+
+  /* Bibliothèque : nombre de séances créées */
+  el = document.getElementById('tuile-biblio-sous');
+  if (el) {
+    var nbSeances = etat.seances.length;
+    el.innerHTML = '<span class="tuile-val">' + nbSeances + '</span> séance' + (nbSeances > 1 ? 's' : '');
+  }
+
+  /* Historique : séances terminées cette semaine */
+  el = document.getElementById('tuile-histo-sous');
+  if (el) {
+    var lundi = lundiDeLaSemaine(new Date());
+    var debutISO = formaterDateISO(lundi);
+    var finISO = formaterDateISO(new Date(lundi.getFullYear(), lundi.getMonth(), lundi.getDate() + 7));
+    var nb = etat.agenda.filter(function (a) { return a.statut === 'termine' && a.date >= debutISO && a.date < finISO; }).length;
+    el.innerHTML = nb === 0 ? 'Rien cette semaine' : '<span class="tuile-val">' + nb + '</span> cette semaine';
+  }
+}
+
 function allerVersPage(nomPage) {
   var anciennePage = pageCourante;
   pageCourante = nomPage;
@@ -588,6 +623,7 @@ function allerVersPage(nomPage) {
     try { afficherBanniereRappels(verifierRappelsDus()); } catch (e) { console.error('Erreur rappels:', e); }
     rendreChecklistQuotidienne();
     rendreCarteSeanceJour();
+    rendreTuilesAccueil();
   }
   if (nomPage === 'seance') { rendreSeance(); }
   if (nomPage === 'nutrition') { rendreNutrition(); }
