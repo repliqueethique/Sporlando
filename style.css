@@ -4239,3 +4239,60 @@ body { background: transparent; }
 :root[data-theme="effroi"] .seance-cadre .accueil-carte {
   padding: 14px 20px;
 }
+
+/* ============================================================
+   WASTELAND : particules de la carte séance
+   ============================================================ */
+.wl {
+  position: absolute;
+  top: 0; left: 0;
+  opacity: 0;
+  animation-iteration-count: infinite;
+}
+
+/* Étincelles : rafale de 2,4 s, projetées puis retombant */
+.wl-etincelle {
+  border-radius: 50%;
+  background: #FFEBA8;
+  box-shadow: 0 0 5px 1px #FF9A2A;
+  animation-name: wlEtincelle;
+  animation-duration: 2.4s;
+  animation-timing-function: linear;
+}
+@keyframes wlEtincelle {
+  0%   { transform: translate(-50%,-50%) translate(0,0); opacity: 0; }
+  5%   { opacity: 1; }
+  28%  { transform: translate(-50%,-50%) translate(var(--mx),var(--my)); opacity: 1; }
+  40%  { transform: translate(-50%,-50%) translate(var(--tx),var(--ty)); opacity: 0; }
+  100% { transform: translate(-50%,-50%) translate(var(--tx),var(--ty)); opacity: 0; }
+}
+
+/* Flammes */
+.wl-flamme {
+  border-radius: 50% 50% 50% 50% / 70% 70% 30% 30%;
+  background: radial-gradient(ellipse at 50% 80%, #FFF3B0 0%, #FFB02E 35%, #FF5A1F 65%, rgba(255,60,20,0) 100%);
+  animation-name: wlFlamme;
+  animation-timing-function: ease-out;
+}
+@keyframes wlFlamme {
+  0%   { transform: translate(-50%,-50%) translate(0,0) scale(1); opacity: 0; }
+  18%  { opacity: .95; }
+  100% { transform: translate(-50%,-50%) translate(var(--tx),var(--ty)) scale(.25); opacity: 0; }
+}
+
+/* Fumée noire */
+.wl-fumee {
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(18,14,12,.9) 0%, rgba(18,14,12,0) 70%);
+  animation-name: wlFumee;
+  animation-timing-function: ease-out;
+}
+@keyframes wlFumee {
+  0%   { transform: translate(-50%,-50%) translate(0,0) scale(.5); opacity: 0; }
+  20%  { opacity: .65; }
+  100% { transform: translate(-50%,-50%) translate(var(--tx),var(--ty)) scale(2.3); opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wl { display: none; }
+}
