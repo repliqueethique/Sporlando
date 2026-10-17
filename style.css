@@ -4231,3 +4231,11 @@ body { background: transparent; }
   box-shadow: none;
   clip-path: var(--fuseau);
 }
+
+/* Effroi : fuseau aux pointes plus courtes (plus de place pour le texte) */
+:root[data-theme="effroi"] {
+  --fuseau: polygon(28px 0, 15.1px 10%, 9.5px 20%, 5.4px 30%, 2.4px 40%, 0 50%, 2.4px 60%, 5.4px 70%, 9.5px 80%, 15.1px 90%, 28px 100%, calc(100% - 28px) 100%, calc(100% - 15.1px) 90%, calc(100% - 9.5px) 80%, calc(100% - 5.4px) 70%, calc(100% - 2.4px) 60%, 100% 50%, calc(100% - 2.4px) 40%, calc(100% - 5.4px) 30%, calc(100% - 9.5px) 20%, calc(100% - 15.1px) 10%, calc(100% - 28px) 0);
+}
+:root[data-theme="effroi"] .seance-cadre .accueil-carte {
+  padding: 14px 20px;
+}
