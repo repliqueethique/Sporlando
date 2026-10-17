@@ -567,37 +567,39 @@ function sauvegarderEtat() {
 var pageCourante = 'accueil';
 
 /* Sous-titres en direct des tuiles de l'accueil */
+/* Sous-titres en direct des tuiles de l'accueil */
 function rendreTuilesAccueil() {
   var aujourdHui = formaterDateISO(new Date());
   var el;
 
-  /* Nutrition : calories du jour / objectif */
+  /* Nutrition : protéines restantes pour atteindre l'objectif du jour, avec une petite jauge */
   el = document.getElementById('tuile-nutrition-sous');
   if (el) {
-    var entrees = etat.journalAlimentaire[aujourdHui] || [];
-    if (entrees.length === 0) {
-      el.innerHTML = 'Rien noté';
+    var objP = etat.profil.objectifProteines || 0;
+    var pris = calculerTotauxJour(aujourdHui).proteines;
+    var reste = Math.max(0, Math.round(objP - pris));
+    var pct = objP > 0 ? Math.min(100, Math.round(pris / objP * 100)) : 0;
+    if (objP > 0 && reste === 0) {
+      el.innerHTML = 'Objectif atteint' + '<span class="tuile-jauge"><i style="width:100%"></i></span>';
     } else {
-      var objCal = etat.profil.objectifCalories || 0;
-      el.innerHTML = '<span class="tuile-val">' + Math.round(calculerTotauxJour(aujourdHui).calories) + '</span>' + (objCal ? ' / ' + objCal : '') + ' kcal';
+      el.innerHTML = '<span class="tuile-val">' + reste + '</span> g restants' + '<span class="tuile-jauge"><i style="width:' + pct + '%"></i></span>';
     }
   }
 
-  /* Bibliothèque : nombre de séances créées */
+  /* Bibliothèque : objectif du programme en cours */
   el = document.getElementById('tuile-biblio-sous');
   if (el) {
-    var nbSeances = etat.seances.length;
-    el.innerHTML = '<span class="tuile-val">' + nbSeances + '</span> séance' + (nbSeances > 1 ? 's' : '');
+    var prog = obtenirProgrammeActif();
+    var objectif = prog && prog.objectif ? prog.objectif.trim() : '';
+    el.className = 'texte-att tuile-objectif';
+    el.innerHTML = objectif ? echapperHtml(objectif) : 'Aucun objectif';
   }
 
-  /* Historique : séances terminées cette semaine */
+  /* Historique : nombre de séances faites */
   el = document.getElementById('tuile-histo-sous');
   if (el) {
-    var lundi = lundiDeLaSemaine(new Date());
-    var debutISO = formaterDateISO(lundi);
-    var finISO = formaterDateISO(new Date(lundi.getFullYear(), lundi.getMonth(), lundi.getDate() + 7));
-    var nb = etat.agenda.filter(function (a) { return a.statut === 'termine' && a.date >= debutISO && a.date < finISO; }).length;
-    el.innerHTML = nb === 0 ? 'Rien cette semaine' : '<span class="tuile-val">' + nb + '</span> cette semaine';
+    var nb = etat.agenda.filter(function (a) { return a.statut === 'termine'; }).length;
+    el.innerHTML = '<span class="tuile-val">' + nb + '</span> séance' + (nb > 1 ? 's' : '') + ' faite' + (nb > 1 ? 's' : '');
   }
 }
 
@@ -2325,11 +2327,53 @@ var PARTICULES_PAR_THEME = {
   cyberpunk: ['⚡', '💠', '🔷'],
   steampunk: ['⚙', '🕰', '🔧'],
   flibuste: ['⚓', '🦜', '💰', '🗝️', '☠️', '🦑', '🧭'],
-  ruedor: ['🤠', '🌵', '⭐', '🐎', '🐂', '🥾', '🌾'],
-  wasteland: ['⚠️', '💥', '⚙', '💀', '🛢️', '⛔', '🪓', '🎸', '☢️']
+  ruedor: ['🤠', '🌵', '⭐', '🐎', '🐂', '🥾', '🌾']
 };
 
+/* Wasteland : étincelles de soudure, flammes et fumée noire qui sortent de l'icône */
+function genererParticulesWasteland() {
+  var html = '<div class="particules">';
+  var i, dur, taille, ang, dist, tx, my, ty;
+
+  /* Fumée noire : monte en grossissant */
+  for (i = 0; i < 7; i++) {
+    taille = alea(22, 38).toFixed(0);
+    dur = alea(3.5, 5.5);
+    html += '<span class="wl wl-fumee" style="width:' + taille + 'px;height:' + taille + 'px;margin-left:' + alea(-10, 10).toFixed(0) + 'px;' +
+      'animation-duration:' + dur.toFixed(2) + 's;animation-delay:-' + (Math.random() * dur).toFixed(2) + 's;' +
+      '--tx:' + alea(-18, 26).toFixed(0) + 'px;--ty:-' + alea(55, 90).toFixed(0) + 'px;"></span>';
+  }
+
+  /* Flammes : petites langues qui montent et rétrécissent */
+  for (i = 0; i < 6; i++) {
+    taille = alea(9, 17).toFixed(0);
+    dur = alea(1.1, 2);
+    html += '<span class="wl wl-flamme" style="width:' + taille + 'px;height:' + (taille * 1.7).toFixed(0) + 'px;margin-left:' + alea(-12, 12).toFixed(0) + 'px;' +
+      'animation-duration:' + dur.toFixed(2) + 's;animation-delay:-' + (Math.random() * dur).toFixed(2) + 's;' +
+      '--tx:' + alea(-14, 14).toFixed(0) + 'px;--ty:-' + alea(30, 48).toFixed(0) + 'px;"></span>';
+  }
+
+  /* Étincelles : 3 rafales de 5 (comme un coup de chalumeau), puis retombent */
+  for (var rafale = 0; rafale < 3; rafale++) {
+    for (i = 0; i < 5; i++) {
+      ang = alea(-165, -15) * Math.PI / 180;
+      dist = alea(25, 80);
+      tx = Math.cos(ang) * dist;
+      my = Math.sin(ang) * dist * 0.9;
+      ty = my + alea(25, 45);
+      taille = alea(2, 3.5).toFixed(1);
+      html += '<span class="wl wl-etincelle" style="width:' + taille + 'px;height:' + taille + 'px;' +
+        'animation-delay:-' + (rafale * 0.8 + Math.random() * 0.15).toFixed(2) + 's;' +
+        '--mx:' + (tx * 0.7).toFixed(0) + 'px;--my:' + my.toFixed(0) + 'px;--tx:' + tx.toFixed(0) + 'px;--ty:' + ty.toFixed(0) + 'px;"></span>';
+    }
+  }
+
+  html += '</div>';
+  return html;
+}
+
 function genererParticules(nombre) {
+  if (etat.profil.theme === 'wasteland') { return genererParticulesWasteland(); }
   var jeuEmoji = PARTICULES_PAR_THEME[etat.profil.theme];
   var html = '<div class="particules">';
   for (var i = 0; i < nombre; i++) {

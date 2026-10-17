@@ -4296,3 +4296,27 @@ body { background: transparent; }
 @media (prefers-reduced-motion: reduce) {
   .wl { display: none; }
 }
+
+/* Accueil : jauge de protéines + objectif sur 2 lignes */
+.tuile-jauge {
+  display: block;
+  height: 4px;
+  margin: 6px 6px 0 6px;
+  border-radius: 2px;
+  background: var(--couleur-carte-creux);
+  overflow: hidden;
+}
+.tuile-jauge i {
+  display: block;
+  height: 100%;
+  border-radius: 2px;
+  background: var(--couleur-degrade);
+}
+.accueil-tuile .tuile-objectif {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+  white-space: normal;
+  font-style: italic;
+}
