@@ -2614,26 +2614,6 @@ function rendreRessentiJour() {
   document.addEventListener('touchend', terminer);
 })();
 
-function mettreAJourApparenceSlider(champ, valeur) {
-  var couleur = COULEURS_NIVEAU[valeur];
-  var input = document.getElementById('champ-ressenti-' + champ);
-  var rond = document.getElementById('rond-ressenti-' + champ);
-  var emoji;
-  if (champ === 'fatigue') { emoji = EMOJIS_FATIGUE[valeur]; }
-  else if (champ === 'stress') { emoji = EMOJIS_STRESS[valeur]; }
-  else { emoji = EMOJIS_HUMEUR[valeur]; }
-
-  if (rond) {
-    rond.innerHTML = emoji;
-    rond.style.borderColor = couleur;
-  }
-  if (input) {
-    var pourcentage = (valeur / 8) * 100;
-    input.style.background = 'linear-gradient(to right, ' + couleur + ' 0%, ' + couleur + ' ' + pourcentage + '%, #2f2f33 ' + pourcentage + '%, #2f2f33 100%)';
-    input.style.setProperty('--couleur-progression', couleur);
-  }
-}
-
 function modifierRessenti(champ, valeur) {
   var aujourdHui = obtenirDateJourReference();
   if (!etat.ressentiQuotidien[aujourdHui]) {
@@ -2665,11 +2645,12 @@ function mettreAJourApparenceSlider(champ, valeur) {
   if (rond) {
     rond.innerHTML = emoji;
     rond.style.borderColor = couleur;
+    rond.style.setProperty('--couleur-progression', couleur);
   }
   if (input) {
     var pourcentage = (valeur / 8) * 100;
     input.style.setProperty('--couleur-progression', couleur);
-    input.style.background = 'linear-gradient(to right, ' + couleur + ' 0%, ' + couleur + ' ' + pourcentage + '%, #ddd ' + pourcentage + '%, #ddd 100%)';
+    input.style.background = 'linear-gradient(to right, ' + couleur + ' 0%, ' + couleur + ' ' + pourcentage + '%, var(--ress-piste) ' + pourcentage + '%, var(--ress-piste) 100%)';
   }
 }
 

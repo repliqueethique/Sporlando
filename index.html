@@ -93,19 +93,10 @@
        ============================================================ -->
   <section id="page-seance" class="page">
     <div id="seance-zone-inactive">
-      <div class="carte">
+      <div class="carte ressenti-carte">
         <h2 class="carte-titre">Ressenti du jour</h2>
         <div id="ligne-ressenti-sommeil" class="sommeil-ligne sommeil-glissable">
-          <input
-            id="champ-ressenti-sommeil"
-            data-role="ressenti-sommeil"
-            class="sommeil-input"
-            type="number"
-            min="0"
-            max="24"
-            step="0.5"
-            value="8"
-          >H de sommeil
+          <input id="champ-ressenti-sommeil" data-role="ressenti-sommeil" class="sommeil-input" type="number" min="0" max="24" step="0.5" value="8"><span class="sommeil-suffixe">H de sommeil</span>
         </div>
         <div class="ressenti-ligne">
           <label>Humeur</label>
@@ -121,7 +112,7 @@
             <input type="range" min="0" max="8" step="1" data-role="ressenti-fatigue" id="champ-ressenti-fatigue">
           </div>
         </div>
-        <div class="ressenti-ligne" style="margin-bottom:0;">
+        <div class="ressenti-ligne">
           <label>Stress</label>
           <div class="ressenti-slider-zone">
             <div class="ressenti-emoji-rond" id="rond-ressenti-stress">😗</div>
@@ -129,10 +120,10 @@
           </div>
         </div>
         <div class="ressenti-ligne booleens-ligne">
-          <button type="button" class="booleen-emoji-btn" data-action="basculer-booleen-ressenti" data-champ="colere" data-actif="false">🤬</button>
-          <button type="button" class="booleen-emoji-btn" data-action="basculer-booleen-ressenti" data-champ="blessure" data-actif="false">🤕</button>
-          <button type="button" class="booleen-emoji-btn" data-action="basculer-booleen-ressenti" data-champ="maladie" data-actif="false">🤒</button>
-          <button type="button" class="booleen-emoji-btn" data-action="basculer-booleen-ressenti" data-champ="insomnie" data-actif="false">😶</button>
+          <button type="button" class="booleen-emoji-btn" data-action="basculer-booleen-ressenti" data-champ="colere" data-actif="false" data-label="Colère"><span class="booleen-emoji">🤬</span></button>
+          <button type="button" class="booleen-emoji-btn" data-action="basculer-booleen-ressenti" data-champ="blessure" data-actif="false" data-label="Blessure"><span class="booleen-emoji">🤕</span></button>
+          <button type="button" class="booleen-emoji-btn" data-action="basculer-booleen-ressenti" data-champ="maladie" data-actif="false" data-label="Maladie"><span class="booleen-emoji">🤒</span></button>
+          <button type="button" class="booleen-emoji-btn" data-action="basculer-booleen-ressenti" data-champ="insomnie" data-actif="false" data-label="Insomnie"><span class="booleen-emoji">😶</span></button>
         </div>
       </div>
       <div class="carte" id="seance-carte-prevu" style="display:none;">

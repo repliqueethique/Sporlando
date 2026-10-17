@@ -3928,3 +3928,158 @@ body { background: transparent; }
 :root[data-theme="flibuste"]   { --tuile-decor: linear-gradient(0deg, rgba(42,157,143,.18), transparent 60%); --tuile-bord: rgba(224,174,69,.5); }
 :root[data-theme="ruedor"]     { --tuile-bord: rgba(242,193,78,.6); --tuile-trait: dashed; --tuile-rayon: 6px; }
 :root[data-theme="wasteland"]  { --tuile-decor: repeating-linear-gradient(135deg, rgba(255,106,31,.1) 0 10px, transparent 10px 20px); --tuile-bord: rgba(255,106,31,.6); --tuile-rayon: 6px; }
+
+/* ============================================================
+   RESSENTI DU JOUR : tuiles modernes + déclinaison par thème
+   (réutilise les variables --tuile-* de l'accueil ; valeurs par défaut sinon)
+   ============================================================ */
+:root { --ress-piste: var(--couleur-bordure); }
+
+.ressenti-carte .sommeil-ligne,
+.ressenti-carte .ressenti-ligne:not(.booleens-ligne),
+.ressenti-carte .booleen-emoji-btn {
+  background-color: var(--couleur-carte-creux);
+  background-image: var(--tuile-decor, none);
+  border: 1px var(--tuile-trait, solid) var(--tuile-bord, var(--couleur-bordure));
+  border-radius: var(--tuile-rayon, 20px);
+}
+
+/* --- Sommeil --- */
+.ressenti-carte .sommeil-ligne {
+  position: relative;
+  padding: 14px 12px;
+  margin-bottom: 10px;
+  font-size: 34px;
+  line-height: 1;
+  font-family: var(--police-titre, var(--police-donnees));
+  box-shadow: var(--tuile-lueur, none);
+  transition: color 0.2s ease, border-color 0.2s ease;
+}
+.ressenti-carte .sommeil-glissable.glisse-actif {
+  opacity: 1;
+  border-color: var(--couleur-turquoise);
+}
+.ressenti-carte .sommeil-suffixe {
+  margin-left: 8px;
+  font-family: var(--police-corps);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--couleur-texte-att);
+}
+/* chevrons : indiquent qu'on peut glisser */
+.ressenti-carte .sommeil-ligne::before,
+.ressenti-carte .sommeil-ligne::after {
+  position: absolute;
+  top: 50%;
+  margin-top: -15px;
+  font-family: var(--police-corps);
+  font-size: 26px;
+  line-height: 1;
+  color: var(--couleur-texte-att);
+  opacity: 0.45;
+}
+.ressenti-carte .sommeil-ligne::before { content: '\2039'; left: 16px; }
+.ressenti-carte .sommeil-ligne::after  { content: '\203A'; right: 16px; }
+
+/* --- Humeur / Fatigue / Stress --- */
+.ressenti-carte .ressenti-ligne:not(.booleens-ligne) {
+  padding: 10px 12px 12px 12px;
+  margin-bottom: 10px;
+  box-shadow: var(--tuile-lueur, none);
+}
+.ressenti-carte .ressenti-ligne label {
+  margin-bottom: 8px;
+  font-family: var(--police-titre, var(--police-corps));
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  color: var(--couleur-turquoise);
+}
+.ressenti-carte .ressenti-emoji-rond {
+  width: 46px; height: 46px;
+  border-width: 2px;
+  font-size: 26px;
+  background: var(--couleur-carte);
+  box-shadow: 0 0 14px -4px var(--couleur-progression, transparent);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+.ressenti-carte .ressenti-slider-zone input[type="range"] {
+  height: 10px;
+  border-radius: 5px;
+}
+.ressenti-carte .ressenti-slider-zone input[type="range"]::-webkit-slider-thumb {
+  width: 26px; height: 26px;
+  border-radius: 50%;
+  background: var(--couleur-texte);
+  border: 3px solid var(--couleur-progression, var(--couleur-turquoise));
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+}
+.ressenti-carte .ressenti-slider-zone input[type="range"]::-moz-range-thumb {
+  width: 20px; height: 20px;
+  border-radius: 50%;
+  background: var(--couleur-texte);
+  border: 3px solid var(--couleur-progression, var(--couleur-turquoise));
+}
+
+/* --- Colère / blessure / maladie / insomnie --- */
+.ressenti-carte .booleens-ligne {
+  display: flex;
+  justify-content: stretch;
+  margin: 12px -4px 0 -4px;
+}
+.ressenti-carte .booleen-emoji-btn {
+  position: relative;
+  flex: 1 1 0;
+  min-width: 0;
+  margin: 0 4px;
+  padding: 10px 2px 8px 2px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  filter: none;
+  transform: none;
+  transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), border-color 0.2s ease, box-shadow 0.2s ease;
+}
+.ressenti-carte .booleen-emoji {
+  font-size: 28px;
+  line-height: 1;
+  filter: grayscale(100%) opacity(0.45);
+  transition: filter 0.2s ease, transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.ressenti-carte .booleen-emoji-btn::after {
+  content: attr(data-label);
+  margin-top: 6px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--couleur-texte-att);
+}
+.ressenti-carte .booleen-emoji-btn:active { transform: scale(0.94); }
+.ressenti-carte .booleen-emoji-btn[data-actif="true"] {
+  filter: none;
+  transform: none;
+  border-color: var(--couleur-turquoise);
+  box-shadow: 0 0 16px -6px var(--couleur-turquoise);
+}
+.ressenti-carte .booleen-emoji-btn[data-actif="true"] .booleen-emoji {
+  filter: none;
+  transform: scale(1.15);
+}
+.ressenti-carte .booleen-emoji-btn[data-actif="true"]::after { color: var(--couleur-turquoise); }
+
+/* --- Touches par thème --- */
+:root[data-theme="effroi"] .ressenti-carte .ressenti-ligne label { text-transform: none; }
+:root[data-theme="cyberpunk"] .ressenti-carte .ressenti-slider-zone input[type="range"]::-webkit-slider-thumb {
+  border-radius: 4px;
+  box-shadow: 0 0 10px var(--couleur-progression, #00F0FF);
+}
+:root[data-theme="wasteland"] .ressenti-carte .ressenti-slider-zone input[type="range"]::-webkit-slider-thumb,
+:root[data-theme="ruedor"] .ressenti-carte .ressenti-slider-zone input[type="range"]::-webkit-slider-thumb {
+  border-radius: 3px;
+}
+:root[data-theme="steampunk"] .ressenti-carte .ressenti-slider-zone input[type="range"]::-webkit-slider-thumb {
+  background: radial-gradient(circle at 35% 35%, #E8B46A, #7A4E1E);
+}
