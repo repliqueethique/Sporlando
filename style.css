@@ -3797,3 +3797,13 @@ body { background: transparent; }
   margin-left: 10px;
 }
 .meteo-spark svg { display: block; width: 100%; height: auto; }
+
+/* Météo : dégradé d'état à gauche (comme l'ancienne barre) */
+.meteo-carte {
+  border-left: 4px solid var(--meteo-couleur);
+}
+.meteo-carte::before {
+  background: linear-gradient(90deg, var(--meteo-couleur) 0%, var(--meteo-couleur) 28%, transparent 68%);
+  opacity: 0.26;
+}
+.meteo-temp { color: var(--meteo-couleur); }
