@@ -3807,3 +3807,9 @@ body { background: transparent; }
   opacity: 0.26;
 }
 .meteo-temp { color: var(--meteo-couleur); }
+
+/* Météo : la température utilise la police des titres du thème */
+.meteo-temp,
+.meteo-tuile-valeur {
+  font-family: var(--police-titre, var(--police-donnees));
+}
