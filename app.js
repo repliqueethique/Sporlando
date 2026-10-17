@@ -2332,14 +2332,78 @@ var PARTICULES_PAR_THEME = {
 
 /* Wasteland : étincelles de soudure, flammes et fumée noire qui sortent de l'icône */
 /* Wasteland : lance-flammes vers la droite, gerbe d'étincelles (traits fins), fumée noire envahissante */
+/* Planche de 8 images de flamme (jet vers la droite), générée une seule fois */
+var spriteFlammes = false;
+
+function construireSpriteFlammes() {
+  if (spriteFlammes) { return; }
+  spriteFlammes = true;
+  var N = 8, Wf = 260, Hf = 100, cy = Hf / 2, n = 9;
+
+  function segments(pts) {
+    var d = '';
+    for (var i = 1; i < pts.length - 1; i++) {
+      var mx = (pts[i][0] + pts[i + 1][0]) / 2, my = (pts[i][1] + pts[i + 1][1]) / 2;
+      d += ' Q' + pts[i][0].toFixed(1) + ',' + pts[i][1].toFixed(1) + ' ' + mx.toFixed(1) + ',' + my.toFixed(1);
+    }
+    var fin = pts[pts.length - 1];
+    return d + ' L' + fin[0].toFixed(1) + ',' + fin[1].toFixed(1);
+  }
+
+  function langue(ox, L, H, jit, off, fill, opacite) {
+    var haut = [], bas = [];
+    for (var i = 0; i < n; i++) {
+      var t = i / (n - 1);
+      var env = Math.sin(Math.PI * Math.pow(t, 0.55));
+      var w = H * (0.15 * (1 - t) + 0.85 * env) * jit[i];
+      var y = off[i] * t;
+      haut.push([ox + t * L, cy - w + y]);
+      bas.push([ox + t * L, cy + w + y]);
+    }
+    bas.reverse();
+    return '<path d="M' + haut[0][0].toFixed(1) + ',' + haut[0][1].toFixed(1) + segments(haut) + segments(bas) + 'Z" fill="url(#' + fill + ')" opacity="' + opacite + '"/>';
+  }
+
+  function aleatoires(base, amp) {
+    var tab = [];
+    for (var i = 0; i < n; i++) { tab.push(base + (Math.random() - 0.5) * amp); }
+    return tab;
+  }
+
+  var corps = '';
+  for (var k = 0; k < N; k++) {
+    var ox = k * Wf + 2;
+    var jit = aleatoires(1, 0.5);
+    var off = aleatoires(0, 16);
+    var L = 205 + Math.random() * 45;
+    corps += langue(ox, L, 44, jit, off, 'gO', 0.9);
+    corps += langue(ox, L * 0.78, 30, jit.map(function (v) { return v * (0.85 + Math.random() * 0.3); }), off, 'gM', 0.95);
+    corps += langue(ox, L * 0.55, 17, aleatoires(1, 0.4), off.map(function (v) { return v * 0.6; }), 'gI', 1);
+  }
+
+  var defs = '<defs>' +
+    '<linearGradient id="gO" x1="0" x2="1" y1="0" y2="0"><stop offset="0" stop-color="#FF5A1F"/><stop offset="1" stop-color="#FF3C14" stop-opacity="0"/></linearGradient>' +
+    '<linearGradient id="gM" x1="0" x2="1" y1="0" y2="0"><stop offset="0" stop-color="#FFB02E"/><stop offset="1" stop-color="#FF6A1F" stop-opacity="0"/></linearGradient>' +
+    '<linearGradient id="gI" x1="0" x2="1" y1="0" y2="0"><stop offset="0" stop-color="#FFF6C8"/><stop offset="1" stop-color="#FFC13A" stop-opacity="0"/></linearGradient>' +
+    '</defs>';
+  var svg = '<svg xmlns="http://www.w3.org/2000/svg" width="' + (N * Wf) + '" height="' + Hf + '" viewBox="0 0 ' + (N * Wf) + ' ' + Hf + '">' + defs + corps + '</svg>';
+
+  var style = document.createElement('style');
+  style.id = 'wl-sprite-style';
+  style.appendChild(document.createTextNode('.wl-flamme-sprite{background-image:url("data:image/svg+xml,' + encodeURIComponent(svg) + '");}'));
+  document.head.appendChild(style);
+}
+
+/* Wasteland : lance-flammes (images en boucle), gerbe d'étincelles, fumée noire */
 function genererParticulesWasteland() {
+  construireSpriteFlammes();
   var html = '<div class="particules">';
-  var i, dur, taille, tx, ty, ang, rad, dist, len, ep;
+  var i, dur, taille, tx, ty, ang, rad, dist, len;
 
   /* Lueur du foyer, derrière l'icône */
   html += '<span class="wl wl-lueur"></span>';
 
-  /* Fumée noire : gros nuages rapides qui partent loin vers la droite et le haut */
+  /* Fumée noire */
   for (i = 0; i < 14; i++) {
     taille = alea(50, 110);
     dur = alea(1.6, 3);
@@ -2348,17 +2412,17 @@ function genererParticulesWasteland() {
       '--tx:' + alea(130, 280).toFixed(0) + 'px;--ty:' + alea(-75, 15).toFixed(0) + 'px;"></span>';
   }
 
-  /* Jet de flammes : langues allongées projetées vers la droite, en éventail serré */
-  for (i = 0; i < 14; i++) {
-    len = alea(45, 90);
-    ep = alea(12, 22);
-    dur = alea(0.45, 0.85);
-    html += '<span class="wl wl-jet" style="width:' + len.toFixed(0) + 'px;height:' + ep.toFixed(0) + 'px;margin-top:-' + (ep / 2).toFixed(0) + 'px;' +
-      'animation-duration:' + dur.toFixed(2) + 's;animation-delay:-' + (Math.random() * dur).toFixed(2) + 's;' +
-      '--rot:' + alea(-14, 14).toFixed(1) + 'deg;--d:' + alea(70, 150).toFixed(0) + 'px;"></span>';
+  /* Jet de flammes : 3 jets superposés, images décalées pour ne pas vaciller en même temps */
+  var jets = [
+    { s: 1,    r: 0,  ph: 0 },
+    { s: 0.72, r: -9, ph: 0.13 },
+    { s: 0.65, r: 8,  ph: 0.21 }
+  ];
+  for (i = 0; i < jets.length; i++) {
+    html += '<span class="wl wl-flamme-sprite" style="transform:rotate(' + jets[i].r + 'deg) scale(' + jets[i].s + ');animation-delay:-' + jets[i].ph + 's;"></span>';
   }
 
-  /* Étincelles : traits fins projetés à grande vitesse en éventail, qui retombent */
+  /* Étincelles : traits fins */
   for (i = 0; i < 24; i++) {
     ang = alea(-60, 45);
     rad = ang * Math.PI / 180;

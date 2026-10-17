@@ -4278,18 +4278,22 @@ body { background: transparent; }
   100% { transform: translate(-50%,-50%) translate(var(--tx),var(--ty)) scale(3); opacity: 0; }
 }
 
-/* Jet de flammes : langue allongée, pointe à droite, chaude à la source */
-.wl-jet {
+/* Flammes : images dessinées, 8 images à 25 i/s, jet fixe vers la droite */
+.wl-flamme-sprite {
+  opacity: 1;
+  width: 260px;
+  height: 100px;
+  margin-top: -50px;
+  background-repeat: no-repeat;
+  background-size: 2080px 100px;
   transform-origin: 0 50%;
-  border-radius: 30% 100% 100% 30%;
-  background: linear-gradient(90deg, #FFF6C8 0%, #FFC13A 25%, #FF5A1F 60%, rgba(255,60,20,0) 100%);
-  animation-name: wlJet;
-  animation-timing-function: ease-out;
+  animation-name: wlFlammeImages;
+  animation-duration: 0.32s;                    /* 8 images / 25 i/s */
+  animation-timing-function: steps(8, end);
 }
-@keyframes wlJet {
-  0%   { transform: rotate(var(--rot)) translateX(0) scaleX(.25); opacity: 0; }
-  12%  { opacity: 1; }
-  100% { transform: rotate(var(--rot)) translateX(var(--d)) scaleX(1.5); opacity: 0; }
+@keyframes wlFlammeImages {
+  from { background-position: 0 0; }
+  to   { background-position: -2080px 0; }
 }
 
 /* Étincelles : traits fins, tête claire et traînée orange */
