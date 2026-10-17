@@ -2331,41 +2331,46 @@ var PARTICULES_PAR_THEME = {
 };
 
 /* Wasteland : étincelles de soudure, flammes et fumée noire qui sortent de l'icône */
+/* Wasteland : lance-flammes vers la droite, gerbe d'étincelles (traits fins), fumée noire envahissante */
 function genererParticulesWasteland() {
   var html = '<div class="particules">';
-  var i, dur, taille, ang, dist, tx, my, ty;
+  var i, dur, taille, tx, ty, ang, rad, dist, len, ep;
 
-  /* Fumée noire : monte en grossissant */
-  for (i = 0; i < 7; i++) {
-    taille = alea(22, 38).toFixed(0);
-    dur = alea(3.5, 5.5);
-    html += '<span class="wl wl-fumee" style="width:' + taille + 'px;height:' + taille + 'px;margin-left:' + alea(-10, 10).toFixed(0) + 'px;' +
+  /* Lueur du foyer, derrière l'icône */
+  html += '<span class="wl wl-lueur"></span>';
+
+  /* Fumée noire : gros nuages rapides qui partent loin vers la droite et le haut */
+  for (i = 0; i < 14; i++) {
+    taille = alea(50, 110);
+    dur = alea(1.6, 3);
+    html += '<span class="wl wl-fumee" style="width:' + taille.toFixed(0) + 'px;height:' + taille.toFixed(0) + 'px;' +
       'animation-duration:' + dur.toFixed(2) + 's;animation-delay:-' + (Math.random() * dur).toFixed(2) + 's;' +
-      '--tx:' + alea(-18, 26).toFixed(0) + 'px;--ty:-' + alea(55, 90).toFixed(0) + 'px;"></span>';
+      '--tx:' + alea(130, 280).toFixed(0) + 'px;--ty:' + alea(-75, 15).toFixed(0) + 'px;"></span>';
   }
 
-  /* Flammes : petites langues qui montent et rétrécissent */
-  for (i = 0; i < 6; i++) {
-    taille = alea(9, 17).toFixed(0);
-    dur = alea(1.1, 2);
-    html += '<span class="wl wl-flamme" style="width:' + taille + 'px;height:' + (taille * 1.7).toFixed(0) + 'px;margin-left:' + alea(-12, 12).toFixed(0) + 'px;' +
+  /* Jet de flammes : langues allongées projetées vers la droite, en éventail serré */
+  for (i = 0; i < 14; i++) {
+    len = alea(45, 90);
+    ep = alea(12, 22);
+    dur = alea(0.45, 0.85);
+    html += '<span class="wl wl-jet" style="width:' + len.toFixed(0) + 'px;height:' + ep.toFixed(0) + 'px;margin-top:-' + (ep / 2).toFixed(0) + 'px;' +
       'animation-duration:' + dur.toFixed(2) + 's;animation-delay:-' + (Math.random() * dur).toFixed(2) + 's;' +
-      '--tx:' + alea(-14, 14).toFixed(0) + 'px;--ty:-' + alea(30, 48).toFixed(0) + 'px;"></span>';
+      '--rot:' + alea(-14, 14).toFixed(1) + 'deg;--d:' + alea(70, 150).toFixed(0) + 'px;"></span>';
   }
 
-  /* Étincelles : 3 rafales de 5 (comme un coup de chalumeau), puis retombent */
-  for (var rafale = 0; rafale < 3; rafale++) {
-    for (i = 0; i < 5; i++) {
-      ang = alea(-165, -15) * Math.PI / 180;
-      dist = alea(25, 80);
-      tx = Math.cos(ang) * dist;
-      my = Math.sin(ang) * dist * 0.9;
-      ty = my + alea(25, 45);
-      taille = alea(2, 3.5).toFixed(1);
-      html += '<span class="wl wl-etincelle" style="width:' + taille + 'px;height:' + taille + 'px;' +
-        'animation-delay:-' + (rafale * 0.8 + Math.random() * 0.15).toFixed(2) + 's;' +
-        '--mx:' + (tx * 0.7).toFixed(0) + 'px;--my:' + my.toFixed(0) + 'px;--tx:' + tx.toFixed(0) + 'px;--ty:' + ty.toFixed(0) + 'px;"></span>';
-    }
+  /* Étincelles : traits fins projetés à grande vitesse en éventail, qui retombent */
+  for (i = 0; i < 24; i++) {
+    ang = alea(-60, 45);
+    rad = ang * Math.PI / 180;
+    dist = alea(90, 240);
+    len = alea(10, 24);
+    dur = alea(0.35, 0.8);
+    tx = Math.cos(rad) * dist;
+    ty = Math.sin(rad) * dist + alea(15, 45);
+    html += '<span class="wl wl-etincelle" style="width:' + len.toFixed(0) + 'px;margin-left:-' + (len / 2).toFixed(0) + 'px;' +
+      'animation-duration:' + dur.toFixed(2) + 's;animation-delay:-' + (Math.random() * dur).toFixed(2) + 's;' +
+      '--rot:' + ang.toFixed(0) + 'deg;--mx:' + (tx * 0.65).toFixed(0) + 'px;--my:' + (Math.sin(rad) * dist * 0.65).toFixed(0) + 'px;' +
+      '--tx:' + tx.toFixed(0) + 'px;--ty:' + ty.toFixed(0) + 'px;"></span>';
   }
 
   html += '</div>';

@@ -4241,7 +4241,7 @@ body { background: transparent; }
 }
 
 /* ============================================================
-   WASTELAND : particules de la carte séance
+   WASTELAND : particules de la carte séance (lance-flammes)
    ============================================================ */
 .wl {
   position: absolute;
@@ -4250,47 +4250,62 @@ body { background: transparent; }
   animation-iteration-count: infinite;
 }
 
-/* Étincelles : rafale de 2,4 s, projetées puis retombant */
-.wl-etincelle {
+/* Lueur du foyer */
+.wl-lueur {
+  width: 110px; height: 110px;
   border-radius: 50%;
-  background: #FFEBA8;
-  box-shadow: 0 0 5px 1px #FF9A2A;
-  animation-name: wlEtincelle;
-  animation-duration: 2.4s;
-  animation-timing-function: linear;
+  background: radial-gradient(circle, rgba(255,170,60,.9) 0%, rgba(255,90,20,.4) 45%, rgba(255,90,20,0) 70%);
+  animation-name: wlLueur;
+  animation-duration: .28s;
+  animation-timing-function: ease-in-out;
+  animation-direction: alternate;
 }
-@keyframes wlEtincelle {
-  0%   { transform: translate(-50%,-50%) translate(0,0); opacity: 0; }
-  5%   { opacity: 1; }
-  28%  { transform: translate(-50%,-50%) translate(var(--mx),var(--my)); opacity: 1; }
-  40%  { transform: translate(-50%,-50%) translate(var(--tx),var(--ty)); opacity: 0; }
-  100% { transform: translate(-50%,-50%) translate(var(--tx),var(--ty)); opacity: 0; }
+@keyframes wlLueur {
+  from { transform: translate(-50%,-50%) scale(.9); opacity: .65; }
+  to   { transform: translate(-50%,-50%) scale(1.15); opacity: 1; }
 }
 
-/* Flammes */
-.wl-flamme {
-  border-radius: 50% 50% 50% 50% / 70% 70% 30% 30%;
-  background: radial-gradient(ellipse at 50% 80%, #FFF3B0 0%, #FFB02E 35%, #FF5A1F 65%, rgba(255,60,20,0) 100%);
-  animation-name: wlFlamme;
-  animation-timing-function: ease-out;
-}
-@keyframes wlFlamme {
-  0%   { transform: translate(-50%,-50%) translate(0,0) scale(1); opacity: 0; }
-  18%  { opacity: .95; }
-  100% { transform: translate(-50%,-50%) translate(var(--tx),var(--ty)) scale(.25); opacity: 0; }
-}
-
-/* Fumée noire */
+/* Fumée noire : plus grosse, plus rapide, plus loin */
 .wl-fumee {
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(18,14,12,.9) 0%, rgba(18,14,12,0) 70%);
+  background: radial-gradient(circle, rgba(14,11,10,.95) 0%, rgba(14,11,10,0) 70%);
   animation-name: wlFumee;
   animation-timing-function: ease-out;
 }
 @keyframes wlFumee {
-  0%   { transform: translate(-50%,-50%) translate(0,0) scale(.5); opacity: 0; }
-  20%  { opacity: .65; }
-  100% { transform: translate(-50%,-50%) translate(var(--tx),var(--ty)) scale(2.3); opacity: 0; }
+  0%   { transform: translate(-50%,-50%) translate(0,0) scale(.4); opacity: 0; }
+  15%  { opacity: .85; }
+  100% { transform: translate(-50%,-50%) translate(var(--tx),var(--ty)) scale(3); opacity: 0; }
+}
+
+/* Jet de flammes : langue allongée, pointe à droite, chaude à la source */
+.wl-jet {
+  transform-origin: 0 50%;
+  border-radius: 30% 100% 100% 30%;
+  background: linear-gradient(90deg, #FFF6C8 0%, #FFC13A 25%, #FF5A1F 60%, rgba(255,60,20,0) 100%);
+  animation-name: wlJet;
+  animation-timing-function: ease-out;
+}
+@keyframes wlJet {
+  0%   { transform: rotate(var(--rot)) translateX(0) scaleX(.25); opacity: 0; }
+  12%  { opacity: 1; }
+  100% { transform: rotate(var(--rot)) translateX(var(--d)) scaleX(1.5); opacity: 0; }
+}
+
+/* Étincelles : traits fins, tête claire et traînée orange */
+.wl-etincelle {
+  height: 1.5px;
+  margin-top: -1px;
+  border-radius: 1px;
+  background: linear-gradient(90deg, rgba(255,120,30,0), #FF9A2A 40%, #FFF6C8);
+  animation-name: wlEtincelle;
+  animation-timing-function: linear;
+}
+@keyframes wlEtincelle {
+  0%   { transform: translate(0,0) rotate(var(--rot)); opacity: 0; }
+  8%   { opacity: 1; }
+  60%  { transform: translate(var(--mx),var(--my)) rotate(var(--rot)); opacity: 1; }
+  100% { transform: translate(var(--tx),var(--ty)) rotate(var(--rot)); opacity: 0; }
 }
 
 @media (prefers-reduced-motion: reduce) {
