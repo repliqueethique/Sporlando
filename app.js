@@ -6843,11 +6843,56 @@ function construireImagesEsprits() {
   for (var i = 0; i < formes.length; i++) {
     for (var m = 0; m < 2; m++) {   /* version normale puis inversée */
       var corps = (m === 0) ? formes[i] : '<g transform="translate(100 0) scale(-1 1)">' + formes[i] + '</g>';
-      var svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 230">' + defs + '<g filter="url(#f)">' + corps + '</g></svg>';
-      espritsImages.push('url(\'data:image/svg+xml,' + encodeURIComponent(svg).replace(/'/g, '%27') + '\')');
+      var svg = '<svg xmlns="http://www.w3.org/2000/svg" width="100" height="230" viewBox="0 0 100 230">' + defs + '<g filter="url(#f)">' + corps + '</g></svg>';
+      espritsImages.push('data:image/svg+xml,' + encodeURIComponent(svg));
     }
   }
 }
+
+var espritsActifs = [];
+var espritsObjets = [];
+var espritsBoucle = false;
+var espritsDernier = 0;
+
+function imageEsprit(index) {
+  if (!espritsObjets[index]) {
+    var im = new Image();
+    im.src = espritsImages[index];
+    espritsObjets[index] = im;
+  }
+  return espritsObjets[index];
+}
+
+/* Dessine chaque esprit ligne par ligne : la ligne à la distance f derrière la tête reprend
+   la position qu'avait la tête un instant plus tôt (le corps suit le chemin de la tête). */
+function dessinerEsprits(temps) {
+  if (espritsActifs.length === 0 || document.hidden) { espritsBoucle = false; return; }
+  window.requestAnimationFrame(dessinerEsprits);
+  if (temps - espritsDernier < 33) { return; }   /* 30 images par seconde */
+  espritsDernier = temps;
+  for (var k = 0; k < espritsActifs.length; k++) {
+    var e = espritsActifs[k];
+    if (!e.img.complete || !e.img.naturalWidth) { continue; }
+    e.ctx.clearRect(0, 0, 160, 230);
+    var phase = (temps / 1000 / e.T) * 6.2832;
+    for (var y = 0; y < 230; y += 2) {
+      var f = y / 230;                                   /* 0 = tête, 1 = queue */
+      var arg = phase - f * e.cycles * 6.2832;
+      var dx = e.amp * (0.7 + 0.3 * f) * (Math.sin(arg) + 0.3 * Math.sin(arg * 1.7 + e.dep));
+      e.ctx.drawImage(e.img, 0, y, 100, 2, 30 + dx, y, 100, 2);
+    }
+  }
+}
+
+function demarrerBoucleEsprits() {
+  if (espritsBoucle) { return; }
+  espritsBoucle = true;
+  window.requestAnimationFrame(dessinerEsprits);
+}
+
+document.addEventListener('visibilitychange', function () {
+  if (!document.hidden && espritsActifs.length > 0) { demarrerBoucleEsprits(); }
+});
 
 function lancerEsprit() {
   if (!zoneEsprits) {
@@ -6858,37 +6903,42 @@ function lancerEsprit() {
   construireImagesEsprits();
 
   var W = window.innerWidth, H = window.innerHeight;
-  var NB_TRANCHES = 6;
   var larg = alea(100, 190);
   var haut = larg * 2.3;
   var dur = alea(16, 28);
   var op = alea(0.14, 0.28);
-  var gauche = alea(0.05, 0.8) * W;
-  var demi = alea(1.8, 3.2);          /* durée d'un aller du serpent (secondes) */
-  var amp = alea(35, 80);             /* ampleur du serpentement de toute la silhouette */
-  var ond = alea(8, 16);              /* ondulation du corps */
-  var image = espritsImages[Math.floor(Math.random() * espritsImages.length)];
+  var gauche = alea(0.05, 0.8) * W - larg * 0.3;
+  var index = Math.floor(Math.random() * espritsImages.length);
 
   var ext = document.createElement('div');
   ext.className = 'esp';
-  ext.style.cssText = 'left:' + gauche.toFixed(0) + 'px;width:' + larg.toFixed(0) + 'px;height:' + haut.toFixed(0) + 'px;' +
+  ext.style.cssText = 'left:' + gauche.toFixed(0) + 'px;width:' + (larg * 1.6).toFixed(0) + 'px;height:' + haut.toFixed(0) + 'px;' +
     'animation-duration:' + dur.toFixed(1) + 's;--fin:-' + (H + haut * 1.3).toFixed(0) + 'px;' +
-    '--op:' + op.toFixed(2) + ';--op2:' + Math.min(0.55, op * 2.2).toFixed(2) + ';--amp:' + amp.toFixed(0) + 'px;';
+    '--op:' + op.toFixed(2) + ';--op2:' + Math.min(0.55, op * 2.2).toFixed(2) + ';';
 
-  var html = '<div class="esp-snake" style="animation-duration:' + demi.toFixed(2) + 's;">' +
-    '<div class="esp-corps" style="animation-duration:' + dur.toFixed(1) + 's;">';
-  for (var i = 0; i < NB_TRANCHES; i++) {
-    var f = i / (NB_TRANCHES - 1);   /* 0 = tête, 1 = queue */
-    html += '<div class="esp-tr" style="background-image:' + image + ';background-size:100% ' + (NB_TRANCHES * 100) + '%;background-position:0 ' + (f * 100).toFixed(1) + '%;' +
-      'animation-duration:' + demi.toFixed(2) + 's;animation-delay:-' + (f * demi * 0.8).toFixed(2) + 's;--ond:' + (ond * (0.4 + 1.3 * f)).toFixed(1) + 'px;"></div>';
-  }
-  html += '</div></div>';
-  ext.innerHTML = html;
+  var cv = document.createElement('canvas');
+  cv.width = 160; cv.height = 230;
+  cv.className = 'esp-corps';
+  cv.style.cssText = 'width:100%;height:100%;display:block;animation-duration:' + dur.toFixed(1) + 's;';
+  ext.appendChild(cv);
   zoneEsprits.appendChild(ext);
+
+  var objet = {
+    ctx: cv.getContext('2d'),
+    img: imageEsprit(index),
+    T: alea(3.2, 5.5),          /* durée d'un cycle du serpentement (s) */
+    cycles: alea(1.1, 1.8),     /* nombre d'ondulations sur la longueur du corps */
+    amp: alea(12, 22),          /* amplitude des ondulations */
+    dep: alea(0, 6.28)
+  };
+  espritsActifs.push(objet);
+  demarrerBoucleEsprits();
 
   espritsEnCours++;
   window.setTimeout(function () {
     if (ext.parentNode) { ext.parentNode.removeChild(ext); }
+    var p = espritsActifs.indexOf(objet);
+    if (p !== -1) { espritsActifs.splice(p, 1); }
     espritsEnCours--;
   }, dur * 1000 + 400);
 }

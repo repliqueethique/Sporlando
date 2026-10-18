@@ -4591,19 +4591,6 @@ body { background: transparent; }
   100% { transform: translate3d(0,var(--fin),0); opacity: 0; }
 }
 
-/* 2. Trajectoire serpentine : grand balancement latéral */
-.esp-snake {
-  width: 100%; height: 100%;
-  animation-name: espSerpente;
-  animation-timing-function: ease-in-out;
-  animation-iteration-count: infinite;
-  animation-direction: alternate;
-}
-@keyframes espSerpente {
-  from { transform: translate3d(calc(var(--amp) * -1), 0, 0); }
-  to   { transform: translate3d(var(--amp), 0, 0); }
-}
-
 /* 3. Corps : bref bond vers l'avant au moment de l'éclat de présence (synchronisé avec .esp) */
 .esp-corps {
   width: 100%; height: 100%;
@@ -4622,17 +4609,3 @@ body { background: transparent; }
   100%    { transform: scale(1.04); }
 }
 
-/* 4. Tranches horizontales : le corps ondule comme un serpent, la queue fouette plus fort */
-.esp-tr {
-  flex: 1 1 0;
-  margin-bottom: -1px;
-  background-repeat: no-repeat;
-  animation-name: espOnde;
-  animation-timing-function: ease-in-out;
-  animation-iteration-count: infinite;
-  animation-direction: alternate;
-}
-@keyframes espOnde {
-  from { transform: translate3d(calc(var(--ond) * -1), 0, 0); }
-  to   { transform: translate3d(var(--ond), 0, 0); }
-}
