@@ -2444,66 +2444,82 @@ function genererParticulesWasteland() {
   return html;
 }
 
-/* Effroi : planche de 6 images d'une chauve-souris qui bat des ailes (silhouette, vue de face) */
-var spriteChauveSouris = false;
+/* Effroi : scène de la carte séance. Mets un nombre plus bas pour alléger. */
+var EFFROI_SCENE = { yeux: 5, mains: 2, suintements: 5, fumees: 4 };
 
-function construireSpriteChauveSouris() {
-  if (spriteChauveSouris) { return; }
-  spriteChauveSouris = true;
-  var angles = [-60, -28, 5, 38, 5, -28];   /* ailes en haut, puis en bas, puis retour */
-  var noir = '#06030B';
-  var aile = '<path d="M26,24 Q36,20 47,24 Q44,29 41,29 Q38,33 34,31 Q31,35 27,32Z" fill="' + noir + '"/>';
-  var corps = '<ellipse cx="24" cy="28" rx="3" ry="6.5" fill="' + noir + '"/><circle cx="24" cy="20.5" r="3.2" fill="' + noir + '"/>' +
-    '<path d="M21.4,19 L20.8,13.6 L24,17.4Z M26.6,19 L27.2,13.6 L24,17.4Z" fill="' + noir + '"/>' +
-    '<circle cx="22.9" cy="20" r=".7" fill="#C9F5DB"/><circle cx="25.1" cy="20" r=".7" fill="#C9F5DB"/>';
-  var cadres = '';
-  for (var i = 0; i < angles.length; i++) {
-    var a = angles[i];
-    cadres += '<g transform="translate(' + (i * 48) + ' 0)">' +
-      '<g transform="rotate(' + a + ' 26 26)">' + aile + '</g>' +
-      '<g transform="translate(48 0) scale(-1 1)"><g transform="rotate(' + a + ' 26 26)">' + aile + '</g></g>' +
-      corps + '</g>';
+/* Main squelettique aux doigts crochus (chaque doigt bouge séparément) */
+function svgMainSquelette() {
+  var noir = '#05020A', bord = 'rgba(190,150,255,.5)';
+  var doigts = [
+    { x: 24, y: 92, a: -38, L: 42, w: 6.4, c: -1 },
+    { x: 34, y: 86, a: -13, L: 68, w: 5.6, c: -1 },
+    { x: 47, y: 84, a: 0,   L: 80, w: 5.8, c: 1 },
+    { x: 60, y: 86, a: 12,  L: 68, w: 5.3, c: 1 },
+    { x: 72, y: 92, a: 28,  L: 48, w: 4.6, c: 1 }
+  ];
+  var s = '<svg viewBox="0 0 100 120" xmlns="http://www.w3.org/2000/svg">';
+  for (var i = 0; i < doigts.length; i++) {
+    var d = doigts[i];
+    var curl = d.c * d.L * 0.17;
+    var forme = 'M' + (-d.w) + ',0 Q' + (-d.w * 0.7) + ',' + (-d.L * 0.55) + ' ' + curl.toFixed(1) + ',' + (-d.L) +
+      ' Q' + (d.w * 0.9 + curl * 0.6).toFixed(1) + ',' + (-d.L * 0.5).toFixed(1) + ' ' + d.w + ',0Z';
+    s += '<g transform="translate(' + d.x + ' ' + d.y + ') rotate(' + d.a + ')">' +
+      '<g class="doigt" style="--r:' + alea(6, 15).toFixed(1) + 'deg;animation-duration:' + alea(0.9, 1.9).toFixed(2) + 's;animation-delay:-' + alea(0, 2).toFixed(2) + 's;">' +
+      '<path d="' + forme + '" fill="' + noir + '" stroke="' + bord + '" stroke-width=".8" stroke-linejoin="round"/>' +
+      '<path d="M' + (-d.w * 0.8).toFixed(1) + ',' + (-d.L * 0.36).toFixed(1) + ' L' + (d.w * 0.8).toFixed(1) + ',' + (-d.L * 0.36).toFixed(1) +
+      'M' + (-d.w * 0.5).toFixed(1) + ',' + (-d.L * 0.68).toFixed(1) + ' L' + (d.w * 0.5).toFixed(1) + ',' + (-d.L * 0.68).toFixed(1) + '" stroke="' + bord + '" stroke-width=".7" fill="none"/>' +
+      '</g></g>';
   }
-  var svg = '<svg xmlns="http://www.w3.org/2000/svg" width="288" height="44" viewBox="0 0 288 44">' + cadres + '</svg>';
-  var style = document.createElement('style');
-  style.id = 'bat-sprite-style';
-  style.appendChild(document.createTextNode('.bat{background-image:url("data:image/svg+xml,' + encodeURIComponent(svg) + '");}'));
-  document.head.appendChild(style);
+  s += '<path d="M16,120 L21,98 Q23,86 36,85 L66,85 Q82,87 82,99 L87,120Z" fill="' + noir + '" stroke="' + bord + '" stroke-width=".8"/>';
+  return s + '</svg>';
 }
 
-/* Effroi : scène de la carte séance (chauves-souris, brume, feux follets) */
 function genererSceneEffroi() {
-  construireSpriteChauveSouris();
   var h = '<div class="scene-effroi">';
-  var i, s, dur;
+  var i, dur, n;
 
-  /* Brume rampante */
-  h += '<span class="brume-carte" style="left:-15%;animation-duration:9s;"></span>';
-  h += '<span class="brume-carte" style="left:40%;animation-duration:12s;animation-delay:-5s;"></span>';
+  /* Ténèbres qui respirent */
+  h += '<span class="ef-ombre"></span>';
 
-  /* Feux follets : petites âmes qui montent en ondulant */
-  for (i = 0; i < 4; i++) {
-    s = alea(5, 9);
-    dur = alea(5, 9);
-    h += '<span class="feu-follet" style="left:' + alea(25, 95).toFixed(0) + '%;width:' + s.toFixed(0) + 'px;height:' + s.toFixed(0) + 'px;' +
-      'animation-duration:' + dur.toFixed(1) + 's;animation-delay:-' + (Math.random() * dur).toFixed(1) + 's;">' +
-      '<span class="feu-follet-int" style="animation-duration:' + alea(1.6, 2.8).toFixed(1) + 's;"></span></span>';
+  /* Fumée noire, épaisse, qui monte du bas */
+  for (i = 0; i < EFFROI_SCENE.fumees; i++) {
+    dur = alea(6, 10);
+    h += '<span class="ef-fumee" style="left:' + alea(-5, 88).toFixed(0) + '%;width:' + alea(90, 150).toFixed(0) + 'px;height:' + alea(60, 100).toFixed(0) + 'px;--dx:' + alea(-30, 30).toFixed(0) + 'px;' +
+      'animation-duration:' + dur.toFixed(1) + 's;animation-delay:-' + (Math.random() * dur).toFixed(1) + 's;"></span>';
   }
 
-  /* Chauves-souris : traversent la carte, avec des pauses entre deux passages */
-  for (i = 0; i < 3; i++) {
-    var echelle = alea(0.55, 0.95);
-    var duree = alea(9, 15);
-    var sens = (Math.random() < 0.5) ? '' : ' bat-vol-r';
-    h += '<span class="bat-vol' + sens + '" style="top:' + alea(6, 58).toFixed(0) + '%;animation-duration:' + duree.toFixed(1) + 's;animation-delay:-' + (Math.random() * duree).toFixed(1) + 's;">' +
-      '<span class="bat-bob" style="animation-duration:' + alea(0.9, 1.6).toFixed(2) + 's;">' +
-      '<span class="bat" style="width:' + (48 * echelle).toFixed(1) + 'px;height:' + (44 * echelle).toFixed(1) + 'px;' +
-      'background-size:' + (288 * echelle).toFixed(1) + 'px ' + (44 * echelle).toFixed(1) + 'px;--sw:-' + (288 * echelle).toFixed(1) + 'px;animation-duration:' + alea(0.42, 0.62).toFixed(2) + 's;"></span>' +
-      '</span></span>';
+  /* Yeux dans le noir : le premier est un grand regard, les autres sont petits */
+  for (i = 0; i < EFFROI_SCENE.yeux; i++) {
+    var grand = (i === 0);
+    var e = grand ? 22 : alea(7, 13);
+    dur = grand ? alea(22, 28) : alea(10, 18);
+    var rouge = (!grand && Math.random() < 0.3);
+    h += '<span class="ef-yeux' + (rouge ? ' ef-yeux-rouge' : '') + '" style="left:' + alea(4, 86).toFixed(0) + '%;top:' + alea(8, 60).toFixed(0) + '%;--e:' + e.toFixed(1) + 'px;--g:' + alea(-6, 6).toFixed(1) + 'px;--max:' + (grand ? 0.6 : alea(0.7, 1)).toFixed(2) + ';' +
+      'animation-duration:' + dur.toFixed(1) + 's;animation-delay:-' + (Math.random() * dur).toFixed(1) + 's;"><i></i><i></i></span>';
   }
 
-  h += '</div>';
-  return h;
+  /* Suintements noirs qui coulent du haut, avec une goutte qui tombe */
+  n = EFFROI_SCENE.suintements;
+  for (i = 0; i < n; i++) {
+    var pos = ((i + alea(0.1, 0.9)) / n * 100).toFixed(1);
+    var larg = alea(7, 13);
+    var haut = alea(22, 46);
+    dur = alea(9, 15);
+    var delai = (Math.random() * dur).toFixed(1);
+    h += '<span class="ef-suinte" style="left:' + pos + '%;width:' + larg.toFixed(1) + 'px;--h:' + haut.toFixed(0) + 'px;animation-duration:' + dur.toFixed(1) + 's;animation-delay:-' + delai + 's;"></span>';
+    h += '<span class="ef-goutte" style="left:calc(' + pos + '% + ' + (larg / 2 - 3).toFixed(1) + 'px);--h:' + haut.toFixed(0) + 'px;animation-duration:' + dur.toFixed(1) + 's;animation-delay:-' + delai + 's;"></span>';
+  }
+  h += '<span class="ef-goudron"></span>';
+
+  /* Mains qui rampent depuis le bas */
+  for (i = 0; i < EFFROI_SCENE.mains; i++) {
+    dur = alea(14, 20);
+    var gauche = (i % 2 === 0) ? alea(1, 14) : alea(68, 84);
+    h += '<span class="ef-main" style="left:' + gauche.toFixed(0) + '%;animation-duration:' + dur.toFixed(1) + 's;animation-delay:-' + (Math.random() * dur).toFixed(1) + 's;">' +
+      '<span style="display:block;width:100%;height:100%;' + (i % 2 === 0 ? '' : 'transform:scaleX(-1);') + '">' + svgMainSquelette() + '</span></span>';
+  }
+
+  return h + '</div>';
 }
 
 function genererParticules(nombre) {
