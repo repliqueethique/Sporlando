@@ -2318,7 +2318,6 @@ function rendreCarteSeanceJour() {
 
 var PARTICULES_PAR_THEME = {
   automnal: ['🍂', '🍁', '🌰', '🍁', '🍄'],
-  effroi: ['👻', '🎃', '🦇', '💀'],
   hivernal: ['❄', '❅', '❆'],
   paindepice: ['⭐', '🌟', '🍪', '💝', '🎁', '🎄'],
   printanier: ['🌸', '🌷', '🦋', '🍀', '🍃', '🌻', '🧚‍♀️'],
@@ -2445,8 +2444,71 @@ function genererParticulesWasteland() {
   return html;
 }
 
+/* Effroi : planche de 6 images d'une chauve-souris qui bat des ailes (silhouette, vue de face) */
+var spriteChauveSouris = false;
+
+function construireSpriteChauveSouris() {
+  if (spriteChauveSouris) { return; }
+  spriteChauveSouris = true;
+  var angles = [-60, -28, 5, 38, 5, -28];   /* ailes en haut, puis en bas, puis retour */
+  var noir = '#06030B';
+  var aile = '<path d="M26,24 Q36,20 47,24 Q44,29 41,29 Q38,33 34,31 Q31,35 27,32Z" fill="' + noir + '"/>';
+  var corps = '<ellipse cx="24" cy="28" rx="3" ry="6.5" fill="' + noir + '"/><circle cx="24" cy="20.5" r="3.2" fill="' + noir + '"/>' +
+    '<path d="M21.4,19 L20.8,13.6 L24,17.4Z M26.6,19 L27.2,13.6 L24,17.4Z" fill="' + noir + '"/>' +
+    '<circle cx="22.9" cy="20" r=".7" fill="#C9F5DB"/><circle cx="25.1" cy="20" r=".7" fill="#C9F5DB"/>';
+  var cadres = '';
+  for (var i = 0; i < angles.length; i++) {
+    var a = angles[i];
+    cadres += '<g transform="translate(' + (i * 48) + ' 0)">' +
+      '<g transform="rotate(' + a + ' 26 26)">' + aile + '</g>' +
+      '<g transform="translate(48 0) scale(-1 1)"><g transform="rotate(' + a + ' 26 26)">' + aile + '</g></g>' +
+      corps + '</g>';
+  }
+  var svg = '<svg xmlns="http://www.w3.org/2000/svg" width="288" height="44" viewBox="0 0 288 44">' + cadres + '</svg>';
+  var style = document.createElement('style');
+  style.id = 'bat-sprite-style';
+  style.appendChild(document.createTextNode('.bat{background-image:url("data:image/svg+xml,' + encodeURIComponent(svg) + '");}'));
+  document.head.appendChild(style);
+}
+
+/* Effroi : scène de la carte séance (chauves-souris, brume, feux follets) */
+function genererSceneEffroi() {
+  construireSpriteChauveSouris();
+  var h = '<div class="scene-effroi">';
+  var i, s, dur;
+
+  /* Brume rampante */
+  h += '<span class="brume-carte" style="left:-15%;animation-duration:9s;"></span>';
+  h += '<span class="brume-carte" style="left:40%;animation-duration:12s;animation-delay:-5s;"></span>';
+
+  /* Feux follets : petites âmes qui montent en ondulant */
+  for (i = 0; i < 4; i++) {
+    s = alea(5, 9);
+    dur = alea(5, 9);
+    h += '<span class="feu-follet" style="left:' + alea(25, 95).toFixed(0) + '%;width:' + s.toFixed(0) + 'px;height:' + s.toFixed(0) + 'px;' +
+      'animation-duration:' + dur.toFixed(1) + 's;animation-delay:-' + (Math.random() * dur).toFixed(1) + 's;">' +
+      '<span class="feu-follet-int" style="animation-duration:' + alea(1.6, 2.8).toFixed(1) + 's;"></span></span>';
+  }
+
+  /* Chauves-souris : traversent la carte, avec des pauses entre deux passages */
+  for (i = 0; i < 3; i++) {
+    var echelle = alea(0.55, 0.95);
+    var duree = alea(9, 15);
+    var sens = (Math.random() < 0.5) ? '' : ' bat-vol-r';
+    h += '<span class="bat-vol' + sens + '" style="top:' + alea(6, 58).toFixed(0) + '%;animation-duration:' + duree.toFixed(1) + 's;animation-delay:-' + (Math.random() * duree).toFixed(1) + 's;">' +
+      '<span class="bat-bob" style="animation-duration:' + alea(0.9, 1.6).toFixed(2) + 's;">' +
+      '<span class="bat" style="width:' + (48 * echelle).toFixed(1) + 'px;height:' + (44 * echelle).toFixed(1) + 'px;' +
+      'background-size:' + (288 * echelle).toFixed(1) + 'px ' + (44 * echelle).toFixed(1) + 'px;--sw:-' + (288 * echelle).toFixed(1) + 'px;animation-duration:' + alea(0.42, 0.62).toFixed(2) + 's;"></span>' +
+      '</span></span>';
+  }
+
+  h += '</div>';
+  return h;
+}
+
 function genererParticules(nombre) {
   if (etat.profil.theme === 'wasteland') { return genererParticulesWasteland(); }
+  if (etat.profil.theme === 'effroi') { return genererSceneEffroi(); }
   var jeuEmoji = PARTICULES_PAR_THEME[etat.profil.theme];
   var html = '<div class="particules">';
   for (var i = 0; i < nombre; i++) {

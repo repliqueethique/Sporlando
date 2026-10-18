@@ -4600,3 +4600,117 @@ body { background: transparent; }
   100%    { transform: scale(1.04); }
 }
 
+/* ============================================================
+   EFFROI : scène de la carte séance
+   ============================================================ */
+/* plus de rayons derrière l'icône */
+:root[data-theme="effroi"] .accueil-carte.seance-a-faire::after { display: none; }
+
+.accueil-carte.seance-a-faire > .scene-effroi {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+/* Chauves-souris : traversée avec pause (65 % du cycle en vol, le reste hors écran) */
+.bat-vol {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  height: 0;
+  will-change: transform;
+  animation-name: batVol;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
+@keyframes batVol {
+  0%   { transform: translate3d(0,0,0); }
+  65%  { transform: translate3d(-135%,0,0); }
+  100% { transform: translate3d(-135%,0,0); }
+}
+.bat-vol-r { animation-name: batVolR; }
+@keyframes batVolR {
+  0%   { transform: translate3d(0,0,0); }
+  65%  { transform: translate3d(135%,0,0); }
+  100% { transform: translate3d(135%,0,0); }
+}
+.bat-bob {
+  position: absolute;
+  top: 0; left: 100%;
+  display: block;
+  animation-name: batBob;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+  animation-direction: alternate;
+}
+.bat-vol-r .bat-bob { left: auto; right: 100%; }
+@keyframes batBob {
+  from { transform: translate3d(0,-7px,0) rotate(-6deg); }
+  to   { transform: translate3d(0,7px,0) rotate(6deg); }
+}
+.bat {
+  display: block;
+  background-repeat: no-repeat;
+  animation-name: batAile;
+  animation-timing-function: steps(6, end);
+  animation-iteration-count: infinite;
+}
+@keyframes batAile {
+  from { background-position: 0 0; }
+  to   { background-position: var(--sw) 0; }
+}
+
+/* Brume rampante */
+.brume-carte {
+  position: absolute;
+  bottom: -35%;
+  width: 75%;
+  height: 80%;
+  background: radial-gradient(ellipse at 50% 60%, rgba(215,200,255,.42), rgba(215,200,255,0) 70%);
+  will-change: transform, opacity;
+  animation-name: brumeDerive;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+  animation-direction: alternate;
+}
+@keyframes brumeDerive {
+  from { transform: translate3d(-12%,0,0); opacity: .4; }
+  to   { transform: translate3d(14%,-6%,0); opacity: 1; }
+}
+
+/* Feux follets */
+.feu-follet {
+  position: absolute;
+  bottom: -14px;
+  opacity: 0;
+  will-change: transform, opacity;
+  animation-name: follet;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+}
+@keyframes follet {
+  0%   { transform: translate3d(0,0,0); opacity: 0; }
+  20%  { opacity: .95; }
+  80%  { opacity: .8; }
+  100% { transform: translate3d(0,-150px,0); opacity: 0; }
+}
+.feu-follet-int {
+  display: block;
+  width: 100%; height: 100%;
+  border-radius: 50%;
+  background: radial-gradient(circle, #F4FFEC 0%, rgba(160,255,190,.75) 38%, rgba(160,255,190,0) 72%);
+  animation-name: folletOnde;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+  animation-direction: alternate;
+}
+@keyframes folletOnde {
+  from { transform: translate3d(-9px,0,0) scale(.85); }
+  to   { transform: translate3d(9px,0,0) scale(1.2); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .scene-effroi { display: none; }
+}
