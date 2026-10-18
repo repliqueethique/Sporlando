@@ -6790,6 +6790,109 @@ function majNitro(theme) {
   if (theme === 'wasteland' && NITRO_ACTIF) { planifierNitro(); }
 }
 
+/* ============================================================
+   EFFROI : esprits qui montent (silhouettes floues, apparitions aléatoires)
+   3 formes : le hurleur, le capuchon au visage vide, le chœur de visages dans la brume
+   ============================================================ */
+var ESPRITS_ACTIFS = true;
+var ESPRITS_DELAI = [7, 18];    /* secondes entre deux apparitions (min, max) */
+var ESPRITS_MAX = 2;            /* nombre maximum d'esprits visibles en même temps */
+var espritsImages = [];
+var espritsEnCours = 0;
+var minuteurEsprits = null;
+var zoneEsprits = null;
+
+function construireImagesEsprits() {
+  if (espritsImages.length > 0) { return; }
+  var defs = '<defs><linearGradient id="g" x1="0" y1="0" x2="0" y2="1">' +
+    '<stop offset="0" stop-color="#D8FFE6" stop-opacity=".95"/><stop offset=".55" stop-color="#A9B8FF" stop-opacity=".6"/><stop offset="1" stop-color="#7B2FF7" stop-opacity="0"/></linearGradient>' +
+    '<filter id="f" x="-30%" y="-10%" width="160%" height="120%"><feGaussianBlur stdDeviation="2.6"/></filter></defs>';
+  var trou = '#05020A';
+
+  /* 1. Le hurleur : silhouette étirée, bras levés, bouche béante */
+  var hurleur = '<path d="M30 48C22 80 28 120 18 170C14 195 22 210 30 224C34 205 40 218 46 200C50 220 58 204 62 218C70 204 74 184 70 150C78 110 78 80 70 48Z" fill="url(#g)"/>' +
+    '<ellipse cx="50" cy="38" rx="17" ry="25" fill="url(#g)"/>' +
+    '<path d="M33 72C10 62 6 36 14 8M67 72C90 60 96 34 86 6" fill="none" stroke="#C9F5DB" stroke-opacity=".55" stroke-width="3.2" stroke-linecap="round"/>' +
+    '<ellipse cx="42" cy="34" rx="4" ry="10" fill="' + trou + '"/><ellipse cx="58" cy="34" rx="4" ry="10" fill="' + trou + '"/>' +
+    '<ellipse cx="50" cy="60" rx="6.5" ry="15" fill="' + trou + '"/>';
+
+  /* 2. Le capuchon : visage vide, deux points de lumière, bras pendants démesurés */
+  var capuchon = '<path d="M50 8C28 10 22 34 26 54C16 90 20 150 8 200C20 190 26 215 38 196C46 222 56 200 62 218C72 196 82 206 92 198C80 150 84 90 74 54C78 34 72 10 50 8Z" fill="url(#g)"/>' +
+    '<path d="M27 72C12 112 18 156 10 214M73 72C88 112 82 156 90 214" fill="none" stroke="#C9F5DB" stroke-opacity=".5" stroke-width="3" stroke-linecap="round"/>' +
+    '<ellipse cx="50" cy="38" rx="13" ry="21" fill="' + trou + '"/>' +
+    '<circle cx="44" cy="34" r="1.9" fill="#EFFFF4"/><circle cx="56" cy="34" r="1.9" fill="#EFFFF4"/>';
+
+  /* 3. Le chœur : une brume où affleurent des visages qui hurlent */
+  function visage(x, y, k) {
+    return '<ellipse cx="' + x + '" cy="' + y + '" rx="' + (9 * k) + '" ry="' + (13 * k) + '" fill="#D8FFE6" fill-opacity=".85"/>' +
+      '<ellipse cx="' + (x - 3.4 * k) + '" cy="' + (y - 3 * k) + '" rx="' + (2.1 * k) + '" ry="' + (4.6 * k) + '" fill="' + trou + '"/>' +
+      '<ellipse cx="' + (x + 3.4 * k) + '" cy="' + (y - 3 * k) + '" rx="' + (2.1 * k) + '" ry="' + (4.6 * k) + '" fill="' + trou + '"/>' +
+      '<ellipse cx="' + x + '" cy="' + (y + 6 * k) + '" rx="' + (3 * k) + '" ry="' + (7 * k) + '" fill="' + trou + '"/>';
+  }
+  var choeur = '<ellipse cx="50" cy="60" rx="40" ry="34" fill="url(#g)" opacity=".55"/><ellipse cx="46" cy="120" rx="34" ry="42" fill="url(#g)" opacity=".5"/><ellipse cx="56" cy="180" rx="38" ry="34" fill="url(#g)" opacity=".4"/>' +
+    visage(32, 46, 1) + visage(66, 82, 1.25) + visage(40, 128, 0.9) + visage(64, 170, 0.8);
+
+  var formes = [hurleur, capuchon, choeur];
+  for (var i = 0; i < formes.length; i++) {
+    var svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 230">' + defs + '<g filter="url(#f)">' + formes[i] + '</g></svg>';
+    espritsImages.push('url("data:image/svg+xml,' + encodeURIComponent(svg) + '")');
+  }
+}
+
+function lancerEsprit() {
+  if (!zoneEsprits) {
+    zoneEsprits = document.createElement('div');
+    zoneEsprits.className = 'esprits-zone';
+    document.body.appendChild(zoneEsprits);
+  }
+  construireImagesEsprits();
+
+  var W = window.innerWidth, H = window.innerHeight;
+  var larg = alea(90, 170);
+  var haut = larg * 2.3;
+  var dur = alea(15, 26);
+  var op = alea(0.12, 0.24);
+  var gauche = alea(-0.05, 0.85) * W;
+
+  var ext = document.createElement('div');
+  ext.className = 'esprit';
+  ext.style.cssText = 'left:' + gauche.toFixed(0) + 'px;width:' + larg.toFixed(0) + 'px;height:' + haut.toFixed(0) + 'px;' +
+    'animation-duration:' + dur.toFixed(1) + 's;' +
+    '--fin:-' + (H + haut * 1.3).toFixed(0) + 'px;--op:' + op.toFixed(2) + ';--op2:' + Math.min(0.5, op * 2.1).toFixed(2) + ';' +
+    (Math.random() < 0.5 ? 'transform-origin:50% 100%;' : '');
+  var inte = document.createElement('div');
+  inte.className = 'esprit-int';
+  inte.style.backgroundImage = espritsImages[Math.floor(Math.random() * espritsImages.length)];
+  inte.style.cssText += 'animation-duration:' + alea(5, 9).toFixed(1) + 's;--sw:' + alea(10, 26).toFixed(0) + 'px;--rt:' + alea(1.5, 4.5).toFixed(1) + 'deg;' +
+    (Math.random() < 0.5 ? 'transform:scaleX(-1);' : '');
+  ext.appendChild(inte);
+  zoneEsprits.appendChild(ext);
+
+  espritsEnCours++;
+  window.setTimeout(function () {
+    if (ext.parentNode) { ext.parentNode.removeChild(ext); }
+    espritsEnCours--;
+  }, dur * 1000 + 400);
+}
+
+function declencherEsprit() {
+  minuteurEsprits = null;
+  if ((etat.profil.theme || 'sombre') !== 'effroi' || !ESPRITS_ACTIFS) { return; }
+  if (!document.hidden && espritsEnCours < ESPRITS_MAX) { lancerEsprit(); }
+  planifierEsprit();
+}
+
+function planifierEsprit() {
+  if (minuteurEsprits) { window.clearTimeout(minuteurEsprits); }
+  minuteurEsprits = window.setTimeout(declencherEsprit, alea(ESPRITS_DELAI[0], ESPRITS_DELAI[1]) * 1000);
+}
+
+function majEsprits(theme) {
+  if (minuteurEsprits) { window.clearTimeout(minuteurEsprits); minuteurEsprits = null; }
+  if (zoneEsprits) { zoneEsprits.innerHTML = ''; espritsEnCours = 0; }
+  if (theme === 'effroi' && ESPRITS_ACTIFS) { planifierEsprit(); }
+}
+
 function appliquerTheme() {
   var theme = etat.profil.theme || 'sombre';
   var themeEffectif = theme;
@@ -6802,6 +6905,7 @@ function appliquerTheme() {
   majAmbiance(themeEffectif);
   majRouages(themeEffectif);
   majEclair(themeEffectif);
+  majEsprits(themeEffectif);
   majNitro(themeEffectif);
 }
 
