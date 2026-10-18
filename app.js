@@ -6719,7 +6719,7 @@ function lancerExplosionNitro(x, y, R) {
 
   /* Éclats : planches vertes et bois, projetés vers l'écran puis retombant */
   var couleurs = ['#8BD21A', '#6DAF12', '#C79A5A', '#5B3A1A', '#A8E02A'];
-  for (i = 0; i < 12; i++) {
+  for (i = 0; i < 6; i++) {
     ang = base + alea(-1.1, 1.1);
     dist = alea(0.5, 1.9) * R;
     tx = Math.cos(ang) * dist;
