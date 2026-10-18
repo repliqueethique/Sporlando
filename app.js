@@ -6346,7 +6346,7 @@ var AMBIANCES = {
     { c: 'amb-neon amb-neon-violet', n: 2, t: [260, 420], d: [9, 14], pos: 'libre', dx: 40, dy: -50 }
   ],
   effroi: [
-    { c: 'amb-brume amb-brume-effroi', n: 4, t: [300, 500], d: [30, 50], pos: 'h', y: [45, 95], dy: -40 }
+    { c: 'amb-brume amb-brume-effroi', n: 2, t: [300, 500], d: [30, 50], pos: 'h', y: [45, 95], dy: -40 }
   ],
   hivernal: [
     { c: 'amb-flocon amb-flocon-a', n: 14, t: [6, 22], d: [20, 38], dx: 170, r: 360 },
@@ -6868,18 +6868,18 @@ function imageEsprit(index) {
 function dessinerEsprits(temps) {
   if (espritsActifs.length === 0 || document.hidden) { espritsBoucle = false; return; }
   window.requestAnimationFrame(dessinerEsprits);
-  if (temps - espritsDernier < 33) { return; }   /* 30 images par seconde */
+  if (temps - espritsDernier < 50) { return; }   /* 20 images par seconde */
   espritsDernier = temps;
   for (var k = 0; k < espritsActifs.length; k++) {
     var e = espritsActifs[k];
     if (!e.img.complete || !e.img.naturalWidth) { continue; }
     e.ctx.clearRect(0, 0, 160, 230);
     var phase = (temps / 1000 / e.T) * 6.2832;
-    for (var y = 0; y < 230; y += 2) {
+    for (var y = 0; y < 230; y += 4) {
       var f = y / 230;                                   /* 0 = tête, 1 = queue */
       var arg = phase - f * e.cycles * 6.2832;
       var dx = e.amp * (0.7 + 0.3 * f) * (Math.sin(arg) + 0.3 * Math.sin(arg * 1.7 + e.dep));
-      e.ctx.drawImage(e.img, 0, y, 100, 2, 30 + dx, y, 100, 2);
+      e.ctx.drawImage(e.img, 0, y, 100, 4, 30 + dx, y, 100, 4);
     }
   }
 }

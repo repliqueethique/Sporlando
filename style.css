@@ -4127,7 +4127,7 @@ body { background: transparent; }
 }
 
 /* --- Cadres de miroir : angles coupés sur les 4 coins --- */
-:root[data-theme="effroi"] .carte,
+:root[data-theme="effroi"] .sx-exo,
 :root[data-theme="effroi"] .carte-checklist,
 :root[data-theme="effroi"] .meteo-carte,
 :root[data-theme="effroi"] .reglages-section,
