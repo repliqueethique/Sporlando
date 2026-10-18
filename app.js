@@ -6844,7 +6844,7 @@ function construireImagesEsprits() {
     for (var m = 0; m < 2; m++) {   /* version normale puis inversée */
       var corps = (m === 0) ? formes[i] : '<g transform="translate(100 0) scale(-1 1)">' + formes[i] + '</g>';
       var svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 230">' + defs + '<g filter="url(#f)">' + corps + '</g></svg>';
-      espritsImages.push('url("data:image/svg+xml,' + encodeURIComponent(svg) + '")');
+      espritsImages.push('url(\'data:image/svg+xml,' + encodeURIComponent(svg).replace(/'/g, '%27') + '\')');
     }
   }
 }
