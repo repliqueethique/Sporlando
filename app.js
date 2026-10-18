@@ -6806,23 +6806,23 @@ function construireImagesEsprits() {
   if (espritsImages.length > 0) { return; }
   var defs = '<defs><linearGradient id="g" x1="0" y1="0" x2="0" y2="1">' +
     '<stop offset="0" stop-color="#D8FFE6" stop-opacity=".95"/><stop offset=".55" stop-color="#A9B8FF" stop-opacity=".6"/><stop offset="1" stop-color="#7B2FF7" stop-opacity="0"/></linearGradient>' +
-    '<filter id="f" x="-30%" y="-10%" width="160%" height="120%"><feGaussianBlur stdDeviation="2.6"/></filter></defs>';
+    '<filter id="f" x="-30%" y="-10%" width="160%" height="120%"><feGaussianBlur stdDeviation="2.4"/></filter></defs>';
   var trou = '#05020A';
 
-  /* 1. Le hurleur : silhouette étirée, bras levés, bouche béante */
+  /* 1. Le hurleur */
   var hurleur = '<path d="M30 48C22 80 28 120 18 170C14 195 22 210 30 224C34 205 40 218 46 200C50 220 58 204 62 218C70 204 74 184 70 150C78 110 78 80 70 48Z" fill="url(#g)"/>' +
     '<ellipse cx="50" cy="38" rx="17" ry="25" fill="url(#g)"/>' +
     '<path d="M33 72C10 62 6 36 14 8M67 72C90 60 96 34 86 6" fill="none" stroke="#C9F5DB" stroke-opacity=".55" stroke-width="3.2" stroke-linecap="round"/>' +
     '<ellipse cx="42" cy="34" rx="4" ry="10" fill="' + trou + '"/><ellipse cx="58" cy="34" rx="4" ry="10" fill="' + trou + '"/>' +
     '<ellipse cx="50" cy="60" rx="6.5" ry="15" fill="' + trou + '"/>';
 
-  /* 2. Le capuchon : visage vide, deux points de lumière, bras pendants démesurés */
+  /* 2. Le capuchon */
   var capuchon = '<path d="M50 8C28 10 22 34 26 54C16 90 20 150 8 200C20 190 26 215 38 196C46 222 56 200 62 218C72 196 82 206 92 198C80 150 84 90 74 54C78 34 72 10 50 8Z" fill="url(#g)"/>' +
     '<path d="M27 72C12 112 18 156 10 214M73 72C88 112 82 156 90 214" fill="none" stroke="#C9F5DB" stroke-opacity=".5" stroke-width="3" stroke-linecap="round"/>' +
     '<ellipse cx="50" cy="38" rx="13" ry="21" fill="' + trou + '"/>' +
     '<circle cx="44" cy="34" r="1.9" fill="#EFFFF4"/><circle cx="56" cy="34" r="1.9" fill="#EFFFF4"/>';
 
-  /* 3. Le chœur : une brume où affleurent des visages qui hurlent */
+  /* 3. Le chœur */
   function visage(x, y, k) {
     return '<ellipse cx="' + x + '" cy="' + y + '" rx="' + (9 * k) + '" ry="' + (13 * k) + '" fill="#D8FFE6" fill-opacity=".85"/>' +
       '<ellipse cx="' + (x - 3.4 * k) + '" cy="' + (y - 3 * k) + '" rx="' + (2.1 * k) + '" ry="' + (4.6 * k) + '" fill="' + trou + '"/>' +
@@ -6832,10 +6832,20 @@ function construireImagesEsprits() {
   var choeur = '<ellipse cx="50" cy="60" rx="40" ry="34" fill="url(#g)" opacity=".55"/><ellipse cx="46" cy="120" rx="34" ry="42" fill="url(#g)" opacity=".5"/><ellipse cx="56" cy="180" rx="38" ry="34" fill="url(#g)" opacity=".4"/>' +
     visage(32, 46, 1) + visage(66, 82, 1.25) + visage(40, 128, 0.9) + visage(64, 170, 0.8);
 
-  var formes = [hurleur, capuchon, choeur];
+  /* 4. La tordue : cou démesuré, tête penchée à l'extrême, bras qui rampent vers le bas */
+  var tordue = '<path d="M46 232C38 190 54 152 44 114C38 86 56 70 62 52" fill="none" stroke="url(#g)" stroke-width="22" stroke-linecap="round"/>' +
+    '<ellipse cx="64" cy="34" rx="14" ry="21" transform="rotate(34 64 34)" fill="url(#g)"/>' +
+    '<path d="M44 114C26 140 14 170 10 206M46 120C66 150 80 180 86 214" fill="none" stroke="#C9F5DB" stroke-opacity=".5" stroke-width="3.4" stroke-linecap="round"/>' +
+    '<ellipse cx="58" cy="30" rx="3.4" ry="8" transform="rotate(34 58 30)" fill="' + trou + '"/><ellipse cx="70" cy="34" rx="3.4" ry="8" transform="rotate(34 70 34)" fill="' + trou + '"/>' +
+    '<ellipse cx="68" cy="49" rx="4.4" ry="11" transform="rotate(34 68 49)" fill="' + trou + '"/>';
+
+  var formes = [hurleur, capuchon, choeur, tordue];
   for (var i = 0; i < formes.length; i++) {
-    var svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 230">' + defs + '<g filter="url(#f)">' + formes[i] + '</g></svg>';
-    espritsImages.push('url("data:image/svg+xml,' + encodeURIComponent(svg) + '")');
+    for (var m = 0; m < 2; m++) {   /* version normale puis inversée */
+      var corps = (m === 0) ? formes[i] : '<g transform="translate(100 0) scale(-1 1)">' + formes[i] + '</g>';
+      var svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 230">' + defs + '<g filter="url(#f)">' + corps + '</g></svg>';
+      espritsImages.push('url("data:image/svg+xml,' + encodeURIComponent(svg) + '")');
+    }
   }
 }
 
@@ -6848,24 +6858,32 @@ function lancerEsprit() {
   construireImagesEsprits();
 
   var W = window.innerWidth, H = window.innerHeight;
-  var larg = alea(90, 170);
+  var NB_TRANCHES = 6;
+  var larg = alea(100, 190);
   var haut = larg * 2.3;
-  var dur = alea(15, 26);
-  var op = alea(0.12, 0.24);
-  var gauche = alea(-0.05, 0.85) * W;
+  var dur = alea(16, 28);
+  var op = alea(0.14, 0.28);
+  var gauche = alea(0.05, 0.8) * W;
+  var demi = alea(1.8, 3.2);          /* durée d'un aller du serpent (secondes) */
+  var amp = alea(35, 80);             /* ampleur du serpentement de toute la silhouette */
+  var ond = alea(8, 16);              /* ondulation du corps */
+  var image = espritsImages[Math.floor(Math.random() * espritsImages.length)];
 
   var ext = document.createElement('div');
-  ext.className = 'esprit';
+  ext.className = 'esp';
   ext.style.cssText = 'left:' + gauche.toFixed(0) + 'px;width:' + larg.toFixed(0) + 'px;height:' + haut.toFixed(0) + 'px;' +
-    'animation-duration:' + dur.toFixed(1) + 's;' +
-    '--fin:-' + (H + haut * 1.3).toFixed(0) + 'px;--op:' + op.toFixed(2) + ';--op2:' + Math.min(0.5, op * 2.1).toFixed(2) + ';' +
-    (Math.random() < 0.5 ? 'transform-origin:50% 100%;' : '');
-  var inte = document.createElement('div');
-  inte.className = 'esprit-int';
-  inte.style.backgroundImage = espritsImages[Math.floor(Math.random() * espritsImages.length)];
-  inte.style.cssText += 'animation-duration:' + alea(5, 9).toFixed(1) + 's;--sw:' + alea(10, 26).toFixed(0) + 'px;--rt:' + alea(1.5, 4.5).toFixed(1) + 'deg;' +
-    (Math.random() < 0.5 ? 'transform:scaleX(-1);' : '');
-  ext.appendChild(inte);
+    'animation-duration:' + dur.toFixed(1) + 's;--fin:-' + (H + haut * 1.3).toFixed(0) + 'px;' +
+    '--op:' + op.toFixed(2) + ';--op2:' + Math.min(0.55, op * 2.2).toFixed(2) + ';--amp:' + amp.toFixed(0) + 'px;';
+
+  var html = '<div class="esp-snake" style="animation-duration:' + demi.toFixed(2) + 's;">' +
+    '<div class="esp-corps" style="animation-duration:' + dur.toFixed(1) + 's;">';
+  for (var i = 0; i < NB_TRANCHES; i++) {
+    var f = i / (NB_TRANCHES - 1);   /* 0 = tête, 1 = queue */
+    html += '<div class="esp-tr" style="background-image:' + image + ';background-size:100% ' + (NB_TRANCHES * 100) + '%;background-position:0 ' + (f * 100).toFixed(1) + '%;' +
+      'animation-duration:' + demi.toFixed(2) + 's;animation-delay:-' + (f * demi * 0.8).toFixed(2) + 's;--ond:' + (ond * (0.4 + 1.3 * f)).toFixed(1) + 'px;"></div>';
+  }
+  html += '</div></div>';
+  ext.innerHTML = html;
   zoneEsprits.appendChild(ext);
 
   espritsEnCours++;
