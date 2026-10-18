@@ -4516,7 +4516,7 @@ body { background: transparent; }
 
 /* Fumée noire : bords nets (peu de flou) */
 .wl-fumee {
-  background: radial-gradient(circle, #0D0A09 0%, #15100D 58%, rgba(13,10,9,.92) 66%, rgba(13,10,9,0) 72%);
+  background: radial-gradient(circle, #0D0A09 0%, #15100D 58%, rgba(13,10,9,.92) 66%, rgba(13,10,9,0) 82%);
 }
 @keyframes wlFumee {
   0%   { transform: translate(-50%,-50%) translate(0,0) scale(.4); opacity: 0; }
