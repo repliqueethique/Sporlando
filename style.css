@@ -4523,3 +4523,12 @@ body { background: transparent; }
   12%  { opacity: .9; }
   100% { transform: translate(-50%,-50%) translate(var(--tx),var(--ty)) scale(2.4); opacity: 0; }
 }
+
+/* Flammes : départ plus à gauche, pivot sur la base */
+.wl-flamme-sprite {
+  height: 140px;
+  margin-top: -100px;
+  margin-left: -36px;
+  background-size: 2080px 140px;
+  transform-origin: 0 100px;
+}

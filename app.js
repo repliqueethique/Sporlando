@@ -2341,56 +2341,46 @@ var spriteFlammes = false;
 /* Planche de 8 images : flammes en losanges courbes (inspirées du logo) */
 var spriteFlammes = false;
 
+/* Planche de 8 images : flammes à 4 lames en croissant, courbées vers le haut */
+var spriteFlammes = false;
+var FLAMMES_MIROIR = false;   /* true = les 2 lames du bas se courbent vers le bas (symétrie avec celles du haut) */
+
 function construireSpriteFlammes() {
   if (spriteFlammes) { return; }
   spriteFlammes = true;
-  var N = 8, Wf = 260, Hf = 140, cy = 70;
+  var N = 8, Wf = 260, Hf = 140, by = 100;
 
   function r(min, max) { return min + Math.random() * (max - min); }
-  function signe() { return Math.random() < 0.5 ? -1 : 1; }
-  function versLeHaut() { return Math.random() < 0.7 ? -1 : 1; }   /* la chaleur courbe plutôt vers le haut */
 
-  /* Losange courbe : pointes en (0,0) et (L,0), dos bombé, creux plus plat, le tout arqué par "bend" */
-  function losange(ox, oy, L, W, angle, bend, fill) {
-    var d = 'M0,0 Q' + (L * 0.5).toFixed(1) + ',' + (-W + bend).toFixed(1) + ' ' + L.toFixed(1) + ',0' +
-      ' Q' + (L * 0.5).toFixed(1) + ',' + (W * 0.45 + bend).toFixed(1) + ' 0,0Z';
-    return '<path transform="translate(' + ox.toFixed(1) + ',' + oy.toFixed(1) + ') rotate(' + angle.toFixed(1) + ')" d="' + d + '" fill="url(#' + fill + ')"/>';
+  /* Croissant : pointu aux 2 bouts, un bord bombé, l'autre presque droit.
+     up = relèvement de la lame en degrés ; sens = 1 (courbe vers le haut) ou -1 (vers le bas) */
+  function lame(ox, oy, L, W, up, sens, fill) {
+    var d = 'M0,0 Q' + (L * 0.5).toFixed(1) + ',' + W.toFixed(1) + ' ' + L.toFixed(1) + ',0 Q' + (L * 0.5).toFixed(1) + ',' + (W * 0.3).toFixed(1) + ' 0,0Z';
+    var rot = (sens === 1) ? 'rotate(' + (-up).toFixed(1) + ')' : 'rotate(' + up.toFixed(1) + ') scale(1,-1)';
+    return '<path transform="translate(' + ox.toFixed(1) + ',' + oy.toFixed(1) + ') ' + rot + '" d="' + d + '" fill="url(#' + fill + ')"/>';
   }
 
+  var sensBas = FLAMMES_MIROIR ? -1 : 1;
   var corps = '';
   for (var k = 0; k < N; k++) {
     var ox = k * Wf + 2;
-    var lames = [];
-
-    /* 5 lames qui partent d'une zone large, en éventail, très arquées */
-    for (var i = 0; i < 5; i++) {
-      var pos = i - 2;
-      var forme = 1 - Math.abs(pos) * 0.16;
-      lames.push({
-        y: cy + pos * r(9, 13),
-        a: pos * 7 + r(-4, 4),
-        L: r(95, 155) * forme,
-        W: r(26, 40) * (0.7 + 0.3 * forme),
-        c: r(30, 55) * versLeHaut()
-      });
-    }
-
+    var lames = [
+      { y: by - 6,  up: r(38, 46), L: r(95, 115),  W: r(44, 56), s: 1 },
+      { y: by - 1,  up: r(27, 34), L: r(120, 145), W: r(40, 50), s: 1 },
+      { y: by + 6,  up: r(14, 21), L: r(125, 155), W: r(36, 46), s: sensBas },
+      { y: by + 12, up: r(5, 10),  L: r(110, 140), W: r(30, 40), s: sensBas }
+    ];
+    var i;
     /* Couche extérieure : rouge-orangé */
-    for (i = 0; i < 5; i++) {
-      corps += losange(ox, lames[i].y, lames[i].L, lames[i].W, lames[i].a, lames[i].c, 'gO');
-    }
-    /* Couche médiane : orange-jaune, plus courte */
-    for (i = 0; i < 5; i++) {
-      corps += losange(ox, lames[i].y + r(-2, 2), lames[i].L * r(0.6, 0.76), lames[i].W * 0.66, lames[i].a * 0.85, lames[i].c * 0.8, 'gM');
-    }
-    /* Cœur : 2 petits losanges clairs */
-    for (i = 1; i < 4; i += 2) {
-      corps += losange(ox + 2, lames[i].y, lames[i].L * r(0.34, 0.46), lames[i].W * 0.38, lames[i].a * 0.6, lames[i].c * 0.5, 'gI');
-    }
-    /* Éclats détachés : petits losanges courbes devant et autour du jet */
-    var nb = 4 + Math.floor(Math.random() * 2);
+    for (i = 0; i < 4; i++) { corps += lame(ox, lames[i].y, lames[i].L, lames[i].W, lames[i].up, lames[i].s, 'gO'); }
+    /* Couche médiane : orange-jaune, plus courte et plus fine */
+    for (i = 0; i < 4; i++) { corps += lame(ox, lames[i].y, lames[i].L * 0.72, lames[i].W * 0.62, lames[i].up, lames[i].s, 'gM'); }
+    /* Cœur clair : 2 lames centrales */
+    for (i = 1; i < 3; i++) { corps += lame(ox, lames[i].y, lames[i].L * 0.42, lames[i].W * 0.38, lames[i].up, lames[i].s, 'gI'); }
+    /* 1 ou 2 petits éclats détachés */
+    var nb = 1 + (Math.random() < 0.5 ? 1 : 0);
     for (i = 0; i < nb; i++) {
-      corps += losange(ox + r(100, 205), cy + r(-46, 46), r(22, 44), r(12, 20), r(-35, 35), r(10, 22) * signe(), Math.random() < 0.5 ? 'gO' : 'gM');
+      corps += lame(ox + r(130, 200), by - r(20, 75), r(16, 28), r(8, 12), r(25, 50), 1, Math.random() < 0.5 ? 'gO' : 'gM');
     }
   }
 
@@ -2429,8 +2419,7 @@ function genererParticulesWasteland() {
   /* Jet de flammes : 3 jets superposés, images décalées pour ne pas vaciller en même temps */
   var jets = [
     { s: 1,    r: 0,  ph: 0 },
-    { s: 0.72, r: -9, ph: 0.13 },
-    { s: 0.65, r: 8,  ph: 0.21 }
+    { s: 0.75, r: -6, ph: 0.15 }
   ];
   for (i = 0; i < jets.length; i++) {
     html += '<span class="wl wl-flamme-sprite" style="transform:rotate(' + jets[i].r + 'deg) scale(' + jets[i].s + ');animation-delay:-' + jets[i].ph + 's;"></span>';
