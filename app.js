@@ -2338,56 +2338,59 @@ var spriteFlammes = false;
 /* Planche de 8 images : flammes en lames acérées (style manga, inspirées du logo) */
 var spriteFlammes = false;
 
+/* Planche de 8 images : flammes en losanges courbes (inspirées du logo) */
+var spriteFlammes = false;
+
 function construireSpriteFlammes() {
   if (spriteFlammes) { return; }
   spriteFlammes = true;
-  var N = 8, Wf = 260, Hf = 100, cy = 50;
+  var N = 8, Wf = 260, Hf = 140, cy = 70;
 
   function r(min, max) { return min + Math.random() * (max - min); }
   function signe() { return Math.random() < 0.5 ? -1 : 1; }
+  function versLeHaut() { return Math.random() < 0.7 ? -1 : 1; }   /* la chaleur courbe plutôt vers le haut */
 
-  /* Une lame : base épaisse, dos convexe, creux concave, pointe très aiguë qui se recourbe */
-  function lame(ox, oy, L, th, angle, courbe, fill) {
-    var d = 'M0,' + (-th).toFixed(1) +
-      ' Q' + (L * 0.45).toFixed(1) + ',' + (-th * 1.05 + courbe).toFixed(1) + ' ' + L.toFixed(1) + ',' + (courbe * 0.4).toFixed(1) +
-      ' Q' + (L * 0.5).toFixed(1) + ',' + (th * 0.15 + courbe * 0.5).toFixed(1) + ' 0,' + th.toFixed(1) + ' Z';
+  /* Losange courbe : pointes en (0,0) et (L,0), dos bombé, creux plus plat, le tout arqué par "bend" */
+  function losange(ox, oy, L, W, angle, bend, fill) {
+    var d = 'M0,0 Q' + (L * 0.5).toFixed(1) + ',' + (-W + bend).toFixed(1) + ' ' + L.toFixed(1) + ',0' +
+      ' Q' + (L * 0.5).toFixed(1) + ',' + (W * 0.45 + bend).toFixed(1) + ' 0,0Z';
     return '<path transform="translate(' + ox.toFixed(1) + ',' + oy.toFixed(1) + ') rotate(' + angle.toFixed(1) + ')" d="' + d + '" fill="url(#' + fill + ')"/>';
   }
 
   var corps = '';
   for (var k = 0; k < N; k++) {
     var ox = k * Wf + 2;
-    var angles = [-18, -9, 0, 9, 18];
     var lames = [];
 
-    /* 5 lames en éventail : la centrale est la plus longue */
-    for (var i = 0; i < angles.length; i++) {
-      var a = angles[i] + r(-4, 4);
-      var forme = 1 - Math.abs(angles[i]) / 40;
+    /* 5 lames qui partent d'une zone large, en éventail, très arquées */
+    for (var i = 0; i < 5; i++) {
+      var pos = i - 2;
+      var forme = 1 - Math.abs(pos) * 0.16;
       lames.push({
-        a: a,
-        L: r(150, 215) * forme,
-        th: r(10, 16) * (0.6 + 0.4 * forme),
-        c: r(4, 16) * signe()
+        y: cy + pos * r(9, 13),
+        a: pos * 7 + r(-4, 4),
+        L: r(95, 155) * forme,
+        W: r(26, 40) * (0.7 + 0.3 * forme),
+        c: r(30, 55) * versLeHaut()
       });
     }
 
     /* Couche extérieure : rouge-orangé */
-    for (i = 0; i < lames.length; i++) {
-      corps += lame(ox, cy + r(-3, 3), lames[i].L, lames[i].th, lames[i].a, lames[i].c, 'gO');
+    for (i = 0; i < 5; i++) {
+      corps += losange(ox, lames[i].y, lames[i].L, lames[i].W, lames[i].a, lames[i].c, 'gO');
     }
-    /* Couche médiane : orange-jaune, plus courte et plus fine */
-    for (i = 0; i < lames.length; i++) {
-      corps += lame(ox, cy + r(-2, 2), lames[i].L * r(0.62, 0.78), lames[i].th * 0.65, lames[i].a * 0.85, lames[i].c * 0.8, 'gM');
+    /* Couche médiane : orange-jaune, plus courte */
+    for (i = 0; i < 5; i++) {
+      corps += losange(ox, lames[i].y + r(-2, 2), lames[i].L * r(0.6, 0.76), lames[i].W * 0.66, lames[i].a * 0.85, lames[i].c * 0.8, 'gM');
     }
-    /* Cœur : 2 lames claires */
+    /* Cœur : 2 petits losanges clairs */
     for (i = 1; i < 4; i += 2) {
-      corps += lame(ox + 2, cy, lames[i].L * r(0.35, 0.5), lames[i].th * 0.38, lames[i].a * 0.6, lames[i].c * 0.5, 'gI');
+      corps += losange(ox + 2, lames[i].y, lames[i].L * r(0.34, 0.46), lames[i].W * 0.38, lames[i].a * 0.6, lames[i].c * 0.5, 'gI');
     }
-    /* Éclats détachés, comme les pièces séparées du logo */
-    var nb = 3 + Math.floor(Math.random() * 2);
+    /* Éclats détachés : petits losanges courbes devant et autour du jet */
+    var nb = 4 + Math.floor(Math.random() * 2);
     for (i = 0; i < nb; i++) {
-      corps += lame(ox + r(110, 190), cy + r(-26, 26), r(20, 38), r(3, 6), r(-30, 30), r(2, 8) * signe(), Math.random() < 0.5 ? 'gO' : 'gM');
+      corps += losange(ox + r(100, 205), cy + r(-46, 46), r(22, 44), r(12, 20), r(-35, 35), r(10, 22) * signe(), Math.random() < 0.5 ? 'gO' : 'gM');
     }
   }
 
@@ -2413,13 +2416,14 @@ function genererParticulesWasteland() {
   /* Lueur du foyer, derrière l'icône */
   html += '<span class="wl wl-lueur"></span>';
 
-  /* Fumée noire */
+  /* Fumée noire : naît au bord gauche, en bas, et file vers la droite et surtout vers le haut */
   for (i = 0; i < 14; i++) {
-    taille = alea(50, 110);
-    dur = alea(1.6, 3);
+    taille = alea(40, 95);
+    dur = alea(1.3, 2.6);
     html += '<span class="wl wl-fumee" style="width:' + taille.toFixed(0) + 'px;height:' + taille.toFixed(0) + 'px;' +
+      'margin-left:-' + alea(15, 50).toFixed(0) + 'px;margin-top:' + alea(0, 28).toFixed(0) + 'px;' +
       'animation-duration:' + dur.toFixed(2) + 's;animation-delay:-' + (Math.random() * dur).toFixed(2) + 's;' +
-      '--tx:' + alea(130, 280).toFixed(0) + 'px;--ty:' + alea(-75, 15).toFixed(0) + 'px;"></span>';
+      '--tx:' + alea(110, 300).toFixed(0) + 'px;--ty:-' + alea(70, 150).toFixed(0) + 'px;"></span>';
   }
 
   /* Jet de flammes : 3 jets superposés, images décalées pour ne pas vaciller en même temps */

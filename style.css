@@ -4506,3 +4506,20 @@ body { background: transparent; }
   overflow: hidden;
   text-overflow: ellipsis;
 }
+
+/* Flammes : planche plus haute (140 px) */
+.wl-flamme-sprite {
+  height: 140px;
+  margin-top: -70px;
+  background-size: 2080px 140px;
+}
+
+/* Fumée noire : bords nets (peu de flou) */
+.wl-fumee {
+  background: radial-gradient(circle, #0D0A09 0%, #15100D 58%, rgba(13,10,9,.92) 66%, rgba(13,10,9,0) 72%);
+}
+@keyframes wlFumee {
+  0%   { transform: translate(-50%,-50%) translate(0,0) scale(.4); opacity: 0; }
+  12%  { opacity: .9; }
+  100% { transform: translate(-50%,-50%) translate(var(--tx),var(--ty)) scale(2.4); opacity: 0; }
+}
