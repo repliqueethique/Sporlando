@@ -2444,82 +2444,39 @@ function genererParticulesWasteland() {
   return html;
 }
 
-/* Effroi : scène de la carte séance. Mets un nombre plus bas pour alléger. */
-var EFFROI_SCENE = { yeux: 5, mains: 2, suintements: 5, fumees: 4 };
-
-/* Main squelettique aux doigts crochus (chaque doigt bouge séparément) */
-function svgMainSquelette() {
-  var noir = '#05020A', bord = 'rgba(190,150,255,.5)';
-  var doigts = [
-    { x: 24, y: 92, a: -38, L: 42, w: 6.4, c: -1 },
-    { x: 34, y: 86, a: -13, L: 68, w: 5.6, c: -1 },
-    { x: 47, y: 84, a: 0,   L: 80, w: 5.8, c: 1 },
-    { x: 60, y: 86, a: 12,  L: 68, w: 5.3, c: 1 },
-    { x: 72, y: 92, a: 28,  L: 48, w: 4.6, c: 1 }
-  ];
-  var s = '<svg viewBox="0 0 100 120" xmlns="http://www.w3.org/2000/svg">';
-  for (var i = 0; i < doigts.length; i++) {
-    var d = doigts[i];
-    var curl = d.c * d.L * 0.17;
-    var forme = 'M' + (-d.w) + ',0 Q' + (-d.w * 0.7) + ',' + (-d.L * 0.55) + ' ' + curl.toFixed(1) + ',' + (-d.L) +
-      ' Q' + (d.w * 0.9 + curl * 0.6).toFixed(1) + ',' + (-d.L * 0.5).toFixed(1) + ' ' + d.w + ',0Z';
-    s += '<g transform="translate(' + d.x + ' ' + d.y + ') rotate(' + d.a + ')">' +
-      '<g class="doigt" style="--r:' + alea(6, 15).toFixed(1) + 'deg;animation-duration:' + alea(0.9, 1.9).toFixed(2) + 's;animation-delay:-' + alea(0, 2).toFixed(2) + 's;">' +
-      '<path d="' + forme + '" fill="' + noir + '" stroke="' + bord + '" stroke-width=".8" stroke-linejoin="round"/>' +
-      '<path d="M' + (-d.w * 0.8).toFixed(1) + ',' + (-d.L * 0.36).toFixed(1) + ' L' + (d.w * 0.8).toFixed(1) + ',' + (-d.L * 0.36).toFixed(1) +
-      'M' + (-d.w * 0.5).toFixed(1) + ',' + (-d.L * 0.68).toFixed(1) + ' L' + (d.w * 0.5).toFixed(1) + ',' + (-d.L * 0.68).toFixed(1) + '" stroke="' + bord + '" stroke-width=".7" fill="none"/>' +
-      '</g></g>';
-  }
-  s += '<path d="M16,120 L21,98 Q23,86 36,85 L66,85 Q82,87 82,99 L87,120Z" fill="' + noir + '" stroke="' + bord + '" stroke-width=".8"/>';
-  return s + '</svg>';
-}
+/* Effroi : un seul grand œil qui s'ouvre dans l'obscurité */
+var SVG_OEIL_EFFROI =
+  '<svg viewBox="0 0 240 120" xmlns="http://www.w3.org/2000/svg">' +
+  '<defs>' +
+    '<radialGradient id="oeilHalo"><stop offset="0" stop-color="#B6F02A" stop-opacity=".32"/><stop offset="1" stop-color="#B6F02A" stop-opacity="0"/></radialGradient>' +
+    '<radialGradient id="oeilBlanc" cx=".5" cy=".5" r=".6"><stop offset="0" stop-color="#E0D8A6"/><stop offset=".6" stop-color="#9C8660"/><stop offset="1" stop-color="#3A2418"/></radialGradient>' +
+    '<radialGradient id="oeilIris"><stop offset="0" stop-color="#F6FFB0"/><stop offset=".42" stop-color="#A5E01F"/><stop offset=".8" stop-color="#3F6F08"/><stop offset="1" stop-color="#15280A"/></radialGradient>' +
+    '<clipPath id="oeilForme"><path d="M14,60 Q120,-8 226,60 Q120,128 14,60Z"/></clipPath>' +
+  '</defs>' +
+  '<ellipse cx="120" cy="60" rx="135" ry="62" fill="url(#oeilHalo)"/>' +
+  '<g class="oeil">' +
+    '<path d="M14,60 Q120,-8 226,60 Q120,128 14,60Z" fill="url(#oeilBlanc)"/>' +
+    '<g clip-path="url(#oeilForme)">' +
+      '<g fill="none" stroke="#7A1414" stroke-opacity=".5" stroke-width=".9" stroke-linecap="round">' +
+        '<path d="M20,58 Q52,50 84,60"/><path d="M24,67 Q58,72 88,64"/>' +
+        '<path d="M220,56 Q188,50 156,58"/><path d="M216,67 Q184,72 154,64"/>' +
+        '<path d="M118,8 Q116,22 121,32"/><path d="M132,114 Q130,102 127,92"/>' +
+      '</g>' +
+      '<g class="iris">' +
+        '<circle cx="120" cy="60" r="37" fill="url(#oeilIris)" stroke="#0A1405" stroke-width="2"/>' +
+        '<ellipse class="pupille" cx="120" cy="60" rx="6" ry="34" fill="#030106"/>' +
+        '<ellipse cx="106" cy="44" rx="5" ry="3" fill="#FFFFFF" fill-opacity=".75"/>' +
+      '</g>' +
+      '<path d="M14,60 Q120,-8 226,60 Q120,128 14,60Z" fill="none" stroke="#000" stroke-opacity=".85" stroke-width="16"/>' +
+    '</g>' +
+  '</g></svg>';
 
 function genererSceneEffroi() {
-  var h = '<div class="scene-effroi">';
-  var i, dur, n;
-
-  /* Ténèbres qui respirent */
-  h += '<span class="ef-ombre"></span>';
-
-  /* Fumée noire, épaisse, qui monte du bas */
-  for (i = 0; i < EFFROI_SCENE.fumees; i++) {
-    dur = alea(6, 10);
-    h += '<span class="ef-fumee" style="left:' + alea(-5, 88).toFixed(0) + '%;width:' + alea(90, 150).toFixed(0) + 'px;height:' + alea(60, 100).toFixed(0) + 'px;--dx:' + alea(-30, 30).toFixed(0) + 'px;' +
-      'animation-duration:' + dur.toFixed(1) + 's;animation-delay:-' + (Math.random() * dur).toFixed(1) + 's;"></span>';
-  }
-
-  /* Yeux dans le noir : le premier est un grand regard, les autres sont petits */
-  for (i = 0; i < EFFROI_SCENE.yeux; i++) {
-    var grand = (i === 0);
-    var e = grand ? 22 : alea(7, 13);
-    dur = grand ? alea(22, 28) : alea(10, 18);
-    var rouge = (!grand && Math.random() < 0.3);
-    h += '<span class="ef-yeux' + (rouge ? ' ef-yeux-rouge' : '') + '" style="left:' + alea(4, 86).toFixed(0) + '%;top:' + alea(8, 60).toFixed(0) + '%;--e:' + e.toFixed(1) + 'px;--g:' + alea(-6, 6).toFixed(1) + 'px;--max:' + (grand ? 0.6 : alea(0.7, 1)).toFixed(2) + ';' +
-      'animation-duration:' + dur.toFixed(1) + 's;animation-delay:-' + (Math.random() * dur).toFixed(1) + 's;"><i></i><i></i></span>';
-  }
-
-  /* Suintements noirs qui coulent du haut, avec une goutte qui tombe */
-  n = EFFROI_SCENE.suintements;
-  for (i = 0; i < n; i++) {
-    var pos = ((i + alea(0.1, 0.9)) / n * 100).toFixed(1);
-    var larg = alea(7, 13);
-    var haut = alea(22, 46);
-    dur = alea(9, 15);
-    var delai = (Math.random() * dur).toFixed(1);
-    h += '<span class="ef-suinte" style="left:' + pos + '%;width:' + larg.toFixed(1) + 'px;--h:' + haut.toFixed(0) + 'px;animation-duration:' + dur.toFixed(1) + 's;animation-delay:-' + delai + 's;"></span>';
-    h += '<span class="ef-goutte" style="left:calc(' + pos + '% + ' + (larg / 2 - 3).toFixed(1) + 'px);--h:' + haut.toFixed(0) + 'px;animation-duration:' + dur.toFixed(1) + 's;animation-delay:-' + delai + 's;"></span>';
-  }
-  h += '<span class="ef-goudron"></span>';
-
-  /* Mains qui rampent depuis le bas */
-  for (i = 0; i < EFFROI_SCENE.mains; i++) {
-    dur = alea(14, 20);
-    var gauche = (i % 2 === 0) ? alea(1, 14) : alea(68, 84);
-    h += '<span class="ef-main" style="left:' + gauche.toFixed(0) + '%;animation-duration:' + dur.toFixed(1) + 's;animation-delay:-' + (Math.random() * dur).toFixed(1) + 's;">' +
-      '<span style="display:block;width:100%;height:100%;' + (i % 2 === 0 ? '' : 'transform:scaleX(-1);') + '">' + svgMainSquelette() + '</span></span>';
-  }
-
-  return h + '</div>';
+  return '<div class="scene-effroi">' +
+    '<span class="ef-fond"></span>' +
+    '<span class="ef-oeil">' + SVG_OEIL_EFFROI + '</span>' +
+    '<span class="ef-brume"></span>' +
+    '</div>';
 }
 
 function genererParticules(nombre) {
