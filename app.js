@@ -2406,11 +2406,12 @@ function genererParticulesWasteland() {
   /* Lueur du foyer, derrière l'icône */
   html += '<span class="wl wl-lueur"></span>';
 
-  /* Fumée noire : naît au bord gauche, en bas, et file vers la droite et surtout vers le haut */
-  for (i = 0; i < 14; i++) {
-    taille = alea(40, 95);
+  /* Fumée noire : nuages bombés, naissent au bord gauche et filent vers la droite et le haut */
+  var formesNuage = ['a', 'b', 'c'];
+  for (i = 0; i < 7; i++) {
+    taille = alea(60, 120);
     dur = alea(1.3, 2.6);
-    html += '<span class="wl wl-fumee" style="width:' + taille.toFixed(0) + 'px;height:' + taille.toFixed(0) + 'px;' +
+    html += '<span class="wl wl-fumee wl-fumee-' + formesNuage[Math.floor(Math.random() * 3)] + '" style="width:' + taille.toFixed(0) + 'px;height:' + (taille * 0.7).toFixed(0) + 'px;' +
       'margin-left:-' + alea(15, 50).toFixed(0) + 'px;margin-top:' + alea(0, 28).toFixed(0) + 'px;' +
       'animation-duration:' + dur.toFixed(2) + 's;animation-delay:-' + (Math.random() * dur).toFixed(2) + 's;' +
       '--tx:' + alea(110, 300).toFixed(0) + 'px;--ty:-' + alea(70, 150).toFixed(0) + 'px;"></span>';
