@@ -4206,15 +4206,6 @@ body { background: transparent; }
 }
 :root[data-theme="effroi"] .accueil-tuile:active { background: var(--couleur-turquoise); }
 :root[data-theme="effroi"] .accueil-tuile-icone { width: 50px; height: 50px; margin-bottom: 6px; }
-/* petite croix au-dessus du titre */
-:root[data-theme="effroi"] .accueil-tuile h2::before {
-  content: '\2020';
-  display: block;
-  margin-bottom: 3px;
-  font-size: 12px;
-  line-height: 1;
-  color: var(--cadre-clair);
-}
 
 /* --- Carte séance : fuseau symétrique à deux pointes --- */
 :root[data-theme="effroi"] .seance-cadre {
