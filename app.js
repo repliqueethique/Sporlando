@@ -2451,7 +2451,7 @@ function genererParticulesWasteland() {
    Les tentacules sont dessinées à chaque image sur un canvas : une onde tordue part de la
    base et remonte vers la pointe. Elles dépassent de la carte en haut, en bas et à gauche.
    ============================================================ */
-var AURA_EFFROI = { tentacules: 9, filaments: 12, fps: 30, vortex: 150 };   /* baisse ces nombres pour alléger */
+var AURA_EFFROI = { tentacules: 12, filaments: 9, fps: 25, vortex: 500 };   /* baisse ces nombres pour alléger */
 var auraEffroi = null;
 
 function arreterAuraEffroi() {
