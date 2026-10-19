@@ -4649,3 +4649,202 @@ body { background: transparent; }
 @media (prefers-reduced-motion: reduce) {
   .ef-aura-zone { display: none; }
 }
+
+/* ============================================================
+   HISTORIQUE : charte actuelle (cartes, lignes, onglets collants, légende)
+   ============================================================ */
+#page-historique { --rayon: var(--tuile-rayon, 20px); }
+#page-historique .carte {
+  padding: 16px;
+  box-shadow: var(--tuile-lueur, 0 6px 20px rgba(0, 0, 0, 0.25));
+}
+#page-historique .carte-titre {
+  font-family: var(--police-titre, var(--police-corps));
+  font-size: 14px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+:root[data-theme="effroi"] #page-historique .carte-titre { text-transform: none; letter-spacing: 0.02em; }
+:root[data-theme="wasteland"] #page-historique .carte-titre { font-weight: 400; letter-spacing: 0.02em; }
+#page-historique .btn { border-radius: 14px; }
+
+/* --- Barre d'onglets collante sous l'en-tête --- */
+#page-historique > .sous-onglets {
+  position: -webkit-sticky;
+  position: sticky;
+  top: 76px;
+  top: calc(76px + env(safe-area-inset-top));
+  z-index: 15;
+  box-shadow: 0 10px 0 0 var(--couleur-fond), 0 14px 20px -8px rgba(0, 0, 0, 0.4);
+}
+#etat-selecteur-periode .sous-onglet-actif {
+  background: var(--couleur-carte);
+  box-shadow: inset 0 0 0 1px var(--nav-accent, var(--couleur-turquoise));
+}
+
+/* --- Calendrier --- */
+#page-historique .cal-entete .btn {
+  display: -webkit-box; display: -webkit-flex; display: flex;
+  -webkit-box-align: center; -webkit-align-items: center; align-items: center;
+  -webkit-box-pack: center; -webkit-justify-content: center; justify-content: center;
+  width: 38px; height: 38px;
+  padding: 0;
+  border-radius: 13px;
+  background: var(--couleur-carte-creux);
+  font-size: 11px;
+  -webkit-transition: -webkit-transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), border-color 0.2s ease;
+  transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), border-color 0.2s ease;
+}
+#page-historique .cal-entete .btn:active {
+  -webkit-transform: scale(0.9); transform: scale(0.9);
+  border-color: var(--couleur-turquoise);
+}
+#page-historique .cal-jour-bouton { padding: 9px 0 7px; font-size: 14px; border-radius: 12px; }
+#page-historique .cal-jour-aujourdhui .cal-jour-bouton { padding: 7px 0 5px; border-radius: 12px; }
+#page-historique .cal-jour-select .cal-jour-bouton { box-shadow: 0 4px 14px -4px var(--couleur-turquoise); }
+.cal-legende {
+  display: -webkit-box; display: -webkit-flex; display: flex;
+  -webkit-flex-wrap: wrap; flex-wrap: wrap;
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px solid var(--couleur-bordure);
+  font-size: 11px;
+  color: var(--couleur-texte-att);
+}
+.cal-legende span { display: -webkit-inline-box; display: -webkit-inline-flex; display: inline-flex; -webkit-box-align: center; -webkit-align-items: center; align-items: center; margin: 0 12px 4px 0; }
+.cal-legende .cal-point { display: inline-block; width: 8px; height: 8px; margin: 0 5px 0 0; }
+.hist-piscine {
+  margin-bottom: 12px;
+  padding: 10px 12px;
+  background: var(--couleur-carte-creux);
+  border: 1px solid var(--couleur-bordure);
+  border-radius: 16px;
+}
+
+/* --- Lignes (agenda, à venir, séances passées) --- */
+.hist-ligne {
+  position: relative;
+  display: -webkit-box; display: -webkit-flex; display: flex;
+  -webkit-box-align: center; -webkit-align-items: center; align-items: center;
+  margin-bottom: 8px;
+  padding: 10px 12px;
+  background-color: var(--couleur-carte-creux);
+  background-image: var(--tuile-decor, none);
+  border: 1px var(--tuile-trait, solid) var(--tuile-bord, var(--couleur-bordure));
+  border-left: 4px solid var(--hist-etat, var(--couleur-cyan));
+  border-radius: var(--tuile-rayon, 16px);
+  -webkit-transition: -webkit-transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+  transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.hist-ligne:last-child { margin-bottom: 0; }
+.hist-ligne[data-action] { cursor: pointer; }
+.hist-ligne[data-action]:active { -webkit-transform: scale(0.98); transform: scale(0.98); }
+.hist-prevu { --hist-etat: var(--couleur-pevue); }
+.hist-fait { --hist-etat: var(--couleur-succes); }
+.hist-incomplet { --hist-etat: var(--couleur-avertissement); }
+.hist-ligne-corps { -webkit-box-flex: 1; -webkit-flex: 1; flex: 1; min-width: 0; }
+.hist-ligne-titre { display: block; font-size: 15px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.hist-ligne-sous { display: block; margin-top: 3px; font-size: 12px; color: var(--couleur-texte-att); }
+.hist-ligne .btn { margin-left: 10px; }
+.hist-ligne .badge-technique { margin: 0 0 0 8px; white-space: nowrap; -webkit-flex-shrink: 0; flex-shrink: 0; }
+.hist-ligne-suppr {
+  width: 30px; height: 30px; min-width: 30px;
+  margin-left: 6px;
+  border-radius: 11px;
+  font-size: 20px; line-height: 1;
+  color: var(--couleur-alerte);
+}
+.hist-ligne-chevron { margin-left: 10px; font-size: 22px; color: var(--couleur-texte-att); }
+.hist-date {
+  -webkit-flex: 0 0 46px; flex: 0 0 46px;
+  width: 46px;
+  margin-right: 12px;
+  padding: 5px 0 4px 0;
+  text-align: center;
+  background: var(--couleur-carte);
+  border: 1px solid var(--couleur-bordure);
+  border-radius: 13px;
+}
+.hist-date-j {
+  display: block;
+  font-family: var(--police-titre, var(--police-donnees));
+  font-size: 18px; font-weight: 800; line-height: 1;
+  color: var(--couleur-turquoise);
+}
+.hist-date-m {
+  display: block; margin-top: 3px;
+  font-size: 10px; font-weight: 700;
+  text-transform: uppercase;
+  color: var(--couleur-texte-att);
+}
+.hist-entete-liste {
+  display: -webkit-box; display: -webkit-flex; display: flex;
+  -webkit-box-align: baseline; -webkit-align-items: baseline; align-items: baseline;
+  -webkit-box-pack: justify; -webkit-justify-content: space-between; justify-content: space-between;
+  margin: 2px 4px 10px 4px;
+}
+.hist-entete-liste .carte-titre { margin-bottom: 0; }
+
+/* --- Carte du programme --- */
+.hist-programme-nom { font-family: var(--police-titre, inherit); font-size: 17px; }
+.hist-programme-objectif { margin: 6px 0 2px 0; font-style: italic; }
+.hist-programme-semaine { margin-top: 10px; }
+#zone-programme-actif .alerte-equilibre { margin-bottom: 12px; }
+#page-historique .alerte-equilibre,
+#page-historique .alerte-equilibre-ok { border-radius: 14px; padding: 12px; line-height: 1.4; }
+
+/* --- Courbes : chiffre clé --- */
+.courbe-resume {
+  display: -webkit-box; display: -webkit-flex; display: flex;
+  -webkit-flex-wrap: wrap; flex-wrap: wrap;
+  -webkit-box-align: baseline; -webkit-align-items: baseline; align-items: baseline;
+  margin-bottom: 8px;
+}
+.courbe-libelle { margin-right: 8px; font-size: 11px; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; color: var(--couleur-texte-att); }
+.courbe-valeur { margin-right: 10px; font-family: var(--police-titre, var(--police-donnees)); font-size: 22px; font-weight: 800; color: var(--couleur-turquoise); }
+.courbe-delta { margin-right: auto; font-size: 12px; font-weight: 700; color: var(--couleur-texte-att); }
+.courbe-plage { font-size: 11.5px; color: var(--couleur-texte-att); }
+
+/* --- Équilibre, suggestions, événements --- */
+#page-historique .equilibre-ligne { margin-bottom: 14px; }
+#page-historique .equilibre-barre-fond { height: 10px; border-radius: 5px; }
+#page-historique .equilibre-barre-remplie { border-radius: 5px; }
+#page-historique .suggestion-carte {
+  margin-bottom: 10px;
+  padding: 10px 12px;
+  background: var(--couleur-carte-creux);
+  border: 1px solid var(--couleur-bordure);
+  border-left: 3px solid var(--couleur-turquoise);
+  border-radius: 14px;
+}
+#page-historique .suggestion-carte:last-child { margin-bottom: 0; }
+#page-historique .suggestion-carte span { display: block; line-height: 1.45; }
+.ligne-evenement-etat {
+  display: -webkit-box; display: -webkit-flex; display: flex;
+  -webkit-box-align: center; -webkit-align-items: center; align-items: center;
+  -webkit-box-pack: justify; -webkit-justify-content: space-between; justify-content: space-between;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--couleur-bordure);
+  font-size: 14px;
+}
+.ligne-evenement-etat:last-child { border-bottom: none; }
+.evenement-badges { font-size: 20px; letter-spacing: 4px; }
+
+/* --- Icônes des titres de la page État --- */
+#etat-titre-humeur::before  { content: '\1F60A\00a0'; }
+#etat-titre-fatigue::before { content: '\1F634\00a0'; }
+#etat-titre-stress::before  { content: '\1F624\00a0'; }
+#etat-titre-sommeil::before { content: '\1F319\00a0'; }
+
+/* --- Déclinaisons par thème --- */
+:root[data-theme="effroi"] .hist-ligne {
+  --ct: 10px;
+  border-radius: 0;
+  clip-path: polygon(var(--ct) 0, calc(100% - var(--ct)) 0, 100% var(--ct), 100% calc(100% - var(--ct)), calc(100% - var(--ct)) 100%, var(--ct) 100%, 0 calc(100% - var(--ct)), 0 var(--ct));
+}
+:root[data-theme="wasteland"] .hist-ligne {
+  background-image: var(--wl-rouille), var(--wl-ombre);
+  background-repeat: repeat, no-repeat;
+  background-size: 240px 240px, 100% 100%;
+}

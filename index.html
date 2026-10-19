@@ -255,6 +255,14 @@
           <button class="btn btn-petit btn-contour" data-action="mois-suivant">&#9654;</button>
         </div>
         <div class="cal-grille" id="cal-grille"></div>
+        <div class="cal-legende">
+          <span><i class="cal-point cal-point-prevu"></i>Prévu</span>
+          <span><i class="cal-point cal-point-fait"></i>Fait</span>
+          <span><i class="cal-point cal-point-incomplet"></i>Incomplet</span>
+          <span><i class="cal-point cal-point-piscine"></i>Piscine</span>
+          <span><i class="cal-point cal-point-nutrition"></i>Nutrition</span>
+          <span><i class="cal-point cal-point-checklist"></i>Routine</span>
+        </div>
       </div>
 
       <div class="carte">
@@ -262,10 +270,10 @@
           <h2 class="carte-titre" id="agenda-jour-titre" style="margin-bottom:0;">-</h2>
           <button class="btn btn-plein btn-petit" data-action="planifier-jour">+ Planifier</button>
         </div>
-        <div class="case-liste" style="border-bottom:none;">
+        <label class="reglages-interrupteur hist-piscine">
+          <span>🏊 Séance de piscine ce jour-là</span>
           <input type="checkbox" id="case-piscine-jour" data-action="basculer-piscine">
-          <span>Séance de piscine ce jour-là</span>
-        </div>
+        </label>
         <ul id="agenda-liste-jour"></ul>
       </div>
 
@@ -337,10 +345,11 @@
     </div>
 
     <div id="hist-seances" class="section-hist" style="display:none;">
-      <div class="carte">
+      <div class="hist-entete-liste">
         <h2 class="carte-titre">Séances réalisées</h2>
-        <ul id="liste-historique-seances"></ul>
+        <span class="texte-att donnee-num" id="hist-seances-total"></span>
       </div>
+      <ul id="liste-historique-seances"></ul>
     </div>
 
     <div id="hist-etat" class="section-hist" style="display:none;">

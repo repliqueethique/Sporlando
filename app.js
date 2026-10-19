@@ -2204,20 +2204,31 @@ function rendreLigneAgenda(entree) {
   var seance = trouverParId(etat.seances, entree.seanceId);
   var nomSeance = seance ? seance.nom : '(séance supprimée)';
   var estFait = entree.statut === 'termine';
-  var html = '<li class="carte agenda-entree' + (estFait ? ' agenda-entree-fait' : '') + '">';
-  html += '<div class="ligne"><strong>' + echapperHtml(nomSeance) + '</strong>';
-  if (!estFait) {
-    html += '<button class="btn btn-plein btn-petit" data-action="demarrer-depuis-agenda" data-id="' + entree.id + '">Début</button>';
+  var complete = estFait && seanceEstComplete(entree);
+  var etatClasse = estFait ? (complete ? 'hist-fait' : 'hist-incomplet') : 'hist-prevu';
+  var html = '<li class="hist-ligne ' + etatClasse + '"' + (estFait ? ' data-action="voir-detail-historique" data-id="' + entree.id + '"' : '') + '>';
+  html += '<div class="hist-ligne-corps"><strong class="hist-ligne-titre">' + echapperHtml(nomSeance) + '</strong>';
+  if (estFait) {
+    var infos = [];
+    if (entree.dureeMinutes) { infos.push(entree.dureeMinutes + ' min'); }
+    if (entree.caloriesEstimees) { infos.push(Math.round(entree.caloriesEstimees) + ' kcal'); }
+    html += '<span class="hist-ligne-sous donnee-num">' + (complete ? 'Complète' : 'Incomplète') + (infos.length ? ' · ' + infos.join(' · ') : '') + '</span>';
   } else {
-    html += '<span class="texte-att donnee-num">' + Math.round(entree.caloriesEstimees || 0) + ' kcal</span>';
+    html += '<span class="hist-ligne-sous">Prévue</span>';
   }
   html += '</div>';
   if (!estFait) {
-    html += '<button class="btn btn-alerte btn-petit" style="margin-top:6px;" data-action="annuler-agenda" data-id="' + entree.id + '">Retirer de l\'agenda</button>';
+    html += '<button class="btn btn-plein btn-petit" data-action="demarrer-depuis-agenda" data-id="' + entree.id + '">Début</button>';
+    html += '<button class="hist-ligne-suppr" data-action="annuler-agenda" data-id="' + entree.id + '" title="Retirer de l\'agenda" aria-label="Retirer de l\'agenda">&times;</button>';
+  } else {
+    html += '<span class="hist-ligne-chevron">&#8250;</span>';
   }
   html += '</li>';
   return html;
 }
+
+var MOIS_NOMS = ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'];
+var MOIS_COURTS = ['janv.', 'févr.', 'mars', 'avr.', 'mai', 'juin', 'juil.', 'août', 'sept.', 'oct.', 'nov.', 'déc.'];
 
 function rendreAVenir() {
   var aujourdHui = formaterDateISO(new Date());
@@ -2232,9 +2243,12 @@ function rendreAVenir() {
   var html = '';
   for (var i = 0; i < entrees.length; i++) {
     var seance = trouverParId(etat.seances, entrees[i].seanceId);
-    html += '<li class="ligne" style="padding:8px 0; border-bottom:1px solid var(--couleur-bordure);">';
-    html += '<span>' + formaterDateLisible(entrees[i].date) + '</span>';
-    html += '<strong>' + echapperHtml(seance ? seance.nom : '-') + '</strong>';
+    var d = dateDepuisISO(entrees[i].date);
+    var ecart = Math.round((d - dateDepuisISO(aujourdHui)) / 86400000);
+    var relatif = ecart === 0 ? 'Aujourd\'hui' : (ecart === 1 ? 'Demain' : 'Dans ' + ecart + ' jours');
+    html += '<li class="hist-ligne hist-prevu">';
+    html += '<span class="hist-date"><span class="hist-date-j donnee-num">' + d.getDate() + '</span><span class="hist-date-m">' + MOIS_COURTS[d.getMonth()] + '</span></span>';
+    html += '<div class="hist-ligne-corps"><strong class="hist-ligne-titre">' + echapperHtml(seance ? seance.nom : '-') + '</strong><span class="hist-ligne-sous">' + relatif + '</span></div>';
     html += '</li>';
   }
   conteneur.innerHTML = html;
@@ -5078,6 +5092,37 @@ function pointsPoidsMaxParSeance(exerciceId) {
 
 /* ---- Courbe SVG générique : grille Y + grille X (dates), plage fixe optionnelle, axe inversable ---- */
 
+function nombreCourt(v) { return String(Math.round(v * 10) / 10); }
+
+/* Ligne de résumé d'une courbe : dernier relevé + évolution + min/max (ou moyenne pour la nutrition) */
+function resumeCourbe(points, suffixe) {
+  var n = points.length, i;
+  if (n < 2) { return ''; }
+  var html = '<div class="courbe-resume">';
+  if (points.mode === 'moyenne') {
+    var somme = 0, jours = 0;
+    for (i = 0; i < n; i++) { if (points[i].valeur > 0) { somme += points[i].valeur; jours++; } }
+    if (jours === 0) { return ''; }
+    html += '<span class="courbe-libelle">Moyenne</span>';
+    html += '<span class="courbe-valeur donnee-num">' + nombreCourt(somme / jours) + suffixe + '</span>';
+    html += '<span class="courbe-plage donnee-num">' + jours + ' / ' + n + ' jours</span>';
+  } else {
+    var dernier = points[n - 1].valeur, precedent = points[n - 2].valeur;
+    var delta = Math.round((dernier - precedent) * 10) / 10;
+    var min = dernier, max = dernier;
+    for (i = 0; i < n; i++) {
+      if (points[i].valeur < min) { min = points[i].valeur; }
+      if (points[i].valeur > max) { max = points[i].valeur; }
+    }
+    var texteDelta = (delta === 0) ? '= stable' : ((delta > 0 ? '&#9650; +' : '&#9660; &minus;') + nombreCourt(Math.abs(delta)));
+    html += '<span class="courbe-libelle">Dernier</span>';
+    html += '<span class="courbe-valeur donnee-num">' + nombreCourt(dernier) + suffixe + '</span>';
+    html += '<span class="courbe-delta donnee-num">' + texteDelta + '</span>';
+    html += '<span class="courbe-plage donnee-num">min ' + nombreCourt(min) + ' · max ' + nombreCourt(max) + '</span>';
+  }
+  return html + '</div>';
+}
+
 function construireSvgCourbe(points, suffixeUnite, couleur, plageMin, plageMax, inverserAxe) {
   if (points.length === 0) {
     return '<div class="etat-vide">Pas encore assez de données pour afficher une courbe.</div>';
@@ -5136,7 +5181,7 @@ function construireSvgCourbe(points, suffixeUnite, couleur, plageMin, plageMax, 
     svg += '<circle cx="' + coordonnees[k].x.toFixed(1) + '" cy="' + coordonnees[k].y.toFixed(1) + '" r="3.2" fill="' + couleur + '" />';
   }
   svg += '</svg>';
-  return '<div class="svg-conteneur">' + svg + '</div>';
+  return resumeCourbe(points, suffixeUnite) + '<div class="svg-conteneur">' + svg + '</div>';
 }
 
 function rendreGraphiqueProgression() {
@@ -5371,7 +5416,7 @@ function rendreListeEvenementsEtat(dates) {
     if (j.maladie) { badges.push('🤒'); }
     if (j.insomnie) { badges.push('😶'); }
     if (badges.length > 0) {
-      lignes.push('<div class="ligne-evenement-etat"><span>' + date + '</span><span>' + badges.join(' ') + '</span></div>');
+      lignes.push('<div class="ligne-evenement-etat"><span>' + formaterDateLisible(date) + '</span><span class="evenement-badges">' + badges.join(' ') + '</span></div>');
     }
   });
   conteneur.innerHTML = lignes.length > 0 ? lignes.join('') : '<div class="etat-vide">Aucun événement particulier récemment.</div>';
@@ -5421,6 +5466,7 @@ function pointsNutritionQuotidien(nombreJours, cle) {
     var totaux = calculerTotauxJour(dateISO);
     points.push({ date: dateISO, valeur: Math.round(totaux[cle]) });
   }
+  points.mode = 'moyenne';
   return points;
 }
 
@@ -5878,13 +5924,15 @@ function rendreProgrammeActif() {
       var joursDepuisDebut = Math.floor((new Date() - dateDepuisISO(etat.programmeActif.dateDebut)) / (1000 * 60 * 60 * 24));
       var semaineActuelle = Math.floor(joursDepuisDebut / 7) + 1;
       html += '<div class="carte">';
-      html += '<div class="ligne"><strong>' + echapperHtml(prog.nom) + '</strong><span class="texte-att">' + echapperHtml(libelleDepuisValeur(TYPES_MESOCYCLE, prog.typeMesocycle || 'personnalise')) + '</span></div>';
+      html += '<div class="ligne"><strong class="hist-programme-nom">' + echapperHtml(prog.nom) + '</strong><span class="badge-technique">' + echapperHtml(libelleDepuisValeur(TYPES_MESOCYCLE, prog.typeMesocycle || 'personnalise')) + '</span></div>';
+      if (prog.objectif) { html += '<div class="texte-att hist-programme-objectif">' + echapperHtml(prog.objectif) + '</div>'; }
       if (prog.dureeSemaines) {
-        html += '<div class="texte-att donnee-num" style="margin-top:4px;">Semaine ' + semaineActuelle + ' / ' + prog.dureeSemaines;
-        if (semaineActuelle > prog.dureeSemaines) { html += ' (durée dépassée, pense à la suite du programme)'; }
-        html += '</div>';
+        var pct = Math.min(100, Math.round(semaineActuelle / prog.dureeSemaines * 100));
+        html += '<div class="ligne hist-programme-semaine"><span class="texte-att">Semaine</span><span class="donnee-num">' + semaineActuelle + ' / ' + prog.dureeSemaines + '</span></div>';
+        html += '<div class="macro-barre-fond"><div class="macro-barre-remplie macro-barre-proteines" style="width:' + pct + '%;"></div></div>';
+        if (semaineActuelle > prog.dureeSemaines) { html += '<div class="texte-att" style="margin-top:6px;">Durée dépassée, pense à la suite du programme.</div>'; }
       } else {
-        html += '<div class="texte-att donnee-num" style="margin-top:4px;">Semaine ' + semaineActuelle + '</div>';
+        html += '<div class="ligne hist-programme-semaine"><span class="texte-att">Semaine</span><span class="donnee-num">' + semaineActuelle + '</span></div>';
       }
       html += '</div>';
     }
@@ -6088,29 +6136,42 @@ function rendreHistoriqueSeances() {
   if (!conteneur) { return; }
 
   var entrees = seancesTerminees();
+  var total = document.getElementById('hist-seances-total');
+  if (total) { total.innerHTML = entrees.length + ' séance' + (entrees.length > 1 ? 's' : ''); }
   if (entrees.length === 0) {
     conteneur.innerHTML = '<li class="etat-vide">Aucune séance réalisée pour le moment.</li>';
     return;
   }
 
+  var compte = {};
+  var i;
+  for (i = 0; i < entrees.length; i++) {
+    var c = entrees[i].date.substring(0, 7);
+    compte[c] = (compte[c] || 0) + 1;
+  }
+
   var html = '';
-  for (var i = 0; i < entrees.length; i++) {
+  var moisCourant = '';
+  for (i = 0; i < entrees.length; i++) {
     var entree = entrees[i];
+    var cle = entree.date.substring(0, 7);
+    var d = dateDepuisISO(entree.date);
+    if (cle !== moisCourant) {
+      moisCourant = cle;
+      html += '<li class="groupe-entete">' + MOIS_NOMS[d.getMonth()] + ' ' + d.getFullYear() + '&nbsp;<span class="groupe-entete-nb">(' + compte[cle] + ')</span></li>';
+    }
     var seance = trouverParId(etat.seances, entree.seanceId);
     var nomSeance = seance ? seance.nom : '(séance supprimée)';
     var complete = seanceEstComplete(entree);
-
-    html += '<li class="carte" data-action="voir-detail-historique" data-id="' + entree.id + '">';
-    html += '<div class="ligne">';
-    html += '<strong>' + echapperHtml(nomSeance) + '</strong>';
-    html += '<span class="badge-technique' + (complete ? ' badge-record' : '') + '">' + (complete ? 'Complète' : 'Incomplète') + '</span>';
-    html += '</div>';
-    html += '<div class="texte-att" style="margin-top:4px;">' + formaterDateLisible(entree.date) + '</div>';
     var nbEx = entree.resultat.exercices.length;
-    html += '<div class="texte-att">' + nbEx + ' exercice(s)';
-    if (entree.dureeMinutes) { html += ' · ' + entree.dureeMinutes + ' min'; }
-    if (entree.caloriesEstimees) { html += ' · ' + Math.round(entree.caloriesEstimees) + ' kcal'; }
-    html += '</div>';
+    var infos = [nbEx + ' exercice' + (nbEx > 1 ? 's' : '')];
+    if (entree.dureeMinutes) { infos.push(entree.dureeMinutes + ' min'); }
+    if (entree.caloriesEstimees) { infos.push(Math.round(entree.caloriesEstimees) + ' kcal'); }
+
+    html += '<li class="hist-ligne ' + (complete ? 'hist-fait' : 'hist-incomplet') + '" data-action="voir-detail-historique" data-id="' + entree.id + '">';
+    html += '<span class="hist-date"><span class="hist-date-j donnee-num">' + d.getDate() + '</span><span class="hist-date-m">' + MOIS_COURTS[d.getMonth()] + '</span></span>';
+    html += '<div class="hist-ligne-corps"><strong class="hist-ligne-titre">' + echapperHtml(nomSeance) + '</strong><span class="hist-ligne-sous donnee-num">' + infos.join(' · ') + '</span></div>';
+    html += '<span class="badge-technique' + (complete ? ' badge-record' : '') + '">' + (complete ? 'Complète' : 'Incomplète') + '</span>';
     html += '</li>';
   }
   conteneur.innerHTML = html;
@@ -6168,6 +6229,7 @@ function basculerSerieFaiteHistorique(entreeId, exIndex, serieIndex) {
   ouvrirDetailHistorique(entreeId);
   rendreHistoriqueSeances();
   rendreCalendrier();
+  rendreJourSelectionne();
 }
 
 function modifierValeurSerieHistorique(role, entreeId, exIndex, serieIndex, valeur) {
@@ -6190,6 +6252,7 @@ function toutMarquerHistorique(entreeId, valeur) {
   ouvrirDetailHistorique(entreeId);
   rendreHistoriqueSeances();
   rendreCalendrier();
+  rendreJourSelectionne();
 }
 
 /* ============================================================
@@ -6255,6 +6318,9 @@ ajouterEcouteurClicDelegue(document.body, function (cible) {
     var boutonsGroupe = document.querySelectorAll('.sous-onglet[data-groupe="' + groupe + '"]');
     for (var i = 0; i < boutonsGroupe.length; i++) { boutonsGroupe[i].classList.remove('sous-onglet-actif'); }
     cible.classList.add('sous-onglet-actif');
+    var barreOnglets = cible.parentNode;
+    barreOnglets.scrollLeft = cible.offsetLeft - (barreOnglets.clientWidth - cible.offsetWidth) / 2;
+    if (groupe === 'hist') { window.scrollTo(0, 0); }
     var sectionsGroupe = document.querySelectorAll('.section-' + groupe);
     for (var j = 0; j < sectionsGroupe.length; j++) { sectionsGroupe[j].style.display = 'none'; }
     var sousOnglet = cible.getAttribute('data-cible');
