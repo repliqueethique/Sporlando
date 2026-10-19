@@ -1447,41 +1447,76 @@ function ligneSelecteurAliment(al) {
     '<span class="selecteur-ligne-textes"><span class="selecteur-ligne-nom">' + echapperHtml(al.nom) + '</span><span class="selecteur-ligne-meta donnee-num">' + meta + '</span></span>' + marque + '</button>';
 }
 
+var categorieSelecteurOuverte = '';   /* une seule catégorie ouverte à la fois */
+
 function dessinerListeSelecteurAliment(filtre) {
   var zone = document.getElementById('selecteur-aliment-liste');
   if (!zone) { return; }
   if (etat.aliments.length === 0) { zone.innerHTML = '<div class="etat-vide">Aucun aliment dans la bibliothèque.</div>'; return; }
   var mots = normaliserTexteRecherche((filtre || '').trim()).split(/\s+/);
   var recherche = mots.join('') !== '';
-  var liste = etat.aliments.filter(function (al) {
-    if (!recherche) { return true; }
-    var texte = normaliserTexteRecherche(al.nom) + ' ' + normaliserTexteRecherche(al.categorie);
-    return mots.every(function (m) { return texte.indexOf(m) !== -1; });
-  });
-  if (liste.length === 0) { zone.innerHTML = '<div class="etat-vide">Aucun aliment ne correspond.</div>'; return; }
-
   var html = '', i;
-  if (!recherche) {
-    var recents = alimentsRecents(6);
-    if (recents.length > 0) {
-      html += '<div class="selecteur-groupe">Récents</div>';
-      for (i = 0; i < recents.length; i++) { html += ligneSelecteurAliment(recents[i]); }
-    }
+
+  /* Recherche : liste à plat, limitée à 30 résultats */
+  if (recherche) {
+    var trouves = etat.aliments.filter(function (al) {
+      var texte = normaliserTexteRecherche(al.nom) + ' ' + normaliserTexteRecherche(al.categorie);
+      return mots.every(function (m) { return texte.indexOf(m) !== -1; });
+    });
+    if (trouves.length === 0) { zone.innerHTML = '<div class="etat-vide">Aucun aliment ne correspond.</div>'; return; }
+    trouves.sort(function (a, b) { return a.nom.localeCompare(b.nom); });
+    for (i = 0; i < trouves.length && i < 30; i++) { html += ligneSelecteurAliment(trouves[i]); }
+    if (trouves.length > 30) { html += '<div class="texte-att selecteur-plus">' + (trouves.length - 30) + ' autres résultats : précise ta recherche.</div>'; }
+    zone.innerHTML = html;
+    return;
   }
+
+  /* Sans recherche : récents, puis catégories repliées */
+  var recents = alimentsRecents(5);
+  if (recents.length > 0) {
+    html += '<div class="selecteur-groupe">Récents</div>';
+    for (i = 0; i < recents.length; i++) { html += ligneSelecteurAliment(recents[i]); }
+  }
+  html += '<div class="selecteur-groupe">Catégories</div>';
   for (var c = 0; c < CATEGORIES_ALIMENTS.length; c++) {
     var cat = CATEGORIES_ALIMENTS[c];
-    var sous = liste.filter(function (al) { return al.categorie === cat; });
+    var sous = etat.aliments.filter(function (al) { return al.categorie === cat; });
     if (sous.length === 0) { continue; }
-    sous.sort(function (a, b) { return a.nom.localeCompare(b.nom); });
-    html += '<div class="selecteur-groupe">' + echapperHtml(cat) + '</div>';
-    for (i = 0; i < sous.length; i++) { html += ligneSelecteurAliment(sous[i]); }
+    var ouverte = (categorieSelecteurOuverte === cat);
+    var choisis = sous.filter(function (al) { return alimentEstActifSelecteur(al.id); }).length;
+    html += '<button class="selecteur-cat' + (ouverte ? ' selecteur-cat-ouverte' : '') + '" data-action="basculer-categorie-selecteur" data-groupe="' + echapperHtml(cat) + '">' +
+      '<span class="selecteur-cat-chevron">' + (ouverte ? '&#9662;' : '&#9656;') + '</span><span class="selecteur-cat-nom">' + echapperHtml(cat) + '</span>' +
+      '<span class="selecteur-cat-nb donnee-num">' + (choisis > 0 ? '<i>' + choisis + ' choisi' + (choisis > 1 ? 's' : '') + '</i>' : '') + sous.length + '</span></button>';
+    if (ouverte) {
+      sous.sort(function (a, b) { return a.nom.localeCompare(b.nom); });
+      for (i = 0; i < sous.length; i++) { html += ligneSelecteurAliment(sous[i]); }
+    }
   }
   zone.innerHTML = html;
 }
 
+function basculerCategorieSelecteur(nom) {
+  categorieSelecteurOuverte = (categorieSelecteurOuverte === nom) ? '' : nom;
+  var champ = document.getElementById('champ-selecteur-aliment');
+  dessinerListeSelecteurAliment(champ ? champ.value : '');
+  if (categorieSelecteurOuverte) {   /* l'en-tête remonte juste sous la barre de recherche */
+    var entete = document.querySelector('.selecteur-cat-ouverte');
+    var modal = document.getElementById('modal-contenu');
+    var barre = document.querySelector('.selecteur-recherche');
+    if (entete && modal && barre) {
+      modal.scrollTop += entete.getBoundingClientRect().top - barre.getBoundingClientRect().bottom - 4;
+    }
+  }
+}
+
 function brancherRechercheAliment() {
   var champ = document.getElementById('champ-selecteur-aliment');
-  if (champ) { champ.addEventListener('input', function () { dessinerListeSelecteurAliment(champ.value); }); }
+  if (!champ) { return; }
+  var minuteur = null;
+  champ.addEventListener('input', function () {   /* attend la fin de la frappe */
+    if (minuteur) { window.clearTimeout(minuteur); }
+    minuteur = window.setTimeout(function () { dessinerListeSelecteurAliment(champ.value); }, 150);
+  });
 }
 
 function majBoutonTermineSelecteur() {
@@ -1494,6 +1529,11 @@ function majBoutonTermineSelecteur() {
 /* mode : 'plat-ajout' (plusieurs à la suite) ou 'plat-changer' (remplace l'ingrédient n° index) */
 function ouvrirSelecteurAliment(mode, index) {
   selecteurAliment = { mode: mode, index: (index === undefined ? -1 : index) };
+  categorieSelecteurOuverte = '';
+  if (mode === 'plat-changer' && ingredientsPlatEnCours[selecteurAliment.index]) {   /* ouvre la catégorie de l'aliment à remplacer */
+    var actuel = trouverParId(etat.aliments, ingredientsPlatEnCours[selecteurAliment.index].alimentId);
+    if (actuel) { categorieSelecteurOuverte = actuel.categorie; }
+  }
   var multi = (mode === 'plat-ajout');
   var html = '<div class="modal-entete"><div class="modal-entete-gauche"><button class="bouton-retour" data-action="selecteur-aliment-retour">&#8249;</button><h2>' + (multi ? 'Ajouter des ingrédients' : 'Changer d\'aliment') + '</h2></div><button class="bouton-fermer" data-action="fermer-modal">&times;</button></div>';
   html += '<div class="selecteur-recherche"><input type="search" id="champ-selecteur-aliment" placeholder="Rechercher un aliment" autocomplete="off"></div>';
@@ -1624,6 +1664,7 @@ function ouvrirFormulaireAjoutJournal() {
     return;
   }
   journalEnConstruction = { type: etat.aliments.length > 0 ? 'aliment' : 'plat', alimentId: null, platId: null, quantite: 100, portions: 1 };
+  categorieSelecteurOuverte = '';
   rendreEtapeChoixJournal();
 }
 
@@ -6645,6 +6686,7 @@ ajouterEcouteurClicDelegue(document.body, function (cible) {
   if (action === 'charger-aliments-base') { chargerAlimentsDeBase(); return; }
   if (action === 'basculer-groupe-aliments') { basculerGroupeAliments(cible.getAttribute('data-groupe')); return; }
   if (action === 'calculer-objectifs-nutrition') { calculerObjectifsNutritionAuto(); return; }
+  if (action === 'basculer-categorie-selecteur') { basculerCategorieSelecteur(cible.getAttribute('data-groupe')); return; }
 
   if (action === 'nouveau-plat') { ouvrirFormulairePlat(null); return; }
   if (action === 'editer-plat') { ouvrirFormulairePlat(id); return; }

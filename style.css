@@ -4945,3 +4945,26 @@ body { background: transparent; }
 .chip-actif { background: var(--couleur-degrade); border-color: transparent; color: #0B1114; }
 .journal-apercu { margin-top: 4px; padding: 10px 12px; text-align: center; font-size: 13px; color: var(--couleur-texte-att); background: var(--couleur-carte-creux); border-radius: 14px; }
 .journal-apercu strong, .journal-resume-sous strong { color: var(--couleur-turquoise); }
+
+/* Sélecteur d'aliment : catégories repliables */
+.selecteur-cat {
+  display: -webkit-box; display: -webkit-flex; display: flex;
+  -webkit-box-align: center; -webkit-align-items: center; align-items: center;
+  width: 100%;
+  margin: 0 0 6px 0;
+  padding: 13px 14px;
+  background: var(--couleur-carte-creux);
+  border: 1px solid var(--couleur-bordure);
+  border-radius: 14px;
+  text-align: left;
+  font-size: 13px; font-weight: 800;
+  letter-spacing: 0.04em; text-transform: uppercase;
+  color: var(--couleur-turquoise);
+}
+.selecteur-cat:active { border-color: var(--couleur-turquoise); }
+.selecteur-cat-ouverte { border-color: var(--couleur-turquoise); }
+.selecteur-cat-chevron { width: 18px; color: var(--couleur-texte-att); }
+.selecteur-cat-nom { -webkit-box-flex: 1; -webkit-flex: 1; flex: 1; }
+.selecteur-cat-nb { font-size: 12px; font-weight: 400; letter-spacing: 0; text-transform: none; color: var(--couleur-texte-att); }
+.selecteur-cat-nb i { margin-right: 8px; font-style: normal; color: var(--couleur-succes); }
+.selecteur-plus { padding: 10px 4px; text-align: center; }
