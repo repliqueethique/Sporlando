@@ -4968,3 +4968,179 @@ body { background: transparent; }
 .selecteur-cat-nb { font-size: 12px; font-weight: 400; letter-spacing: 0; text-transform: none; color: var(--couleur-texte-att); }
 .selecteur-cat-nb i { margin-right: 8px; font-style: normal; color: var(--couleur-succes); }
 .selecteur-plus { padding: 10px 4px; text-align: center; }
+
+/* ============================================================
+   WESTERN : mur de planches + affiches « wanted » placardées
+   ============================================================ */
+:root[data-theme="ruedor"] {
+  /* taches de vieux papier */
+  --wanted-taches: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='p' x='0' y='0' width='100%25' height='100%25' color-interpolation-filters='sRGB'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.012 .02' numOctaves='3' seed='5' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .5 0 0 0 0 .3 0 0 0 0 .12 1.3 0 0 0 -.45'/%3E%3C/filter%3E%3Crect width='240' height='240' filter='url(%23p)' opacity='.5'/%3E%3C/svg%3E");
+  --wanted-fond: linear-gradient(180deg, #ECD9A8 0%, #DFC58E 55%, #D2B67C 100%);
+  /* clou en haut au centre */
+  --wanted-clou: radial-gradient(circle at 50% 9px, #CFC8B6 0, #CFC8B6 1.6px, #34281B 2.4px, #34281B 4px, rgba(30,15,5,.35) 4.6px, rgba(30,15,5,0) 7px);
+  /* les bords des conteneurs ne sont plus en pointillé doré */
+  --tuile-trait: solid; --tuile-bord: rgba(70,42,18,.55); --tuile-rayon: 3px;
+  --meteo-trait: solid; --meteo-bord: rgba(70,42,18,.55);
+}
+
+/* --- 1. Fond : mur de planches clouées --- */
+:root[data-theme="ruedor"] .fond-motif {
+  background-size: 240px 240px;
+  background-repeat: repeat;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='g' x='0' y='0' width='100%25' height='100%25' color-interpolation-filters='sRGB'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.05 .004' numOctaves='2' seed='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .07 0 0 0 0 .04 0 0 0 0 .02 1.9 0 0 0 -.75'/%3E%3C/filter%3E%3Crect width='72' height='240' fill='%234A2E1A'/%3E%3Crect x='72' width='90' height='240' fill='%233F2615'/%3E%3Crect x='162' width='78' height='240' fill='%23533620'/%3E%3Crect width='240' height='240' filter='url(%23g)' opacity='.75'/%3E%3Cg fill='none' stroke='%231A0E06' stroke-opacity='.28'%3E%3Cpath d='M18 0q5 60 0 120t0 120'/%3E%3Cpath d='M44 0q-5 60 0 120t0 120'/%3E%3Cpath d='M96 0q5 60 0 120t0 120'/%3E%3Cpath d='M126 0q-5 60 0 120t0 120'/%3E%3Cpath d='M184 0q5 60 0 120t0 120'/%3E%3Cpath d='M212 0q-5 60 0 120t0 120'/%3E%3C/g%3E%3Cellipse cx='34' cy='96' rx='6' ry='10' fill='%231C1008' fill-opacity='.6'/%3E%3Cellipse cx='34' cy='96' rx='10' ry='15' fill='none' stroke='%231C1008' stroke-opacity='.3'/%3E%3Cellipse cx='132' cy='176' rx='5' ry='8' fill='%231C1008' fill-opacity='.6'/%3E%3Cellipse cx='132' cy='176' rx='9' ry='13' fill='none' stroke='%231C1008' stroke-opacity='.3'/%3E%3Cpath d='M0 0V240M72 0V240M162 0V240M240 0V240' stroke='%23120A05' stroke-width='4' fill='none'/%3E%3Cpath d='M36 28v16M117 28v16M201 28v16M36 220v16M117 220v16M201 220v16' stroke='%23782814' stroke-opacity='.35' stroke-width='3' stroke-linecap='round'/%3E%3Cg fill='%238E8374' stroke='%23100803' stroke-width='1.4'%3E%3Ccircle cx='36' cy='24' r='2.7'/%3E%3Ccircle cx='117' cy='24' r='2.7'/%3E%3Ccircle cx='201' cy='24' r='2.7'/%3E%3Ccircle cx='36' cy='216' r='2.7'/%3E%3Ccircle cx='117' cy='216' r='2.7'/%3E%3Ccircle cx='201' cy='216' r='2.7'/%3E%3C/g%3E%3C/svg%3E");
+}
+
+/* --- 2. Affiches : encre brune sur papier (les couleurs sont redéfinies pour tout le contenu) --- */
+:root[data-theme="ruedor"] .carte,
+:root[data-theme="ruedor"] .carte-checklist,
+:root[data-theme="ruedor"] .meteo-carte,
+:root[data-theme="ruedor"] .reglages-section,
+:root[data-theme="ruedor"] .sx-exo,
+:root[data-theme="ruedor"] .accueil-tuile,
+:root[data-theme="ruedor"] .accueil-carte,
+:root[data-theme="ruedor"] .hist-ligne,
+:root[data-theme="ruedor"] .modal-contenu {
+  --couleur-texte: #2B1A0C;
+  --couleur-texte-att: #6A4E33;
+  --couleur-texte-titre: #6B1A0C;
+  --couleur-bordure: rgba(70,42,18,.45);
+  --couleur-carte: #E8D3A0;
+  --couleur-carte-creux: #D8BD86;
+  --couleur-turquoise: #8A2A12;
+  --couleur-cyan: #B5651D;
+  --couleur-degrade: linear-gradient(135deg, #9B2A14, #6E1608);
+  --couleur-succes: #3F6B1E;
+  --couleur-alerte: #9B1C10;
+  --couleur-avertissement: #A8650C;
+  --couleur-nutrition: #6B3F8A;
+  --effet-texte: none;
+  --effet-halo: none;
+  --ress-piste: rgba(70,42,18,.25);
+  color: var(--couleur-texte);
+}
+
+/* --- 3. Papier vieilli : taches, bords brunis, cadre intérieur, ombre portée --- */
+:root[data-theme="ruedor"] .carte,
+:root[data-theme="ruedor"] .carte-checklist,
+:root[data-theme="ruedor"] .meteo-carte,
+:root[data-theme="ruedor"] .reglages-section,
+:root[data-theme="ruedor"] .sx-exo,
+:root[data-theme="ruedor"] .accueil-tuile,
+:root[data-theme="ruedor"] .accueil-carte,
+:root[data-theme="ruedor"] .modal-contenu {
+  background-color: #E3CB94;
+  background-image: var(--wanted-taches), var(--wanted-fond);
+  background-repeat: repeat, no-repeat;
+  background-size: 240px 240px, 100% 100%;
+  background-position: 0 0, 0 0;
+  border: 1px solid rgba(60,32,10,.5);
+  border-radius: 3px;
+  box-shadow: inset 0 0 26px rgba(95,55,18,.6), inset 0 0 0 1px rgba(60,32,10,.3), 2px 5px 12px rgba(0,0,0,.65);
+}
+:root[data-theme="ruedor"] .carte,
+:root[data-theme="ruedor"] .carte-checklist,
+:root[data-theme="ruedor"] .meteo-carte,
+:root[data-theme="ruedor"] .reglages-section,
+:root[data-theme="ruedor"] .sx-exo,
+:root[data-theme="ruedor"] .accueil-tuile,
+:root[data-theme="ruedor"] .accueil-carte {
+  outline: 1px solid rgba(70,40,15,.4);
+  outline-offset: -7px;
+}
+
+/* --- 4. Clou + légère inclinaison sur les affiches principales (elles pendent du clou) --- */
+:root[data-theme="ruedor"] .page > .carte,
+:root[data-theme="ruedor"] .section-hist > .carte,
+:root[data-theme="ruedor"] #seance-zone-inactive > .carte,
+:root[data-theme="ruedor"] .carte-checklist,
+:root[data-theme="ruedor"] .meteo-carte,
+:root[data-theme="ruedor"] .accueil-tuile,
+:root[data-theme="ruedor"] .accueil-carte {
+  background-image: var(--wanted-clou), var(--wanted-taches), var(--wanted-fond);
+  background-repeat: no-repeat, repeat, no-repeat;
+  background-size: 100% 100%, 240px 240px, 100% 100%;
+  background-position: 0 0, 0 0, 0 0;
+  transform-origin: 50% 8px;
+}
+:root[data-theme="ruedor"] .page > .carte:nth-child(3n+1),
+:root[data-theme="ruedor"] .section-hist > .carte:nth-child(3n+1),
+:root[data-theme="ruedor"] #seance-zone-inactive > .carte:nth-child(3n+1) { transform: rotate(-.5deg); }
+:root[data-theme="ruedor"] .page > .carte:nth-child(3n+2),
+:root[data-theme="ruedor"] .section-hist > .carte:nth-child(3n+2),
+:root[data-theme="ruedor"] #seance-zone-inactive > .carte:nth-child(3n+2) { transform: rotate(.4deg); }
+:root[data-theme="ruedor"] .page > .carte:nth-child(3n),
+:root[data-theme="ruedor"] .section-hist > .carte:nth-child(3n),
+:root[data-theme="ruedor"] #seance-zone-inactive > .carte:nth-child(3n) { transform: rotate(-.2deg); }
+:root[data-theme="ruedor"] .accueil-tuile:nth-child(1) { transform: rotate(-1.2deg); }
+:root[data-theme="ruedor"] .accueil-tuile:nth-child(2) { transform: rotate(.9deg); }
+:root[data-theme="ruedor"] .accueil-tuile:nth-child(3) { transform: rotate(-.7deg); }
+:root[data-theme="ruedor"] .carte-checklist { transform: rotate(.3deg); }
+:root[data-theme="ruedor"] .meteo-carte { transform: rotate(-.3deg); }
+:root[data-theme="ruedor"] .seance-cadre > .accueil-carte { transform: rotate(.35deg); }
+
+/* --- 5. Carte « séance prévue » : affiche WANTED tamponnée (plus de dégradé, de rayons ni de halo) --- */
+:root[data-theme="ruedor"] .accueil-tuile::before,
+:root[data-theme="ruedor"] .accueil-carte::after,
+:root[data-theme="ruedor"] .accueil-carte:not(.seance-a-faire)::before { display: none; }
+:root[data-theme="ruedor"] .accueil-carte.seance-a-faire { animation: none; }
+:root[data-theme="ruedor"] .accueil-carte.seance-a-faire::after { display: none; }
+:root[data-theme="ruedor"] .accueil-carte.seance-a-faire::before {
+  display: block;
+  content: 'WANTED';
+  top: 9px; left: auto; right: 12px;
+  width: auto; height: auto;
+  transform: rotate(7deg);
+  padding: 2px 7px 1px;
+  background: none;
+  animation: none;
+  border: 2px solid rgba(150,26,14,.78);
+  border-radius: 3px;
+  color: rgba(150,26,14,.85);
+  font-family: var(--police-titre, inherit);
+  font-size: 10px;
+  letter-spacing: .14em;
+  z-index: 2;
+}
+:root[data-theme="ruedor"] .accueil-carte.seance-a-faire .titre-affichage { color: var(--couleur-texte-titre); }
+:root[data-theme="ruedor"] .accueil-carte.seance-a-faire .texte-att { color: var(--couleur-texte-att); }
+
+/* --- 6. Titres de cartes : encre rouge, double filet --- */
+:root[data-theme="ruedor"] .carte-titre,
+:root[data-theme="ruedor"] .reglages-section-titre {
+  padding-bottom: 6px;
+  border-bottom: 2px double rgba(70,42,18,.45);
+  margin-bottom: 12px;
+}
+
+/* --- 7. Boutons : cachet de cire, texte clair --- */
+:root[data-theme="ruedor"] .btn-plein,
+:root[data-theme="ruedor"] .sx-valider,
+:root[data-theme="ruedor"] .chip-actif,
+:root[data-theme="ruedor"] .reglages-segment.reglage-option-active,
+:root[data-theme="ruedor"] .cal-jour-select .cal-jour-bouton { color: #F6E6B8; }
+:root[data-theme="ruedor"] .btn-contour { border-color: rgba(70,42,18,.55); }
+
+/* --- 8. Détails --- */
+/* ligne de séance posée directement sur le mur (historique) */
+:root[data-theme="ruedor"] #liste-historique-seances .hist-ligne {
+  background-color: #E3CB94;
+  background-image: var(--wanted-taches), var(--wanted-fond);
+  background-repeat: repeat, no-repeat;
+  background-size: 240px 240px, 100% 100%;
+  box-shadow: inset 0 0 18px rgba(95,55,18,.5), 2px 4px 9px rgba(0,0,0,.6);
+}
+/* exercice actif en séance */
+:root[data-theme="ruedor"] .sx-exo-actif { border-color: #8A2A12; outline: 2px solid rgba(138,42,18,.55); outline-offset: -4px; }
+/* blocs imbriqués dans une fenêtre : papier plus sombre, sans ombre */
+:root[data-theme="ruedor"] .modal-contenu { border-radius: 4px; }
+:root[data-theme="ruedor"] .modal-contenu .carte,
+:root[data-theme="ruedor"] .modal-contenu .reglages-section {
+  background-image: none;
+  background-color: var(--couleur-carte-creux);
+  box-shadow: none;
+  outline: none;
+  transform: none;
+}
+/* graphiques : grille et textes en encre */
+:root[data-theme="ruedor"] .svg-conteneur line:not(.meteo-grille):not(.meteo-now-ligne) { stroke: rgba(70,42,18,.22); }
+:root[data-theme="ruedor"] .svg-conteneur text:not(.meteo-now-label) { fill: #6A4E33; }
