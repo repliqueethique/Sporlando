@@ -2313,7 +2313,11 @@ function rendreCarteSeanceJour() {
     html += '</div></div>';
   }
 
-  conteneur.innerHTML = '<div class="seance-cadre">' + html + '</div>';
+  var cadre = '<div class="seance-cadre">' + html + '</div>';
+  var aura = !!entreeJour && etat.profil.theme === 'effroi';
+  if (aura) { cadre = '<div class="seance-zone">' + cadre + '<div class="ef-aura-zone"></div></div>'; }
+  conteneur.innerHTML = cadre;
+  if (aura) { demarrerAuraEffroi(conteneur.querySelector('.seance-zone')); } else { arreterAuraEffroi(); }
 }
 
 var PARTICULES_PAR_THEME = {
@@ -2444,44 +2448,149 @@ function genererParticulesWasteland() {
   return html;
 }
 
-/* Effroi : un seul grand œil qui s'ouvre dans l'obscurité */
-var SVG_OEIL_EFFROI =
-  '<svg viewBox="0 0 240 120" xmlns="http://www.w3.org/2000/svg">' +
-  '<defs>' +
-    '<radialGradient id="oeilHalo"><stop offset="0" stop-color="#B6F02A" stop-opacity=".32"/><stop offset="1" stop-color="#B6F02A" stop-opacity="0"/></radialGradient>' +
-    '<radialGradient id="oeilBlanc" cx=".5" cy=".5" r=".6"><stop offset="0" stop-color="#E0D8A6"/><stop offset=".6" stop-color="#9C8660"/><stop offset="1" stop-color="#3A2418"/></radialGradient>' +
-    '<radialGradient id="oeilIris"><stop offset="0" stop-color="#F6FFB0"/><stop offset=".42" stop-color="#A5E01F"/><stop offset=".8" stop-color="#3F6F08"/><stop offset="1" stop-color="#15280A"/></radialGradient>' +
-    '<clipPath id="oeilForme"><path d="M14,60 Q120,-8 226,60 Q120,128 14,60Z"/></clipPath>' +
-  '</defs>' +
-  '<ellipse cx="120" cy="60" rx="135" ry="62" fill="url(#oeilHalo)"/>' +
-  '<g class="oeil">' +
-    '<path d="M14,60 Q120,-8 226,60 Q120,128 14,60Z" fill="url(#oeilBlanc)"/>' +
-    '<g clip-path="url(#oeilForme)">' +
-      '<g fill="none" stroke="#7A1414" stroke-opacity=".5" stroke-width=".9" stroke-linecap="round">' +
-        '<path d="M20,58 Q52,50 84,60"/><path d="M24,67 Q58,72 88,64"/>' +
-        '<path d="M220,56 Q188,50 156,58"/><path d="M216,67 Q184,72 154,64"/>' +
-        '<path d="M118,8 Q116,22 121,32"/><path d="M132,114 Q130,102 127,92"/>' +
-      '</g>' +
-      '<g class="iris">' +
-        '<circle cx="120" cy="60" r="37" fill="url(#oeilIris)" stroke="#0A1405" stroke-width="2"/>' +
-        '<ellipse class="pupille" cx="120" cy="60" rx="6" ry="34" fill="#030106"/>' +
-        '<ellipse cx="106" cy="44" rx="5" ry="3" fill="#FFFFFF" fill-opacity=".75"/>' +
-      '</g>' +
-      '<path d="M14,60 Q120,-8 226,60 Q120,128 14,60Z" fill="none" stroke="#000" stroke-opacity=".85" stroke-width="16"/>' +
-    '</g>' +
-  '</g></svg>';
+/* ============================================================
+   EFFROI : aura maléfique + limon tentaculaire autour de l'icône (carte séance prévue)
+   Les tentacules sont dessinées à chaque image sur un canvas : une onde tordue part de la
+   base et remonte vers la pointe. Elles dépassent de la carte en haut, en bas et à gauche.
+   ============================================================ */
+var AURA_EFFROI = { tentacules: 10, filaments: 14, fps: 30 };   /* baisse ces nombres pour alléger */
+var auraEffroi = null;
 
-function genererSceneEffroi() {
-  return '<div class="scene-effroi">' +
-    '<span class="ef-fond"></span>' +
-    '<span class="ef-oeil">' + SVG_OEIL_EFFROI + '</span>' +
-    '<span class="ef-brume"></span>' +
-    '</div>';
+function arreterAuraEffroi() {
+  if (auraEffroi) { auraEffroi.actif = false; auraEffroi = null; }
+}
+
+function demarrerAuraEffroi(zone) {
+  arreterAuraEffroi();
+  var cont = zone ? zone.querySelector('.ef-aura-zone') : null;
+  if (!cont) { return; }
+  var icone = zone.querySelector('.accueil-icone');
+  var zr = zone.getBoundingClientRect();
+  var W = Math.round(zr.width) || 340, H = Math.round(zr.height) || 96;
+  var ir = icone ? icone.getBoundingClientRect() : null;
+  var cx = (ir && ir.width) ? ir.left - zr.left + ir.width / 2 : 54;
+  var cy = (ir && ir.height) ? ir.top - zr.top + ir.height / 2 : H / 2;
+
+  var ML = 70, MV = 70, R0 = 24;                 /* marges du canvas (gauche, haut/bas), rayon de départ */
+  var echelle = Math.min(window.devicePixelRatio || 1, 1.5);
+  var cw = W + ML, ch = H + 2 * MV;
+  var cv = document.createElement('canvas');
+  cv.width = Math.round(cw * echelle);
+  cv.height = Math.round(ch * echelle);
+  cv.style.cssText = 'position:absolute;left:-' + ML + 'px;top:-' + MV + 'px;width:' + cw + 'px;height:' + ch + 'px;';
+  var halo = document.createElement('span');
+  halo.className = 'ef-halo';
+  halo.style.left = cx + 'px';
+  halo.style.top = cy + 'px';
+  cont.appendChild(halo);
+  cont.appendChild(cv);
+  var ctx = cv.getContext('2d');
+  if (!ctx) { return; }
+  ctx.scale(echelle, echelle);
+  var ox = cx + ML, oy = cy + MV;                /* centre de l'icône dans le canvas */
+
+  /* a = angle en degrés (0 = droite, négatif = vers le haut), L = longueur, w = épaisseur, faint = traverse le texte */
+  var modeles = [
+    { a: -50, L: 170, w: 10 }, { a: 34, L: 205, w: 8 }, { a: -72, L: 120, w: 9 }, { a: 76, L: 115, w: 9 },
+    { a: -28, L: 225, w: 8 }, { a: 56, L: 165, w: 10 }, { a: -152, L: 95, w: 7 }, { a: 158, L: 90, w: 7 },
+    { a: -8, L: 265, w: 5, faint: true }, { a: 14, L: 255, w: 5, faint: true }
+  ].slice(0, AURA_EFFROI.tentacules);
+  var tentacules = [], i;
+  for (i = 0; i < modeles.length; i++) {
+    tentacules.push({
+      base: modeles[i].a * Math.PI / 180, L: modeles[i].L, w: modeles[i].w, faint: !!modeles[i].faint,
+      amp: alea(0.5, 0.85), f: alea(1, 1.8), v: alea(1.2, 2.4), ph: alea(0, 6.28)
+    });
+  }
+  var filaments = [];
+  for (i = 0; i < AURA_EFFROI.filaments; i++) {
+    filaments.push({
+      base: ((i % 5 < 3) ? alea(-80, 80) : alea(0, 360)) * Math.PI / 180,
+      L: alea(55, 140), amp: alea(0.8, 1.5), f: alea(1.5, 2.6), v: alea(1.6, 3), ph: alea(0, 6.28),
+      couleur: (i % 2) ? 'rgba(170,255,200,.5)' : 'rgba(185,140,255,.55)'
+    });
+  }
+
+  /* Ligne brisée dont l'angle ondule le long du corps : plus on va vers la pointe, plus ça se tord */
+  function courbe(x0, y0, base, L, amp, f, v, ph, tt, n) {
+    var pts = [[x0, y0]], x = x0, y = y0, dl = L / n;
+    for (var s = 1; s <= n; s++) {
+      var u = s / n;
+      var ang = base + amp * u * (Math.sin(f * u * 6.283 - tt * v + ph) + 0.45 * Math.sin(f * 2.3 * u * 6.283 - tt * v * 1.7 + ph * 2));
+      x += Math.cos(ang) * dl;
+      y += Math.sin(ang) * dl;
+      pts.push([x, y]);
+    }
+    return pts;
+  }
+
+  var etatAura = { actif: true };
+  auraEffroi = etatAura;
+  var dernier = 0, pas = 1000 / AURA_EFFROI.fps;
+
+  function image(temps) {
+    if (!etatAura.actif) { return; }
+    if (!document.body.contains(cv) || document.documentElement.getAttribute('data-theme') !== 'effroi') { etatAura.actif = false; return; }
+    window.requestAnimationFrame(image);
+    if (temps - dernier < pas || document.hidden || !cv.offsetParent) { return; }
+    dernier = temps;
+    var tt = temps / 1000, k, j;
+    ctx.clearRect(0, 0, cw, ch);
+    ctx.lineJoin = 'round';
+    ctx.lineCap = 'round';
+
+    for (k = 0; k < tentacules.length; k++) {
+      var T = tentacules[k];
+      var respire = 1 + 0.12 * Math.sin(tt * 0.9 + T.ph);
+      var pts = courbe(ox + Math.cos(T.base) * R0, oy + Math.sin(T.base) * R0, T.base, T.L * respire, T.amp, T.f, T.v, T.ph, tt, 22);
+      var gauche = [], droite = [];
+      for (j = 0; j < pts.length; j++) {
+        var p0 = pts[Math.max(0, j - 1)], p1 = pts[Math.min(pts.length - 1, j + 1)];
+        var tx = p1[0] - p0[0], ty = p1[1] - p0[1];
+        var ln = Math.sqrt(tx * tx + ty * ty) || 1;
+        var nx = -ty / ln, ny = tx / ln;
+        var w = T.w * Math.pow(1 - j / (pts.length - 1), 0.85) + 0.5;   /* s'effile vers la pointe */
+        gauche.push([pts[j][0] + nx * w, pts[j][1] + ny * w]);
+        droite.push([pts[j][0] - nx * w, pts[j][1] - ny * w]);
+      }
+      ctx.beginPath();
+      ctx.moveTo(gauche[0][0], gauche[0][1]);
+      for (j = 1; j < gauche.length; j++) { ctx.lineTo(gauche[j][0], gauche[j][1]); }
+      for (j = droite.length - 1; j >= 0; j--) { ctx.lineTo(droite[j][0], droite[j][1]); }
+      ctx.closePath();
+      ctx.globalAlpha = T.faint ? 0.55 : 1;
+      ctx.lineWidth = 7;   ctx.strokeStyle = 'rgba(123,47,247,.16)'; ctx.stroke();   /* lueur maléfique */
+      ctx.fillStyle = '#06020B'; ctx.fill();                                          /* corps noir */
+      ctx.lineWidth = 1.6; ctx.strokeStyle = 'rgba(160,110,255,.6)'; ctx.stroke();    /* liseré violet */
+      if (!T.faint) {                                                                 /* reflet visqueux */
+        ctx.beginPath();
+        for (j = 1; j < 15; j++) {
+          var rx = gauche[j][0] * 0.4 + pts[j][0] * 0.6, ry = gauche[j][1] * 0.4 + pts[j][1] * 0.6;
+          if (j === 1) { ctx.moveTo(rx, ry); } else { ctx.lineTo(rx, ry); }
+        }
+        ctx.lineWidth = 1; ctx.strokeStyle = 'rgba(190,255,215,.35)'; ctx.stroke();
+      }
+    }
+
+    /* Filaments fins autour de l'icône */
+    ctx.globalAlpha = 1;
+    ctx.lineWidth = 1.1;
+    for (k = 0; k < filaments.length; k++) {
+      var F = filaments[k];
+      var fp = courbe(ox + Math.cos(F.base) * (R0 - 6), oy + Math.sin(F.base) * (R0 - 6), F.base, F.L, F.amp, F.f, F.v, F.ph, tt, 14);
+      ctx.beginPath();
+      ctx.moveTo(fp[0][0], fp[0][1]);
+      for (j = 1; j < fp.length; j++) { ctx.lineTo(fp[j][0], fp[j][1]); }
+      ctx.strokeStyle = F.couleur;
+      ctx.stroke();
+    }
+  }
+  window.requestAnimationFrame(image);
 }
 
 function genererParticules(nombre) {
   if (etat.profil.theme === 'wasteland') { return genererParticulesWasteland(); }
-  if (etat.profil.theme === 'effroi') { return genererSceneEffroi(); }
+  if (etat.profil.theme === 'effroi') { return ''; }
   var jeuEmoji = PARTICULES_PAR_THEME[etat.profil.theme];
   var html = '<div class="particules">';
   for (var i = 0; i < nombre; i++) {
@@ -7010,6 +7119,7 @@ function appliquerTheme() {
   majEclair(themeEffectif);
   majEsprits(themeEffectif);
   majNitro(themeEffectif);
+  if (pageCourante === 'accueil') { rendreCarteSeanceJour(); }
 }
 
 /* ============================================================
