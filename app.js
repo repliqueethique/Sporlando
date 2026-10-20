@@ -6905,9 +6905,9 @@ var AMBIANCES = {
     { c: 'amb-braise', n: 8, t: [2, 4], d: [6, 12], dx: 90 }
   ],
   ruedor: [
-    { c: 'amb-brume amb-brume-poussiere', n: 3, t: [300, 480], d: [14, 22], pos: 'h', y: [35, 95], dy: 30 },
-    { c: 'amb-filet', n: 7, t: [90, 220], d: [2.2, 4.5], pos: 'h', y: [0, 100], dy: 14 },
-    { c: 'amb-poussiere', n: 12, t: [2, 4], d: [3, 7], pos: 'h', y: [0, 100], dy: 30 },
+    { c: 'amb-nuage-bas', n: 6, t: [220, 420], d: [10, 17], pos: 'h', y: [76, 100], dy: -22 },
+    { c: 'amb-brume amb-brume-poussiere', n: 3, t: [300, 480], d: [6, 11], pos: 'h', y: [30, 95], dy: 55 },
+    { c: 'amb-poussiere', n: 22, t: [2, 4.5], d: [1.2, 3.4], pos: 'h', y: [0, 100], dy: 60 },
     { special: 'virevoltant' }
   ],
   cyberpunk: [
@@ -7001,7 +7001,8 @@ function majAmbiance(theme) {
     for (var i = 0; i < gr.n; i++) {
       var taille = alea(gr.t[0], gr.t[1]).toFixed(1);
       var duree = alea(gr.d[0], gr.d[1]);
-      var s = 'width:' + taille + 'px;height:' + taille + 'px;font-size:' + taille + 'px;';
+      var haut = (gr.c.indexOf('amb-nuage-bas') !== -1) ? (taille * 0.5).toFixed(1) : taille;
+      var s = 'width:' + taille + 'px;height:' + haut + 'px;font-size:' + taille + 'px;';
       s += 'animation-duration:' + duree.toFixed(1) + 's;animation-delay:-' + (Math.random() * duree).toFixed(1) + 's;';
       if (gr.pos === 'h') {
         s += 'left:0;top:' + alea(gr.y[0], gr.y[1]).toFixed(0) + '%;';
