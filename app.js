@@ -2933,6 +2933,7 @@ function demarrerAuraEffroi(carte) {
 }
 
 function genererParticules(nombre) {
+  if (etat.profil.theme === 'steampunk') { return genererSceneSteampunk(); }
   if (etat.profil.theme === 'wasteland') { return genererParticulesWasteland(); }
   if (etat.profil.theme === 'effroi') { return '<div class="ef-aura-zone"></div>'; }
   var jeuEmoji = PARTICULES_PAR_THEME[etat.profil.theme];
@@ -7138,7 +7139,7 @@ var ROUAGES_CHAINES = [
 function modPositif(a, b) { return ((a % b) + b) % b; }
 
 /* Dessine un rouage en silhouette pleine (dents + ouvertures entre les bras). couleur = remplissage */
-function svgRouage(n, m, off, couleur) {
+function svgRouage(n, m, off, couleur, contour) {
   var r = n * m / 2, ro = r + m, rr = r - 1.25 * m;
   var S = Math.ceil(2 * ro + 8), c = S / 2, p = 360 / n;
   function pt(rayon, deg) {
@@ -7173,7 +7174,7 @@ function svgRouage(n, m, off, couleur) {
        ' A' + ra.toFixed(1) + ' ' + ra.toFixed(1) + ' 0 1 0 ' + (c + ra).toFixed(1) + ',' + c + ' Z';
 
   var svg = '<svg width="' + S + '" height="' + S + '" viewBox="0 0 ' + S + ' ' + S + '" style="display:block">';
-  svg += '<path d="' + d + '" fill="' + couleur + '" fill-rule="evenodd"/>';
+  svg += '<path d="' + d + '" fill="' + couleur + '" fill-rule="evenodd"' + (contour ? ' stroke="' + contour + '" stroke-width="1.2"' : '') + '/>';
   svg += '</svg>';
   return { svg: svg, taille: S };
 }
@@ -7215,7 +7216,8 @@ function construireRouages() {
     var chaine = ROUAGES_CHAINES[c];
     var n0 = chaine.gears[0].n;
     var mc = m * (0.8 + 0.5 * chaine.prof);
-    var couleur = interpolerCouleur('#241B11', '#31261A', chaine.prof);
+    var couleur = interpolerCouleur('#3A2A14', '#6A4E24', chaine.prof);
+    var contour = (chaine.prof > 0.45) ? 'rgba(232,192,106,.32)' : '';
     var prec = null;
     var htmlChaine = '';
 
@@ -7248,7 +7250,7 @@ function construireRouages() {
         anim = 'animation-duration:' + (chaine.tick * n).toFixed(1) + 's;animation-timing-function:steps(' + n + ',end);--tour:' + (sens * 360) + 'deg;';
       }
 
-      var dessin = svgRouage(n, mc, off, couleur);
+      var dessin = svgRouage(n, mc, off, couleur, contour);
       if (cx + r + mc + MARGE > 0 && cx - r - mc - MARGE < W && cy + r + mc + MARGE > 0 && cy - r - mc - MARGE < H) {
         htmlChaine += '<div class="' + classe + '" style="left:' + (cx - dessin.taille / 2).toFixed(1) + 'px;top:' + (cy - dessin.taille / 2).toFixed(1) + 'px;width:' + dessin.taille + 'px;height:' + dessin.taille + 'px;' + anim + '">' + dessin.svg + '</div>';
       }
@@ -7564,6 +7566,149 @@ function majEsprits(theme) {
   if (theme === 'effroi' && ESPRITS_ACTIFS) { planifierEsprit(); }
 }
 
+/* ============================================================
+   STEAMPUNK : machine en bois verni, laiton, verrières, tuyaux et vapeur
+   Les décors sont dessinés UNE fois ici. Ensuite seuls des transform / opacity bougent.
+   ============================================================ */
+var decorSteampunkPret = false;
+
+function uriSp(svg) { return 'url("data:image/svg+xml,' + encodeURIComponent(svg) + '")'; }
+
+/* Cadre de laiton à coins ornés (image 3 × 3 pour border-image). c = taille d'un coin en px */
+function svgCadreLaiton(c) {
+  function rail(x, y, w, h, l, d) {
+    return '<rect x="' + x + '" y="' + y + '" width="' + w + '" height="' + h + '" fill="#B7832F"/>' +
+      '<rect x="' + l[0] + '" y="' + l[1] + '" width="' + l[2] + '" height="' + l[3] + '" fill="#F3D58E"/>' +
+      '<rect x="' + d[0] + '" y="' + d[1] + '" width="' + d[2] + '" height="' + d[3] + '" fill="#2B1807" fill-opacity=".55"/>';
+  }
+  var s = '<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="' + (3 * c) + '" height="' + (3 * c) + '" viewBox="0 0 108 108">' +
+    '<defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#F3D58E"/><stop offset=".5" stop-color="#C9953A"/><stop offset="1" stop-color="#7A5518"/></linearGradient>' +
+    '<g id="k">' +
+      '<path d="M0,0 H36 V3.4 Q13,11 3.4,36 H0Z" fill="url(#g)" stroke="#2B1807" stroke-width=".7" stroke-linejoin="round"/>' +
+      '<path d="M8,8.5 Q17,7 21,12.5 Q24,18.5 18.5,20.5" fill="none" stroke="#FFEFC0" stroke-opacity=".85" stroke-width="1.2" stroke-linecap="round"/>' +
+      '<circle cx="6" cy="6" r="2.5" fill="#E8C06A" stroke="#2B1807" stroke-width=".7"/><circle cx="6" cy="6" r=".8" fill="#2B1807"/>' +
+    '</g></defs>';
+  s += rail(36, 0, 36, 3.4, [36, 0, 36, 1.1], [36, 3.4, 36, 1]);
+  s += rail(36, 104.6, 36, 3.4, [36, 106.9, 36, 1.1], [36, 103.6, 36, 1]);
+  s += rail(0, 36, 3.4, 36, [0, 36, 1.1, 36], [3.4, 36, 1, 36]);
+  s += rail(104.6, 36, 3.4, 36, [106.9, 36, 1.1, 36], [103.6, 36, 1, 36]);
+  s += '<use xlink:href="#k"/><use xlink:href="#k" transform="translate(108 0) scale(-1 1)"/>' +
+       '<use xlink:href="#k" transform="translate(0 108) scale(1 -1)"/><use xlink:href="#k" transform="translate(108 108) scale(-1 -1)"/>';
+  return s + '</svg>';
+}
+
+/* Acajou verni : veinage horizontal, sombre et peu contrasté (le texte reste lisible) */
+function svgBoisVerni() {
+  return '<svg xmlns="http://www.w3.org/2000/svg" width="240" height="240">' +
+    '<filter id="a" x="0" y="0" width="100%" height="100%" color-interpolation-filters="sRGB"><feTurbulence type="fractalNoise" baseFrequency=".006 .2" numOctaves="3" seed="8" stitchTiles="stitch"/><feColorMatrix values="0 0 0 0 .09 0 0 0 0 .04 0 0 0 0 .012 1.5 0 0 0 -.5"/></filter>' +
+    '<filter id="b" x="0" y="0" width="100%" height="100%" color-interpolation-filters="sRGB"><feTurbulence type="fractalNoise" baseFrequency=".005 .16" numOctaves="2" seed="21" stitchTiles="stitch"/><feColorMatrix values="0 0 0 0 .78 0 0 0 0 .5 0 0 0 0 .26 0 1.4 0 0 -.72"/></filter>' +
+    '<rect width="240" height="240" fill="#4A2814"/>' +
+    '<rect width="240" height="240" filter="url(#a)" opacity=".75"/>' +
+    '<rect width="240" height="240" filter="url(#b)" opacity=".3"/></svg>';
+}
+
+/* Papier peint victorien : deux vignes sinueuses avec feuilles et vrilles (se répète sans raccord) */
+function svgLiane() {
+  var s = '<svg xmlns="http://www.w3.org/2000/svg" width="240" height="240" viewBox="0 0 240 240" fill="none" stroke-linecap="round">';
+  var vignes = [{ x: 60, ph: 0 }, { x: 180, ph: Math.PI }];
+  for (var v = 0; v < vignes.length; v++) {
+    var V = vignes[v], pts = [], d = '', k;
+    for (k = 0; k <= 24; k++) {
+      var px = V.x + 18 * Math.sin(k / 24 * 6.2832 + V.ph);
+      pts.push([px, k * 10]);
+      d += (k === 0 ? 'M' : 'L') + px.toFixed(1) + ',' + (k * 10);
+    }
+    s += '<path d="' + d + '" stroke="#C9953A" stroke-opacity=".17" stroke-width="1.8" stroke-linejoin="round"/>';
+    for (var f = 0; f < 6; f++) {
+      var p = pts[2 + f * 4], cote = (f % 2 === 0) ? 1 : -1;
+      s += '<path transform="translate(' + p[0].toFixed(1) + ' ' + p[1] + ') rotate(' + (cote === 1 ? -25 : 205) + ')" d="M0,0 Q9,-6 19,0 Q9,6 0,0Z" fill="#C9953A" fill-opacity=".13"/>';
+      if (f % 3 === 1) {
+        s += '<path d="M' + p[0].toFixed(1) + ',' + p[1] + ' q' + (cote * 11) + ',-3 ' + (cote * 13) + ',7 q' + (-cote) + ',8 ' + (-cote * 7) + ',7" stroke="#C9953A" stroke-opacity=".17" stroke-width="1.3"/>';
+      }
+    }
+  }
+  return s + '</svg>';
+}
+
+/* Tuyau de laiton vertical, avec deux brides rivetées par motif */
+function svgTuyau() {
+  var s = '<svg xmlns="http://www.w3.org/2000/svg" width="12" height="240" viewBox="0 0 12 240">' +
+    '<defs><linearGradient id="t" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#2A1706"/><stop offset=".22" stop-color="#B7832F"/><stop offset=".38" stop-color="#F3D58E"/><stop offset=".62" stop-color="#C9953A"/><stop offset="1" stop-color="#3A2208"/></linearGradient></defs>' +
+    '<rect x="1.5" y="0" width="9" height="240" fill="url(#t)"/>';
+  var ys = [60, 180];
+  for (var i = 0; i < ys.length; i++) {
+    s += '<rect x="0" y="' + ys[i] + '" width="12" height="10" rx="1.5" fill="url(#t)" stroke="#2B1807" stroke-width=".8"/>' +
+      '<rect x="0" y="' + (ys[i] + 10) + '" width="12" height="3" fill="#000" fill-opacity=".35"/>' +
+      '<circle cx="3" cy="' + (ys[i] + 5) + '" r="1" fill="#2B1807"/><circle cx="9" cy="' + (ys[i] + 5) + '" r="1" fill="#2B1807"/>';
+  }
+  return s + '</svg>';
+}
+
+/* Fleuron sous les titres : arabesques, feuille et petite gemme verte */
+function svgFleuron() {
+  var moitie = '<path d="M6,5 H54 Q61,5 64,2.2 Q67,-.3 70,2.4 Q72,5.4 68.5,6.6" fill="none" stroke="#C9953A" stroke-width="1" stroke-linecap="round"/>' +
+    '<path d="M30,5 Q34,1 40,2.6 Q36,6 30,5Z" fill="#C9953A" fill-opacity=".75"/>';
+  return '<svg xmlns="http://www.w3.org/2000/svg" width="160" height="10" viewBox="0 0 160 10">' + moitie +
+    '<g transform="translate(160 0) scale(-1 1)">' + moitie + '</g>' +
+    '<path d="M80,.8 L84.5,5 L80,9.2 L75.5,5Z" fill="#E8C06A" stroke="#2B1807" stroke-width=".6"/><circle cx="80" cy="5" r="1.3" fill="#4DE39A"/></svg>';
+}
+
+function construireDecorSteampunk() {
+  if (decorSteampunkPret) { return; }
+  decorSteampunkPret = true;
+  var r = document.documentElement.style;
+  r.setProperty('--sp-cadre', uriSp(svgCadreLaiton(28)));
+  r.setProperty('--sp-cadre-s', uriSp(svgCadreLaiton(20)));
+  r.setProperty('--sp-bois', uriSp(svgBoisVerni()));
+  r.setProperty('--sp-liane', uriSp(svgLiane()));
+  r.setProperty('--sp-tuyau', uriSp(svgTuyau()));
+  r.setProperty('--sp-fleuron', uriSp(svgFleuron()));
+}
+
+/* Tuyaux fixes dans les gouttières, avec deux soupapes qui lâchent de la vapeur */
+function majSteampunk(theme) {
+  var tuyaux = document.getElementById('sp-tuyaux');
+  var valves = document.getElementById('sp-valves');
+  if (theme !== 'steampunk') {
+    if (tuyaux) { tuyaux.innerHTML = ''; }
+    if (valves) { valves.innerHTML = ''; }
+    return;
+  }
+  construireDecorSteampunk();
+  if (!tuyaux) { tuyaux = document.createElement('div'); tuyaux.id = 'sp-tuyaux'; tuyaux.className = 'sp-tuyaux'; document.body.appendChild(tuyaux); }
+  if (!valves) { valves = document.createElement('div'); valves.id = 'sp-valves'; valves.className = 'sp-valves'; document.body.appendChild(valves); }
+  var H = window.innerHeight;
+  function valve(cote, y, delai) {
+    return '<span class="sp-soupape sp-soupape-' + cote + '" style="top:' + Math.round(y) + 'px;">' +
+      '<i class="sp-puff" style="animation-delay:-' + delai + 's;"></i><i class="sp-puff" style="animation-delay:-' + (delai + 3.5) + 's;"></i></span>';
+  }
+  tuyaux.innerHTML = '<span class="sp-tuyau sp-tuyau-g"></span><span class="sp-tuyau sp-tuyau-d"></span>';
+  valves.innerHTML = valve('g', H * 0.30, 0) + valve('d', H * 0.66, 2);
+}
+
+/* Séance prévue : verrière avec un orbe-générateur vert, deux anneaux à graduations et de la vapeur */
+function genererSceneSteampunk() {
+  var h = '<div class="particules"><span class="sp-orbe"></span>';
+  var ext = '<svg viewBox="0 0 112 112"><circle cx="56" cy="56" r="54" fill="none" stroke="#C9953A" stroke-opacity=".7" stroke-width="1.2"/>';
+  for (var t = 0; t < 24; t++) {
+    var a = t * 15 * Math.PI / 180;
+    ext += '<line x1="' + (56 + Math.cos(a) * 48.5).toFixed(1) + '" y1="' + (56 + Math.sin(a) * 48.5).toFixed(1) + '" x2="' + (56 + Math.cos(a) * 53.5).toFixed(1) + '" y2="' + (56 + Math.sin(a) * 53.5).toFixed(1) + '" stroke="#F0CE80" stroke-opacity=".75" stroke-width="' + (t % 6 === 0 ? 2 : 1) + '"/>';
+  }
+  ext += '</svg>';
+  var inte = '<svg viewBox="0 0 84 84"><circle cx="42" cy="42" r="40" fill="none" stroke="#4DE39A" stroke-opacity=".7" stroke-width="1.8" stroke-dasharray="12 7"/></svg>';
+  h += '<span class="sp-anneau">' + ext + '</span><span class="sp-anneau-b">' + inte + '</span>';
+  var i, dur;
+  for (i = 0; i < 3; i++) {
+    dur = alea(6, 10);
+    h += '<span class="sp-vapeur" style="left:' + alea(-20, 270).toFixed(0) + 'px;top:' + alea(28, 46).toFixed(0) + 'px;animation-duration:' + dur.toFixed(1) + 's;animation-delay:-' + (Math.random() * dur).toFixed(1) + 's;"></span>';
+  }
+  for (i = 0; i < 5; i++) {
+    dur = alea(2.5, 5);
+    h += '<span class="sp-etincelle" style="left:' + alea(-30, 280).toFixed(0) + 'px;top:' + alea(-6, 40).toFixed(0) + 'px;animation-duration:' + dur.toFixed(1) + 's;animation-delay:-' + (Math.random() * dur).toFixed(1) + 's;"></span>';
+  }
+  return h + '</div>';
+}
+
 function appliquerTheme() {
   var theme = etat.profil.theme || 'sombre';
   var themeEffectif = theme;
@@ -7575,6 +7720,7 @@ function appliquerTheme() {
   majIconeNutrition(themeEffectif);
   majAmbiance(themeEffectif);
   majRouages(themeEffectif);
+  majSteampunk(themeEffectif);
   majEclair(themeEffectif);
   majEsprits(themeEffectif);
   majNitro(themeEffectif);

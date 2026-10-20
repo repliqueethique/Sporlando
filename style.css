@@ -5197,3 +5197,277 @@ body { background: transparent; }
   88%  { opacity: .32; }
   100% { transform: translate3d(130vw,var(--dy),0) scale(1.3); opacity: 0; }
 }
+
+/* ============================================================
+   STEAMPUNK : machine en bois verni et laiton
+   ============================================================ */
+:root[data-theme="steampunk"] {
+  --couleur-fond: #0D0806;
+  --couleur-carte: #3B2315;
+  --couleur-carte-creux: #22130A;
+  --couleur-bordure: #7A5518;
+  --couleur-texte: #F3E3BE;
+  --couleur-texte-att: #BCA074;
+  --couleur-texte-titre: #F0CE80;
+  /* tout ce qui est lumineux est vert */
+  --couleur-turquoise: #4DE39A;
+  --couleur-cyan: #C9953A;
+  --couleur-degrade: linear-gradient(135deg, #8CF5C0 0%, #19A867 100%);
+  --couleur-succes: #4DE39A;
+  --couleur-avertissement: #E8B04A;
+  --couleur-alerte: #E2583E;
+  --couleur-pevue: #E0782A;
+  --couleur-nutrition: #A67FC4;
+  --couleur-nutrition-fond: #1E1428;
+  --couleur-nutrition-fond-actif: #2E1E40;
+  --couleur-nutrition-clair: #C9A8E0;
+  --nav-accent: #4DE39A;
+  --police-titre: 'Cinzel Decorative', 'Cinzel', serif;
+  --ress-piste: #1A0F07;
+  --effet-texte: 0 1px 0 #1A0F07, 0 0 8px rgba(232,176,74,.25);
+  --effet-halo: none;
+  /* contenants */
+  --tuile-decor: none; --tuile-bord: transparent; --tuile-trait: solid; --tuile-rayon: 4px;
+  --tuile-lueur: 0 7px 16px rgba(0,0,0,.6), inset 0 0 26px rgba(0,0,0,.5);
+  --meteo-decor: none; --meteo-bord: transparent; --meteo-trait: solid; --meteo-rayon: 4px;
+  --meteo-lueur: 0 6px 14px rgba(0,0,0,.55), inset 0 0 18px rgba(0,0,0,.35);
+  --sp-vernis: linear-gradient(180deg, rgba(255,222,170,.15) 0%, rgba(255,222,170,.03) 24%, rgba(0,0,0,0) 48%, rgba(0,0,0,.3) 100%);
+  --sp-verre: linear-gradient(118deg, rgba(255,255,255,.13) 0%, rgba(255,255,255,.03) 26%, rgba(255,255,255,0) 27%), linear-gradient(180deg, rgba(10,40,28,.42), rgba(5,22,15,.62));
+}
+
+/* --- Fond : papier peint de vignes dans l'ombre de la machine --- */
+:root[data-theme="steampunk"] .fond-motif {
+  background-size: 240px 240px;
+  background-image: var(--sp-liane);
+}
+
+/* --- Bois verni + cadre de laiton à coins ornés --- */
+:root[data-theme="steampunk"] .carte,
+:root[data-theme="steampunk"] .reglages-section,
+:root[data-theme="steampunk"] .accueil-tuile,
+:root[data-theme="steampunk"] .accueil-carte:not(.seance-a-faire),
+:root[data-theme="steampunk"] .sx-exo,
+:root[data-theme="steampunk"] .modal-contenu {
+  background-color: #432616;
+  background-image: var(--sp-vernis), var(--sp-bois);
+  background-repeat: no-repeat, repeat;
+  background-size: 100% 100%, 240px 240px;
+  border: 1px solid #2B1807;
+  border-image: var(--sp-cadre) 28 / 28px stretch;
+  border-radius: 4px;
+  box-shadow: var(--tuile-lueur);
+  outline: 1px solid rgba(232,192,106,.2);
+  outline-offset: -8px;
+}
+:root[data-theme="steampunk"] .sx-exo { border-image: var(--sp-cadre-s) 20 / 20px stretch; outline-offset: -6px; }
+:root[data-theme="steampunk"] .sx-exo-actif { box-shadow: 0 0 22px -6px var(--couleur-turquoise), var(--tuile-lueur); outline-color: rgba(77,227,154,.55); }
+
+/* --- Verrières : verre teinté vert, cadre de laiton, rouages visibles derrière (sans flou) --- */
+:root[data-theme="steampunk"] .carte-checklist,
+:root[data-theme="steampunk"] .meteo-carte,
+:root[data-theme="steampunk"] .accueil-carte.seance-a-faire {
+  background: var(--sp-verre);
+  border: 1px solid #2B1807;
+  border-image: var(--sp-cadre-s) 20 / 20px stretch;
+  border-radius: 4px;
+  box-shadow: var(--meteo-lueur);
+  animation: none;
+}
+:root[data-theme="steampunk"] .accueil-carte.seance-a-faire::before,
+:root[data-theme="steampunk"] .accueil-carte.seance-a-faire::after { display: none; }
+:root[data-theme="steampunk"] .accueil-carte.seance-a-faire .titre-affichage { color: #F0CE80; }
+:root[data-theme="steampunk"] .accueil-carte.seance-a-faire .texte-att { color: var(--couleur-texte); }
+
+/* --- Listes et blocs imbriqués : version légère (pas de cadre ornementé) --- */
+:root[data-theme="steampunk"] li.carte {
+  border-image: none; border: 1px solid #6B4A1A; outline: none; box-shadow: none;
+  background-image: var(--sp-vernis);
+  background-repeat: no-repeat; background-size: 100% 100%;
+}
+:root[data-theme="steampunk"] .modal-contenu .carte,
+:root[data-theme="steampunk"] .modal-contenu .reglages-section {
+  border-image: none; border: 1px solid #6B4A1A; outline: none; box-shadow: none;
+  background-image: none; background-color: #2A170C;
+}
+:root[data-theme="steampunk"] #liste-historique-seances .hist-ligne {
+  background-image: var(--sp-vernis), var(--sp-bois);
+  background-repeat: no-repeat, repeat; background-size: 100% 100%, 240px 240px;
+  border: 1px solid #8A5E1E; border-left: 4px solid var(--hist-etat, var(--couleur-cyan));
+  border-radius: 4px;
+}
+
+/* --- En-tête, navigation, onglets : laiton et verre --- */
+:root[data-theme="steampunk"] .entete-carte,
+:root[data-theme="steampunk"] .nav-bas {
+  border: 2px solid #8A5E1E;
+  border-radius: 10px;
+  box-shadow: inset 0 0 0 1px rgba(243,213,142,.55), inset 0 0 0 4px rgba(0,0,0,.28), 0 8px 18px rgba(0,0,0,.6);
+  -webkit-backdrop-filter: none; backdrop-filter: none;
+}
+:root[data-theme="steampunk"] .entete-carte::before,
+:root[data-theme="steampunk"] .nav-bas::before { border-radius: 8px; background: var(--sp-verre); opacity: 1; }
+:root[data-theme="steampunk"] .entete-logo,
+:root[data-theme="steampunk"] .bouton-reglages { border-radius: 9px; border-color: #8A5E1E; -webkit-backdrop-filter: none; backdrop-filter: none; }
+:root[data-theme="steampunk"] .entete-logo::before,
+:root[data-theme="steampunk"] .bouton-reglages::before,
+:root[data-theme="steampunk"] .bouton-reglages::after,
+:root[data-theme="steampunk"] .nav-indicateur,
+:root[data-theme="steampunk"] .nav-indicateur::before,
+:root[data-theme="steampunk"] .nav-indicateur::after { border-radius: 8px; }
+:root[data-theme="steampunk"] .entete h1.texte-degrade {
+  background: linear-gradient(180deg, #FFF0C4, #E8C06A 45%, #8A5E1E);
+  -webkit-background-clip: text; background-clip: text;
+  -webkit-filter: none; filter: none;
+}
+:root[data-theme="steampunk"] .sync-point-ok { box-shadow: 0 0 10px 2px rgba(77,227,154,.8); }
+:root[data-theme="steampunk"] .sous-onglets { border-radius: 8px; border: 1px solid #8A5E1E; background: #22130A; }
+:root[data-theme="steampunk"] .sous-indicateur,
+:root[data-theme="steampunk"] .sous-indicateur::before,
+:root[data-theme="steampunk"] .sous-indicateur::after,
+:root[data-theme="steampunk"] .sous-onglet { border-radius: 6px; }
+
+/* --- Boutons de laiton, champs gravés --- */
+:root[data-theme="steampunk"] .btn-plein,
+:root[data-theme="steampunk"] .sx-valider,
+:root[data-theme="steampunk"] .sx-btn-fin {
+  background: linear-gradient(180deg, #F3D58E 0%, #D3A24A 40%, #A8741F 100%);
+  color: #2A1706;
+  text-shadow: 0 1px 0 rgba(255,236,180,.6);
+  border: 1px solid #3A2208;
+  border-radius: 8px;
+  box-shadow: inset 0 1px 0 rgba(255,244,205,.7), inset 0 -2px 0 rgba(90,55,12,.5), 0 3px 0 #3A2208, 0 5px 8px rgba(0,0,0,.5);
+  transition: transform .12s ease, box-shadow .12s ease;
+}
+:root[data-theme="steampunk"] .btn-plein:active,
+:root[data-theme="steampunk"] .sx-valider:active,
+:root[data-theme="steampunk"] .sx-btn-fin:active {
+  transform: translateY(3px); opacity: 1;
+  box-shadow: inset 0 1px 0 rgba(255,244,205,.5), 0 0 0 #3A2208, 0 1px 3px rgba(0,0,0,.5);
+}
+:root[data-theme="steampunk"] .btn-contour { border: 1px solid #A8741F; color: #F0CE80; background: rgba(0,0,0,.22); border-radius: 8px; }
+:root[data-theme="steampunk"] .champ input,
+:root[data-theme="steampunk"] .champ select,
+:root[data-theme="steampunk"] .champ textarea,
+:root[data-theme="steampunk"] .serie-champ input,
+:root[data-theme="steampunk"] .plat-ing-qte {
+  background: #1B0F07; border: 1px solid #6B4A1A; box-shadow: inset 0 2px 4px rgba(0,0,0,.65); color: var(--couleur-texte);
+}
+
+/* --- Jauges : tubes de verre, liquide vert lumineux --- */
+:root[data-theme="steampunk"] .macro-barre-fond,
+:root[data-theme="steampunk"] .equilibre-barre-fond,
+:root[data-theme="steampunk"] .sx-progression,
+:root[data-theme="steampunk"] .tuile-jauge {
+  position: relative;
+  height: 12px;
+  border-radius: 6px;
+  background: #0A130E;
+  border: 1px solid #7A5518;
+  box-shadow: inset 0 2px 4px rgba(0,0,0,.75), 0 1px 0 rgba(243,213,142,.25);
+}
+:root[data-theme="steampunk"] .sx-progression { height: 10px; }
+:root[data-theme="steampunk"] .tuile-jauge { height: 8px; }
+:root[data-theme="steampunk"] .macro-barre-fond::after,
+:root[data-theme="steampunk"] .equilibre-barre-fond::after,
+:root[data-theme="steampunk"] .sx-progression::after,
+:root[data-theme="steampunk"] .tuile-jauge::after {
+  content: ''; position: absolute; top: 2px; left: 4px; right: 4px; height: 3px; border-radius: 2px;
+  background: linear-gradient(180deg, rgba(255,255,255,.42), rgba(255,255,255,0)); pointer-events: none;
+}
+:root[data-theme="steampunk"] .tuile-jauge::after { top: 1px; height: 2px; }
+:root[data-theme="steampunk"] .macro-barre-remplie,
+:root[data-theme="steampunk"] .equilibre-barre-remplie,
+:root[data-theme="steampunk"] .sx-progression-remplie,
+:root[data-theme="steampunk"] .tuile-jauge i { border-radius: 5px; box-shadow: inset 0 -2px 3px rgba(0,0,0,.25); }
+:root[data-theme="steampunk"] .macro-barre-proteines,
+:root[data-theme="steampunk"] .equilibre-barre-remplie,
+:root[data-theme="steampunk"] .sx-progression-remplie,
+:root[data-theme="steampunk"] .tuile-jauge i { box-shadow: 0 0 8px rgba(77,227,154,.5), inset 0 -2px 3px rgba(0,0,0,.25); }
+:root[data-theme="steampunk"] .todo-rond { border-color: #A8741F; }
+
+/* --- Titres : fleuron victorien --- */
+:root[data-theme="steampunk"] .carte > .carte-titre { text-align: center; }
+:root[data-theme="steampunk"] .carte > .carte-titre::after {
+  content: ''; display: block; width: 160px; max-width: 100%; height: 10px; margin: 7px auto 0;
+  background: var(--sp-fleuron) center / 160px 10px no-repeat;
+}
+
+/* --- Tuiles : tiroirs à poignée de laiton --- */
+:root[data-theme="steampunk"] .accueil-tuile { padding-bottom: 26px; }
+:root[data-theme="steampunk"] .accueil-tuile::before { display: none; }
+:root[data-theme="steampunk"] .accueil-tuile::after {
+  content: ''; position: absolute; left: 50%; bottom: 9px; width: 12px; height: 12px; margin-left: -6px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #FFF0C4 0, #D3A24A 40%, #6B4A1A 100%);
+  box-shadow: 0 1px 2px rgba(0,0,0,.7);
+}
+
+/* --- Tuyaux dans les gouttières (fixes, derrière tout) --- */
+.sp-tuyaux { position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: -1; pointer-events: none; overflow: hidden; }
+.sp-tuyau { position: absolute; top: 0; bottom: 0; width: 12px; background: var(--sp-tuyau) repeat-y 0 0 / 12px 240px; }
+.sp-tuyau-g { left: 1px; }
+.sp-tuyau-d { right: 1px; -webkit-transform: scaleX(-1); transform: scaleX(-1); }
+
+/* --- Soupapes et vapeur (au-dessus du contenu, sans bloquer les clics) --- */
+.sp-valves { position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 4; pointer-events: none; overflow: hidden; }
+.sp-soupape {
+  position: absolute; width: 16px; height: 20px; margin-top: -10px;
+  border: 1px solid #2B1807; border-radius: 3px;
+  background: linear-gradient(180deg, #F3D58E, #B7832F 52%, #6B4A1A);
+}
+.sp-soupape::after {
+  content: ''; position: absolute; top: 6px; left: 4px; width: 6px; height: 6px; border-radius: 50%;
+  background: radial-gradient(circle, #D8FFE8 0, #4DE39A 45%, #19A867 100%);
+  box-shadow: 0 0 5px #4DE39A;
+}
+.sp-soupape-g { left: 0; }
+.sp-soupape-d { right: 0; --dir: -1; }
+.sp-puff {
+  position: absolute; left: 14px; top: -14px; width: 44px; height: 44px; border-radius: 50%; opacity: 0;
+  background: radial-gradient(circle, rgba(240,234,215,.5) 0%, rgba(240,234,215,0) 70%);
+  will-change: transform, opacity;
+  animation: spPuff 7s ease-out infinite;
+}
+.sp-soupape-d .sp-puff { left: auto; right: 14px; }
+@keyframes spPuff {
+  0%   { transform: translate3d(0,0,0) scale(.3); opacity: 0; }
+  12%  { opacity: .4; }
+  100% { transform: translate3d(calc(var(--dir, 1) * 40px), -84px, 0) scale(1.7); opacity: 0; }
+}
+
+/* --- Séance prévue : orbe-générateur vert, anneaux à graduations, vapeur, étincelles --- */
+.sp-orbe, .sp-anneau, .sp-anneau-b, .sp-vapeur, .sp-etincelle { position: absolute; top: 0; left: 0; display: block; }
+.sp-orbe {
+  width: 96px; height: 96px; margin: -48px 0 0 -48px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(200,255,225,.95) 0%, rgba(77,227,154,.72) 26%, rgba(25,168,103,.36) 54%, rgba(25,168,103,0) 74%);
+  animation: spOrbe 3.2s ease-in-out infinite alternate;
+}
+@keyframes spOrbe { from { transform: scale(.92); opacity: .72; } to { transform: scale(1.1); opacity: 1; } }
+.sp-anneau { width: 112px; height: 112px; margin: -56px 0 0 -56px; animation: spTourne 16s linear infinite; }
+.sp-anneau-b { width: 84px; height: 84px; margin: -42px 0 0 -42px; animation: spTourne 9s linear infinite reverse; }
+.sp-anneau svg, .sp-anneau-b svg { display: block; width: 100%; height: 100%; }
+@keyframes spTourne { to { transform: rotate(360deg); } }
+.sp-vapeur {
+  width: 56px; height: 56px; margin: -28px 0 0 -28px; border-radius: 50%; opacity: 0;
+  background: radial-gradient(circle, rgba(240,234,215,.45) 0%, rgba(240,234,215,0) 70%);
+  animation: spVapeur 8s ease-out infinite;
+}
+@keyframes spVapeur {
+  0%   { transform: translate3d(0,0,0) scale(.5); opacity: 0; }
+  20%  { opacity: .55; }
+  100% { transform: translate3d(14px,-68px,0) scale(1.7); opacity: 0; }
+}
+.sp-etincelle {
+  width: 4px; height: 4px; border-radius: 50%; opacity: 0;
+  background: radial-gradient(circle, #E8FFF2 0, #4DE39A 55%, rgba(77,227,154,0) 100%);
+  animation: spEtincelle 3.5s ease-out infinite;
+}
+@keyframes spEtincelle {
+  0%   { transform: translate3d(0,0,0); opacity: 0; }
+  20%  { opacity: 1; }
+  100% { transform: translate3d(8px,-46px,0); opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sp-valves, .sp-etincelle, .sp-vapeur { display: none; }
+}
