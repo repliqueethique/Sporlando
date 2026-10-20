@@ -6905,8 +6905,10 @@ var AMBIANCES = {
     { c: 'amb-braise', n: 8, t: [2, 4], d: [6, 12], dx: 90 }
   ],
   ruedor: [
-    { c: 'amb-brume amb-brume-poussiere', n: 3, t: [280, 460], d: [24, 40], pos: 'h', y: [40, 95], dy: 30 },
-    { c: 'amb-poussiere', n: 10, t: [2, 4], d: [7, 14], pos: 'h', y: [0, 100], dy: 40 }
+    { c: 'amb-brume amb-brume-poussiere', n: 3, t: [300, 480], d: [14, 22], pos: 'h', y: [35, 95], dy: 30 },
+    { c: 'amb-filet', n: 7, t: [90, 220], d: [2.2, 4.5], pos: 'h', y: [0, 100], dy: 14 },
+    { c: 'amb-poussiere', n: 12, t: [2, 4], d: [3, 7], pos: 'h', y: [0, 100], dy: 30 },
+    { special: 'virevoltant' }
   ],
   cyberpunk: [
     { c: 'amb-neon amb-neon-cyan', n: 2, t: [260, 420], d: [7, 12], pos: 'libre', dx: 60, dy: 40 },
@@ -6949,6 +6951,36 @@ var themeAmbianceCourant = null;
 
 function alea(min, max) { return min + Math.random() * (max - min); }
 
+/* Western : virevoltant géant, centre sous le bord de l'écran (seul le haut de la boule dépasse) */
+function htmlVirevoltant() {
+  var W = window.innerWidth;
+  var D = Math.round(Math.max(240, Math.min(360, W * 0.8)));
+  var rot = ((W + 2 * D) / (D / 2)) * 180 / Math.PI;   /* roule sans glisser : la rotation suit la distance */
+  var teintes = ['#D8BC84', '#C9A66B', '#A88455', '#8A6A3A', '#5A3E22'];
+  var s = '<svg viewBox="-100 -100 200 200" xmlns="http://www.w3.org/2000/svg" fill="none" stroke-linecap="round">';
+  var i, a1, a2, r1, r2;
+
+  s += '<circle r="52" fill="rgba(25,12,4,.35)" stroke="none"/>';   /* cœur sombre : donne du volume */
+  for (i = 0; i < 9; i++) {   /* grands anneaux de brindilles */
+    s += '<ellipse rx="' + alea(58, 95).toFixed(0) + '" ry="' + alea(22, 82).toFixed(0) + '" transform="rotate(' + alea(0, 180).toFixed(0) + ')" stroke="' + teintes[Math.floor(Math.random() * 4)] + '" stroke-width="' + alea(1.2, 2.2).toFixed(1) + '" stroke-opacity="' + alea(0.5, 0.85).toFixed(2) + '"/>';
+  }
+  for (i = 0; i < 32; i++) {   /* brindilles qui traversent la boule */
+    a1 = alea(0, 6.283); a2 = a1 + alea(1.7, 4.5);
+    r1 = alea(84, 97); r2 = alea(84, 97);
+    s += '<path d="M' + (Math.cos(a1) * r1).toFixed(1) + ',' + (Math.sin(a1) * r1).toFixed(1) + ' Q' + alea(-55, 55).toFixed(0) + ',' + alea(-55, 55).toFixed(0) + ' ' + (Math.cos(a2) * r2).toFixed(1) + ',' + (Math.sin(a2) * r2).toFixed(1) +
+      '" stroke="' + teintes[Math.floor(Math.random() * 5)] + '" stroke-width="' + alea(1, 2.6).toFixed(1) + '" stroke-opacity="' + alea(0.55, 0.95).toFixed(2) + '"/>';
+  }
+  for (i = 0; i < 20; i++) {   /* brindilles qui dépassent */
+    a1 = alea(0, 6.283); r1 = alea(78, 92);
+    s += '<path d="M' + (Math.cos(a1) * r1).toFixed(1) + ',' + (Math.sin(a1) * r1).toFixed(1) + ' L' + (Math.cos(a1 + alea(-0.15, 0.15)) * (r1 + alea(8, 16))).toFixed(1) + ',' + (Math.sin(a1 + alea(-0.15, 0.15)) * (r1 + alea(8, 16))).toFixed(1) +
+      '" stroke="' + teintes[Math.floor(Math.random() * 4)] + '" stroke-width="1.4" stroke-opacity=".8"/>';
+  }
+  s += '</svg>';
+
+  return '<div class="tw" style="width:' + D + 'px;height:' + D + 'px;top:calc(100% - ' + Math.round(D * 0.42) + 'px);--tw-d:' + D + 'px;">' +
+    '<div class="tw-saut"><div class="tw-boule" style="--rot:' + rot.toFixed(0) + 'deg;">' + s + '</div></div></div>';
+}
+
 function majAmbiance(theme) {
   var zone = document.getElementById('ambiance-theme');
   if (!zone) {
@@ -6965,6 +6997,7 @@ function majAmbiance(theme) {
   var html = '';
   for (var g = 0; g < groupes.length; g++) {
     var gr = groupes[g];
+    if (gr.special === 'virevoltant') { html += htmlVirevoltant(); continue; }
     for (var i = 0; i < gr.n; i++) {
       var taille = alea(gr.t[0], gr.t[1]).toFixed(1);
       var duree = alea(gr.d[0], gr.d[1]);

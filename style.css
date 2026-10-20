@@ -5144,3 +5144,47 @@ body { background: transparent; }
 /* graphiques : grille et textes en encre */
 :root[data-theme="ruedor"] .svg-conteneur line:not(.meteo-grille):not(.meteo-now-ligne) { stroke: rgba(70,42,18,.22); }
 :root[data-theme="ruedor"] .svg-conteneur text:not(.meteo-now-label) { fill: #6A4E33; }
+
+/* ============================================================
+   WESTERN : vent, poussière et virevoltant (tout va de gauche à droite)
+   ============================================================ */
+/* Traînées de vent */
+.amb-filet {
+  height: 2px !important;
+  border-radius: 2px;
+  background: linear-gradient(90deg, rgba(235,205,150,0), rgba(235,205,150,.85) 65%, rgba(255,240,200,1));
+  animation-name: ambDerive;
+  --op: .5;
+}
+
+/* Virevoltant : roule vers la droite, rebondit, repart au bout d'un moment */
+.tw {
+  position: absolute;
+  left: 0;
+  will-change: transform;
+  animation: twRoule 33s linear 3s infinite backwards;
+}
+.tw-saut { width: 100%; height: 100%; animation: twSaut 1.5s ease-in-out infinite; }
+.tw-boule {
+  width: 100%; height: 100%;
+  will-change: transform;
+  animation: twTourne 33s linear 3s infinite backwards;
+}
+.tw-boule svg { display: block; width: 100%; height: 100%; }
+@keyframes twRoule {
+  0%   { transform: translate3d(calc(var(--tw-d) * -1), 0, 0); }
+  46%  { transform: translate3d(100vw, 0, 0); }
+  100% { transform: translate3d(100vw, 0, 0); }
+}
+@keyframes twTourne {
+  0%   { transform: rotate(0deg); }
+  46%  { transform: rotate(var(--rot)); }
+  100% { transform: rotate(var(--rot)); }
+}
+@keyframes twSaut {
+  0%, 100% { transform: translate3d(0, 0, 0); }
+  16%      { transform: translate3d(0, -34px, 0); }
+  32%      { transform: translate3d(0, 0, 0); }
+  44%      { transform: translate3d(0, -13px, 0); }
+  56%      { transform: translate3d(0, 0, 0); }
+}
