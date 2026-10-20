@@ -515,16 +515,17 @@ function completerChampsEtat(donnees) {
   if (!donnees.ressentiQuotidien) { donnees.ressentiQuotidien = {}; }
   for (var dateRessenti in donnees.ressentiQuotidien) {
     var entree = donnees.ressentiQuotidien[dateRessenti];
+
     if (entree.humeur === undefined) { entree.humeur = 4; }
     if (entree.colere === undefined) { entree.colere = false; }
     if (entree.blessure === undefined) { entree.blessure = false; }
     if (entree.maladie === undefined) { entree.maladie = false; }
+    if (entree.insomnie === undefined) { entree.insomnie = false; }
   }
   if (donnees.checklistQuotidienne.date === undefined) { donnees.checklistQuotidienne.date = ''; }
   if (donnees.checklistQuotidienne.eau === undefined) { donnees.checklistQuotidienne.eau = false; }
   if (donnees.checklistQuotidienne.etirements === undefined) { donnees.checklistQuotidienne.etirements = false; }
   if (donnees.checklistQuotidienne.pesee === undefined) { donnees.checklistQuotidienne.pesee = false; }
-  if (entree.insomnie === undefined) { entree.insomnie = false; }
   return donnees;
 }
 
@@ -7001,7 +7002,7 @@ function majAmbiance(theme) {
     for (var i = 0; i < gr.n; i++) {
       var taille = alea(gr.t[0], gr.t[1]).toFixed(1);
       var duree = alea(gr.d[0], gr.d[1]);
-      var haut = (gr.c.indexOf('amb-nuage-bas') !== -1) ? (taille * 0.5).toFixed(1) : taille;
+      var haut = (gr.c.indexOf('amb-nuage-bas') !== -1) ? (taille * 0.57).toFixed(1) : taille;
       var s = 'width:' + taille + 'px;height:' + haut + 'px;font-size:' + taille + 'px;';
       s += 'animation-duration:' + duree.toFixed(1) + 's;animation-delay:-' + (Math.random() * duree).toFixed(1) + 's;';
       if (gr.pos === 'h') {
