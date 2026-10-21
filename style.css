@@ -5501,12 +5501,9 @@ body { background: transparent; }
 
 /* Flèches de navigation : formes et couleurs par thème */
 .fleche-navigation {
-  appearance: none;
-  -webkit-appearance: none;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  flex: 0 0 30px;
   width: 30px;
   height: 34px;
   padding: 0;
@@ -5514,14 +5511,18 @@ body { background: transparent; }
   background: transparent;
   color: var(--couleur-turquoise);
   cursor: pointer;
+  flex: 0 0 30px;
 }
 
 .fleche-navigation span {
   display: block;
   width: 22px;
   height: 22px;
-  background: currentColor;
-  clip-path: polygon(0 20%, 65% 20%, 65% 0, 100% 50%, 65% 100%, 65% 80%, 0 80%);
+  background-color: currentColor;
+  clip-path: polygon(
+    0 20%, 65% 20%, 65% 0,
+    100% 50%, 65% 100%, 65% 80%, 0 80%
+  );
 }
 
 .fleche-gauche span {
