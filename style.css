@@ -5529,28 +5529,29 @@ body { background: transparent; }
   transform: scaleX(-1);
 }
 
-/* Style commun pour le nouveau motif de flèche (Printanier, Estival, Automnal) */
+/* Style commun pour Printanier, Estival et Automnal */
 :root[data-theme="printanier"] .fleche-navigation span,
 :root[data-theme="estival"] .fleche-navigation span,
 :root[data-theme="automnal"] .fleche-navigation span {
   width: 44px;
   height: 33px;
   
-  /* Utilise le dégradé propre à chaque thème (ou var(--couleur-turquoise)) */
   background: var(--couleur-degrade);
   
-  /* Le nouveau SVG sert de masque */
   -webkit-mask: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 92 69"><path d="M6,34C32.987,32.43,36.307,4.973,58,10c16.073,3.943,14.251,11.517,13,16-9.535.921-24.248,2.14-33,9a183.674,183.674,0,0,1,34-5c8.744-1.166,13.151,3.667,15,5a35.322,35.322,0,0,0-4,7s-4.644-5.669-12-5c2.263,5.209,7.763,19.874-9,25S27.907,59.253,6,34Z"/></svg>') center / contain no-repeat;
           mask: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 92 69"><path d="M6,34C32.987,32.43,36.307,4.973,58,10c16.073,3.943,14.251,11.517,13,16-9.535.921-24.248,2.14-33,9a183.674,183.674,0,0,1,34-5c8.744-1.166,13.151,3.667,15,5a35.322,35.322,0,0,0-4,7s-4.644-5.669-12-5c2.263,5.209,7.763,19.874-9,25S27.907,59.253,6,34Z"/></svg>') center / contain no-repeat;
   
   clip-path: none;
+  
+  /* Pointe vers la DROITE par défaut */
+  transform: scaleX(-1);
 }
 
-/* Inversion pour la navigation vers la gauche */
+/* Remise à l'endroit d'origine quand la flèche va vers la GAUCHE */
 :root[data-theme="printanier"] .fleche-gauche span,
 :root[data-theme="estival"] .fleche-gauche span,
 :root[data-theme="automnal"] .fleche-gauche span {
-  transform: scaleX(-1);
+  transform: scaleX(1);
 }
 
 /* Flibuste : ancre stylisée en forme de flèche */
