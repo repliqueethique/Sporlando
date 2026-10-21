@@ -5591,10 +5591,20 @@ body { background: transparent; }
   clip-path: polygon(0 0, 100% 50%, 0 100%, 28% 50%);
 }
 
-/* Wasteland : flèche anguleuse */
+/* Wasteland : double chevron mécanique */
 :root[data-theme="wasteland"] .fleche-navigation span {
-  clip-path: polygon(
-    0 30%, 55% 30%, 55% 0,
-    100% 50%, 55% 100%, 55% 70%, 0 70%
-  );
+  width: 44px;
+  height: 33px;
+  
+  background: var(--couleur-degrade);
+  
+  -webkit-mask: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 92 69"><path d="M63.315,67H42.034L63.719,34.48,42.034,2H63.315L85,34.5Z"/><path d="M28.281,67H7L28.685,34.48,7,2H28.281L49.966,34.5Z"/></svg>') center / contain no-repeat;
+          mask: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 92 69"><path d="M63.315,67H42.034L63.719,34.48,42.034,2H63.315L85,34.5Z"/><path d="M28.281,67H7L28.685,34.48,7,2H28.281L49.966,34.5Z"/></svg>') center / contain no-repeat;
+  
+  clip-path: none;
+}
+
+/* Inversion pour la navigation vers la gauche */
+:root[data-theme="wasteland"] .fleche-gauche span {
+  transform: scaleX(-1);
 }
