@@ -3751,6 +3751,7 @@ function terminerSeance() {
     }
 
     etat.seanceActive = null;
+    desactiverCommandeVocale(true);
     arreterCompteARebours();
     if (chronoIntervalle) { window.clearInterval(chronoIntervalle); chronoIntervalle = null; }
     sauvegarderEtat();
@@ -3764,6 +3765,7 @@ function annulerSeance() {
   if (!etat.seanceActive) { return; }
   demanderConfirmation('Annuler la séance en cours ? La progression ne sera pas enregistrée.', function () {
     etat.seanceActive = null;
+    desactiverCommandeVocale(true);
     arreterCompteARebours();
     if (chronoIntervalle) { window.clearInterval(chronoIntervalle); chronoIntervalle = null; }
     sauvegarderEtat();
@@ -4477,6 +4479,7 @@ function demarrerCompteARebours(totalMs) {
 }
 
 function lancerCompteARebours() {
+  if (!document.getElementById('cdr-minutes')) { return; }
   var champMinutes = document.getElementById('cdr-minutes');
   var champSecondes = document.getElementById('cdr-secondes');
   var minutes = parseInt(champMinutes.value, 10);
@@ -6581,6 +6584,132 @@ function toutMarquerHistorique(entreeId, valeur) {
 }
 
 /* ============================================================
+   BLOC : COMMANDE VOCALE (séance active)
+   ============================================================ */
+
+var voixActive = false;
+var voixReco = null;
+var voixDerniereActionMs = 0;
+var voixFinDemandeeMs = 0;
+
+function voixEstSupportee() {
+  return !!(window.SpeechRecognition || window.webkitSpeechRecognition);
+}
+
+function majBoutonVoix() {
+  var bouton = document.getElementById('btn-voix');
+  if (!bouton) { return; }
+  if (voixActive) { bouton.classList.add('btn-voix-actif'); }
+  else { bouton.classList.remove('btn-voix-actif'); }
+}
+
+function activerCommandeVocale() {
+  if (!etat.seanceActive) { return; }
+  if (!voixEstSupportee()) {
+    afficherToast('Commande vocale non supportée par ce navigateur.');
+    return;
+  }
+  var ctx = obtenirContexteAudio();
+  if (ctx && ctx.resume) { ctx.resume(); }
+  voixActive = true;
+  majBoutonVoix();
+  demarrerEcouteVoix();
+  afficherToast('Commande vocale activée');
+}
+
+function desactiverCommandeVocale(silencieux) {
+  var etaitActive = voixActive;
+  voixActive = false;
+  if (voixReco) {
+    try { voixReco.onend = null; voixReco.stop(); } catch (e) {}
+    voixReco = null;
+  }
+  majBoutonVoix();
+  if (etaitActive && !silencieux) { afficherToast('Commande vocale désactivée'); }
+}
+
+function demarrerEcouteVoix() {
+  var Constructeur = window.SpeechRecognition || window.webkitSpeechRecognition;
+  var reco = new Constructeur();
+  reco.lang = 'fr-FR';
+  reco.continuous = true;
+  reco.interimResults = false;
+  reco.onresult = function (evt) {
+    for (var i = evt.resultIndex; i < evt.results.length; i++) {
+      if (evt.results[i].isFinal) { traiterCommandeVocale(evt.results[i][0].transcript); }
+    }
+  };
+  reco.onerror = function (evt) {
+    if (evt.error === 'not-allowed' || evt.error === 'service-not-allowed' || evt.error === 'audio-capture' || evt.error === 'network') {
+      desactiverCommandeVocale(true);
+      afficherToast('Reconnaissance vocale indisponible (micro refusé ou pas de connexion).');
+    }
+  };
+  /* Le navigateur coupe l'écoute de temps en temps : on la relance tant que la commande est active */
+  reco.onend = function () {
+    if (voixActive && voixReco === reco) {
+      window.setTimeout(function () {
+        if (voixActive && voixReco === reco) {
+          try { reco.start(); } catch (e) {}
+        }
+      }, 300);
+    }
+  };
+  voixReco = reco;
+  try { reco.start(); } catch (e) {}
+}
+
+function validerSerieEnCoursVocal() {
+  if (!etat.seanceActive) { return false; }
+  var exs = etat.seanceActive.exercices;
+  for (var e = 0; e < exs.length; e++) {
+    for (var s = 0; s < exs[e].series.length; s++) {
+      if (!exs[e].series[s].fait) { basculerSerieFaite(e, s); return true; }
+    }
+  }
+  return false;
+}
+
+function traiterCommandeVocale(texte) {
+  var t = normaliserTexteRecherche(texte).replace(/[^a-z ]/g, ' ');
+  var action = null;
+  if (t.indexOf('desactiv') !== -1) { action = 'desactive'; }
+  else if (t.indexOf('minuteur') !== -1 || t.indexOf('minuterie') !== -1) { action = 'minuteur'; }
+  else if (t.indexOf('valid') !== -1) { action = 'valide'; }
+  else if (/\bfin\b/.test(t)) { action = 'fin'; }
+  if (!action) { return; }
+
+  var maintenant = Date.now();
+  if (maintenant - voixDerniereActionMs < 1500) { return; }
+  voixDerniereActionMs = maintenant;
+
+  if (action === 'desactive') { desactiverCommandeVocale(); return; }
+  if (!etat.seanceActive) { return; }
+
+  if (action === 'minuteur') {
+    if (compteARebours.actif) { afficherToast('Le minuteur tourne déjà.'); return; }
+    afficherToast('🎤 Minuteur');
+    lancerCompteARebours();
+    return;
+  }
+  if (action === 'valide') {
+    /* "fin" a ouvert la confirmation : "valide" dans les 15 s la confirme */
+    if (voixFinDemandeeMs && (maintenant - voixFinDemandeeMs) < 15000 && document.querySelector('[data-action="confirmation-valider"]')) {
+      voixFinDemandeeMs = 0;
+      validerConfirmation();
+      return;
+    }
+    if (validerSerieEnCoursVocal()) { afficherToast('🎤 Série validée'); }
+    else { afficherToast('Toutes les séries sont déjà validées.'); }
+    return;
+  }
+  if (action === 'fin') {
+    voixFinDemandeeMs = maintenant;
+    terminerSeance();
+  }
+}
+
+/* ============================================================
    BLOC 17 : ROUTAGE DES CLICS (délégation d'événements)
    ============================================================ */
 
@@ -6742,6 +6871,7 @@ ajouterEcouteurClicDelegue(document.body, function (cible) {
 
   if (action === 'demarrer-seance-libre') { demarrerSeanceLibre(id); return; }
   if (action === 'terminer-seance') { terminerSeance(); return; }
+  if (action === 'basculer-voix') { if (voixActive) { desactiverCommandeVocale(); } else { activerCommandeVocale(); } return; }
   if (action === 'annuler-seance') { annulerSeance(); }
   if (action === 'ajouter-serie') { ajouterSerieLive(parseInt(cible.getAttribute('data-ex'), 10)); return; }
   if (action === 'ajouter-serie-echauffement') { ajouterSerieEchauffementLive(parseInt(cible.getAttribute('data-ex'), 10)); return; }
