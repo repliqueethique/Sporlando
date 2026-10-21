@@ -5595,10 +5595,20 @@ body { background: transparent; }
 }
 
 
-/* Effroi : pointe acérée */
+
+/* Effroi : flèche organique orientée vers la droite */
 :root[data-theme="effroi"] .fleche-navigation span {
-  clip-path: polygon(0 0, 100% 50%, 0 100%, 28% 50%);
+  width: 46px;
+  height: 35px;
+  background: url("fleche-effroi.svg") center / contain no-repeat;
+  clip-path: none;
 }
+
+/* Orientation gauche pour le bouton précédent */
+:root[data-theme="effroi"] .fleche-gauche span {
+  transform: scaleX(-1);
+}
+
 
 /* Wasteland : double chevron mécanique */
 :root[data-theme="wasteland"] .fleche-navigation span {
