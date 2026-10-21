@@ -5529,10 +5529,9 @@ body { background: transparent; }
   transform: scaleX(-1);
 }
 
-/* Style commun pour Printanier, Estival et Automnal */
+/* Style commun pour Printanier, Estival */
 :root[data-theme="printanier"] .fleche-navigation span,
-:root[data-theme="estival"] .fleche-navigation span,
-:root[data-theme="automnal"] .fleche-navigation span {
+:root[data-theme="estival"] .fleche-navigation span {
   width: 44px;
   height: 33px;
   
@@ -5549,10 +5548,29 @@ body { background: transparent; }
 
 /* Remise à l'endroit d'origine quand la flèche va vers la GAUCHE */
 :root[data-theme="printanier"] .fleche-gauche span,
-:root[data-theme="estival"] .fleche-gauche span,
-:root[data-theme="automnal"] .fleche-gauche span {
+:root[data-theme="estival"] .fleche-gauche span {
   transform: scaleX(1);
 }
+
+
+/* Automnal : flèche en forme de feuille, orientée vers la droite */
+:root[data-theme="automnal"] .fleche-navigation span {
+  display: block;
+  width: 46px;
+  height: 35px;
+  background-color: transparent;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 92 69'%3E%3Cpath fill='%231c1a17' fill-rule='evenodd' d='M86 27c-8.914-7.516-24.089-9.367-27-9 2.981-4.32 2.389-6.5 5-8-3.705-.217-19.852-1.436-29 8 .97-6.41-10.711-8.245-13-8 1.98 2-8.985 7.419-9 20a39.335 39.335 0 0 0 1 7S30.78 25.557 56 26C37.344 26.447 5.181 39.456 3 54a46.854 46.854 0 0 0 8 5s1.2-8.19 7-14c1.828 13.545 20.526 13.5 26 20 5.063-4.525 4.126-15.58 1-18 7.469 8.287 16.854 1.4 31 4-4.1-6.519-4.4-9.953-12-12C74.118 33.971 76.607 26.856 86 27Z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: contain;
+  clip-path: none;
+}
+
+/* Bouton précédent : miroir horizontal */
+:root[data-theme="automnal"] .fleche-gauche span {
+  transform: scaleX(-1);
+}
+
 
 /* Flibuste : flèche harpon */
 :root[data-theme="flibuste"] .fleche-navigation span {
