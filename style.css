@@ -5554,14 +5554,23 @@ body { background: transparent; }
   transform: scaleX(1);
 }
 
-/* Flibuste : ancre stylisée en forme de flèche */
+/* Flibuste : flèche harpon */
 :root[data-theme="flibuste"] .fleche-navigation span {
-  clip-path: polygon(
-    0 35%, 35% 35%, 35% 0, 65% 0,
-    65% 35%, 100% 35%, 100% 65%,
-    65% 65%, 65% 100%, 35% 100%,
-    35% 65%, 0 65%
-  );
+  width: 44px;
+  height: 33px;
+  
+  /* Masque SVG réenvoûté avec les styles vectoriels intégrés */
+  -webkit-mask: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 92 69" fill="none" stroke="black"><path stroke-width="8" d="M16.052,46.068A11.068,11.068,0,1,1,27.112,35,11.064,11.064,0,0,1,16.052,46.068Z"/><path stroke-width="11" d="M25.046,35.5H81.007"/><path stroke-linecap="round" stroke-width="9" d="M42.034,32.5V49"/><path stroke-linecap="round" stroke-width="9" d="M42.034,22.5V39"/><path fill="black" stroke="none" d="M91,35c-8.676,0-20.088,32-37.974,32-7.918,0-16.988-4-16.988-4l10.992-6s2,1.559,2,3c10.6,0,19.986-14.025,19.986-25H91Z"/><path fill="black" stroke="none" d="M91,35C82.324,35,70.912,3,53.026,3,45.109,3,36.038,7,36.038,7l10.992,6s2-1.559,2-3c10.6,0,19.986,14.025,19.986,25H91Z"/></svg>') center / contain no-repeat;
+          mask: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 92 69" fill="none" stroke="black"><path stroke-width="8" d="M16.052,46.068A11.068,11.068,0,1,1,27.112,35,11.064,11.064,0,0,1,16.052,46.068Z"/><path stroke-width="11" d="M25.046,35.5H81.007"/><path stroke-linecap="round" stroke-width="9" d="M42.034,32.5V49"/><path stroke-linecap="round" stroke-width="9" d="M42.034,22.5V39"/><path fill="black" stroke="none" d="M91,35c-8.676,0-20.088,32-37.974,32-7.918,0-16.988-4-16.988-4l10.992-6s2,1.559,2,3c10.6,0,19.986-14.025,19.986-25H91Z"/><path fill="black" stroke="none" d="M91,35C82.324,35,70.912,3,53.026,3,45.109,3,36.038,7,36.038,7l10.992,6s2-1.559,2-3c10.6,0,19.986,14.025,19.986,25H91Z"/></svg>') center / contain no-repeat;
+
+  /* Couleur or/turquoise du thème Flibuste */
+  background: var(--couleur-degrade);
+  clip-path: none;
+}
+
+/* Navigation vers la gauche */
+:root[data-theme="flibuste"] .fleche-gauche span {
+  transform: scaleX(-1);
 }
 
 /* Western (thème interne : ruedor) : pointe de flèche */
