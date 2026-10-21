@@ -2637,7 +2637,7 @@ function rendreCarteSeanceJour() {
     var nomSeance = seance ? seance.nom : '(séance supprimée)';
     html += '<div class="accueil-carte seance-a-faire" data-action="demarrer-depuis-agenda" data-id="' + entreeJour.id + '">';
     html += genererParticules(100);
-    html += '<div class="accueil-icone"><img src="images/seance-prevue.png" alt="Séance prévue"></div>';
+    html += '<div class="accueil-icone">' + (etat.profil.theme === 'steampunk' ? htmlOrbeSteampunk() : '') + '<img src="images/seance-prevue.png" alt="Séance prévue"></div>';
     html += '<div>';
     html += '<h2 class="titre-affichage">Séance prévue</h2>';
     html += '<p class="texte-att">' + echapperHtml(nomSeance) + '</p>';
@@ -3360,6 +3360,7 @@ function mettreAJourProgressionSeance(faites, total) {
   var compteur = document.getElementById('seance-compteur');
   if (barre) { barre.style.width = (total > 0 ? Math.round(faites / total * 100) : 0) + '%'; }
   if (compteur) { compteur.innerHTML = faites + ' / ' + total + ' séries'; }
+  majManometreSteampunk(faites, total);
 }
 
 /* Boutons − / + : modifie la valeur sans tout redessiner */
@@ -4578,6 +4579,7 @@ function mettreAJourCompteARebours() {
     compteARebours.resteMsPause = null;
     if (intervalleCompteARebours) { window.clearInterval(intervalleCompteARebours); intervalleCompteARebours = null; }
     jouerSonnerie();
+    sifflerVapeur();
     cdrCacherBouton = true;
     rendreZoneCompteARebours();
     jouerMotFinMinuteur();
@@ -7793,6 +7795,8 @@ function construireDecorSteampunk() {
   r.setProperty('--sp-liane', uriSp(svgLiane()));
   r.setProperty('--sp-tuyau', uriSp(svgTuyau()));
   r.setProperty('--sp-fleuron', uriSp(svgFleuron()));
+  var mini = svgRouage(12, 4.2, 0, '#5A421E', 'rgba(232,192,106,.4)').svg.replace('<svg ', '<svg xmlns="http://www.w3.org/2000/svg" ');
+  r.setProperty('--sp-rouage-mini', uriSp(mini));
 }
 
 /* Tuyaux fixes dans les gouttières, avec deux soupapes qui lâchent de la vapeur */
@@ -7817,8 +7821,8 @@ function majSteampunk(theme) {
 }
 
 /* Séance prévue : verrière avec un orbe-générateur vert, deux anneaux à graduations et de la vapeur */
-function genererSceneSteampunk() {
-  var h = '<div class="particules"><span class="sp-orbe"></span>';
+/* Orbe et anneaux : rangés DANS le conteneur de l'icône, donc toujours centrés dessus */
+function htmlOrbeSteampunk() {
   var ext = '<svg viewBox="0 0 112 112"><circle cx="56" cy="56" r="54" fill="none" stroke="#C9953A" stroke-opacity=".7" stroke-width="1.2"/>';
   for (var t = 0; t < 24; t++) {
     var a = t * 15 * Math.PI / 180;
@@ -7826,17 +7830,67 @@ function genererSceneSteampunk() {
   }
   ext += '</svg>';
   var inte = '<svg viewBox="0 0 84 84"><circle cx="42" cy="42" r="40" fill="none" stroke="#4DE39A" stroke-opacity=".7" stroke-width="1.8" stroke-dasharray="12 7"/></svg>';
-  h += '<span class="sp-anneau">' + ext + '</span><span class="sp-anneau-b">' + inte + '</span>';
-  var i, dur;
+  return '<span class="sp-orbe"></span><span class="sp-anneau">' + ext + '</span><span class="sp-anneau-b">' + inte + '</span>';
+}
+
+/* Vapeur et étincelles : positions en pourcentage de la carte */
+function genererSceneSteampunk() {
+  var h = '<div class="particules">', i, dur;
   for (i = 0; i < 3; i++) {
     dur = alea(6, 10);
-    h += '<span class="sp-vapeur" style="left:' + alea(-20, 270).toFixed(0) + 'px;top:' + alea(28, 46).toFixed(0) + 'px;animation-duration:' + dur.toFixed(1) + 's;animation-delay:-' + (Math.random() * dur).toFixed(1) + 's;"></span>';
+    h += '<span class="sp-vapeur" style="left:' + alea(8, 92).toFixed(0) + '%;top:' + alea(65, 100).toFixed(0) + '%;animation-duration:' + dur.toFixed(1) + 's;animation-delay:-' + (Math.random() * dur).toFixed(1) + 's;"></span>';
   }
   for (i = 0; i < 5; i++) {
     dur = alea(2.5, 5);
-    h += '<span class="sp-etincelle" style="left:' + alea(-30, 280).toFixed(0) + 'px;top:' + alea(-6, 40).toFixed(0) + 'px;animation-duration:' + dur.toFixed(1) + 's;animation-delay:-' + (Math.random() * dur).toFixed(1) + 's;"></span>';
+    h += '<span class="sp-etincelle" style="left:' + alea(2, 40).toFixed(0) + '%;top:' + alea(20, 75).toFixed(0) + '%;animation-duration:' + dur.toFixed(1) + 's;animation-delay:-' + (Math.random() * dur).toFixed(1) + 's;"></span>';
   }
   return h + '</div>';
+}
+
+/* Manomètre de séance : l'aiguille suit le nombre de séries validées (ressort à l'arrivée) */
+function svgManometre() {
+  var cx = 32, cy = 34;
+  function pt(r, deg) { var a = deg * Math.PI / 180; return [cx + r * Math.sin(a), cy - r * Math.cos(a)]; }
+  var s = '<svg viewBox="0 0 64 40" xmlns="http://www.w3.org/2000/svg"><path d="M3,34 A29,29 0 0 1 61,34 Z" fill="#0A130E"/>';
+  var z1 = pt(23, 40), z2 = pt(23, 80);
+  s += '<path d="M' + z1[0].toFixed(1) + ',' + z1[1].toFixed(1) + ' A23,23 0 0 1 ' + z2[0].toFixed(1) + ',' + z2[1].toFixed(1) + '" fill="none" stroke="#4DE39A" stroke-width="3" stroke-opacity=".85"/>';
+  for (var t = 0; t <= 8; t++) {
+    var deg = -80 + t * 20, p = pt(24.5, deg), q = pt(t % 2 === 0 ? 19.5 : 22, deg);
+    s += '<line x1="' + p[0].toFixed(1) + '" y1="' + p[1].toFixed(1) + '" x2="' + q[0].toFixed(1) + '" y2="' + q[1].toFixed(1) + '" stroke="#F0CE80" stroke-width="' + (t % 2 === 0 ? 1.4 : .8) + '"/>';
+  }
+  s += '<path d="M3,34 A29,29 0 0 1 61,34" fill="none" stroke="#C9953A" stroke-width="3"/><path d="M1.5,34 A30.5,30.5 0 0 1 62.5,34" fill="none" stroke="#2B1807" stroke-width=".8"/>';
+  s += '<rect x="1" y="33.5" width="62" height="4.5" rx="1.5" fill="#B7832F" stroke="#2B1807" stroke-width=".7"/>';
+  return s + '</svg>';
+}
+
+function majManometreSteampunk(faites, total) {
+  if (etat.profil.theme !== 'steampunk') { return; }
+  var ligne = document.querySelector('.sx-ligne-progression');
+  if (!ligne) { return; }
+  var m = document.getElementById('sp-manometre');
+  var neuf = !m;
+  if (neuf) {
+    m = document.createElement('span');
+    m.id = 'sp-manometre';
+    m.className = 'sp-manometre';
+    m.innerHTML = svgManometre() + '<i class="sp-aiguille"></i>';
+    ligne.insertBefore(m, ligne.firstChild);
+  }
+  var a = m.querySelector('.sp-aiguille');
+  if (neuf) { void a.offsetWidth; }   /* l'aiguille part de zéro puis monte */
+  var angle = -80 + (total > 0 ? faites / total : 0) * 160;
+  a.style.webkitTransform = 'rotate(' + angle.toFixed(1) + 'deg)';
+  a.style.transform = 'rotate(' + angle.toFixed(1) + 'deg)';
+}
+
+/* Coup de sifflet : les deux soupapes crachent un gros jet de vapeur */
+function sifflerVapeur() {
+  var v = document.getElementById('sp-valves');
+  if (!v || etat.profil.theme !== 'steampunk') { return; }
+  v.classList.remove('sp-sifflet');
+  void v.offsetWidth;
+  v.classList.add('sp-sifflet');
+  window.setTimeout(function () { v.classList.remove('sp-sifflet'); }, 1400);
 }
 
 function appliquerTheme() {
