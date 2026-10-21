@@ -5556,16 +5556,19 @@ body { background: transparent; }
 }
 
 
-/* Steampunk : flèche mécanique en cuivre et laiton */
+/* Flèche Steampunk utilisant la variable du thème */
 :root[data-theme="steampunk"] .fleche-navigation span {
   width: 44px;
   height: 32px;
-  background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 106 82" fill="%231a1918"><path d="M47.7 0c-4.4 3.9-6.3 7.8-5.3 11.2 1 3.5 4.8 6.4 10.7 8.3-9.5.4-16.7 3.5-21.7 9.2L20.2 40l11.2 11.3c5 5.7 12.2 8.8 21.7 9.2-5.9 1.9-9.7 4.8-10.7 8.3-1 3.4.9 7.3 5.3 11.2 6.5-1.1 11.5-4.4 15.2-9.8 4.2-6.2 5.5-13.8 3.8-22.9 6.4-1.2 12-4.1 16.7-8.7L106 40l-22.6-18.6c-4.7-4.6-10.3-7.5-16.7-8.7 1.7-9.1.4-16.7-3.8-22.9C59.2 4.4 54.2 1.1 47.7 0zM0 40l15.5-12.7 8.5 7.1c-3.1 1.7-5.2 3.6-6.4 5.6 1.2 2 3.3 3.9 6.4 5.6l-8.5 7.1L0 40z"/></svg>') center / contain no-repeat;
+  
+  /* Couleur de ton choix issue de ton CSS */
+  background-color: var(--couleur-turquoise); /* ou var(--couleur-texte), var(--couleur-cyan), etc. */
+  
+  /* Le SVG sert de masque */
+  -webkit-mask: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 106 82"><path d="M47.7 0c-4.4 3.9-6.3 7.8-5.3 11.2 1 3.5 4.8 6.4 10.7 8.3-9.5.4-16.7 3.5-21.7 9.2L20.2 40l11.2 11.3c5 5.7 12.2 8.8 21.7 9.2-5.9 1.9-9.7 4.8-10.7 8.3-1 3.4.9 7.3 5.3 11.2 6.5-1.1 11.5-4.4 15.2-9.8 4.2-6.2 5.5-13.8 3.8-22.9 6.4-1.2 12-4.1 16.7-8.7L106 40l-22.6-18.6c-4.7-4.6-10.3-7.5-16.7-8.7 1.7-9.1.4-16.7-3.8-22.9C59.2 4.4 54.2 1.1 47.7 0zM0 40l15.5-12.7 8.5 7.1c-3.1 1.7-5.2 3.6-6.4 5.6 1.2 2 3.3 3.9 6.4 5.6l-8.5 7.1L0 40z"/></svg>') center / contain no-repeat;
+          mask: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 106 82"><path d="M47.7 0c-4.4 3.9-6.3 7.8-5.3 11.2 1 3.5 4.8 6.4 10.7 8.3-9.5.4-16.7 3.5-21.7 9.2L20.2 40l11.2 11.3c5 5.7 12.2 8.8 21.7 9.2-5.9 1.9-9.7 4.8-10.7 8.3-1 3.4.9 7.3 5.3 11.2 6.5-1.1 11.5-4.4 15.2-9.8 4.2-6.2 5.5-13.8 3.8-22.9 6.4-1.2 12-4.1 16.7-8.7L106 40l-22.6-18.6c-4.7-4.6-10.3-7.5-16.7-8.7 1.7-9.1.4-16.7-3.8-22.9C59.2 4.4 54.2 1.1 47.7 0zM0 40l15.5-12.7 8.5 7.1c-3.1 1.7-5.2 3.6-6.4 5.6 1.2 2 3.3 3.9 6.4 5.6l-8.5 7.1L0 40z"/></svg>') center / contain no-repeat;
+  
   clip-path: none;
-}
-
-:root[data-theme="steampunk"] .fleche-gauche span {
-  transform: scaleX(-1);
 }
 
 
