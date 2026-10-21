@@ -5555,15 +5555,20 @@ body { background: transparent; }
   clip-path: polygon(0 0, 100% 50%, 0 100%, 24% 50%);
 }
 
-/* Steampunk : pointe large, façon aiguille mécanique */
+
+/* Steampunk : flèche mécanique en cuivre et laiton */
 :root[data-theme="steampunk"] .fleche-navigation span {
-  width: 24px;
-  height: 24px;
-  clip-path: polygon(
-    0 35%, 55% 35%, 55% 0,
-    100% 50%, 55% 100%, 55% 65%, 0 65%
-  );
+  width: 44px;
+  height: 28px;
+  background: url("fleche-steampunk.svg") center / contain no-repeat;
+  clip-path: none;
 }
+
+/* Inverser la flèche pour la navigation vers la gauche */
+:root[data-theme="steampunk"] .fleche-gauche span {
+  transform: scaleX(-1);
+}
+
 
 /* Effroi : pointe acérée */
 :root[data-theme="effroi"] .fleche-navigation span {
