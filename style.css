@@ -5498,3 +5498,81 @@ body { background: transparent; }
   0%   { transform: scale(1);   opacity: 0.7; }
   100% { transform: scale(1.5); opacity: 0; }
 }
+
+/* Flèches de navigation : formes et couleurs par thème */
+.fleche-navigation {
+  appearance: none;
+  -webkit-appearance: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 30px;
+  width: 30px;
+  height: 34px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: var(--couleur-turquoise);
+  cursor: pointer;
+}
+
+.fleche-navigation span {
+  display: block;
+  width: 22px;
+  height: 22px;
+  background: currentColor;
+  clip-path: polygon(0 20%, 65% 20%, 65% 0, 100% 50%, 65% 100%, 65% 80%, 0 80%);
+}
+
+.fleche-gauche span {
+  transform: scaleX(-1);
+}
+
+/* Automnal, printanier, estival : feuille pointue */
+:root[data-theme="automnal"] .fleche-navigation span,
+:root[data-theme="printanier"] .fleche-navigation span,
+:root[data-theme="estival"] .fleche-navigation span {
+  clip-path: polygon(
+    0 50%, 35% 28%, 60% 8%, 100% 0,
+    88% 40%, 65% 65%, 45% 78%, 0 100%,
+    25% 62%
+  );
+}
+
+/* Flibuste : ancre stylisée en forme de flèche */
+:root[data-theme="flibuste"] .fleche-navigation span {
+  clip-path: polygon(
+    0 35%, 35% 35%, 35% 0, 65% 0,
+    65% 35%, 100% 35%, 100% 65%,
+    65% 65%, 65% 100%, 35% 100%,
+    35% 65%, 0 65%
+  );
+}
+
+/* Western (thème interne : ruedor) : pointe de flèche */
+:root[data-theme="ruedor"] .fleche-navigation span {
+  clip-path: polygon(0 0, 100% 50%, 0 100%, 24% 50%);
+}
+
+/* Steampunk : pointe large, façon aiguille mécanique */
+:root[data-theme="steampunk"] .fleche-navigation span {
+  width: 24px;
+  height: 24px;
+  clip-path: polygon(
+    0 35%, 55% 35%, 55% 0,
+    100% 50%, 55% 100%, 55% 65%, 0 65%
+  );
+}
+
+/* Effroi : pointe acérée */
+:root[data-theme="effroi"] .fleche-navigation span {
+  clip-path: polygon(0 0, 100% 50%, 0 100%, 28% 50%);
+}
+
+/* Wasteland : flèche anguleuse */
+:root[data-theme="wasteland"] .fleche-navigation span {
+  clip-path: polygon(
+    0 30%, 55% 30%, 55% 0,
+    100% 50%, 55% 100%, 55% 70%, 0 70%
+  );
+}
