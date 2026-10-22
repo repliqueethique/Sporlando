@@ -7946,26 +7946,6 @@ function majManometreSteampunk(faites, total) {
   a.style.transform = 'rotate(' + ang.toFixed(1) + 'deg)';
 }
 
-function majManometreSteampunk(faites, total) {
-  if (etat.profil.theme !== 'steampunk') { return; }
-  var ligne = document.querySelector('.sx-ligne-progression');
-  if (!ligne) { return; }
-  var m = document.getElementById('sp-manometre');
-  var neuf = !m;
-  if (neuf) {
-    m = document.createElement('span');
-    m.id = 'sp-manometre';
-    m.className = 'sp-manometre';
-    m.innerHTML = svgManometre() + '<i class="sp-aiguille"></i>';
-    ligne.insertBefore(m, ligne.firstChild);
-  }
-  var a = m.querySelector('.sp-aiguille');
-  if (neuf) { void a.offsetWidth; }   /* l'aiguille part de zéro puis monte */
-  var angle = -80 + (total > 0 ? faites / total : 0) * 160;
-  a.style.webkitTransform = 'rotate(' + angle.toFixed(1) + 'deg)';
-  a.style.transform = 'rotate(' + angle.toFixed(1) + 'deg)';
-}
-
 /* Coup de sifflet : les deux soupapes crachent un gros jet de vapeur */
 function sifflerVapeur() {
   var v = document.getElementById('sp-valves');
