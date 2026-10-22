@@ -4373,9 +4373,6 @@ function jouerMotFinMinuteur() {
   }, delaiLecture + dureeSortieMs + 60);
 }
 
-function htmlCadranSteampunk() { return '<span class="sp-cadran"></span><span class="sp-aiguille-cdr" id="sp-aiguille-cdr"></span>'; }
-function htmlPenduleSteampunk() { return '<span class="sp-pendule"><i></i></span><span class="sp-verre-reflet"></span>'; }
-
 function rendreZoneCompteARebours() {
   var conteneur = document.getElementById('seance-zone-cdr');
   if (!conteneur) { return; }
@@ -4388,7 +4385,6 @@ function rendreZoneCompteARebours() {
   var html = '';
   if (compteARebours.actif) {
     html += '<div class="cdr-cercle-zone cdr-verre-disque" id="cdr-cercle-zone">';
-    if (etat.profil.theme === 'steampunk') { html += htmlPenduleSteampunk(); }
     html += '<svg viewBox="0 0 220 220" class="cdr-svg">';
     html += '<defs><linearGradient id="degradeMinuteur" x1="0%" y1="0%" x2="100%" y2="100%">';
     html += '<stop offset="0%" stop-color="#1FD9C4"></stop>';
@@ -4397,7 +4393,6 @@ function rendreZoneCompteARebours() {
     html += '<circle class="cdr-cercle-fond" cx="110" cy="110" r="' + CDR_RAYON + '"></circle>';
     html += '<circle id="cdr-cercle-progression" class="cdr-cercle-progression" cx="110" cy="110" r="' + CDR_RAYON + '" stroke="url(#degradeMinuteur)" stroke-dasharray="' + CDR_CIRCONFERENCE.toFixed(1) + '" stroke-dashoffset="0"></circle>';
     html += '</svg>';
-    if (etat.profil.theme === 'steampunk') { html += htmlCadranSteampunk(); }
     html += '<div class="cdr-centre"><span id="cdr-affichage" class="cdr-chrono">--:--</span></div>';
     html += '</div>';
   } else {
@@ -4621,14 +4616,6 @@ function afficherCompteARebours(resteMs) {
     var decalage = CDR_CIRCONFERENCE * (1 - fractionRestante);
     anneau.style.strokeDashoffset = decalage.toFixed(1);
   }
-  var aig = document.getElementById('sp-aiguille-cdr');
-  if (aig) {
-    var angle = (fractionRestante * 360).toFixed(1);
-    aig.style.webkitTransform = 'rotate(' + angle + 'deg)';
-    aig.style.transform = 'rotate(' + angle + 'deg)';
-  }
-  var pend = document.querySelector('.sp-pendule');
-  if (pend) { pend.classList.toggle('sp-pendule-pause', !!compteARebours.enPause); }
 }
 
 /* ============================================================
@@ -7344,41 +7331,6 @@ function majRouagesParallaxe() {
   }
 }
 
-/* Steampunk : piston relié à un rouage par une bielle (cinématique exacte : x = r·cosθ + √(L² − r²·sin²θ)) */
-var PISTON_ACTIF = true;
-var PISTON_STEAMPUNK = { prof: 0.5, x: 0.02, y: 0.6, n: 12, T: 7, sens: 1 };   /* x, y : position du rouage (fraction de l'écran) ; T : secondes par tour */
-
-function htmlPistonSteampunk(W, H, m) {
-  var P = PISTON_STEAMPUNK;
-  var mc = m * (0.8 + 0.5 * P.prof), Rg = P.n * mc / 2;
-  var rp = Rg * 0.5, L = Rg * 2.5, hw = Rg * 0.55, hh = Rg * 0.62;
-  var cx = P.x * W, cy = P.y * H;
-  var couleur = interpolerCouleur('#3A2A14', '#6A4E24', P.prof);
-  var clair = interpolerCouleur('#4A3718', '#86652C', P.prof);
-  var gear = svgRouage(P.n, mc, 0, couleur, 'rgba(232,192,106,.32)');
-
-  var N = 36, kb = '', kp = '';
-  for (var i = 0; i <= N; i++) {
-    var th = P.sens * 2 * Math.PI * i / N;
-    var px = rp * Math.cos(th), py = rp * Math.sin(th);
-    var xp = px + Math.sqrt(L * L - py * py);
-    var phi = Math.atan2(-py, xp - px) * 180 / Math.PI;
-    var pc = (i / N * 100).toFixed(3) + '%';
-    kb += pc + '{transform:translate(' + px.toFixed(2) + 'px,' + py.toFixed(2) + 'px) rotate(' + phi.toFixed(2) + 'deg)}';
-    kp += pc + '{transform:translateX(' + xp.toFixed(2) + 'px)}';
-  }
-  var st = document.getElementById('sp-piston-style');
-  if (!st) { st = document.createElement('style'); st.id = 'sp-piston-style'; document.head.appendChild(st); }
-  st.textContent = '@keyframes spBielle{' + kb + '}@keyframes spPiston{' + kp + '}';
-
-  var x0 = L - rp - 10, x1 = L + rp + hw + 16, hc = hh + 14;
-  var carter = '<div class="sp-piston-carter" style="left:' + (cx + x0).toFixed(1) + 'px;top:' + (cy - hc / 2).toFixed(1) + 'px;width:' + (x1 - x0).toFixed(1) + 'px;height:' + hc.toFixed(1) + 'px;background:' + clair + ';"></div>';
-  var rouage = '<div class="rouage rouage-continu" style="left:' + (cx - gear.taille / 2).toFixed(1) + 'px;top:' + (cy - gear.taille / 2).toFixed(1) + 'px;width:' + gear.taille + 'px;height:' + gear.taille + 'px;animation-duration:' + P.T + 's;--tour:' + (P.sens * 360) + 'deg;">' + gear.svg + '</div>';
-  var tete = '<div class="sp-tete" style="left:' + cx.toFixed(1) + 'px;top:' + (cy - hh / 2).toFixed(1) + 'px;width:' + hw.toFixed(1) + 'px;height:' + hh.toFixed(1) + 'px;background-color:' + clair + ';animation-duration:' + P.T + 's;"></div>';
-  var bielle = '<div class="sp-bielle" style="left:' + cx.toFixed(1) + 'px;top:' + (cy - 3.5).toFixed(1) + 'px;width:' + L.toFixed(1) + 'px;background:' + clair + ';animation-duration:' + P.T + 's;"></div>';
-  return '<div class="rouage-plan" data-prof="' + P.prof + '"><div class="rouage-plan-scroll">' + carter + rouage + tete + bielle + '</div></div>';
-}
-
 function construireRouages() {
   var zone = document.getElementById('rouages-theme');
   if (!zone) {
@@ -7391,10 +7343,8 @@ function construireRouages() {
   var m = Math.max(7, Math.min(11, W / 44));   /* taille des dents */
   var MARGE = 260;                             /* marge pour la parallaxe */
   var html = '';
-  var pistonFait = false;
 
   for (var c = 0; c < ROUAGES_CHAINES.length; c++) {
-    if (!pistonFait && PISTON_ACTIF && chaine.prof > PISTON_STEAMPUNK.prof) { html += htmlPistonSteampunk(W, H, m); pistonFait = true; }
     var chaine = ROUAGES_CHAINES[c];
     var n0 = chaine.gears[0].n;
     var mc = m * (0.8 + 0.5 * chaine.prof);
@@ -7441,7 +7391,6 @@ function construireRouages() {
     }
     html += '<div class="rouage-plan" data-prof="' + chaine.prof + '"><div class="rouage-plan-scroll">' + htmlChaine + '</div></div>';
   }
-  if (!pistonFait && PISTON_ACTIF) { html += htmlPistonSteampunk(W, H, m); }
   zone.innerHTML = html;
 
   plansRouages = [];
@@ -7848,12 +7797,6 @@ function construireDecorSteampunk() {
   r.setProperty('--sp-fleuron', uriSp(svgFleuron()));
   var mini = svgRouage(12, 4.2, 0, '#5A421E', 'rgba(232,192,106,.4)').svg.replace('<svg ', '<svg xmlns="http://www.w3.org/2000/svg" ');
   r.setProperty('--sp-rouage-mini', uriSp(mini));
-  var cad = '<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200">';
-  for (var t = 0; t < 60; t++) {
-    var an = t * 6 * Math.PI / 180, lg = (t % 5 === 0), r1 = lg ? 64 : 71;
-    cad += '<line x1="' + (100 + Math.sin(an) * r1).toFixed(1) + '" y1="' + (100 - Math.cos(an) * r1).toFixed(1) + '" x2="' + (100 + Math.sin(an) * 77).toFixed(1) + '" y2="' + (100 - Math.cos(an) * 77).toFixed(1) + '" stroke="' + (lg ? '#F0CE80' : '#C9953A') + '" stroke-opacity="' + (lg ? .9 : .55) + '" stroke-width="' + (lg ? 2 : 1) + '"/>';
-  }
-  r.setProperty('--sp-cadran', uriSp(cad + '<circle cx="100" cy="21" r="2.6" fill="#4DE39A"/></svg>'));
 }
 
 /* Tuyaux fixes dans les gouttières, avec deux soupapes qui lâchent de la vapeur */
@@ -7880,16 +7823,14 @@ function majSteampunk(theme) {
 /* Séance prévue : verrière avec un orbe-générateur vert, deux anneaux à graduations et de la vapeur */
 /* Orbe et anneaux : rangés DANS le conteneur de l'icône, donc toujours centrés dessus */
 function htmlOrbeSteampunk() {
-  var g = svgRouage(16, 6.6, 0, '#7A5A26', 'rgba(240,206,128,.5)');
-  function pt(a) { var r = a * Math.PI / 180; return (50 + 46 * Math.cos(r)).toFixed(1) + ',' + (50 + 46 * Math.sin(r)).toFixed(1); }
-  var e = '<svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="46" fill="none" stroke="#C9953A" stroke-opacity=".5" stroke-width="1"/>';
-  for (var s = 0; s < 6; s++) {
-    e += '<path d="M' + pt(s * 60 + 6) + ' A46,46 0 0 1 ' + pt(s * 60 + 40) + '" fill="none" stroke="#4DE39A" stroke-width="3.2" stroke-linecap="round" stroke-opacity="' + (0.2 + s * 0.16).toFixed(2) + '"/>';
+  var ext = '<svg viewBox="0 0 112 112"><circle cx="56" cy="56" r="54" fill="none" stroke="#C9953A" stroke-opacity=".7" stroke-width="1.2"/>';
+  for (var t = 0; t < 24; t++) {
+    var a = t * 15 * Math.PI / 180;
+    ext += '<line x1="' + (56 + Math.cos(a) * 48.5).toFixed(1) + '" y1="' + (56 + Math.sin(a) * 48.5).toFixed(1) + '" x2="' + (56 + Math.cos(a) * 53.5).toFixed(1) + '" y2="' + (56 + Math.sin(a) * 53.5).toFixed(1) + '" stroke="#F0CE80" stroke-opacity=".75" stroke-width="' + (t % 6 === 0 ? 2 : 1) + '"/>';
   }
-  e += '</svg>';
-  return '<span class="sp-orbe"></span>' +
-    '<span class="sp-engr" style="width:' + g.taille + 'px;height:' + g.taille + 'px;margin:-' + (g.taille / 2) + 'px 0 0 -' + (g.taille / 2) + 'px;">' + g.svg + '</span>' +
-    '<span class="sp-energie">' + e + '</span><span class="sp-orbite"><i></i></span>';
+  ext += '</svg>';
+  var inte = '<svg viewBox="0 0 84 84"><circle cx="42" cy="42" r="40" fill="none" stroke="#4DE39A" stroke-opacity=".7" stroke-width="1.8" stroke-dasharray="12 7"/></svg>';
+  return '<span class="sp-orbe"></span><span class="sp-anneau">' + ext + '</span><span class="sp-anneau-b">' + inte + '</span>';
 }
 
 /* Vapeur et étincelles : positions en pourcentage de la carte */
@@ -7907,43 +7848,39 @@ function genererSceneSteampunk() {
 }
 
 /* Manomètre de séance : l'aiguille suit le nombre de séries validées (ressort à l'arrivée) */
-function svgJaugeSeance() {
-  function pt(r, deg) { var a = deg * Math.PI / 180; return [28 + r * Math.sin(a), 28 - r * Math.cos(a)]; }
-  var s = '<svg viewBox="0 0 56 56" xmlns="http://www.w3.org/2000/svg">' +
-    '<circle cx="28" cy="28" r="26" fill="#B7832F" stroke="#2B1807" stroke-width="1"/>' +
-    '<path d="M6,18 A24,24 0 0 1 20,5" fill="none" stroke="#FFEFC0" stroke-opacity=".6" stroke-width="1.2" stroke-linecap="round"/>' +
-    '<circle cx="28" cy="28" r="22.5" fill="#06100B" stroke="#2B1807" stroke-width="1"/>';
-  var v0 = pt(18, 27), v1 = pt(18, 135);
-  s += '<path d="M' + v0[0].toFixed(1) + ',' + v0[1].toFixed(1) + ' A18,18 0 0 1 ' + v1[0].toFixed(1) + ',' + v1[1].toFixed(1) + '" fill="none" stroke="#4DE39A" stroke-width="2.6" stroke-opacity=".9"/>';
-  for (var t = 0; t <= 10; t++) {
-    var deg = -135 + t * 27, p = pt(21, deg), q = pt(t % 5 === 0 ? 15.5 : 17.5, deg);
-    s += '<line x1="' + p[0].toFixed(1) + '" y1="' + p[1].toFixed(1) + '" x2="' + q[0].toFixed(1) + '" y2="' + q[1].toFixed(1) + '" stroke="#F0CE80" stroke-width="' + (t % 5 === 0 ? 1.5 : .8) + '"/>';
+function svgManometre() {
+  var cx = 32, cy = 34;
+  function pt(r, deg) { var a = deg * Math.PI / 180; return [cx + r * Math.sin(a), cy - r * Math.cos(a)]; }
+  var s = '<svg viewBox="0 0 64 40" xmlns="http://www.w3.org/2000/svg"><path d="M3,34 A29,29 0 0 1 61,34 Z" fill="#0A130E"/>';
+  var z1 = pt(23, 40), z2 = pt(23, 80);
+  s += '<path d="M' + z1[0].toFixed(1) + ',' + z1[1].toFixed(1) + ' A23,23 0 0 1 ' + z2[0].toFixed(1) + ',' + z2[1].toFixed(1) + '" fill="none" stroke="#4DE39A" stroke-width="3" stroke-opacity=".85"/>';
+  for (var t = 0; t <= 8; t++) {
+    var deg = -80 + t * 20, p = pt(24.5, deg), q = pt(t % 2 === 0 ? 19.5 : 22, deg);
+    s += '<line x1="' + p[0].toFixed(1) + '" y1="' + p[1].toFixed(1) + '" x2="' + q[0].toFixed(1) + '" y2="' + q[1].toFixed(1) + '" stroke="#F0CE80" stroke-width="' + (t % 2 === 0 ? 1.4 : .8) + '"/>';
   }
-  for (var k = 0; k < 4; k++) {
-    var v = pt(24.25, 45 + k * 90);
-    s += '<circle cx="' + v[0].toFixed(1) + '" cy="' + v[1].toFixed(1) + '" r="1.1" fill="#E8C06A" stroke="#2B1807" stroke-width=".5"/>';
-  }
+  s += '<path d="M3,34 A29,29 0 0 1 61,34" fill="none" stroke="#C9953A" stroke-width="3"/><path d="M1.5,34 A30.5,30.5 0 0 1 62.5,34" fill="none" stroke="#2B1807" stroke-width=".8"/>';
+  s += '<rect x="1" y="33.5" width="62" height="4.5" rx="1.5" fill="#B7832F" stroke="#2B1807" stroke-width=".7"/>';
   return s + '</svg>';
 }
 
 function majManometreSteampunk(faites, total) {
   if (etat.profil.theme !== 'steampunk') { return; }
-  var haut = document.querySelector('.sx-entete-haut');
-  if (!haut) { return; }
+  var ligne = document.querySelector('.sx-ligne-progression');
+  if (!ligne) { return; }
   var m = document.getElementById('sp-manometre');
   var neuf = !m;
   if (neuf) {
     m = document.createElement('span');
     m.id = 'sp-manometre';
-    m.className = 'sp-jauge';
-    m.innerHTML = svgJaugeSeance() + '<i class="sp-jauge-aig"></i><b class="sp-jauge-hub"></b>';
-    haut.insertBefore(m, haut.lastElementChild);   /* juste avant le bouton Fin */
+    m.className = 'sp-manometre';
+    m.innerHTML = svgManometre() + '<i class="sp-aiguille"></i>';
+    ligne.insertBefore(m, ligne.firstChild);
   }
-  var a = m.querySelector('.sp-jauge-aig');
-  if (neuf) { void a.offsetWidth; }
-  var ang = -135 + (total > 0 ? faites / total : 0) * 270;
-  a.style.webkitTransform = 'rotate(' + ang.toFixed(1) + 'deg)';
-  a.style.transform = 'rotate(' + ang.toFixed(1) + 'deg)';
+  var a = m.querySelector('.sp-aiguille');
+  if (neuf) { void a.offsetWidth; }   /* l'aiguille part de zéro puis monte */
+  var angle = -80 + (total > 0 ? faites / total : 0) * 160;
+  a.style.webkitTransform = 'rotate(' + angle.toFixed(1) + 'deg)';
+  a.style.transform = 'rotate(' + angle.toFixed(1) + 'deg)';
 }
 
 /* Coup de sifflet : les deux soupapes crachent un gros jet de vapeur */
