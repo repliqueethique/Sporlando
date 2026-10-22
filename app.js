@@ -7331,6 +7331,40 @@ function majRouagesParallaxe() {
   }
 }
 
+/* Steampunk : piston relié à un rouage par une bielle (cinématique exacte : x = r·cosθ + √(L² − r²·sin²θ)) */
+var PISTON_ACTIF = true;
+var PISTON_STEAMPUNK = { prof: 0.5, x: 0.02, y: 0.6, n: 12, T: 7, sens: 1 };   /* x, y : position du rouage (fraction de l'écran) ; T : secondes par tour */
+
+function htmlPistonSteampunk(W, H, m) {
+  var P = PISTON_STEAMPUNK;
+  var mc = m * (0.8 + 0.5 * P.prof), Rg = P.n * mc / 2;
+  var rp = Rg * 0.5, L = Rg * 2.5, hw = Rg * 0.55, hh = Rg * 0.62;
+  var cx = P.x * W, cy = P.y * H;
+  var couleur = interpolerCouleur('#3A2A14', '#6A4E24', P.prof);
+  var clair = interpolerCouleur('#4A3718', '#86652C', P.prof);
+  var gear = svgRouage(P.n, mc, 0, couleur, 'rgba(232,192,106,.32)');
+
+  var N = 36, kb = '', kp = '';
+  for (var i = 0; i <= N; i++) {
+    var th = P.sens * 2 * Math.PI * i / N;
+    var px = rp * Math.cos(th), py = rp * Math.sin(th);
+    var xp = px + Math.sqrt(L * L - py * py);
+    var phi = Math.atan2(-py, xp - px) * 180 / Math.PI;
+    var pc = (i / N * 100).toFixed(3) + '%';
+    kb += pc + '{transform:translate(' + px.toFixed(2) + 'px,' + py.toFixed(2) + 'px) rotate(' + phi.toFixed(2) + 'deg)}';
+    kp += pc + '{transform:translateX(' + xp.toFixed(2) + 'px)}';
+  }
+  var st = document.getElementById('sp-piston-style');
+  if (!st) { st = document.createElement('style'); st.id = 'sp-piston-style'; document.head.appendChild(st); }
+  st.textContent = '@keyframes spBielle{' + kb + '}@keyframes spPiston{' + kp + '}';
+
+  var x0 = L - rp - 10, x1 = L + rp + hw + 16, hc = hh + 14;
+  var carter = '<div class="sp-piston-carter" style="left:' + (cx + x0).toFixed(1) + 'px;top:' + (cy - hc / 2).toFixed(1) + 'px;width:' + (x1 - x0).toFixed(1) + 'px;height:' + hc.toFixed(1) + 'px;background:' + clair + ';"></div>';
+  var rouage = '<div class="rouage rouage-continu" style="left:' + (cx - gear.taille / 2).toFixed(1) + 'px;top:' + (cy - gear.taille / 2).toFixed(1) + 'px;width:' + gear.taille + 'px;height:' + gear.taille + 'px;animation-duration:' + P.T + 's;--tour:' + (P.sens * 360) + 'deg;">' + gear.svg + '</div>';
+  var tete = '<div class="sp-tete" style="left:' + cx.toFixed(1) + 'px;top:' + (cy - hh / 2).toFixed(1) + 'px;width:' + hw.toFixed(1) + 'px;height:' + hh.toFixed(1) + 'px;background-color:' + clair + ';animation-duration:' + P.T + 's;"></div>';
+  var bielle = '<div class="sp-bielle" style="left:' + cx.toFixed(1) + 'px;top:' + (cy - 3.5).toFixed(1) + 'px;width:' + L.toFixed(1) + 'px;background:' + clair + ';animation-duration:' + P.T + 's;"></div>';
+  return '<div class="rouage-plan" data-prof="' + P.prof + '"><div class="rouage-plan-scroll">' + carter + rouage + tete + bielle + '</div></div>';
+}
 function construireRouages() {
   var zone = document.getElementById('rouages-theme');
   if (!zone) {
@@ -7343,9 +7377,20 @@ function construireRouages() {
   var m = Math.max(7, Math.min(11, W / 44));   /* taille des dents */
   var MARGE = 260;                             /* marge pour la parallaxe */
   var html = '';
+  var pistonFait = false;
+
+  /* Piston : isolé, une erreur ici ne casse jamais le reste du thème */
+  function ajouterPiston() {
+    if (pistonFait) { return ''; }
+    pistonFait = true;
+    if (typeof PISTON_ACTIF === 'undefined' || !PISTON_ACTIF || typeof htmlPistonSteampunk !== 'function') { return ''; }
+    try { return htmlPistonSteampunk(W, H, m); } catch (erreur) { console.error('Piston ignoré :', erreur); return ''; }
+  }
 
   for (var c = 0; c < ROUAGES_CHAINES.length; c++) {
     var chaine = ROUAGES_CHAINES[c];
+    if (!pistonFait && typeof PISTON_STEAMPUNK !== 'undefined' && chaine.prof > PISTON_STEAMPUNK.prof) { html += ajouterPiston(); }
+
     var n0 = chaine.gears[0].n;
     var mc = m * (0.8 + 0.5 * chaine.prof);
     var couleur = interpolerCouleur('#3A2A14', '#6A4E24', chaine.prof);
@@ -7391,6 +7436,7 @@ function construireRouages() {
     }
     html += '<div class="rouage-plan" data-prof="' + chaine.prof + '"><div class="rouage-plan-scroll">' + htmlChaine + '</div></div>';
   }
+  html += ajouterPiston();   /* si aucune chaîne n'est plus proche que lui, il passe au premier plan */
   zone.innerHTML = html;
 
   plansRouages = [];
