@@ -7333,16 +7333,18 @@ function majRouagesParallaxe() {
 
 /* Steampunk : piston relié à un rouage par une bielle (cinématique exacte : x = r·cosθ + √(L² − r²·sin²θ)) */
 var PISTON_ACTIF = true;
-var PISTON_STEAMPUNK = { prof: 0.5, x: 0.02, y: 0.6, n: 12, T: 7, sens: 1 };   /* x, y : position du rouage (fraction de l'écran) ; T : secondes par tour */
+/* Piston ancré en bas à droite. bas : distance du centre du rouage au bas de l'écran (px) ; droite : marge à droite (px) */
+var PISTON_STEAMPUNK = { prof: 0.5, bas: 84, droite: 14, n: 12, T: 7, sens: 1 };
 
 function htmlPistonSteampunk(W, H, m) {
   var P = PISTON_STEAMPUNK;
   var mc = m * (0.8 + 0.5 * P.prof), Rg = P.n * mc / 2;
   var rp = Rg * 0.5, L = Rg * 2.5, hw = Rg * 0.55, hh = Rg * 0.62;
-  var cx = P.x * W, cy = P.y * H;
-  var couleur = interpolerCouleur('#3A2A14', '#6A4E24', P.prof);
-  var clair = interpolerCouleur('#4A3718', '#86652C', P.prof);
-  var gear = svgRouage(P.n, mc, 0, couleur, 'rgba(232,192,106,.32)');
+  var x0 = L - rp - 10, x1 = L + rp + hw + 16, hc = hh + 14;
+  var cx = W - P.droite - x1, cy = H - P.bas;     /* le bout du carter touche la marge droite */
+  var couleur = '#2A1E10';                        /* rouage : brun très sombre */
+  var clair = '#33251A';                          /* bielle, tête et carter */
+  var gear = svgRouage(P.n, mc, 0, couleur, '');  /* pas de contour */
 
   var N = 36, kb = '', kp = '';
   for (var i = 0; i <= N; i++) {
@@ -7358,13 +7360,13 @@ function htmlPistonSteampunk(W, H, m) {
   if (!st) { st = document.createElement('style'); st.id = 'sp-piston-style'; document.head.appendChild(st); }
   st.textContent = '@keyframes spBielle{' + kb + '}@keyframes spPiston{' + kp + '}';
 
-  var x0 = L - rp - 10, x1 = L + rp + hw + 16, hc = hh + 14;
-  var carter = '<div class="sp-piston-carter" style="left:' + (cx + x0).toFixed(1) + 'px;top:' + (cy - hc / 2).toFixed(1) + 'px;width:' + (x1 - x0).toFixed(1) + 'px;height:' + hc.toFixed(1) + 'px;background:' + clair + ';"></div>';
+  var carter = '<div class="sp-piston-carter" style="left:' + (cx + x0).toFixed(1) + 'px;top:' + (cy - hc / 2).toFixed(1) + 'px;width:' + (x1 - x0).toFixed(1) + 'px;height:' + hc.toFixed(1) + 'px;background:#2E2113;"></div>';
   var rouage = '<div class="rouage rouage-continu" style="left:' + (cx - gear.taille / 2).toFixed(1) + 'px;top:' + (cy - gear.taille / 2).toFixed(1) + 'px;width:' + gear.taille + 'px;height:' + gear.taille + 'px;animation-duration:' + P.T + 's;--tour:' + (P.sens * 360) + 'deg;">' + gear.svg + '</div>';
   var tete = '<div class="sp-tete" style="left:' + cx.toFixed(1) + 'px;top:' + (cy - hh / 2).toFixed(1) + 'px;width:' + hw.toFixed(1) + 'px;height:' + hh.toFixed(1) + 'px;background-color:' + clair + ';animation-duration:' + P.T + 's;"></div>';
   var bielle = '<div class="sp-bielle" style="left:' + cx.toFixed(1) + 'px;top:' + (cy - 3.5).toFixed(1) + 'px;width:' + L.toFixed(1) + 'px;background:' + clair + ';animation-duration:' + P.T + 's;"></div>';
   return '<div class="rouage-plan" data-prof="' + P.prof + '"><div class="rouage-plan-scroll">' + carter + rouage + tete + bielle + '</div></div>';
 }
+
 function construireRouages() {
   var zone = document.getElementById('rouages-theme');
   if (!zone) {
