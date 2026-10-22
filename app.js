@@ -7003,7 +7003,7 @@ var ICONES_NUTRITION = {
   cyberpunk: '<path d="M4 12h16c0 4.4-3.6 8-8 8s-8-3.6-8-8z"/><path d="M14 3.5L10.5 12M17 4.5L13.5 12"/>',
 
   /* 🫖 théière */
-  steampunk: '<path d="M5.5 10.5h11v3a5.5 5.5 0 0 1-11 0z"/><path d="M8 10.5a3 3 0 0 1 6 0"/><path d="M11 6v1.5"/><path d="M16.5 12.5L20 9"/><path d="M5.5 11.5H4a1.5 1.5 0 0 0 0 3h1.5"/>',
+  steampunk: '<path class="cls-1" d="M13,6c2.9,0,6,7.49,6,10s-3.1,3-6,3-6-.49-6-3S10.1,6,13,6Z"/>  <path id="Forme_3" data-name="Forme 3" class="cls-1" d="M9,10h8"/>  <path id="Forme_1" data-name="Forme 1" class="cls-1" d="M15,19c5.062,0,8.225-3.686,6-8-2.165-4.2-.813-7.732,1-7"/>  <path id="Forme_2" data-name="Forme 2" class="cls-2" d="M8,10C5.941,6.057,2.435,8.319,2,12s3.439,3.861,4,5c0.578,1.174-2,2-2,2"/>  <circle class="cls-3" cx="13" cy="4" r="0.781"/>  <path class="cls-1" d="M16.357,21.889c0-1.534-1.727-2.778-3.857-2.778s-3.857,1.244-3.857,2.778h7.714Z"/>',
 
   /* 🍍 ananas */
   flibuste: '<path d="M8 12.5c0-2.5 1.5-4 4-4s4 1.5 4 4v3c0 2.5-1.5 4.5-4 4.5s-4-2-4-4.5z"/><path d="M12 8.5C10.5 6 9 5.5 8 4M12 8.5V3.5M12 8.5C13.5 6 15 5.5 16 4"/><path d="M8.5 13l7 5M15.5 13l-7 5"/>',
