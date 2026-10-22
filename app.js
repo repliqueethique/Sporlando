@@ -7848,39 +7848,43 @@ function genererSceneSteampunk() {
 }
 
 /* Manomètre de séance : l'aiguille suit le nombre de séries validées (ressort à l'arrivée) */
-function svgManometre() {
-  var cx = 32, cy = 34;
-  function pt(r, deg) { var a = deg * Math.PI / 180; return [cx + r * Math.sin(a), cy - r * Math.cos(a)]; }
-  var s = '<svg viewBox="0 0 64 40" xmlns="http://www.w3.org/2000/svg"><path d="M3,34 A29,29 0 0 1 61,34 Z" fill="#0A130E"/>';
-  var z1 = pt(23, 40), z2 = pt(23, 80);
-  s += '<path d="M' + z1[0].toFixed(1) + ',' + z1[1].toFixed(1) + ' A23,23 0 0 1 ' + z2[0].toFixed(1) + ',' + z2[1].toFixed(1) + '" fill="none" stroke="#4DE39A" stroke-width="3" stroke-opacity=".85"/>';
-  for (var t = 0; t <= 8; t++) {
-    var deg = -80 + t * 20, p = pt(24.5, deg), q = pt(t % 2 === 0 ? 19.5 : 22, deg);
-    s += '<line x1="' + p[0].toFixed(1) + '" y1="' + p[1].toFixed(1) + '" x2="' + q[0].toFixed(1) + '" y2="' + q[1].toFixed(1) + '" stroke="#F0CE80" stroke-width="' + (t % 2 === 0 ? 1.4 : .8) + '"/>';
+function svgJaugeSeance() {
+  function pt(r, deg) { var a = deg * Math.PI / 180; return [28 + r * Math.sin(a), 28 - r * Math.cos(a)]; }
+  var s = '<svg viewBox="0 0 56 56" xmlns="http://www.w3.org/2000/svg">' +
+    '<circle cx="28" cy="28" r="26" fill="#B7832F" stroke="#2B1807" stroke-width="1"/>' +
+    '<path d="M6,18 A24,24 0 0 1 20,5" fill="none" stroke="#FFEFC0" stroke-opacity=".6" stroke-width="1.2" stroke-linecap="round"/>' +
+    '<circle cx="28" cy="28" r="22.5" fill="#06100B" stroke="#2B1807" stroke-width="1"/>';
+  var v0 = pt(18, 27), v1 = pt(18, 135);
+  s += '<path d="M' + v0[0].toFixed(1) + ',' + v0[1].toFixed(1) + ' A18,18 0 0 1 ' + v1[0].toFixed(1) + ',' + v1[1].toFixed(1) + '" fill="none" stroke="#4DE39A" stroke-width="2.6" stroke-opacity=".9"/>';
+  for (var t = 0; t <= 10; t++) {
+    var deg = -135 + t * 27, p = pt(21, deg), q = pt(t % 5 === 0 ? 15.5 : 17.5, deg);
+    s += '<line x1="' + p[0].toFixed(1) + '" y1="' + p[1].toFixed(1) + '" x2="' + q[0].toFixed(1) + '" y2="' + q[1].toFixed(1) + '" stroke="#F0CE80" stroke-width="' + (t % 5 === 0 ? 1.5 : .8) + '"/>';
   }
-  s += '<path d="M3,34 A29,29 0 0 1 61,34" fill="none" stroke="#C9953A" stroke-width="3"/><path d="M1.5,34 A30.5,30.5 0 0 1 62.5,34" fill="none" stroke="#2B1807" stroke-width=".8"/>';
-  s += '<rect x="1" y="33.5" width="62" height="4.5" rx="1.5" fill="#B7832F" stroke="#2B1807" stroke-width=".7"/>';
+  for (var k = 0; k < 4; k++) {
+    var v = pt(24.25, 45 + k * 90);
+    s += '<circle cx="' + v[0].toFixed(1) + '" cy="' + v[1].toFixed(1) + '" r="1.1" fill="#E8C06A" stroke="#2B1807" stroke-width=".5"/>';
+  }
   return s + '</svg>';
 }
 
 function majManometreSteampunk(faites, total) {
   if (etat.profil.theme !== 'steampunk') { return; }
-  var ligne = document.querySelector('.sx-ligne-progression');
-  if (!ligne) { return; }
+  var haut = document.querySelector('.sx-entete-haut');
+  if (!haut) { return; }
   var m = document.getElementById('sp-manometre');
   var neuf = !m;
   if (neuf) {
     m = document.createElement('span');
     m.id = 'sp-manometre';
-    m.className = 'sp-manometre';
-    m.innerHTML = svgManometre() + '<i class="sp-aiguille"></i>';
-    ligne.insertBefore(m, ligne.firstChild);
+    m.className = 'sp-jauge';
+    m.innerHTML = svgJaugeSeance() + '<i class="sp-jauge-aig"></i><b class="sp-jauge-hub"></b>';
+    haut.insertBefore(m, haut.lastElementChild);   /* juste avant le bouton Fin */
   }
-  var a = m.querySelector('.sp-aiguille');
-  if (neuf) { void a.offsetWidth; }   /* l'aiguille part de zéro puis monte */
-  var angle = -80 + (total > 0 ? faites / total : 0) * 160;
-  a.style.webkitTransform = 'rotate(' + angle.toFixed(1) + 'deg)';
-  a.style.transform = 'rotate(' + angle.toFixed(1) + 'deg)';
+  var a = m.querySelector('.sp-jauge-aig');
+  if (neuf) { void a.offsetWidth; }
+  var ang = -135 + (total > 0 ? faites / total : 0) * 270;
+  a.style.webkitTransform = 'rotate(' + ang.toFixed(1) + 'deg)';
+  a.style.transform = 'rotate(' + ang.toFixed(1) + 'deg)';
 }
 
 /* Coup de sifflet : les deux soupapes crachent un gros jet de vapeur */
