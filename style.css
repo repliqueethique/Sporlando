@@ -5777,8 +5777,7 @@ body { background: transparent; }
   --hv-arete: rgba(150,214,240,.5);
   --hv-glace: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240' viewBox='0 0 240 240'%3E%3Cg stroke='none'%3E%3Cpolygon points='4.4,8.7 70.6,15.9 74.4,46.1' fill='%23D6F2FF' fill-opacity='0.024'/%3E%3Cpolygon points='4.4,8.7 74.4,46.1 16.0,65.4' fill='%23D6F2FF' fill-opacity='0.016'/%3E%3Cpolygon points='70.6,15.9 128.6,15.2 74.4,46.1' fill='none'/%3E%3Cpolygon points='128.6,15.2 118.9,50.9 74.4,46.1' fill='%23010B14' fill-opacity='0.049'/%3E%3Cpolygon points='128.6,15.2 163.0,-1.2 118.9,50.9' fill='%23010B14' fill-opacity='0.072'/%3E%3Cpolygon points='128.6,255.2 163.0,238.8 118.9,290.9' fill='%23010B14' fill-opacity='0.072'/%3E%3Cpolygon points='163.0,-1.2 181.6,62.7 118.9,50.9' fill='%23D6F2FF' fill-opacity='0.030'/%3E%3Cpolygon points='163.0,238.8 181.6,302.7 118.9,290.9' fill='%23D6F2FF' fill-opacity='0.030'/%3E%3Cpolygon points='-77.0,-1.2 4.4,8.7 -58.4,62.7' fill='%23D6F2FF' fill-opacity='0.025'/%3E%3Cpolygon points='-77.0,238.8 4.4,248.7 -58.4,302.7' fill='%23D6F2FF' fill-opacity='0.025'/%3E%3Cpolygon points='163.0,-1.2 244.4,8.7 181.6,62.7' fill='%23D6F2FF' fill-opacity='0.025'/%3E%3Cpolygon points='163.0,238.8 244.4,248.7 181.6,302.7' fill='%23D6F2FF' fill-opacity='0.025'/%3E%3Cpolygon points='4.4,8.7 16.0,65.4 -58.4,62.7' fill='none'/%3E%3Cpolygon points='244.4,8.7 256.0,65.4 181.6,62.7' fill='none'/%3E%3Cpolygon points='16.0,65.4 74.4,46.1 52.1,135.0' fill='%23D6F2FF' fill-opacity='0.026'/%3E%3Cpolygon points='16.0,65.4 52.1,135.0 -17.5,109.8' fill='%23010B14' fill-opacity='0.065'/%3E%3Cpolygon points='256.0,65.4 292.1,135.0 222.5,109.8' fill='%23010B14' fill-opacity='0.065'/%3E%3Cpolygon points='74.4,46.1 118.9,50.9 52.1,135.0' fill='%23D6F2FF' fill-opacity='0.011'/%3E%3Cpolygon points='118.9,50.9 129.6,107.7 52.1,135.0' fill='%23D6F2FF' fill-opacity='0.029'/%3E%3Cpolygon points='118.9,50.9 181.6,62.7 129.6,107.7' fill='%23D6F2FF' fill-opacity='0.025'/%3E%3Cpolygon points='181.6,62.7 190.7,107.0 129.6,107.7' fill='none'/%3E%3Cpolygon points='-58.4,62.7 16.0,65.4 -49.3,107.0' fill='none'/%3E%3Cpolygon points='181.6,62.7 256.0,65.4 190.7,107.0' fill='none'/%3E%3Cpolygon points='16.0,65.4 -17.5,109.8 -49.3,107.0' fill='%23010B14' fill-opacity='0.051'/%3E%3Cpolygon points='256.0,65.4 222.5,109.8 190.7,107.0' fill='%23010B14' fill-opacity='0.051'/%3E%3Cpolygon points='-17.5,109.8 52.1,135.0 4.2,166.6' fill='%23010B14' fill-opacity='0.077'/%3E%3Cpolygon points='222.5,109.8 292.1,135.0 244.2,166.6' fill='%23010B14' fill-opacity='0.077'/%3E%3Cpolygon points='52.1,135.0 42.1,193.4 4.2,166.6' fill='%23D6F2FF' fill-opacity='0.025'/%3E%3Cpolygon points='52.1,135.0 129.6,107.7 109.5,169.8' fill='none'/%3E%3Cpolygon points='52.1,135.0 109.5,169.8 42.1,193.4' fill='none'/%3E%3Cpolygon points='129.6,107.7 190.7,107.0 197.4,193.4' fill='%23D6F2FF' fill-opacity='0.029'/%3E%3Cpolygon points='129.6,107.7 197.4,193.4 109.5,169.8' fill='%23D6F2FF' fill-opacity='0.017'/%3E%3Cpolygon points='-49.3,107.0 -17.5,109.8 4.2,166.6' fill='%23010B14' fill-opacity='0.085'/%3E%3Cpolygon points='190.7,107.0 222.5,109.8 244.2,166.6' fill='%23010B14' fill-opacity='0.085'/%3E%3Cpolygon points='-49.3,107.0 4.2,166.6 -42.6,193.4' fill='%23D6F2FF' fill-opacity='0.028'/%3E%3Cpolygon points='190.7,107.0 244.2,166.6 197.4,193.4' fill='%23D6F2FF' fill-opacity='0.028'/%3E%3Cpolygon points='4.2,-73.4 42.1,-46.6 70.6,15.9' fill='%23010B14' fill-opacity='0.049'/%3E%3Cpolygon points='4.2,166.6 42.1,193.4 70.6,255.9' fill='%23010B14' fill-opacity='0.049'/%3E%3Cpolygon points='4.2,-73.4 70.6,15.9 4.4,8.7' fill='%23D6F2FF' fill-opacity='0.014'/%3E%3Cpolygon points='4.2,166.6 70.6,255.9 4.4,248.7' fill='%23D6F2FF' fill-opacity='0.014'/%3E%3Cpolygon points='42.1,-46.6 109.5,-70.2 128.6,15.2' fill='%23D6F2FF' fill-opacity='0.013'/%3E%3Cpolygon points='42.1,193.4 109.5,169.8 128.6,255.2' fill='%23D6F2FF' fill-opacity='0.013'/%3E%3Cpolygon points='42.1,-46.6 128.6,15.2 70.6,15.9' fill='%2378C8EE' fill-opacity='0.040'/%3E%3Cpolygon points='42.1,193.4 128.6,255.2 70.6,255.9' fill='%2378C8EE' fill-opacity='0.040'/%3E%3Cpolygon points='109.5,169.8 197.4,193.4 163.0,238.8' fill='%23D6F2FF' fill-opacity='0.011'/%3E%3Cpolygon points='109.5,-70.2 163.0,-1.2 128.6,15.2' fill='none'/%3E%3Cpolygon points='109.5,169.8 163.0,238.8 128.6,255.2' fill='none'/%3E%3Cpolygon points='-42.6,193.4 4.2,166.6 -77.0,238.8' fill='%23010B14' fill-opacity='0.054'/%3E%3Cpolygon points='197.4,193.4 244.2,166.6 163.0,238.8' fill='%23010B14' fill-opacity='0.054'/%3E%3Cpolygon points='4.2,-73.4 4.4,8.7 -77.0,-1.2' fill='%23D6F2FF' fill-opacity='0.022'/%3E%3Cpolygon points='4.2,166.6 4.4,248.7 -77.0,238.8' fill='%23D6F2FF' fill-opacity='0.022'/%3E%3Cpolygon points='244.2,-73.4 244.4,8.7 163.0,-1.2' fill='%23D6F2FF' fill-opacity='0.022'/%3E%3Cpolygon points='244.2,166.6 244.4,248.7 163.0,238.8' fill='%23D6F2FF' fill-opacity='0.022'/%3E%3C/g%3E%3Cpath d='M4.4,8.7 L70.6,15.9 M70.6,15.9 L74.4,46.1 M74.4,46.1 L4.4,8.7 M4.4,8.7 L74.4,46.1 M74.4,46.1 L16.0,65.4 M16.0,65.4 L4.4,8.7 M70.6,15.9 L128.6,15.2 M128.6,15.2 L74.4,46.1 M74.4,46.1 L70.6,15.9 M128.6,15.2 L118.9,50.9 M118.9,50.9 L74.4,46.1 M74.4,46.1 L128.6,15.2 M128.6,15.2 L163.0,-1.2 M163.0,-1.2 L118.9,50.9 M118.9,50.9 L128.6,15.2 M128.6,255.2 L163.0,238.8 M163.0,238.8 L118.9,290.9 M118.9,290.9 L128.6,255.2 M163.0,-1.2 L181.6,62.7 M181.6,62.7 L118.9,50.9 M118.9,50.9 L163.0,-1.2 M163.0,238.8 L181.6,302.7 M181.6,302.7 L118.9,290.9 M118.9,290.9 L163.0,238.8 M-77.0,-1.2 L4.4,8.7 M4.4,8.7 L-58.4,62.7 M-58.4,62.7 L-77.0,-1.2 M-77.0,238.8 L4.4,248.7 M4.4,248.7 L-58.4,302.7 M-58.4,302.7 L-77.0,238.8 M163.0,-1.2 L244.4,8.7 M244.4,8.7 L181.6,62.7 M181.6,62.7 L163.0,-1.2 M163.0,238.8 L244.4,248.7 M244.4,248.7 L181.6,302.7 M181.6,302.7 L163.0,238.8 M4.4,8.7 L16.0,65.4 M16.0,65.4 L-58.4,62.7 M-58.4,62.7 L4.4,8.7 M244.4,8.7 L256.0,65.4 M256.0,65.4 L181.6,62.7 M181.6,62.7 L244.4,8.7 M16.0,65.4 L74.4,46.1 M74.4,46.1 L52.1,135.0 M52.1,135.0 L16.0,65.4 M16.0,65.4 L52.1,135.0 M52.1,135.0 L-17.5,109.8 M-17.5,109.8 L16.0,65.4 M256.0,65.4 L292.1,135.0 M292.1,135.0 L222.5,109.8 M222.5,109.8 L256.0,65.4 M74.4,46.1 L118.9,50.9 M118.9,50.9 L52.1,135.0 M52.1,135.0 L74.4,46.1 M118.9,50.9 L129.6,107.7 M129.6,107.7 L52.1,135.0 M52.1,135.0 L118.9,50.9 M118.9,50.9 L181.6,62.7 M181.6,62.7 L129.6,107.7 M129.6,107.7 L118.9,50.9 M181.6,62.7 L190.7,107.0 M190.7,107.0 L129.6,107.7 M129.6,107.7 L181.6,62.7 M-58.4,62.7 L16.0,65.4 M16.0,65.4 L-49.3,107.0 M-49.3,107.0 L-58.4,62.7 M181.6,62.7 L256.0,65.4 M256.0,65.4 L190.7,107.0 M190.7,107.0 L181.6,62.7 M16.0,65.4 L-17.5,109.8 M-17.5,109.8 L-49.3,107.0 M-49.3,107.0 L16.0,65.4 M256.0,65.4 L222.5,109.8 M222.5,109.8 L190.7,107.0 M190.7,107.0 L256.0,65.4 M-17.5,109.8 L52.1,135.0 M52.1,135.0 L4.2,166.6 M4.2,166.6 L-17.5,109.8 M222.5,109.8 L292.1,135.0 M292.1,135.0 L244.2,166.6 M244.2,166.6 L222.5,109.8 M52.1,135.0 L42.1,193.4 M42.1,193.4 L4.2,166.6 M4.2,166.6 L52.1,135.0 M52.1,135.0 L129.6,107.7 M129.6,107.7 L109.5,169.8 M109.5,169.8 L52.1,135.0 M52.1,135.0 L109.5,169.8 M109.5,169.8 L42.1,193.4 M42.1,193.4 L52.1,135.0 M129.6,107.7 L190.7,107.0 M190.7,107.0 L197.4,193.4 M197.4,193.4 L129.6,107.7 M129.6,107.7 L197.4,193.4 M197.4,193.4 L109.5,169.8 M109.5,169.8 L129.6,107.7 M-49.3,107.0 L-17.5,109.8 M-17.5,109.8 L4.2,166.6 M4.2,166.6 L-49.3,107.0 M190.7,107.0 L222.5,109.8 M222.5,109.8 L244.2,166.6 M244.2,166.6 L190.7,107.0 M-49.3,107.0 L4.2,166.6 M4.2,166.6 L-42.6,193.4 M-42.6,193.4 L-49.3,107.0 M190.7,107.0 L244.2,166.6 M244.2,166.6 L197.4,193.4 M197.4,193.4 L190.7,107.0 M4.2,-73.4 L42.1,-46.6 M42.1,-46.6 L70.6,15.9 M70.6,15.9 L4.2,-73.4 M4.2,166.6 L42.1,193.4 M42.1,193.4 L70.6,255.9 M70.6,255.9 L4.2,166.6 M4.2,-73.4 L70.6,15.9 M70.6,15.9 L4.4,8.7 M4.4,8.7 L4.2,-73.4 M4.2,166.6 L70.6,255.9 M70.6,255.9 L4.4,248.7 M4.4,248.7 L4.2,166.6 M42.1,-46.6 L109.5,-70.2 M109.5,-70.2 L128.6,15.2 M128.6,15.2 L42.1,-46.6 M42.1,193.4 L109.5,169.8 M109.5,169.8 L128.6,255.2 M128.6,255.2 L42.1,193.4 M42.1,-46.6 L128.6,15.2 M128.6,15.2 L70.6,15.9 M70.6,15.9 L42.1,-46.6 M42.1,193.4 L128.6,255.2 M128.6,255.2 L70.6,255.9 M70.6,255.9 L42.1,193.4 M109.5,169.8 L197.4,193.4 M197.4,193.4 L163.0,238.8 M163.0,238.8 L109.5,169.8 M109.5,-70.2 L163.0,-1.2 M163.0,-1.2 L128.6,15.2 M128.6,15.2 L109.5,-70.2 M109.5,169.8 L163.0,238.8 M163.0,238.8 L128.6,255.2 M128.6,255.2 L109.5,169.8 M-42.6,193.4 L4.2,166.6 M4.2,166.6 L-77.0,238.8 M-77.0,238.8 L-42.6,193.4 M197.4,193.4 L244.2,166.6 M244.2,166.6 L163.0,238.8 M163.0,238.8 L197.4,193.4 M4.2,-73.4 L4.4,8.7 M4.4,8.7 L-77.0,-1.2 M-77.0,-1.2 L4.2,-73.4 M4.2,166.6 L4.4,248.7 M4.4,248.7 L-77.0,238.8 M-77.0,238.8 L4.2,166.6 M244.2,-73.4 L244.4,8.7 M244.4,8.7 L163.0,-1.2 M163.0,-1.2 L244.2,-73.4 M244.2,166.6 L244.4,248.7 M244.4,248.7 L163.0,238.8 M163.0,238.8 L244.2,166.6' stroke='%23CFEFFF' stroke-opacity='.06' stroke-width='1' fill='none'/%3E%3C/svg%3E");
   --hv-fissures: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240' viewBox='0 0 240 240' fill='none' stroke-linecap='round'%3E%3Cpath d='M109,134 L121,128M121,128 L131,124M131,124 L140,123M140,123 L151,117M151,117 L163,113M163,113 L170,107M170,107 L184,97M184,97 L195,93M195,93 L209,93M92,140 L80,128M80,128 L74,117M74,117 L68,106M68,106 L56,96M56,96 L44,90M44,90 L36,83M202,150 L199,163M199,163 L198,175M198,175 L197,189M197,189 L199,204M199,204 L200,219M200,219 L197,233M197,-7 L192,9M197,233 L192,249M192,9 L190,24M190,24 L188,39M188,39 L182,51M182,51 L173,61M-0,200 L-2,185M240,200 L238,185M-2,185 L2,172M238,185 L242,172M2,172 L5,164M242,172 L245,164M5,164 L11,156M11,156 L21,148M21,148 L30,142M30,142 L40,137M40,137 L53,132M53,132 L67,134M183,-5 L193,-1M183,235 L193,239M193,-1 L204,-1M193,239 L204,239M204,-1 L214,-6M204,239 L214,234M214,234 L226,230M-14,230 L2,225M226,230 L242,225M2,225 L12,224M12,224 L21,226M21,226 L34,225M34,225 L47,223' stroke='%23D6F2FF' stroke-opacity='.16' stroke-width='1.1'/%3E%3Cpath d='M121,128 L128,134M128,134 L143,139M143,139 L160,137M160,137 L174,137M131,124 L141,131M141,131 L149,140M149,140 L153,148M153,148 L161,157M140,123 L150,114M150,114 L158,103M158,103 L167,95M167,95 L178,83M151,117 L160,121M160,121 L174,125M174,125 L187,126M187,126 L201,123M170,107 L181,109M181,109 L192,111M192,111 L201,115M201,115 L210,118M184,97 L188,83M188,83 L192,74M192,74 L194,64M194,64 L195,50M56,96 L43,101M43,101 L27,105M27,105 L16,107M36,83 L26,86M26,86 L11,86M11,86 L0,81M251,86 L240,81M199,204 L206,212M206,212 L211,221M211,221 L220,229M220,229 L230,238M-10,-2 L3,4M-10,238 L3,244M230,-2 L243,4M230,238 L243,244M200,219 L187,220M187,220 L171,225M171,225 L162,228M162,228 L148,234M148,-6 L137,4M148,234 L137,244M192,9 L199,23M199,23 L208,33M208,33 L220,41M220,41 L229,52M-11,52 L-0,59M229,52 L240,59M188,39 L172,43M172,43 L163,46M163,46 L150,50M150,50 L136,54M136,54 L127,52M173,61 L175,76M175,76 L180,86M180,86 L186,94M186,94 L196,105M196,105 L204,117M2,172 L1,156M242,172 L241,156M1,156 L-3,147M241,156 L237,147M237,147 L230,133M230,133 L224,122M21,148 L27,138M27,138 L34,131M34,131 L40,121M40,121 L44,109M34,225 L42,234M42,-6 L52,1M42,234 L52,241M52,1 L62,9M52,241 L62,249M62,9 L69,16' stroke='%23D6F2FF' stroke-opacity='.12' stroke-width='.8'/%3E%3Cpath d='M174,137 L176,128M176,128 L183,116M183,116 L191,108M141,131 L151,125M151,125 L158,119M158,119 L169,113M153,148 L161,157M161,157 L173,163M173,163 L182,171M178,83 L189,81M189,81 L202,85M202,85 L211,88M160,121 L174,118M174,118 L186,111M186,111 L195,108M192,111 L206,106M206,106 L215,104M215,104 L229,96M192,74 L186,64M186,64 L175,56M175,56 L165,54M194,64 L209,59M209,59 L224,58M-16,58 L-0,60M224,58 L240,60M27,105 L22,118M22,118 L17,132M17,132 L14,148M0,81 L0,66M240,81 L240,66M0,66 L-1,53M240,66 L239,53M-1,53 L-0,38M239,53 L240,38M206,212 L201,221M201,221 L196,230M196,-10 L195,3M196,230 L195,243M211,221 L203,231M203,231 L194,235M194,235 L179,236M-10,-2 L6,-2M-10,238 L6,238M230,-2 L246,-2M230,238 L246,238M6,-2 L21,3M6,238 L21,243M21,3 L35,7M137,4 L137,20M137,20 L139,30M139,30 L143,44M-0,59 L4,71M240,59 L244,71M4,71 L6,80M6,80 L3,93M172,43 L157,37M157,37 L145,25M145,25 L139,18M163,46 L160,54M160,54 L156,69M156,69 L157,82M175,76 L167,85M167,85 L157,90M157,90 L141,90M196,105 L193,114M193,114 L187,125M187,125 L179,133M27,138 L40,133M40,133 L52,125M52,125 L60,118M44,109 L35,102M35,102 L27,97M27,97 L14,91M62,9 L61,18M61,18 L55,30M55,30 L48,41' stroke='%23D6F2FF' stroke-opacity='.09' stroke-width='.6'/%3E%3C/svg%3E");
-  --hv-lueurs-a: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240' viewBox='0 0 240 240'%3E%3Cg fill='%23E6F8FF' fill-opacity='.13' stroke='%23FFFFFF' stroke-opacity='.30' stroke-width='1' stroke-linejoin='round'%3E%3Cpolygon points='70.6,15.9 128.6,15.2 74.4,46.1'/%3E%3Cpolygon points='128.6,15.2 163.0,-1.2 118.9,50.9'/%3E%3Cpolygon points='128.6,255.2 163.0,238.8 118.9,290.9'/%3E%3Cpolygon points='16.0,65.4 -17.5,109.8 -49.3,107.0'/%3E%3Cpolygon points='256.0,65.4 222.5,109.8 190.7,107.0'/%3E%3Cpolygon points='52.1,135.0 42.1,193.4 4.2,166.6'/%3E%3Cpolygon points='129.6,107.7 190.7,107.0 197.4,193.4'/%3E%3Cpolygon points='-49.3,107.0 4.2,166.6 -42.6,193.4'/%3E%3Cpolygon points='190.7,107.0 244.2,166.6 197.4,193.4'/%3E%3Cpolygon points='4.2,-73.4 42.1,-46.6 70.6,15.9'/%3E%3Cpolygon points='4.2,166.6 42.1,193.4 70.6,255.9'/%3E%3C/g%3E%3C/svg%3E");
-  --hv-lueurs-b: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240' viewBox='0 0 240 240'%3E%3Cg fill='%23E6F8FF' fill-opacity='.13' stroke='%23FFFFFF' stroke-opacity='.30' stroke-width='1' stroke-linejoin='round'%3E%3Cpolygon points='4.4,8.7 70.6,15.9 74.4,46.1'/%3E%3Cpolygon points='4.4,8.7 74.4,46.1 16.0,65.4'/%3E%3Cpolygon points='163.0,-1.2 181.6,62.7 118.9,50.9'/%3E%3Cpolygon points='163.0,238.8 181.6,302.7 118.9,290.9'/%3E%3Cpolygon points='-77.0,-1.2 4.4,8.7 -58.4,62.7'/%3E%3Cpolygon points='-77.0,238.8 4.4,248.7 -58.4,302.7'/%3E%3Cpolygon points='163.0,-1.2 244.4,8.7 181.6,62.7'/%3E%3Cpolygon points='163.0,238.8 244.4,248.7 181.6,302.7'/%3E%3Cpolygon points='4.4,8.7 16.0,65.4 -58.4,62.7'/%3E%3Cpolygon points='244.4,8.7 256.0,65.4 181.6,62.7'/%3E%3Cpolygon points='16.0,65.4 74.4,46.1 52.1,135.0'/%3E%3Cpolygon points='16.0,65.4 52.1,135.0 -17.5,109.8'/%3E%3Cpolygon points='256.0,65.4 292.1,135.0 222.5,109.8'/%3E%3Cpolygon points='74.4,46.1 118.9,50.9 52.1,135.0'/%3E%3Cpolygon points='118.9,50.9 129.6,107.7 52.1,135.0'/%3E%3Cpolygon points='118.9,50.9 181.6,62.7 129.6,107.7'/%3E%3Cpolygon points='52.1,135.0 129.6,107.7 109.5,169.8'/%3E%3Cpolygon points='52.1,135.0 109.5,169.8 42.1,193.4'/%3E%3Cpolygon points='129.6,107.7 197.4,193.4 109.5,169.8'/%3E%3Cpolygon points='4.2,-73.4 70.6,15.9 4.4,8.7'/%3E%3Cpolygon points='4.2,166.6 70.6,255.9 4.4,248.7'/%3E%3Cpolygon points='42.1,-46.6 128.6,15.2 70.6,15.9'/%3E%3Cpolygon points='42.1,193.4 128.6,255.2 70.6,255.9'/%3E%3Cpolygon points='109.5,-70.2 163.0,-1.2 128.6,15.2'/%3E%3Cpolygon points='109.5,169.8 163.0,238.8 128.6,255.2'/%3E%3Cpolygon points='-42.6,193.4 4.2,166.6 -77.0,238.8'/%3E%3Cpolygon points='197.4,193.4 244.2,166.6 163.0,238.8'/%3E%3Cpolygon points='4.2,-73.4 4.4,8.7 -77.0,-1.2'/%3E%3Cpolygon points='4.2,166.6 4.4,248.7 -77.0,238.8'/%3E%3Cpolygon points='244.2,-73.4 244.4,8.7 163.0,-1.2'/%3E%3Cpolygon points='244.2,166.6 244.4,248.7 163.0,238.8'/%3E%3C/g%3E%3C/svg%3E");
+  --hv-paillettes: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='q' x='0' y='0' width='100%25' height='100%25' color-interpolation-filters='sRGB'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' seed='13' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  7 0 0 0 -3.1'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23q)'/%3E%3C/svg%3E");
   --hv-voile-fond: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='v' x='0' y='0' width='100%25' height='100%25' color-interpolation-filters='sRGB'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.011 .016' numOctaves='3' seed='9' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .62  0 0 0 0 .86  0 0 0 0 1  1.5 0 0 0 -.55'/%3E%3C/filter%3E%3Crect width='240' height='240' filter='url(%23v)' opacity='.34'/%3E%3C/svg%3E");
   --hv-givre-grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='g' x='0' y='0' width='100%25' height='100%25' color-interpolation-filters='sRGB'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' seed='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .90  0 0 0 0 .97  0 0 0 0 1  2.6 0 0 0 -1.05'/%3E%3C/filter%3E%3Crect width='240' height='240' filter='url(%23g)'/%3E%3C/svg%3E");
   --hv-givre-plaques: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='p' x='0' y='0' width='100%25' height='100%25' color-interpolation-filters='sRGB'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.028 .034' numOctaves='3' seed='21' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .86  0 0 0 0 .96  0 0 0 0 1  3.4 0 0 0 -1.35'/%3E%3C/filter%3E%3Crect width='240' height='240' filter='url(%23p)'/%3E%3C/svg%3E");
@@ -5800,19 +5799,6 @@ body { background: transparent; }
   background-size: 240px 240px, 240px 240px;
   background-image: var(--hv-fissures), var(--hv-glace);
 }
-/* facettes de glace qui s'illuminent doucement, sur place, exactement sur les facettes du fond */
-:root[data-theme="hivernal"] .fond-motif::before,
-:root[data-theme="hivernal"] .fond-motif::after {
-  content: '';
-  position: absolute;
-  top: 0; left: 0; right: 0; bottom: 0;
-  background-size: 240px 240px;
-  opacity: 0;
-}
-:root[data-theme="hivernal"] .fond-motif::before { background-image: var(--hv-lueurs-a); -webkit-animation: hvFacette 11s ease-in-out infinite; animation: hvFacette 11s ease-in-out infinite; }
-:root[data-theme="hivernal"] .fond-motif::after  { background-image: var(--hv-lueurs-b); -webkit-animation: hvFacette 17s ease-in-out -6s infinite; animation: hvFacette 17s ease-in-out -6s infinite; }
-@-webkit-keyframes hvFacette { 0%, 100% { opacity: 0; } 42% { opacity: 1; } 72% { opacity: .1; } }
-@keyframes hvFacette { 0%, 100% { opacity: 0; } 42% { opacity: 1; } 72% { opacity: .1; } }
 
 /* ============================================================
    HIVERNAL : PLANS D'ARRIÈRE-PLAN (parallaxe) — construits par app.js
@@ -5967,8 +5953,7 @@ body { background: transparent; }
   .hv-f, .hv-brume { display: none; }
   .hv-s { -webkit-animation: none; animation: none; opacity: .55; }
   .hv-plan { -webkit-transition: none; transition: none; }
-  :root[data-theme="hivernal"] .fond-motif::before, :root[data-theme="hivernal"] .fond-motif::after { -webkit-animation: none; animation: none; opacity: .35; }
-  :root[data-theme="hivernal"] .carte, :root[data-theme="hivernal"] .accueil-tuile { -webkit-animation: none; animation: none; }
+  .hv-facette { display: none; }
 }
 
 /* ============================================================
@@ -5987,7 +5972,6 @@ body { background: transparent; }
   --c1: 16px; --c2: 8px; --c3: 18px; --c4: 9px;
   --fa1: 112deg; --fa2: 64deg; --fa3: 158deg; --fa4: -24deg;
   --hv-neige-x: 0px;
-  --hv-t: 8s; --hv-d: -1s;
 }
 :root[data-theme="hivernal"] .carte:nth-child(even),
 :root[data-theme="hivernal"] .carte-checklist:nth-child(even),
@@ -6000,7 +5984,6 @@ body { background: transparent; }
   --c1: 8px; --c2: 16px; --c3: 9px; --c4: 18px;
   --fa1: 68deg; --fa2: 116deg; --fa3: 22deg; --fa4: 204deg;
   --hv-neige-x: 41px;
-  --hv-t: 11s; --hv-d: -4s;
 }
 :root[data-theme="hivernal"] .carte:nth-child(3n),
 :root[data-theme="hivernal"] .carte-checklist:nth-child(3n),
@@ -6013,7 +5996,6 @@ body { background: transparent; }
   --c1: 12px; --c2: 12px; --c3: 7px; --c4: 20px;
   --fa1: 96deg; --fa2: 78deg; --fa3: 170deg; --fa4: -40deg;
   --hv-neige-x: 67px;
-  --hv-t: 9.5s; --hv-d: -6.5s;
 }
 :root[data-theme="hivernal"] .carte,
 :root[data-theme="hivernal"] .carte-checklist,
@@ -6028,10 +6010,9 @@ body { background: transparent; }
   -webkit-clip-path: polygon(var(--c1) 0, calc(100% - var(--c2)) 0, 100% var(--c2), 100% calc(100% - var(--c3)), calc(100% - var(--c3)) 100%, var(--c4) 100%, 0 calc(100% - var(--c4)), 0 var(--c1));
   clip-path: polygon(var(--c1) 0, calc(100% - var(--c2)) 0, 100% var(--c2), 100% calc(100% - var(--c3)), calc(100% - var(--c3)) 100%, var(--c4) 100%, 0 calc(100% - var(--c4)), 0 var(--c1));
   box-shadow: var(--tuile-lueur);
-  -webkit-animation: hvArete var(--hv-t, 8s) ease-in-out var(--hv-d, 0s) infinite;
-  animation: hvArete var(--hv-t, 8s) ease-in-out var(--hv-d, 0s) infinite;
   background-color: rgba(11,29,43,.82);
   background-image:
+    linear-gradient(105deg, rgba(255,255,255,0) 0, rgba(255,255,255,0) 38%, rgba(235,250,255,.20) 47%, rgba(255,255,255,.34) 50%, rgba(235,250,255,.20) 53%, rgba(255,255,255,0) 62%, rgba(255,255,255,0) 100%),
     linear-gradient(135deg, rgba(0,0,0,0) 0, rgba(0,0,0,0) 44%, var(--hv-arete) 44%, var(--hv-arete) 56%, rgba(0,0,0,0) 56%),
     linear-gradient(45deg, rgba(0,0,0,0) 0, rgba(0,0,0,0) 44%, var(--hv-arete) 44%, var(--hv-arete) 56%, rgba(0,0,0,0) 56%),
     linear-gradient(135deg, rgba(0,0,0,0) 0, rgba(0,0,0,0) 44%, var(--hv-arete) 44%, var(--hv-arete) 56%, rgba(0,0,0,0) 56%),
@@ -6042,9 +6023,9 @@ body { background: transparent; }
     linear-gradient(var(--fa3), rgba(2,12,20,.34) 0, rgba(2,12,20,.34) 16%, rgba(2,12,20,0) 16%),
     linear-gradient(var(--fa4), rgba(2,12,20,.30) 0, rgba(2,12,20,.30) 15%, rgba(2,12,20,0) 15%),
     linear-gradient(180deg, rgba(190,236,255,.10) 0, rgba(190,236,255,0) 46%);
-  background-repeat: no-repeat, no-repeat, no-repeat, no-repeat, repeat-x, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat;
-  background-size: var(--c1) var(--c1), var(--c2) var(--c2), var(--c3) var(--c3), var(--c4) var(--c4), 96px 11px, 100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%;
-  background-position: 0 0, 100% 0, 100% 100%, 0 100%, var(--hv-neige-x, 0px) 0, 0 0, 0 0, 0 0, 0 0, 0 0;
+  background-repeat: no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, repeat-x, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat;
+  background-size: 260% 100%, var(--c1) var(--c1), var(--c2) var(--c2), var(--c3) var(--c3), var(--c4) var(--c4), 96px 11px, 100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%;
+  background-position: 100% 0, 0 0, 100% 0, 100% 100%, 0 100%, var(--hv-neige-x, 0px) 0, 0 0, 0 0, 0 0, 0 0, 0 0;
   -webkit-background-origin: border-box; background-origin: border-box;
 }
 :root[data-theme="hivernal"] li.carte,
@@ -6107,9 +6088,10 @@ body { background: transparent; }
   clip-path: polygon(var(--c1) 0, calc(100% - var(--c2)) 0, 100% var(--c2), 100% calc(100% - var(--c3)), calc(100% - var(--c3)) 100%, var(--c4) 100%, 0 calc(100% - var(--c4)), 0 var(--c1));
   color: #fff;
   box-shadow: inset 0 0 26px rgba(190,236,255,.28), inset 0 1px 0 rgba(255,255,255,.55);
-  -webkit-animation: hvAreteVive 7s ease-in-out -2s infinite; animation: hvAreteVive 7s ease-in-out -2s infinite;
+  -webkit-animation: none; animation: none;
   background-color: #1F6A9C;
   background-image:
+    linear-gradient(105deg, rgba(255,255,255,0) 0, rgba(255,255,255,0) 38%, rgba(235,250,255,.20) 47%, rgba(255,255,255,.34) 50%, rgba(235,250,255,.20) 53%, rgba(255,255,255,0) 62%, rgba(255,255,255,0) 100%),
     linear-gradient(135deg, rgba(0,0,0,0) 0, rgba(0,0,0,0) 44%, var(--hv-arete) 44%, var(--hv-arete) 56%, rgba(0,0,0,0) 56%),
     linear-gradient(45deg, rgba(0,0,0,0) 0, rgba(0,0,0,0) 44%, var(--hv-arete) 44%, var(--hv-arete) 56%, rgba(0,0,0,0) 56%),
     linear-gradient(135deg, rgba(0,0,0,0) 0, rgba(0,0,0,0) 44%, var(--hv-arete) 44%, var(--hv-arete) 56%, rgba(0,0,0,0) 56%),
@@ -6120,9 +6102,9 @@ body { background: transparent; }
     linear-gradient(var(--fa3), rgba(2,18,40,.34) 0, rgba(2,18,40,.34) 17%, rgba(2,18,40,0) 17%),
     linear-gradient(var(--fa4), rgba(2,18,40,.34) 0, rgba(2,18,40,.34) 16%, rgba(2,18,40,0) 16%),
     linear-gradient(135deg, #48B8DE 0%, #2C80BC 52%, #1B4F88 100%);
-  background-repeat: no-repeat, no-repeat, no-repeat, no-repeat, repeat-x, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat;
-  background-size: var(--c1) var(--c1), var(--c2) var(--c2), var(--c3) var(--c3), var(--c4) var(--c4), 96px 11px, 100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%;
-  background-position: 0 0, 100% 0, 100% 100%, 0 100%, var(--hv-neige-x) 0, 0 0, 0 0, 0 0, 0 0, 0 0;
+  background-repeat: no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, repeat-x, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat;
+  background-size: 260% 100%, var(--c1) var(--c1), var(--c2) var(--c2), var(--c3) var(--c3), var(--c4) var(--c4), 96px 11px, 100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%;
+  background-position: 100% 0, 0 0, 100% 0, 100% 100%, 0 100%, var(--hv-neige-x) 0, 0 0, 0 0, 0 0, 0 0, 0 0;
   -webkit-background-origin: border-box; background-origin: border-box;
 }
 :root[data-theme="hivernal"] .accueil-carte.seance-a-faire .titre-affichage,
@@ -6147,44 +6129,109 @@ body { background: transparent; }
 :root[data-theme="hivernal"] .carte.agenda-entree-fait { border-left-color: var(--couleur-succes); }
 :root[data-theme="hivernal"] .sx-exo-actif { border-color: var(--couleur-turquoise); box-shadow: inset 0 0 22px -6px var(--couleur-turquoise), var(--tuile-lueur); }
 
-/* --- Les arêtes des cristaux scintillent : un éclat bref, à des moments différents selon la carte --- */
-@-webkit-keyframes hvArete {
-  0%, 100% { box-shadow: inset 0 0 22px rgba(120,200,240,.10), inset 0 1px 0 rgba(235,250,255,.28), inset 0 0 0 1px rgba(245,253,255,0); }
-  7%        { box-shadow: inset 0 0 16px rgba(200,240,255,.34), inset 0 1px 0 rgba(255,255,255,.75), inset 0 0 0 1px rgba(245,253,255,.85); }
-  16%       { box-shadow: inset 0 0 22px rgba(120,200,240,.10), inset 0 1px 0 rgba(235,250,255,.28), inset 0 0 0 1px rgba(245,253,255,0); }
-  58%       { box-shadow: inset 0 0 22px rgba(120,200,240,.10), inset 0 1px 0 rgba(235,250,255,.28), inset 0 0 0 1px rgba(245,253,255,0); }
-  63%       { box-shadow: inset 0 0 14px rgba(190,236,255,.26), inset 0 1px 0 rgba(255,255,255,.6), inset 0 0 0 1px rgba(235,250,255,.6); }
-  70%       { box-shadow: inset 0 0 22px rgba(120,200,240,.10), inset 0 1px 0 rgba(235,250,255,.28), inset 0 0 0 1px rgba(245,253,255,0); }
+ 
+/* ============================================================
+   HIVERNAL : REFLETS DE LUMIÈRE
+   Une lumière traverse l'écran de temps en temps (voir « Reflets » dans app.js).
+   Elle allume brièvement quelques facettes du fond et glisse sur les cartes qu'elle croise :
+   reflet doux sur la face, éclats granuleux sur les arêtes.
+   ============================================================ */
+.hv-facette {
+  position: absolute;
+  pointer-events: none;
+  opacity: 0;
+  -webkit-animation: hvFlash 1.1s ease-out 1 forwards;
+  animation: hvFlash 1.1s ease-out 1 forwards;
 }
-@keyframes hvArete {
-  0%, 100% { box-shadow: inset 0 0 22px rgba(120,200,240,.10), inset 0 1px 0 rgba(235,250,255,.28), inset 0 0 0 1px rgba(245,253,255,0); }
-  7%        { box-shadow: inset 0 0 16px rgba(200,240,255,.34), inset 0 1px 0 rgba(255,255,255,.75), inset 0 0 0 1px rgba(245,253,255,.85); }
-  16%       { box-shadow: inset 0 0 22px rgba(120,200,240,.10), inset 0 1px 0 rgba(235,250,255,.28), inset 0 0 0 1px rgba(245,253,255,0); }
-  58%       { box-shadow: inset 0 0 22px rgba(120,200,240,.10), inset 0 1px 0 rgba(235,250,255,.28), inset 0 0 0 1px rgba(245,253,255,0); }
-  63%       { box-shadow: inset 0 0 14px rgba(190,236,255,.26), inset 0 1px 0 rgba(255,255,255,.6), inset 0 0 0 1px rgba(235,250,255,.6); }
-  70%       { box-shadow: inset 0 0 22px rgba(120,200,240,.10), inset 0 1px 0 rgba(235,250,255,.28), inset 0 0 0 1px rgba(245,253,255,0); }
+@-webkit-keyframes hvFlash { 0% { opacity: 0; } 12% { opacity: 1; } 100% { opacity: 0; } }
+@keyframes hvFlash { 0% { opacity: 0; } 12% { opacity: 1; } 100% { opacity: 0; } }
+:root[data-theme="hivernal"] .carte,
+:root[data-theme="hivernal"] .carte-checklist,
+:root[data-theme="hivernal"] .reglages-section,
+:root[data-theme="hivernal"] .sx-exo,
+:root[data-theme="hivernal"] .accueil-carte:not(.seance-a-faire) { position: relative; }
+:root[data-theme="hivernal"] .carte::after,
+:root[data-theme="hivernal"] .carte-checklist::after,
+:root[data-theme="hivernal"] .meteo-carte::after,
+:root[data-theme="hivernal"] .reglages-section::after,
+:root[data-theme="hivernal"] .sx-exo::after,
+:root[data-theme="hivernal"] .accueil-tuile::after,
+:root[data-theme="hivernal"] .accueil-carte:not(.seance-a-faire)::after,
+:root[data-theme="hivernal"] .modal-contenu::after,
+:root[data-theme="hivernal"] .entete-carte::after {
+  content: '';
+  position: absolute;
+  top: -1px; left: -1px; right: -1px; bottom: -1px;
+  pointer-events: none;
+  opacity: 0;
+  border: 1px solid rgba(244,253,255,.95);
+  box-shadow: inset 0 0 14px rgba(215,244,255,.55);
+  background: rgba(220,246,255,.12);
+  -webkit-mask-image: var(--hv-paillettes), linear-gradient(105deg, rgba(0,0,0,0) 0, rgba(0,0,0,0) 36%, #000 49%, #000 51%, rgba(0,0,0,0) 64%, rgba(0,0,0,0) 100%);
+  mask-image: var(--hv-paillettes), linear-gradient(105deg, rgba(0,0,0,0) 0, rgba(0,0,0,0) 36%, #000 49%, #000 51%, rgba(0,0,0,0) 64%, rgba(0,0,0,0) 100%);
+  -webkit-mask-size: 160px 160px, 260% 100%;
+  mask-size: 160px 160px, 260% 100%;
+  -webkit-mask-repeat: repeat, no-repeat;
+  mask-repeat: repeat, no-repeat;
+  -webkit-mask-position: 0 0, 100% 0;
+  mask-position: 0 0, 100% 0;
+  -webkit-mask-composite: source-in;
+  mask-composite: intersect;
 }
-@-webkit-keyframes hvAreteVive {
-  0%, 100% { box-shadow: inset 0 0 26px rgba(190,236,255,.28), inset 0 1px 0 rgba(255,255,255,.55), inset 0 0 0 1px rgba(255,255,255,0); }
-  8%        { box-shadow: inset 0 0 20px rgba(235,251,255,.55), inset 0 1px 0 rgba(255,255,255,.9), inset 0 0 0 1px rgba(255,255,255,.95); }
-  18%       { box-shadow: inset 0 0 26px rgba(190,236,255,.28), inset 0 1px 0 rgba(255,255,255,.55), inset 0 0 0 1px rgba(255,255,255,0); }
+:root[data-theme="hivernal"] .entete-carte::after {
+  -webkit-clip-path: polygon(14px 0, calc(100% - 8px) 0, 100% 8px, 100% calc(100% - 16px), calc(100% - 16px) 100%, 8px 100%, 0 calc(100% - 8px), 0 14px);
+  clip-path: polygon(14px 0, calc(100% - 8px) 0, 100% 8px, 100% calc(100% - 16px), calc(100% - 16px) 100%, 8px 100%, 0 calc(100% - 8px), 0 14px);
 }
-@keyframes hvAreteVive {
-  0%, 100% { box-shadow: inset 0 0 26px rgba(190,236,255,.28), inset 0 1px 0 rgba(255,255,255,.55), inset 0 0 0 1px rgba(255,255,255,0); }
-  8%        { box-shadow: inset 0 0 20px rgba(235,251,255,.55), inset 0 1px 0 rgba(255,255,255,.9), inset 0 0 0 1px rgba(255,255,255,.95); }
-  18%       { box-shadow: inset 0 0 26px rgba(190,236,255,.28), inset 0 1px 0 rgba(255,255,255,.55), inset 0 0 0 1px rgba(255,255,255,0); }
+:root[data-theme="hivernal"] .carte.hv-brille::after,
+:root[data-theme="hivernal"] .carte-checklist.hv-brille::after,
+:root[data-theme="hivernal"] .meteo-carte.hv-brille::after,
+:root[data-theme="hivernal"] .reglages-section.hv-brille::after,
+:root[data-theme="hivernal"] .sx-exo.hv-brille::after,
+:root[data-theme="hivernal"] .accueil-tuile.hv-brille::after,
+:root[data-theme="hivernal"] .accueil-carte:not(.seance-a-faire).hv-brille::after,
+:root[data-theme="hivernal"] .modal-contenu.hv-brille::after,
+:root[data-theme="hivernal"] .entete-carte.hv-brille::after {
+  -webkit-animation: hvBrille 1.4s ease-in-out 1 forwards;
+  animation: hvBrille 1.4s ease-in-out 1 forwards;
 }
-@-webkit-keyframes hvAreteBord {
-  0%, 100% { border-color: rgba(150,214,240,.5); }
-  8%        { border-color: rgba(245,253,255,.98); }
-  17%       { border-color: rgba(150,214,240,.5); }
+:root[data-theme="hivernal"] .carte.hv-brille,
+:root[data-theme="hivernal"] .carte-checklist.hv-brille,
+:root[data-theme="hivernal"] .meteo-carte.hv-brille,
+:root[data-theme="hivernal"] .reglages-section.hv-brille,
+:root[data-theme="hivernal"] .sx-exo.hv-brille,
+:root[data-theme="hivernal"] .accueil-tuile.hv-brille,
+:root[data-theme="hivernal"] .accueil-carte:not(.seance-a-faire).hv-brille,
+:root[data-theme="hivernal"] .modal-contenu.hv-brille {
+  -webkit-animation: hvBrilleFond 1.4s ease-in-out 1;
+  animation: hvBrilleFond 1.4s ease-in-out 1;
 }
-@keyframes hvAreteBord {
-  0%, 100% { border-color: rgba(150,214,240,.5); }
-  8%        { border-color: rgba(245,253,255,.98); }
-  17%       { border-color: rgba(150,214,240,.5); }
+:root[data-theme="hivernal"] .entete-carte.hv-brille::before,
+:root[data-theme="hivernal"] .nav-bas.hv-brille::before {
+  -webkit-animation: hvBrillePlaque 1.4s ease-in-out 1;
+  animation: hvBrillePlaque 1.4s ease-in-out 1;
 }
-:root[data-theme="hivernal"] .sx-exo-actif { -webkit-animation: none; animation: none; }
+:root[data-theme="hivernal"] .accueil-carte.seance-a-faire.hv-brille {
+  -webkit-animation: hvBrilleSeance 1.4s ease-in-out 1;
+  animation: hvBrilleSeance 1.4s ease-in-out 1;
+}
+@-webkit-keyframes hvBrille {
+  0% { opacity: 0; -webkit-mask-position: 0 0, 100% 0; }
+  10% { opacity: 1; }
+  90% { opacity: 1; }
+  100% { opacity: 0; -webkit-mask-position: 0 0, 0% 0; }
+}
+@keyframes hvBrille {
+  0% { opacity: 0; mask-position: 0 0, 100% 0; }
+  10% { opacity: 1; }
+  90% { opacity: 1; }
+  100% { opacity: 0; mask-position: 0 0, 0% 0; }
+}
+@-webkit-keyframes hvBrilleFond { 0% { background-position: 100% 0, 0 0, 100% 0, 100% 100%, 0 100%, var(--hv-neige-x, 0px) 0, 0 0, 0 0, 0 0, 0 0, 0 0; } 100% { background-position: 0% 0, 0 0, 100% 0, 100% 100%, 0 100%, var(--hv-neige-x, 0px) 0, 0 0, 0 0, 0 0, 0 0, 0 0; } }
+@keyframes hvBrilleFond { 0% { background-position: 100% 0, 0 0, 100% 0, 100% 100%, 0 100%, var(--hv-neige-x, 0px) 0, 0 0, 0 0, 0 0, 0 0, 0 0; } 100% { background-position: 0% 0, 0 0, 100% 0, 100% 100%, 0 100%, var(--hv-neige-x, 0px) 0, 0 0, 0 0, 0 0, 0 0, 0 0; } }
+@-webkit-keyframes hvBrillePlaque { 0% { background-position: 100% 0, 0 0, 100% 0, 100% 100%, 0 100%, 0 0, 0 0, 0 0, 0 0, 0 0; } 100% { background-position: 0% 0, 0 0, 100% 0, 100% 100%, 0 100%, 0 0, 0 0, 0 0, 0 0, 0 0; } }
+@keyframes hvBrillePlaque { 0% { background-position: 100% 0, 0 0, 100% 0, 100% 100%, 0 100%, 0 0, 0 0, 0 0, 0 0, 0 0; } 100% { background-position: 0% 0, 0 0, 100% 0, 100% 100%, 0 100%, 0 0, 0 0, 0 0, 0 0, 0 0; } }
+@-webkit-keyframes hvBrilleSeance { 0% { background-position: 100% 0, 0 0, 100% 0, 100% 100%, 0 100%, var(--hv-neige-x) 0, 0 0, 0 0, 0 0, 0 0, 0 0; } 100% { background-position: 0% 0, 0 0, 100% 0, 100% 100%, 0 100%, var(--hv-neige-x) 0, 0 0, 0 0, 0 0, 0 0, 0 0; } }
+@keyframes hvBrilleSeance { 0% { background-position: 100% 0, 0 0, 100% 0, 100% 100%, 0 100%, var(--hv-neige-x) 0, 0 0, 0 0, 0 0, 0 0, 0 0; } 100% { background-position: 0% 0, 0 0, 100% 0, 100% 100%, 0 100%, var(--hv-neige-x) 0, 0 0, 0 0, 0 0, 0 0, 0 0; } }
 
 /* ============================================================
    HIVERNAL : EN-TÊTE (plaque de glace + glaçons) ET NAVIGATION (neige)
@@ -6207,6 +6254,7 @@ body { background: transparent; }
   clip-path: polygon(var(--c1) 0, calc(100% - var(--c2)) 0, 100% var(--c2), 100% calc(100% - var(--c3)), calc(100% - var(--c3)) 100%, var(--c4) 100%, 0 calc(100% - var(--c4)), 0 var(--c1));
   background-color: rgba(8,24,38,.9);
   background-image:
+    linear-gradient(105deg, rgba(255,255,255,0) 0, rgba(255,255,255,0) 38%, rgba(235,250,255,.20) 47%, rgba(255,255,255,.34) 50%, rgba(235,250,255,.20) 53%, rgba(255,255,255,0) 62%, rgba(255,255,255,0) 100%),
     linear-gradient(135deg, rgba(0,0,0,0) 0, rgba(0,0,0,0) 44%, var(--hv-arete) 44%, var(--hv-arete) 56%, rgba(0,0,0,0) 56%),
     linear-gradient(45deg, rgba(0,0,0,0) 0, rgba(0,0,0,0) 44%, var(--hv-arete) 44%, var(--hv-arete) 56%, rgba(0,0,0,0) 56%),
     linear-gradient(135deg, rgba(0,0,0,0) 0, rgba(0,0,0,0) 44%, var(--hv-arete) 44%, var(--hv-arete) 56%, rgba(0,0,0,0) 56%),
@@ -6216,13 +6264,11 @@ body { background: transparent; }
     linear-gradient(var(--fa3), rgba(2,12,20,.34) 0, rgba(2,12,20,.34) 16%, rgba(2,12,20,0) 16%),
     linear-gradient(var(--fa4), rgba(2,12,20,.30) 0, rgba(2,12,20,.30) 15%, rgba(2,12,20,0) 15%),
     linear-gradient(180deg, rgba(190,236,255,.10) 0, rgba(190,236,255,0) 46%);
-  background-repeat: no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat;
-  background-size: var(--c1) var(--c1), var(--c2) var(--c2), var(--c3) var(--c3), var(--c4) var(--c4), 100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%;
-  background-position: 0 0, 100% 0, 100% 100%, 0 100%, 0 0, 0 0, 0 0, 0 0, 0 0;
+  background-repeat: no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat;
+  background-size: 260% 100%, var(--c1) var(--c1), var(--c2) var(--c2), var(--c3) var(--c3), var(--c4) var(--c4), 100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%;
+  background-position: 100% 0, 0 0, 100% 0, 100% 100%, 0 100%, 0 0, 0 0, 0 0, 0 0, 0 0;
   -webkit-background-origin: border-box; background-origin: border-box;
 }
-:root[data-theme="hivernal"] .entete-carte::before { -webkit-animation: hvAreteBord 9s ease-in-out -3s infinite; animation: hvAreteBord 9s ease-in-out -3s infinite; }
-:root[data-theme="hivernal"] .nav-bas::before { -webkit-animation: hvAreteBord 10s ease-in-out -7s infinite; animation: hvAreteBord 10s ease-in-out -7s infinite; }
 :root[data-theme="hivernal"] .nav-bas::before { --c1: 9px; --c2: 18px; --c3: 9px; --c4: 18px; --fa1: 68deg; --fa2: 116deg; --fa3: 22deg; --fa4: 204deg; }
 
 /* glaçons suspendus sous l'en-tête */

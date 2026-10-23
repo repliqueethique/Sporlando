@@ -7737,6 +7737,125 @@ function construireHiver() {
   majHiverParallaxe();
 }
 
+/* ============================================================
+   REFLETS : une lumière qui traverse l'écran de temps en temps (toujours de gauche à droite).
+   - elle allume brièvement quelques facettes du fond, pile sur le dessin de la glace ;
+   - elle glisse sur les cartes qu'elle croise (reflet doux + éclats sur les arêtes, voir le CSS).
+   ============================================================ */
+var HIVER_REFLETS_ACTIF = true;
+var HIVER_REFLET_PAUSE = [7000, 13000];   /* ms de calme entre deux passages de lumière */
+var HIVER_REFLET_DUREE = 6500;            /* durée d'un passage (ms) */
+var HIVER_REFLET_RAYON = 150;             /* distance (px) à laquelle la lumière allume une facette */
+var HIVER_REFLET_CARTES = '.carte:not(li), .carte-checklist, .meteo-carte, .reglages-section, .sx-exo, .accueil-tuile, .accueil-carte, .modal-contenu, .entete-carte, .nav-bas';
+var HIVER_TUILE = 240;                    /* taille du motif du fond (ne pas changer) */
+var HIVER_FACETTES = [
+  [4,9,71,16,74,46,50,24], [4,9,74,46,16,65,32,40], [71,16,129,15,74,46,91,26], [129,15,119,51,74,46,107,37], [129,15,163,-1,119,51,137,22], [163,-1,182,63,119,51,155,37], [163,-1,244,9,182,63,196,23], [244,9,256,65,182,63,227,46], [16,65,74,46,52,135,47,82], [16,65,52,135,-18,110,17,103], [74,46,119,51,52,135,82,77], [119,51,130,108,52,135,100,98], [119,51,182,63,130,108,143,74], [182,63,191,107,130,108,167,92], [182,63,256,65,191,107,209,78], [256,65,222,110,191,107,223,94], [-18,110,52,135,4,167,13,137], [52,135,42,193,4,167,33,165], [52,135,130,108,110,170,97,137], [52,135,110,170,42,193,68,166], [130,108,191,107,197,193,173,136], [130,108,197,193,110,170,145,157], [191,107,222,110,244,167,219,128], [191,107,244,167,197,193,211,156], [4,167,42,193,71,256,39,205], [4,167,71,256,4,249,26,224], [42,193,110,170,129,255,93,206], [42,193,129,255,71,256,80,235], [110,170,197,193,163,239,157,201], [110,170,163,239,129,255,134,221], [197,193,244,167,163,239,202,200], [244,167,244,249,163,239,217,218]
+];
+
+var minuteurReflet = null;
+var lumiereHiver = null;
+var facettesRecentes = {};
+var compteurFacettes = 0;
+
+function allumerFacettesHiver(lx, ly) {
+  if (typeof fondMotif === 'undefined' || !fondMotif) { return; }
+  var r = fondMotif.getBoundingClientRect();
+  var px = lx - r.left, py = ly - r.top;
+  var ci = Math.floor(px / HIVER_TUILE), cj = Math.floor(py / HIVER_TUILE);
+  var maintenant = Date.now();
+  var candidats = [];
+  for (var oi = ci - 1; oi <= ci + 1; oi++) {
+    for (var oj = cj - 1; oj <= cj + 1; oj++) {
+      for (var t = 0; t < HIVER_FACETTES.length; t++) {
+        var f = HIVER_FACETTES[t];
+        var dx = oi * HIVER_TUILE + f[6] - px, dy = oj * HIVER_TUILE + f[7] - py;
+        var d = Math.sqrt(dx * dx + dy * dy);
+        var cle = oi + '_' + oj + '_' + t;
+        if (d < HIVER_REFLET_RAYON && maintenant - (facettesRecentes[cle] || 0) > 4000) {
+          candidats.push({ d: d, oi: oi, oj: oj, t: t, cle: cle });
+        }
+      }
+    }
+  }
+  if (candidats.length === 0 || Math.random() > 0.3) { return; }
+  var c = candidats[Math.floor(Math.random() * candidats.length)];
+  facettesRecentes[c.cle] = maintenant;
+  var f2 = HIVER_FACETTES[c.t];
+  var minx = Math.min(f2[0], f2[2], f2[4]), maxx = Math.max(f2[0], f2[2], f2[4]);
+  var miny = Math.min(f2[1], f2[3], f2[5]), maxy = Math.max(f2[1], f2[3], f2[5]);
+  var w = maxx - minx, h = maxy - miny;
+  var force = 0.95 - 0.45 * (c.d / HIVER_REFLET_RAYON);   /* plus la facette est près de la lumière, plus elle brille */
+  var id = 'hvg' + (compteurFacettes++);
+  var svg = '<svg class="hv-facette" style="left:' + (c.oi * HIVER_TUILE + minx) + 'px;top:' + (c.oj * HIVER_TUILE + miny) + 'px;" ' +
+    'width="' + w + '" height="' + h + '" viewBox="' + minx + ' ' + miny + ' ' + w + ' ' + h + '" xmlns="http://www.w3.org/2000/svg">' +
+    '<defs><linearGradient id="' + id + '" x1="0" y1="0" x2="1" y2="1">' +
+    '<stop offset="0" stop-color="#F4FCFF" stop-opacity="' + force.toFixed(2) + '"/>' +
+    '<stop offset="1" stop-color="#9FE0F8" stop-opacity="' + (force * 0.35).toFixed(2) + '"/></linearGradient></defs>' +
+    '<polygon points="' + f2[0] + ',' + f2[1] + ' ' + f2[2] + ',' + f2[3] + ' ' + f2[4] + ',' + f2[5] + '" fill="url(#' + id + ')"/></svg>';
+  fondMotif.insertAdjacentHTML('beforeend', svg);
+  var el = fondMotif.lastChild;
+  window.setTimeout(function () { if (el && el.parentNode) { el.parentNode.removeChild(el); } }, 1300);
+}
+
+function faireBrillerCartesHiver(lx, ly) {
+  var els = document.querySelectorAll(HIVER_REFLET_CARTES);
+  var H = window.innerHeight, W = window.innerWidth;
+  for (var i = 0; i < els.length; i++) {
+    var el = els[i];
+    if (el.hvBrille) { continue; }
+    var r = el.getBoundingClientRect();
+    if (r.width < 40 || r.height < 20 || r.bottom < 0 || r.top > H || r.right < 0 || r.left > W) { continue; }
+    var dx = Math.max(r.left - lx, 0, lx - r.right), dy = Math.max(r.top - ly, 0, ly - r.bottom);
+    if (Math.sqrt(dx * dx + dy * dy) < 70) {
+      el.hvBrille = true;
+      el.className += ' hv-brille';
+      (function (e) {
+        window.setTimeout(function () {
+          e.className = e.className.replace(' hv-brille', '');
+          window.setTimeout(function () { e.hvBrille = false; }, 3000);   /* pas deux reflets d'affilée sur la même carte */
+        }, 1500);
+      })(el);
+    }
+  }
+}
+
+function planifierPassageHiver(delai) {
+  if (minuteurReflet) { window.clearTimeout(minuteurReflet); }
+  minuteurReflet = window.setTimeout(lancerPassageHiver, delai);
+}
+
+function lancerPassageHiver() {
+  if (themeHiverCourant !== 'hivernal' || !HIVER_REFLETS_ACTIF) { return; }
+  var W = window.innerWidth, H = window.innerHeight;
+  var y0 = H * (0.1 + Math.random() * 0.8);
+  lumiereHiver = { t0: Date.now(), x0: -0.1 * W, y0: y0, x1: 1.1 * W, y1: y0 + (Math.random() - 0.5) * H * 0.8 };
+  avancerLumiereHiver();
+}
+
+function avancerLumiereHiver() {
+  if (!lumiereHiver) { return; }
+  var k = (Date.now() - lumiereHiver.t0) / HIVER_REFLET_DUREE;
+  if (k >= 1 || themeHiverCourant !== 'hivernal') {
+    lumiereHiver = null;
+    if (themeHiverCourant === 'hivernal') {
+      planifierPassageHiver(HIVER_REFLET_PAUSE[0] + Math.random() * (HIVER_REFLET_PAUSE[1] - HIVER_REFLET_PAUSE[0]));
+    }
+    return;
+  }
+  if (!document.hidden) {
+    var lx = lumiereHiver.x0 + (lumiereHiver.x1 - lumiereHiver.x0) * k;
+    var ly = lumiereHiver.y0 + (lumiereHiver.y1 - lumiereHiver.y0) * k;
+    allumerFacettesHiver(lx, ly);
+    faireBrillerCartesHiver(lx, ly);
+  }
+  minuteurReflet = window.setTimeout(avancerLumiereHiver, 140);
+}
+
+function arreterRefletsHiver() {
+  if (minuteurReflet) { window.clearTimeout(minuteurReflet); minuteurReflet = null; }
+  lumiereHiver = null;
+}
+
 function majHiver(theme) {
   var zone = document.getElementById('hiver-theme');
   var givre = document.getElementById('hiver-givre');
@@ -7745,11 +7864,14 @@ function majHiver(theme) {
     if (givre) { givre.innerHTML = ''; }
     plansHiver = [];
     themeHiverCourant = null;
+    arreterRefletsHiver();
     return;
   }
   if (themeHiverCourant === theme) { return; }
   themeHiverCourant = theme;
   construireHiver();
+  var calme = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (HIVER_REFLETS_ACTIF && !calme) { planifierPassageHiver(1500); }
 }
 
 var minuteurRedimHiver = null;
