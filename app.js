@@ -7054,7 +7054,9 @@ var AMBIANCES = {
   ],
   hivernal: [
     { c: 'amb-flocon amb-flocon-a', n: 14, t: [6, 22], d: [20, 38], dx: 170, r: 360 },
-    { c: 'amb-flocon amb-flocon-b', n: 12, t: [6, 22], d: [20, 38], dx: 170, r: 360 }
+    { c: 'amb-flocon amb-flocon-b', n: 12, t: [6, 22], d: [20, 38], dx: 170, r: 360 },
+    { c: 'amb-scintille', n: 9, t: [2, 3.4], d: [6, 13], pos: 'libre' },
+    { c: 'amb-brume amb-brume-givre', n: 2, t: [320, 520], d: [60, 95], pos: 'h', y: [62, 98], dy: -24 }
   ],
   paindepice: [
     { c: 'amb-etincelle', n: 18, t: [8, 18], d: [2, 5], pos: 'libre' }
@@ -7471,6 +7473,290 @@ window.addEventListener('resize', function () {
   if (themeRouagesCourant !== 'steampunk') { return; }
   if (minuteurRedimRouages) { window.clearTimeout(minuteurRedimRouages); }
   minuteurRedimRouages = window.setTimeout(construireRouages, 300);
+}, false);
+
+/* ============================================================
+   HIVERNAL : DÉCOR GIVRÉ
+   Arrière-plan (derrière les cartes) : des plans de profondeurs différentes.
+     Chaque plan = un "ext" qui suit l'onglet (décalage horizontal)
+                 + un "int" qui suit le défilement (décalage vertical).
+     Plus le plan est proche (prof proche de 1), plus il bouge.
+   Premier plan (devant tout, ne bloque jamais les touches) : givre sur les bords,
+     comme si l'écran était une vitre gelée.
+
+   Réglages d'un plan :
+   genre   : 'flocons' | 'scintilles' | 'brume' | 'colline'
+   prof    : profondeur, 0 = très loin (bouge peu) … 1 = tout près (bouge beaucoup)
+   sc      : part du défilement vertical suivie par ce plan (1 = tout, 0 = fixe)
+   n       : nombre d'éléments (multiplié par HIVER_DENSITE)
+   t       : taille en px [min, max]     d : durée en secondes [min, max]
+   dx      : dérive horizontale max (px) r : rotation max (deg)     op : opacité [min, max]
+   forme   : 'point' (grain doux) ou 'glyphe' (vrai flocon)
+   ============================================================ */
+var HIVER_ACTIF = true;
+var HIVER_GIVRE_ACTIF = true;       /* false = pas de givre sur les bords */
+var HIVER_DENSITE = 1;              /* 0.5 = deux fois moins de particules (appareil lent), 1 = normal */
+var HIVER_PAGE_PX = [8, 44];        /* décalage horizontal par onglet : plan lointain, plan proche */
+var HIVER_SCROLL_AMP = [16, 150];   /* décalage vertical max au défilement : plan lointain, plan proche */
+var HIVER_SCROLL_ECHELLE = 500;
+var HIVER_MARGE = 230;              /* marge autour de l'écran pour que la parallaxe ne montre jamais de vide */
+
+var HIVER_PLANS = [
+  { genre: 'brume',      prof: 0.05, sc: 0.3,  n: 3,  d: [70, 110], op: [.5, .8] },
+  { genre: 'flocons',    prof: 0.10, sc: 1,    n: 26, t: [1.6, 3],   d: [38, 60], dx: 36,  op: [.25, .5],  forme: 'point' },
+  { genre: 'colline',    prof: 0.20, sc: 0.3,  haut: 170, couleur: '168,214,238', op: .26 },
+  { genre: 'scintilles', prof: 0.35, sc: 1,    n: 26, t: [1.8, 3.2], d: [5, 12], op: [.55, .95] },
+  { genre: 'flocons',    prof: 0.45, sc: 1,    n: 16, t: [3, 5.5],   d: [24, 38], dx: 60,  op: [.3, .55],  forme: 'point' },
+  { genre: 'colline',    prof: 0.65, sc: 0.3,  haut: 120, couleur: '205,236,252', op: .2 },
+  { genre: 'flocons',    prof: 1.00, sc: 1,    n: 8,  t: [11, 19],   d: [15, 24], dx: 100, r: 200, op: [.2, .38], forme: 'glyphe' }
+];
+
+var themeHiverCourant = null;
+var plansHiver = [];
+var graineHiver = 1;
+
+/* Hasard à graine fixe : le givre est le même à chaque lancement (et ne "saute" pas quand on tourne l'écran) */
+function hasardHiver() {
+  graineHiver = (graineHiver * 16807) % 2147483647;
+  return (graineHiver - 1) / 2147483646;
+}
+function aleaHiver(min, max) { return min + hasardHiver() * (max - min); }
+
+function majHiverParallaxe() {
+  if (plansHiver.length === 0) { return; }
+  var sy = window.pageYOffset || 0;
+  var sat = 1 - Math.exp(-sy / HIVER_SCROLL_ECHELLE);
+  for (var i = 0; i < plansHiver.length; i++) {
+    var pl = plansHiver[i];
+    var x = -indexPageRouages * (HIVER_PAGE_PX[0] + (HIVER_PAGE_PX[1] - HIVER_PAGE_PX[0]) * pl.prof);
+    var y = -sat * pl.sc * (HIVER_SCROLL_AMP[0] + (HIVER_SCROLL_AMP[1] - HIVER_SCROLL_AMP[0]) * pl.prof);
+    appliquerTransformFond(pl.ext, x, 0);
+    appliquerTransformFond(pl.int, 0, y);
+  }
+}
+
+/* --- Flocons d'arrière-plan : grains doux (loin) ou vrais flocons (près) --- */
+function htmlFloconsHiver(pl, W, H) {
+  var n = Math.round(pl.n * HIVER_DENSITE);
+  var chute = H + HIVER_SCROLL_AMP[1] + 90;    /* distance de chute : va jusqu'en bas même quand le plan est remonté par le défilement */
+  var glyphes = ['a', 'b', 'c'];
+  var html = '';
+  for (var i = 0; i < n; i++) {
+    var taille = aleaHiver(pl.t[0], pl.t[1]);
+    var duree = aleaHiver(pl.d[0], pl.d[1]);
+    var dx = aleaHiver(-pl.dx, pl.dx);
+    var s = 'left:' + aleaHiver(-HIVER_MARGE, W + HIVER_MARGE).toFixed(0) + 'px;';
+    s += 'animation-duration:' + duree.toFixed(1) + 's;animation-delay:-' + (hasardHiver() * duree).toFixed(1) + 's;';
+    s += '--dx:' + dx.toFixed(0) + 'px;--dx1:' + (-dx * 0.45).toFixed(0) + 'px;';
+    s += '--h:' + chute.toFixed(0) + 'px;--hm:' + (chute / 2).toFixed(0) + 'px;';
+    s += '--op:' + aleaHiver(pl.op[0], pl.op[1]).toFixed(2) + ';';
+    if (pl.forme === 'glyphe') {
+      s += 'font-size:' + taille.toFixed(1) + 'px;--rot:' + aleaHiver(-pl.r, pl.r).toFixed(0) + 'deg;';
+      html += '<span class="hv-f hv-f-glyphe hv-f-' + glyphes[Math.floor(hasardHiver() * 3)] + '" style="' + s + '"></span>';
+    } else {
+      s += 'width:' + taille.toFixed(1) + 'px;height:' + taille.toFixed(1) + 'px;';
+      html += '<span class="hv-f hv-f-point" style="' + s + '"></span>';
+    }
+  }
+  return html;
+}
+
+/* --- Scintillements : de minuscules points qui brillent un court instant, puis s'éteignent (pas d'étoiles) --- */
+function htmlScintillesHiver(pl, W, H) {
+  var n = Math.round(pl.n * HIVER_DENSITE);
+  var html = '';
+  for (var i = 0; i < n; i++) {
+    var taille = aleaHiver(pl.t[0], pl.t[1]);
+    var duree = aleaHiver(pl.d[0], pl.d[1]);
+    var teinte = hasardHiver() < 0.78 ? '' : ' hv-s-bleu';
+    var s = 'left:' + aleaHiver(-HIVER_MARGE, W + HIVER_MARGE).toFixed(0) + 'px;top:' + aleaHiver(0, H + 120).toFixed(0) + 'px;';
+    s += 'width:' + taille.toFixed(1) + 'px;height:' + taille.toFixed(1) + 'px;';
+    s += 'animation-duration:' + duree.toFixed(1) + 's;animation-delay:-' + (hasardHiver() * duree).toFixed(1) + 's;';
+    s += '--op:' + aleaHiver(pl.op[0], pl.op[1]).toFixed(2) + ';';
+    html += '<span class="hv-s' + teinte + '" style="' + s + '"></span>';
+  }
+  return html;
+}
+
+/* --- Brume : grandes nappes très douces qui dérivent lentement dans le bas de l'écran --- */
+function htmlBrumeHiver(pl, W, H) {
+  var n = Math.max(1, Math.round(pl.n * HIVER_DENSITE));
+  var html = '';
+  for (var i = 0; i < n; i++) {
+    var larg = aleaHiver(W * 0.9, W * 1.5);
+    var haut = aleaHiver(150, 260);
+    var duree = aleaHiver(pl.d[0], pl.d[1]);
+    var s = 'left:' + (-larg).toFixed(0) + 'px;top:' + (H * aleaHiver(0.5, 0.92)).toFixed(0) + 'px;';
+    s += 'width:' + larg.toFixed(0) + 'px;height:' + haut.toFixed(0) + 'px;';
+    s += 'animation-duration:' + duree.toFixed(1) + 's;animation-delay:-' + (hasardHiver() * duree).toFixed(1) + 's;';
+    s += '--dx:' + (W + larg + 2 * HIVER_MARGE).toFixed(0) + 'px;--op:' + aleaHiver(pl.op[0], pl.op[1]).toFixed(2) + ';';
+    html += '<span class="hv-brume" style="' + s + '"></span>';
+  }
+  return html;
+}
+
+/* --- Congère : une crête de neige douce, dessinée au hasard --- */
+function htmlCollineHiver(pl, W, H) {
+  var L = W + 2 * HIVER_MARGE, h = pl.haut;
+  var pas = 110, k = Math.ceil(L / pas) + 1;
+  var pts = [], i;
+  for (i = 0; i <= k; i++) { pts.push([i * pas, h * aleaHiver(0.12, 0.5)]); }
+  var d = 'M0,' + pts[0][1].toFixed(1);
+  for (i = 1; i < pts.length; i++) {
+    var mx = (pts[i - 1][0] + pts[i][0]) / 2, my = (pts[i - 1][1] + pts[i][1]) / 2;
+    d += ' Q' + pts[i - 1][0].toFixed(1) + ',' + pts[i - 1][1].toFixed(1) + ' ' + mx.toFixed(1) + ',' + my.toFixed(1);
+  }
+  d += ' L' + L + ',' + h + ' L0,' + h + ' Z';
+  var id = 'hvCol' + Math.round(pl.prof * 100);
+  var svg = '<svg width="' + L + '" height="' + h + '" viewBox="0 0 ' + L + ' ' + h + '" xmlns="http://www.w3.org/2000/svg">' +
+    '<defs><linearGradient id="' + id + '" x1="0" y1="0" x2="0" y2="1">' +
+    '<stop offset="0" stop-color="rgb(' + pl.couleur + ')" stop-opacity="' + pl.op + '"/>' +
+    '<stop offset="1" stop-color="rgb(' + pl.couleur + ')" stop-opacity="0"/></linearGradient></defs>' +
+    '<path d="' + d + '" fill="url(#' + id + ')"/></svg>';
+  return '<div class="hv-colline" style="left:' + (-HIVER_MARGE) + 'px;top:' + Math.round(H - h * 0.62) + 'px;">' + svg + '</div>';
+}
+
+/* --- Givre : fougères de glace qui poussent depuis les bords et les coins de la vitre --- */
+function brancheGivre(g, x, y, ang, long, riche) {
+  var x2 = x + Math.cos(ang) * long, y2 = y + Math.sin(ang) * long;
+  g.b += 'M' + x.toFixed(1) + ',' + y.toFixed(1) + 'L' + x2.toFixed(1) + ',' + y2.toFixed(1);
+  if (riche && long > 13) {   /* brindilles sur les grandes branches */
+    for (var k = 0; k < 2; k++) {
+      var t = k === 0 ? 0.42 : 0.74;
+      var bx = x + Math.cos(ang) * long * t, by = y + Math.sin(ang) * long * t;
+      var bl = long * (k === 0 ? 0.46 : 0.32);
+      var o = 0.8 + hasardHiver() * 0.2;
+      g.t += 'M' + bx.toFixed(1) + ',' + by.toFixed(1) + 'L' + (bx + Math.cos(ang - o) * bl).toFixed(1) + ',' + (by + Math.sin(ang - o) * bl).toFixed(1);
+      g.t += 'M' + bx.toFixed(1) + ',' + by.toFixed(1) + 'L' + (bx + Math.cos(ang + o) * bl).toFixed(1) + ',' + (by + Math.sin(ang + o) * bl).toFixed(1);
+    }
+  }
+}
+
+function fougereGivre(g, x, y, ang, long, riche) {
+  var n = Math.max(5, Math.round(long / 9));
+  var pas = long / n;
+  var px = x, py = y, a = ang;
+  var virage = (hasardHiver() - 0.5) * 0.09;
+  g.c += 'M' + px.toFixed(1) + ',' + py.toFixed(1);
+  for (var i = 1; i <= n; i++) {
+    a += virage + (hasardHiver() - 0.5) * 0.07;
+    px += Math.cos(a) * pas; py += Math.sin(a) * pas;
+    g.c += 'L' + px.toFixed(1) + ',' + py.toFixed(1);
+    if (i >= 2 && i < n) {
+      var t = i / n;
+      var lb = long * 0.34 * (1 - t * 0.85) * aleaHiver(0.85, 1.15);   /* branches de plus en plus courtes vers la pointe */
+      if (lb > 4) {
+        var ouv = aleaHiver(0.85, 1.1);
+        brancheGivre(g, px, py, a - ouv, lb, riche);
+        brancheGivre(g, px, py, a + ouv, lb, riche);
+      }
+    }
+  }
+}
+
+function htmlGivre(W, H) {
+  graineHiver = 7;
+  var g = { c: '', b: '', t: '' };
+  var PI = Math.PI, i, n, p;
+  var gros = Math.min(190, Math.max(100, Math.min(W, H) * 0.26)) * (W < 600 ? 0.72 : 1);    /* grandes fougères des coins */
+  /* longueur max des petites fougères du bord : courtes sur téléphone pour ne pas gêner la lecture */
+  var maxBord = Math.max(22, Math.min(80, (W - 600) / 2 + 24));
+
+  /* coins : un bouquet de fougères ; celles qui longent un bord (vers l'en-tête ou la navigation) sont plus courtes */
+  var coins = [
+    { x: 0, y: 0, a0: 0, f: 0.85 },
+    { x: W, y: 0, a0: PI / 2, f: 0.85 },
+    { x: W, y: H, a0: PI, f: W < 600 ? 0.6 : 0.9 },
+    { x: 0, y: H, a0: -PI / 2, f: W < 600 ? 0.6 : 0.9 }
+  ];
+  for (i = 0; i < coins.length; i++) {
+    var cn = coins[i];
+    n = 5;
+    for (p = 0; p < n; p++) {
+      var rel = 0.22 + (PI / 2 - 0.44) * (p / (n - 1)) + (hasardHiver() - 0.5) * 0.18;   /* angle depuis le bord, 0 … 90° */
+      var facteur = 0.5 + 0.5 * Math.sin(2 * rel);                                         /* diagonale = longue, le long d'un bord = courte */
+      fougereGivre(g, cn.x, cn.y, cn.a0 + rel, gros * cn.f * facteur * aleaHiver(0.8, 1), true);
+    }
+  }
+
+  /* bords gauche et droit : de petites fougères, une tous les ~100 px, entre l'en-tête et la navigation */
+  var cotes = [
+    { x0: 0, a: 0 },
+    { x0: W, a: PI }
+  ];
+  for (i = 0; i < cotes.length; i++) {
+    var c = cotes[i];
+    for (var s = 150; s < H - 150; s += aleaHiver(80, 130)) {
+      if (hasardHiver() < 0.25) { continue; }
+      var l = aleaHiver(maxBord * 0.45, maxBord);
+      fougereGivre(g, c.x0, s, c.a + (hasardHiver() - 0.5) * 0.7, l, l > 56);
+    }
+  }
+
+  return '<div class="hv-givre-voile"></div>' +
+    '<svg class="hv-givre-cristaux" width="' + W + '" height="' + H + '" viewBox="0 0 ' + W + ' ' + H + '" xmlns="http://www.w3.org/2000/svg" fill="none" stroke-linecap="round">' +
+    '<path class="hv-gx-t" d="' + g.t + '"/><path class="hv-gx-b" d="' + g.b + '"/><path class="hv-gx-c" d="' + g.c + '"/></svg>';
+}
+
+function construireHiver() {
+  var zone = document.getElementById('hiver-theme');
+  if (!zone) {
+    zone = document.createElement('div');
+    zone.id = 'hiver-theme';
+    zone.className = 'hiver-theme';
+    document.body.appendChild(zone);
+  }
+  var givre = document.getElementById('hiver-givre');
+  if (!givre) {
+    givre = document.createElement('div');
+    givre.id = 'hiver-givre';
+    givre.className = 'hiver-givre';
+    document.body.appendChild(givre);
+  }
+
+  var W = window.innerWidth, H = window.innerHeight;
+  graineHiver = 31;
+  var html = '';
+  for (var i = 0; i < HIVER_PLANS.length; i++) {
+    var pl = HIVER_PLANS[i], contenu = '';
+    if (pl.genre === 'flocons') { contenu = htmlFloconsHiver(pl, W, H); }
+    else if (pl.genre === 'scintilles') { contenu = htmlScintillesHiver(pl, W, H); }
+    else if (pl.genre === 'brume') { contenu = htmlBrumeHiver(pl, W, H); }
+    else if (pl.genre === 'colline') { contenu = htmlCollineHiver(pl, W, H); }
+    html += '<div class="hv-plan" data-i="' + i + '"><div class="hv-plan-scroll">' + contenu + '</div></div>';
+  }
+  zone.innerHTML = html;
+  givre.innerHTML = HIVER_GIVRE_ACTIF ? htmlGivre(W, H) : '';
+
+  plansHiver = [];
+  var exts = zone.querySelectorAll('.hv-plan');
+  for (var e = 0; e < exts.length; e++) {
+    var def = HIVER_PLANS[parseInt(exts[e].getAttribute('data-i'), 10)];
+    plansHiver.push({ ext: exts[e], int: exts[e].firstChild, prof: def.prof, sc: def.sc });
+  }
+  majHiverParallaxe();
+}
+
+function majHiver(theme) {
+  var zone = document.getElementById('hiver-theme');
+  var givre = document.getElementById('hiver-givre');
+  if (!HIVER_ACTIF || theme !== 'hivernal') {
+    if (zone) { zone.innerHTML = ''; }
+    if (givre) { givre.innerHTML = ''; }
+    plansHiver = [];
+    themeHiverCourant = null;
+    return;
+  }
+  if (themeHiverCourant === theme) { return; }
+  themeHiverCourant = theme;
+  construireHiver();
+}
+
+var minuteurRedimHiver = null;
+window.addEventListener('resize', function () {
+  if (themeHiverCourant !== 'hivernal') { return; }
+  if (minuteurRedimHiver) { window.clearTimeout(minuteurRedimHiver); }
+  minuteurRedimHiver = window.setTimeout(construireHiver, 300);
 }, false);
 
 /* ============================================================
@@ -7956,6 +8242,7 @@ function appliquerTheme() {
   majIconeNutrition(themeEffectif);
   majAmbiance(themeEffectif);
   majRouages(themeEffectif);
+  majHiver(themeEffectif);
   majSteampunk(themeEffectif);
   majEclair(themeEffectif);
   majEsprits(themeEffectif);
@@ -7984,6 +8271,7 @@ function majFondScroll() {
   if (!fondMotif) { return; }
   var y = -((window.pageYOffset * VITESSE_SCROLL_FOND) % PERIODE_MOTIF_PX);
   majRouagesParallaxe();
+  majHiverParallaxe();
   appliquerTransformFond(fondMotif, 0, y);
 }
 

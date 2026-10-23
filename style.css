@@ -5765,3 +5765,503 @@ body { background: transparent; }
 .sp-bielle::after { content: ''; position: absolute; left: -1px; top: 1.5px; width: 4px; height: 4px; border-radius: 50%; background: #4DE39A; box-shadow: 0 0 4px #4DE39A; opacity: .8; }
 .sp-tete { border-radius: 3px; animation-name: spPiston; background-image: repeating-linear-gradient(90deg, rgba(0,0,0,.4) 0 2px, rgba(0,0,0,0) 2px 6px); }
 @media (prefers-reduced-motion: reduce) { .sp-bielle, .sp-tete { animation: none; } }
+
+/* ============================================================
+   HIVERNAL : GLACE, CRISTAUX ET GIVRE
+   Fond de glace à facettes, cartes taillées comme des cristaux,
+   plans de flocons en parallaxe (voir le bloc HIVERNAL dans app.js),
+   givre sur les bords de l'écran, glaçons sous l'en-tête, neige sur les cartes.
+   ============================================================ */
+:root[data-theme="hivernal"] {
+  --couleur-fond: #07131D; --couleur-carte: #10283A; --couleur-carte-creux: #0A1B2A; --couleur-bordure: #2E566E;
+  --hv-arete: rgba(150,214,240,.5);
+  --hv-glace: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240' viewBox='0 0 240 240'%3E%3Cg stroke='none'%3E%3Cpolygon points='4.4,8.7 70.6,15.9 74.4,46.1' fill='%23D6F2FF' fill-opacity='0.038'/%3E%3Cpolygon points='4.4,8.7 74.4,46.1 16.0,65.4' fill='%23D6F2FF' fill-opacity='0.024'/%3E%3Cpolygon points='70.6,15.9 128.6,15.2 74.4,46.1' fill='none'/%3E%3Cpolygon points='128.6,15.2 118.9,50.9 74.4,46.1' fill='%23010B14' fill-opacity='0.072'/%3E%3Cpolygon points='128.6,15.2 163.0,-1.2 118.9,50.9' fill='%23010B14' fill-opacity='0.110'/%3E%3Cpolygon points='128.6,255.2 163.0,238.8 118.9,290.9' fill='%23010B14' fill-opacity='0.110'/%3E%3Cpolygon points='163.0,-1.2 181.6,62.7 118.9,50.9' fill='%23D6F2FF' fill-opacity='0.049'/%3E%3Cpolygon points='163.0,238.8 181.6,302.7 118.9,290.9' fill='%23D6F2FF' fill-opacity='0.049'/%3E%3Cpolygon points='-77.0,-1.2 4.4,8.7 -58.4,62.7' fill='%23D6F2FF' fill-opacity='0.040'/%3E%3Cpolygon points='-77.0,238.8 4.4,248.7 -58.4,302.7' fill='%23D6F2FF' fill-opacity='0.040'/%3E%3Cpolygon points='163.0,-1.2 244.4,8.7 181.6,62.7' fill='%23D6F2FF' fill-opacity='0.040'/%3E%3Cpolygon points='163.0,238.8 244.4,248.7 181.6,302.7' fill='%23D6F2FF' fill-opacity='0.040'/%3E%3Cpolygon points='4.4,8.7 16.0,65.4 -58.4,62.7' fill='none'/%3E%3Cpolygon points='244.4,8.7 256.0,65.4 181.6,62.7' fill='none'/%3E%3Cpolygon points='16.0,65.4 74.4,46.1 52.1,135.0' fill='%23D6F2FF' fill-opacity='0.042'/%3E%3Cpolygon points='16.0,65.4 52.1,135.0 -17.5,109.8' fill='%23010B14' fill-opacity='0.098'/%3E%3Cpolygon points='256.0,65.4 292.1,135.0 222.5,109.8' fill='%23010B14' fill-opacity='0.098'/%3E%3Cpolygon points='74.4,46.1 118.9,50.9 52.1,135.0' fill='%23D6F2FF' fill-opacity='0.014'/%3E%3Cpolygon points='118.9,50.9 129.6,107.7 52.1,135.0' fill='%23D6F2FF' fill-opacity='0.048'/%3E%3Cpolygon points='118.9,50.9 181.6,62.7 129.6,107.7' fill='%23D6F2FF' fill-opacity='0.041'/%3E%3Cpolygon points='181.6,62.7 190.7,107.0 129.6,107.7' fill='none'/%3E%3Cpolygon points='-58.4,62.7 16.0,65.4 -49.3,107.0' fill='none'/%3E%3Cpolygon points='181.6,62.7 256.0,65.4 190.7,107.0' fill='none'/%3E%3Cpolygon points='16.0,65.4 -17.5,109.8 -49.3,107.0' fill='%23010B14' fill-opacity='0.075'/%3E%3Cpolygon points='256.0,65.4 222.5,109.8 190.7,107.0' fill='%23010B14' fill-opacity='0.075'/%3E%3Cpolygon points='-17.5,109.8 52.1,135.0 4.2,166.6' fill='%23010B14' fill-opacity='0.118'/%3E%3Cpolygon points='222.5,109.8 292.1,135.0 244.2,166.6' fill='%23010B14' fill-opacity='0.118'/%3E%3Cpolygon points='52.1,135.0 42.1,193.4 4.2,166.6' fill='%23D6F2FF' fill-opacity='0.040'/%3E%3Cpolygon points='52.1,135.0 129.6,107.7 109.5,169.8' fill='none'/%3E%3Cpolygon points='52.1,135.0 109.5,169.8 42.1,193.4' fill='none'/%3E%3Cpolygon points='129.6,107.7 190.7,107.0 197.4,193.4' fill='%23D6F2FF' fill-opacity='0.048'/%3E%3Cpolygon points='129.6,107.7 197.4,193.4 109.5,169.8' fill='%23D6F2FF' fill-opacity='0.025'/%3E%3Cpolygon points='-49.3,107.0 -17.5,109.8 4.2,166.6' fill='%23010B14' fill-opacity='0.132'/%3E%3Cpolygon points='190.7,107.0 222.5,109.8 244.2,166.6' fill='%23010B14' fill-opacity='0.132'/%3E%3Cpolygon points='-49.3,107.0 4.2,166.6 -42.6,193.4' fill='%23D6F2FF' fill-opacity='0.047'/%3E%3Cpolygon points='190.7,107.0 244.2,166.6 197.4,193.4' fill='%23D6F2FF' fill-opacity='0.047'/%3E%3Cpolygon points='4.2,-73.4 42.1,-46.6 70.6,15.9' fill='%23010B14' fill-opacity='0.071'/%3E%3Cpolygon points='4.2,166.6 42.1,193.4 70.6,255.9' fill='%23010B14' fill-opacity='0.071'/%3E%3Cpolygon points='4.2,-73.4 70.6,15.9 4.4,8.7' fill='%23D6F2FF' fill-opacity='0.019'/%3E%3Cpolygon points='4.2,166.6 70.6,255.9 4.4,248.7' fill='%23D6F2FF' fill-opacity='0.019'/%3E%3Cpolygon points='42.1,-46.6 109.5,-70.2 128.6,15.2' fill='%23D6F2FF' fill-opacity='0.018'/%3E%3Cpolygon points='42.1,193.4 109.5,169.8 128.6,255.2' fill='%23D6F2FF' fill-opacity='0.018'/%3E%3Cpolygon points='42.1,-46.6 128.6,15.2 70.6,15.9' fill='%2378C8EE' fill-opacity='0.060'/%3E%3Cpolygon points='42.1,193.4 128.6,255.2 70.6,255.9' fill='%2378C8EE' fill-opacity='0.060'/%3E%3Cpolygon points='109.5,169.8 197.4,193.4 163.0,238.8' fill='%23D6F2FF' fill-opacity='0.014'/%3E%3Cpolygon points='109.5,-70.2 163.0,-1.2 128.6,15.2' fill='none'/%3E%3Cpolygon points='109.5,169.8 163.0,238.8 128.6,255.2' fill='none'/%3E%3Cpolygon points='-42.6,193.4 4.2,166.6 -77.0,238.8' fill='%23010B14' fill-opacity='0.081'/%3E%3Cpolygon points='197.4,193.4 244.2,166.6 163.0,238.8' fill='%23010B14' fill-opacity='0.081'/%3E%3Cpolygon points='4.2,-73.4 4.4,8.7 -77.0,-1.2' fill='%23D6F2FF' fill-opacity='0.035'/%3E%3Cpolygon points='4.2,166.6 4.4,248.7 -77.0,238.8' fill='%23D6F2FF' fill-opacity='0.035'/%3E%3Cpolygon points='244.2,-73.4 244.4,8.7 163.0,-1.2' fill='%23D6F2FF' fill-opacity='0.035'/%3E%3Cpolygon points='244.2,166.6 244.4,248.7 163.0,238.8' fill='%23D6F2FF' fill-opacity='0.035'/%3E%3C/g%3E%3Cpath d='M4.4,8.7 L70.6,15.9 M70.6,15.9 L74.4,46.1 M74.4,46.1 L4.4,8.7 M4.4,8.7 L74.4,46.1 M74.4,46.1 L16.0,65.4 M16.0,65.4 L4.4,8.7 M70.6,15.9 L128.6,15.2 M128.6,15.2 L74.4,46.1 M74.4,46.1 L70.6,15.9 M128.6,15.2 L118.9,50.9 M118.9,50.9 L74.4,46.1 M74.4,46.1 L128.6,15.2 M128.6,15.2 L163.0,-1.2 M163.0,-1.2 L118.9,50.9 M118.9,50.9 L128.6,15.2 M128.6,255.2 L163.0,238.8 M163.0,238.8 L118.9,290.9 M118.9,290.9 L128.6,255.2 M163.0,-1.2 L181.6,62.7 M181.6,62.7 L118.9,50.9 M118.9,50.9 L163.0,-1.2 M163.0,238.8 L181.6,302.7 M181.6,302.7 L118.9,290.9 M118.9,290.9 L163.0,238.8 M-77.0,-1.2 L4.4,8.7 M4.4,8.7 L-58.4,62.7 M-58.4,62.7 L-77.0,-1.2 M-77.0,238.8 L4.4,248.7 M4.4,248.7 L-58.4,302.7 M-58.4,302.7 L-77.0,238.8 M163.0,-1.2 L244.4,8.7 M244.4,8.7 L181.6,62.7 M181.6,62.7 L163.0,-1.2 M163.0,238.8 L244.4,248.7 M244.4,248.7 L181.6,302.7 M181.6,302.7 L163.0,238.8 M4.4,8.7 L16.0,65.4 M16.0,65.4 L-58.4,62.7 M-58.4,62.7 L4.4,8.7 M244.4,8.7 L256.0,65.4 M256.0,65.4 L181.6,62.7 M181.6,62.7 L244.4,8.7 M16.0,65.4 L74.4,46.1 M74.4,46.1 L52.1,135.0 M52.1,135.0 L16.0,65.4 M16.0,65.4 L52.1,135.0 M52.1,135.0 L-17.5,109.8 M-17.5,109.8 L16.0,65.4 M256.0,65.4 L292.1,135.0 M292.1,135.0 L222.5,109.8 M222.5,109.8 L256.0,65.4 M74.4,46.1 L118.9,50.9 M118.9,50.9 L52.1,135.0 M52.1,135.0 L74.4,46.1 M118.9,50.9 L129.6,107.7 M129.6,107.7 L52.1,135.0 M52.1,135.0 L118.9,50.9 M118.9,50.9 L181.6,62.7 M181.6,62.7 L129.6,107.7 M129.6,107.7 L118.9,50.9 M181.6,62.7 L190.7,107.0 M190.7,107.0 L129.6,107.7 M129.6,107.7 L181.6,62.7 M-58.4,62.7 L16.0,65.4 M16.0,65.4 L-49.3,107.0 M-49.3,107.0 L-58.4,62.7 M181.6,62.7 L256.0,65.4 M256.0,65.4 L190.7,107.0 M190.7,107.0 L181.6,62.7 M16.0,65.4 L-17.5,109.8 M-17.5,109.8 L-49.3,107.0 M-49.3,107.0 L16.0,65.4 M256.0,65.4 L222.5,109.8 M222.5,109.8 L190.7,107.0 M190.7,107.0 L256.0,65.4 M-17.5,109.8 L52.1,135.0 M52.1,135.0 L4.2,166.6 M4.2,166.6 L-17.5,109.8 M222.5,109.8 L292.1,135.0 M292.1,135.0 L244.2,166.6 M244.2,166.6 L222.5,109.8 M52.1,135.0 L42.1,193.4 M42.1,193.4 L4.2,166.6 M4.2,166.6 L52.1,135.0 M52.1,135.0 L129.6,107.7 M129.6,107.7 L109.5,169.8 M109.5,169.8 L52.1,135.0 M52.1,135.0 L109.5,169.8 M109.5,169.8 L42.1,193.4 M42.1,193.4 L52.1,135.0 M129.6,107.7 L190.7,107.0 M190.7,107.0 L197.4,193.4 M197.4,193.4 L129.6,107.7 M129.6,107.7 L197.4,193.4 M197.4,193.4 L109.5,169.8 M109.5,169.8 L129.6,107.7 M-49.3,107.0 L-17.5,109.8 M-17.5,109.8 L4.2,166.6 M4.2,166.6 L-49.3,107.0 M190.7,107.0 L222.5,109.8 M222.5,109.8 L244.2,166.6 M244.2,166.6 L190.7,107.0 M-49.3,107.0 L4.2,166.6 M4.2,166.6 L-42.6,193.4 M-42.6,193.4 L-49.3,107.0 M190.7,107.0 L244.2,166.6 M244.2,166.6 L197.4,193.4 M197.4,193.4 L190.7,107.0 M4.2,-73.4 L42.1,-46.6 M42.1,-46.6 L70.6,15.9 M70.6,15.9 L4.2,-73.4 M4.2,166.6 L42.1,193.4 M42.1,193.4 L70.6,255.9 M70.6,255.9 L4.2,166.6 M4.2,-73.4 L70.6,15.9 M70.6,15.9 L4.4,8.7 M4.4,8.7 L4.2,-73.4 M4.2,166.6 L70.6,255.9 M70.6,255.9 L4.4,248.7 M4.4,248.7 L4.2,166.6 M42.1,-46.6 L109.5,-70.2 M109.5,-70.2 L128.6,15.2 M128.6,15.2 L42.1,-46.6 M42.1,193.4 L109.5,169.8 M109.5,169.8 L128.6,255.2 M128.6,255.2 L42.1,193.4 M42.1,-46.6 L128.6,15.2 M128.6,15.2 L70.6,15.9 M70.6,15.9 L42.1,-46.6 M42.1,193.4 L128.6,255.2 M128.6,255.2 L70.6,255.9 M70.6,255.9 L42.1,193.4 M109.5,169.8 L197.4,193.4 M197.4,193.4 L163.0,238.8 M163.0,238.8 L109.5,169.8 M109.5,-70.2 L163.0,-1.2 M163.0,-1.2 L128.6,15.2 M128.6,15.2 L109.5,-70.2 M109.5,169.8 L163.0,238.8 M163.0,238.8 L128.6,255.2 M128.6,255.2 L109.5,169.8 M-42.6,193.4 L4.2,166.6 M4.2,166.6 L-77.0,238.8 M-77.0,238.8 L-42.6,193.4 M197.4,193.4 L244.2,166.6 M244.2,166.6 L163.0,238.8 M163.0,238.8 L197.4,193.4 M4.2,-73.4 L4.4,8.7 M4.4,8.7 L-77.0,-1.2 M-77.0,-1.2 L4.2,-73.4 M4.2,166.6 L4.4,248.7 M4.4,248.7 L-77.0,238.8 M-77.0,238.8 L4.2,166.6 M244.2,-73.4 L244.4,8.7 M244.4,8.7 L163.0,-1.2 M163.0,-1.2 L244.2,-73.4 M244.2,166.6 L244.4,248.7 M244.4,248.7 L163.0,238.8 M163.0,238.8 L244.2,166.6' stroke='%23CFEFFF' stroke-opacity='.06' stroke-width='1' fill='none'/%3E%3C/svg%3E");
+  --hv-fissures: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240' viewBox='0 0 240 240' fill='none' stroke-linecap='round'%3E%3Cpath d='M109,134 L121,128M121,128 L131,124M131,124 L140,123M140,123 L151,117M151,117 L163,113M163,113 L170,107M170,107 L184,97M184,97 L195,93M195,93 L209,93M92,140 L80,128M80,128 L74,117M74,117 L68,106M68,106 L56,96M56,96 L44,90M44,90 L36,83M202,150 L199,163M199,163 L198,175M198,175 L197,189M197,189 L199,204M199,204 L200,219M200,219 L197,233M197,-7 L192,9M197,233 L192,249M192,9 L190,24M190,24 L188,39M188,39 L182,51M182,51 L173,61M-0,200 L-2,185M240,200 L238,185M-2,185 L2,172M238,185 L242,172M2,172 L5,164M242,172 L245,164M5,164 L11,156M11,156 L21,148M21,148 L30,142M30,142 L40,137M40,137 L53,132M53,132 L67,134M183,-5 L193,-1M183,235 L193,239M193,-1 L204,-1M193,239 L204,239M204,-1 L214,-6M204,239 L214,234M214,234 L226,230M-14,230 L2,225M226,230 L242,225M2,225 L12,224M12,224 L21,226M21,226 L34,225M34,225 L47,223' stroke='%23D6F2FF' stroke-opacity='.16' stroke-width='1.1'/%3E%3Cpath d='M121,128 L128,134M128,134 L143,139M143,139 L160,137M160,137 L174,137M131,124 L141,131M141,131 L149,140M149,140 L153,148M153,148 L161,157M140,123 L150,114M150,114 L158,103M158,103 L167,95M167,95 L178,83M151,117 L160,121M160,121 L174,125M174,125 L187,126M187,126 L201,123M170,107 L181,109M181,109 L192,111M192,111 L201,115M201,115 L210,118M184,97 L188,83M188,83 L192,74M192,74 L194,64M194,64 L195,50M56,96 L43,101M43,101 L27,105M27,105 L16,107M36,83 L26,86M26,86 L11,86M11,86 L0,81M251,86 L240,81M199,204 L206,212M206,212 L211,221M211,221 L220,229M220,229 L230,238M-10,-2 L3,4M-10,238 L3,244M230,-2 L243,4M230,238 L243,244M200,219 L187,220M187,220 L171,225M171,225 L162,228M162,228 L148,234M148,-6 L137,4M148,234 L137,244M192,9 L199,23M199,23 L208,33M208,33 L220,41M220,41 L229,52M-11,52 L-0,59M229,52 L240,59M188,39 L172,43M172,43 L163,46M163,46 L150,50M150,50 L136,54M136,54 L127,52M173,61 L175,76M175,76 L180,86M180,86 L186,94M186,94 L196,105M196,105 L204,117M2,172 L1,156M242,172 L241,156M1,156 L-3,147M241,156 L237,147M237,147 L230,133M230,133 L224,122M21,148 L27,138M27,138 L34,131M34,131 L40,121M40,121 L44,109M34,225 L42,234M42,-6 L52,1M42,234 L52,241M52,1 L62,9M52,241 L62,249M62,9 L69,16' stroke='%23D6F2FF' stroke-opacity='.12' stroke-width='.8'/%3E%3Cpath d='M174,137 L176,128M176,128 L183,116M183,116 L191,108M141,131 L151,125M151,125 L158,119M158,119 L169,113M153,148 L161,157M161,157 L173,163M173,163 L182,171M178,83 L189,81M189,81 L202,85M202,85 L211,88M160,121 L174,118M174,118 L186,111M186,111 L195,108M192,111 L206,106M206,106 L215,104M215,104 L229,96M192,74 L186,64M186,64 L175,56M175,56 L165,54M194,64 L209,59M209,59 L224,58M-16,58 L-0,60M224,58 L240,60M27,105 L22,118M22,118 L17,132M17,132 L14,148M0,81 L0,66M240,81 L240,66M0,66 L-1,53M240,66 L239,53M-1,53 L-0,38M239,53 L240,38M206,212 L201,221M201,221 L196,230M196,-10 L195,3M196,230 L195,243M211,221 L203,231M203,231 L194,235M194,235 L179,236M-10,-2 L6,-2M-10,238 L6,238M230,-2 L246,-2M230,238 L246,238M6,-2 L21,3M6,238 L21,243M21,3 L35,7M137,4 L137,20M137,20 L139,30M139,30 L143,44M-0,59 L4,71M240,59 L244,71M4,71 L6,80M6,80 L3,93M172,43 L157,37M157,37 L145,25M145,25 L139,18M163,46 L160,54M160,54 L156,69M156,69 L157,82M175,76 L167,85M167,85 L157,90M157,90 L141,90M196,105 L193,114M193,114 L187,125M187,125 L179,133M27,138 L40,133M40,133 L52,125M52,125 L60,118M44,109 L35,102M35,102 L27,97M27,97 L14,91M62,9 L61,18M61,18 L55,30M55,30 L48,41' stroke='%23D6F2FF' stroke-opacity='.09' stroke-width='.6'/%3E%3C/svg%3E");
+  --hv-voile-fond: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='v' x='0' y='0' width='100%25' height='100%25' color-interpolation-filters='sRGB'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.011 .016' numOctaves='3' seed='9' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .62  0 0 0 0 .86  0 0 0 0 1  1.5 0 0 0 -.55'/%3E%3C/filter%3E%3Crect width='240' height='240' filter='url(%23v)' opacity='.34'/%3E%3C/svg%3E");
+  --hv-givre-grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='g' x='0' y='0' width='100%25' height='100%25' color-interpolation-filters='sRGB'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' seed='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .90  0 0 0 0 .97  0 0 0 0 1  2.6 0 0 0 -1.05'/%3E%3C/filter%3E%3Crect width='240' height='240' filter='url(%23g)'/%3E%3C/svg%3E");
+  --hv-givre-plaques: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='p' x='0' y='0' width='100%25' height='100%25' color-interpolation-filters='sRGB'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.028 .034' numOctaves='3' seed='21' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .86  0 0 0 0 .96  0 0 0 0 1  3.4 0 0 0 -1.35'/%3E%3C/filter%3E%3Crect width='240' height='240' filter='url(%23p)'/%3E%3C/svg%3E");
+  --hv-neige: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='96' height='11' viewBox='0 0 96 11'%3E%3Cdefs%3E%3ClinearGradient id='n' x1='0' y1='0' x2='0' y2='1'%3E%3Cstop offset='0' stop-color='%23FFFFFF' stop-opacity='.96'/%3E%3Cstop offset='.62' stop-color='%23E3F5FF' stop-opacity='.9'/%3E%3Cstop offset='1' stop-color='%2399D2EE' stop-opacity='.72'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cpath d='M0,6 Q7.0,-1.0 14,2.2 Q22.0,1.0 30,4.2 Q38.5,-1.8 47,1.4 Q54.5,0.4 62,3.6 Q70.0,-1.2 78,2.0 Q87.0,3.5 96,6.0 L96,8 Q90,11 84,8 Q76,9.6 70,7.6 Q62,10.4 55,8 Q46,9.4 40,7.8 Q32,10.6 25,8.2 Q16,9.8 10,7.8 Q4,9.4 0,8 Z' fill='url(%23n)'/%3E%3Cpath d='M0,6 Q7.0,-1.0 14,2.2 Q22.0,1.0 30,4.2 Q38.5,-1.8 47,1.4 Q54.5,0.4 62,3.6 Q70.0,-1.2 78,2.0 Q87.0,3.5 96,6.0' fill='none' stroke='%23FFFFFF' stroke-opacity='.7' stroke-width='.7'/%3E%3C/svg%3E");
+  --hv-stalactites: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='168' height='40' viewBox='0 0 168 40'%3E%3Cdefs%3E%3ClinearGradient id='s' x1='0' y1='0' x2='0' y2='1'%3E%3Cstop offset='0' stop-color='%23CFEFFF' stop-opacity='.92'/%3E%3Cstop offset='.55' stop-color='%2399D8F2' stop-opacity='.62'/%3E%3Cstop offset='1' stop-color='%23B8ECFF' stop-opacity='.25'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cpath d='M2.0,0 L15.0,0 Q12.1,12.1 8.2,22 Q4.9,12.1 2.0,0 Z M18.0,0 L28.0,0 Q25.8,6.6 24.5,12 Q20.2,6.6 18.0,0 Z M31.0,0 L46.0,0 Q42.7,19.8 38.0,36 Q34.3,19.8 31.0,0 Z M50.0,0 L59.0,0 Q57.0,8.2 55.4,15 Q52.0,8.2 50.0,0 Z M62.0,0 L74.0,0 Q71.4,14.9 67.4,27 Q64.6,14.9 62.0,0 Z M78.0,0 L86.0,0 Q84.2,5.5 81.8,10 Q79.8,5.5 78.0,0 Z M89.0,0 L103.0,0 Q99.9,18.2 97.6,33 Q92.1,18.2 89.0,0 Z M107.0,0 L117.0,0 Q114.8,9.4 111.7,17 Q109.2,9.4 107.0,0 Z M120.0,0 L133.0,0 Q130.1,13.8 127.2,25 Q122.9,13.8 120.0,0 Z M136.0,0 L144.0,0 Q142.2,6.1 140.3,11 Q137.8,6.1 136.0,0 Z M147.0,0 L159.0,0 Q156.4,16.5 153.3,30 Q149.6,16.5 147.0,0 Z M162.0,0 L168.0,0 Q166.7,5.0 165.4,9 Q163.3,5.0 162.0,0 Z ' fill='url(%23s)' stroke='%23E8F8FF' stroke-opacity='.5' stroke-width='.6'/%3E%3Cpath d='M5.6,1 Q6.4,11.0 7.6,18.0 M20.8,1 Q21.4,6.0 23.9,9.8 M35.2,1 Q36.1,18.0 37.4,29.5 M52.5,1 Q53.1,7.5 54.8,12.3 M65.4,1 Q66.1,13.5 66.8,22.1 M80.2,1 Q80.7,5.0 81.2,8.2 M92.9,1 Q93.8,16.5 97.0,27.1 M109.8,1 Q110.4,8.5 111.1,13.9 M123.6,1 Q124.4,12.5 126.6,20.5 M138.2,1 Q138.7,5.5 139.7,9.0 M150.4,1 Q151.1,15.0 152.7,24.6 M163.7,1 Q164.0,4.5 164.8,7.4 ' fill='none' stroke='%23FFFFFF' stroke-opacity='.85' stroke-width='.9' stroke-linecap='round'/%3E%3C/svg%3E");
+  --tuile-decor: none; --tuile-bord: rgba(150,214,240,.34); --tuile-lueur: inset 0 0 22px rgba(120,200,240,.10), inset 0 1px 0 rgba(235,250,255,.28);
+  --meteo-decor: none; --meteo-bord: rgba(150,214,240,.34); --meteo-lueur: inset 0 0 22px rgba(120,200,240,.10), inset 0 1px 0 rgba(235,250,255,.28);
+  --tuile-rayon: 0px; --meteo-rayon: 0px;
+}
+
+/* --- Fond : glace profonde, facettes, fissures, voile laiteux --- */
+:root[data-theme="hivernal"] .fond-theme {
+  background:
+    radial-gradient(ellipse at 20% 30%, rgba(150,215,240,.10) 0, rgba(150,215,240,0) 45%),
+    radial-gradient(ellipse at 80% 70%, rgba(120,200,235,.12) 0, rgba(120,200,235,0) 50%),
+    linear-gradient(180deg, #06111B 0%, #0A2132 36%, #0F3347 70%, #17475E 100%);
+}
+:root[data-theme="hivernal"] .fond-motif {
+  background-size: 240px 240px, 240px 240px;
+  background-image: var(--hv-fissures), var(--hv-glace);
+}
+/* reflet de lumière qui traverse lentement la glace */
+:root[data-theme="hivernal"] .fond-theme::after {
+  content: '';
+  position: absolute;
+  top: 0; bottom: 0; left: -45%;
+  width: 55%;
+  background: linear-gradient(100deg, rgba(190,235,255,0) 0%, rgba(190,235,255,.06) 42%, rgba(225,249,255,.12) 50%, rgba(190,235,255,.06) 58%, rgba(190,235,255,0) 100%);
+  -webkit-animation: hvReflet 34s ease-in-out infinite;
+  animation: hvReflet 34s ease-in-out infinite;
+  will-change: transform;
+}
+@-webkit-keyframes hvReflet {
+  0%   { -webkit-transform: translate3d(0,0,0); opacity: 0; }
+  12%  { opacity: 1; }
+  62%  { opacity: 1; }
+  74%  { -webkit-transform: translate3d(260%,0,0); opacity: 0; }
+  100% { -webkit-transform: translate3d(260%,0,0); opacity: 0; }
+}
+@keyframes hvReflet {
+  0%   { transform: translate3d(0,0,0); opacity: 0; }
+  12%  { opacity: 1; }
+  62%  { opacity: 1; }
+  74%  { transform: translate3d(260%,0,0); opacity: 0; }
+  100% { transform: translate3d(260%,0,0); opacity: 0; }
+}
+
+/* ============================================================
+   HIVERNAL : PLANS D'ARRIÈRE-PLAN (parallaxe) — construits par app.js
+   ============================================================ */
+.hiver-theme {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  z-index: -1;
+  pointer-events: none;
+  overflow: hidden;
+}
+.hv-plan, .hv-plan-scroll {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  will-change: transform;
+}
+.hv-plan {
+  -webkit-transition: -webkit-transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+  transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* flocons : tombent en se balançant (aller à droite, retour à gauche) */
+.hv-f {
+  position: absolute;
+  top: 0; left: 0;
+  line-height: 1;
+  opacity: 0;
+  -webkit-animation: hvChute linear infinite;
+  animation: hvChute linear infinite;
+  will-change: transform;
+}
+.hv-f-point {
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(238,250,255,.95) 0, rgba(238,250,255,.55) 45%, rgba(238,250,255,0) 100%);
+}
+.hv-f-glyphe { color: rgba(228,247,255,.95); }
+.hv-f-a::before { content: '\2744'; }
+.hv-f-b::before { content: '\2745'; }
+.hv-f-c::before { content: '\2746'; }
+
+@-webkit-keyframes hvChute {
+  0%   { -webkit-transform: translate3d(0,-70px,0) rotate(0deg); opacity: 0; }
+  8%   { opacity: var(--op, .5); }
+  50%  { -webkit-transform: translate3d(var(--dx1, 0px),var(--hm, 500px),0) rotate(calc(var(--rot, 0deg) * .5)); }
+  92%  { opacity: var(--op, .5); }
+  100% { -webkit-transform: translate3d(var(--dx, 0px),var(--h, 1000px),0) rotate(var(--rot, 0deg)); opacity: 0; }
+}
+@keyframes hvChute {
+  0%   { transform: translate3d(0,-70px,0) rotate(0deg); opacity: 0; }
+  8%   { opacity: var(--op, .5); }
+  50%  { transform: translate3d(var(--dx1, 0px),var(--hm, 500px),0) rotate(calc(var(--rot, 0deg) * .5)); }
+  92%  { opacity: var(--op, .5); }
+  100% { transform: translate3d(var(--dx, 0px),var(--h, 1000px),0) rotate(var(--rot, 0deg)); opacity: 0; }
+}
+
+/* scintillements : un point qui brille une seconde, puis s'éteint (pas d'étoile) */
+.hv-s {
+  position: absolute;
+  border-radius: 50%;
+  background: radial-gradient(circle, #FFFFFF 0, rgba(255,255,255,.85) 30%, rgba(200,238,255,0) 100%);
+  box-shadow: 0 0 5px 1px rgba(205,240,255,.5);
+  opacity: 0;
+  -webkit-animation: hvScintille ease-in-out infinite;
+  animation: hvScintille ease-in-out infinite;
+}
+.hv-s-bleu {
+  background: radial-gradient(circle, #E6FAFF 0, rgba(150,225,250,.85) 30%, rgba(127,216,242,0) 100%);
+  box-shadow: 0 0 6px 1px rgba(127,216,242,.5);
+}
+@-webkit-keyframes hvScintille {
+  0%, 100% { opacity: 0; -webkit-transform: scale(.4); }
+  6%        { opacity: var(--op, .8); -webkit-transform: scale(1); }
+  15%       { opacity: 0; -webkit-transform: scale(.5); }
+}
+@keyframes hvScintille {
+  0%, 100% { opacity: 0; transform: scale(.4); }
+  6%        { opacity: var(--op, .8); transform: scale(1); }
+  15%       { opacity: 0; transform: scale(.5); }
+}
+
+/* brume : nappes qui glissent lentement */
+.hv-brume {
+  position: absolute;
+  border-radius: 50%;
+  background: radial-gradient(ellipse at center, rgba(178,218,238,.36) 0%, rgba(178,218,238,.14) 42%, rgba(178,218,238,0) 70%);
+  opacity: 0;
+  -webkit-animation: hvBrume linear infinite;
+  animation: hvBrume linear infinite;
+  will-change: transform;
+}
+@-webkit-keyframes hvBrume {
+  0%   { -webkit-transform: translate3d(0,0,0); opacity: 0; }
+  14%  { opacity: var(--op, .6); }
+  86%  { opacity: var(--op, .6); }
+  100% { -webkit-transform: translate3d(var(--dx, 1200px),0,0); opacity: 0; }
+}
+@keyframes hvBrume {
+  0%   { transform: translate3d(0,0,0); opacity: 0; }
+  14%  { opacity: var(--op, .6); }
+  86%  { opacity: var(--op, .6); }
+  100% { transform: translate3d(var(--dx, 1200px),0,0); opacity: 0; }
+}
+.hv-colline { position: absolute; }
+.hv-colline svg { display: block; }
+
+/* ============================================================
+   HIVERNAL : GIVRE AU PREMIER PLAN (la vitre gelée) — construit par app.js
+   ============================================================ */
+.hiver-givre {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  z-index: 55;              /* devant l'en-tête, la navigation et les fenêtres (50) ; derrière les messages (100) */
+  pointer-events: none;     /* ne bloque jamais les touches */
+  background-image:
+    radial-gradient(circle at 0 0, rgba(222,246,255,.20) 0, rgba(222,246,255,.08) 45%, rgba(222,246,255,0) 100%),
+    radial-gradient(circle at 100% 0, rgba(222,246,255,.20) 0, rgba(222,246,255,.08) 45%, rgba(222,246,255,0) 100%),
+    radial-gradient(circle at 100% 100%, rgba(222,246,255,.22) 0, rgba(222,246,255,.09) 45%, rgba(222,246,255,0) 100%),
+    radial-gradient(circle at 0 100%, rgba(222,246,255,.22) 0, rgba(222,246,255,.09) 45%, rgba(222,246,255,0) 100%);
+  background-repeat: no-repeat;
+  background-size: 250px 250px, 250px 250px, 270px 270px, 270px 270px;
+  background-position: 0 0, 100% 0, 100% 100%, 0 100%;
+}
+.hv-givre-voile {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background-image: var(--hv-givre-grain), var(--hv-givre-plaques);
+  background-size: 240px 240px, 240px 240px;
+  -webkit-mask-image:
+    -webkit-linear-gradient(top, #000 0, rgba(0,0,0,.5) 10px, rgba(0,0,0,0) 40px),
+    -webkit-linear-gradient(bottom, #000 0, rgba(0,0,0,.5) 10px, rgba(0,0,0,0) 44px),
+    -webkit-linear-gradient(left, #000 0, rgba(0,0,0,.5) 12px, rgba(0,0,0,0) 48px),
+    -webkit-linear-gradient(right, #000 0, rgba(0,0,0,.5) 12px, rgba(0,0,0,0) 48px);
+  mask-image:
+    linear-gradient(to bottom, #000 0, rgba(0,0,0,.5) 10px, rgba(0,0,0,0) 40px),
+    linear-gradient(to top, #000 0, rgba(0,0,0,.5) 10px, rgba(0,0,0,0) 44px),
+    linear-gradient(to right, #000 0, rgba(0,0,0,.5) 12px, rgba(0,0,0,0) 48px),
+    linear-gradient(to left, #000 0, rgba(0,0,0,.5) 12px, rgba(0,0,0,0) 48px);
+  opacity: .62;
+}
+.hv-givre-cristaux {
+  position: absolute;
+  top: 0; left: 0;
+  -webkit-filter: drop-shadow(0 0 2px rgba(150,222,255,.55));
+  filter: drop-shadow(0 0 2px rgba(150,222,255,.55));
+}
+.hv-gx-c { stroke: rgba(232,249,255,.62); stroke-width: 1.2; }
+.hv-gx-b { stroke: rgba(232,249,255,.46); stroke-width: .9; }
+.hv-gx-t { stroke: rgba(232,249,255,.34); stroke-width: .7; }
+
+@media (prefers-reduced-motion: reduce) {
+  .hv-f, .hv-brume { display: none; }
+  .hv-s { -webkit-animation: none; animation: none; opacity: .55; }
+  .hv-plan { -webkit-transition: none; transition: none; }
+  :root[data-theme="hivernal"] .fond-theme::after { display: none; }
+}
+
+/* ============================================================
+   HIVERNAL : CARTES TAILLÉES COMME DES CRISTAUX
+   Coins coupés (différents d'une carte à l'autre), facettes claires et sombres,
+   arêtes vives, neige posée sur le bord haut.
+   ============================================================ */
+:root[data-theme="hivernal"] .carte,
+:root[data-theme="hivernal"] .carte-checklist,
+:root[data-theme="hivernal"] .meteo-carte,
+:root[data-theme="hivernal"] .reglages-section,
+:root[data-theme="hivernal"] .sx-exo,
+:root[data-theme="hivernal"] .accueil-tuile,
+:root[data-theme="hivernal"] .accueil-carte:not(.seance-a-faire),
+:root[data-theme="hivernal"] .modal-contenu {
+  --c1: 16px; --c2: 8px; --c3: 18px; --c4: 9px;
+  --fa1: 112deg; --fa2: 64deg; --fa3: 158deg; --fa4: -24deg;
+  --hv-neige-x: 0px;
+}
+:root[data-theme="hivernal"] .carte:nth-child(even),
+:root[data-theme="hivernal"] .carte-checklist:nth-child(even),
+:root[data-theme="hivernal"] .meteo-carte:nth-child(even),
+:root[data-theme="hivernal"] .reglages-section:nth-child(even),
+:root[data-theme="hivernal"] .sx-exo:nth-child(even),
+:root[data-theme="hivernal"] .accueil-tuile:nth-child(even),
+:root[data-theme="hivernal"] .accueil-carte:not(.seance-a-faire):nth-child(even),
+:root[data-theme="hivernal"] .modal-contenu:nth-child(even) {
+  --c1: 8px; --c2: 16px; --c3: 9px; --c4: 18px;
+  --fa1: 68deg; --fa2: 116deg; --fa3: 22deg; --fa4: 204deg;
+  --hv-neige-x: 41px;
+}
+:root[data-theme="hivernal"] .carte:nth-child(3n),
+:root[data-theme="hivernal"] .carte-checklist:nth-child(3n),
+:root[data-theme="hivernal"] .meteo-carte:nth-child(3n),
+:root[data-theme="hivernal"] .reglages-section:nth-child(3n),
+:root[data-theme="hivernal"] .sx-exo:nth-child(3n),
+:root[data-theme="hivernal"] .accueil-tuile:nth-child(3n),
+:root[data-theme="hivernal"] .accueil-carte:not(.seance-a-faire):nth-child(3n),
+:root[data-theme="hivernal"] .modal-contenu:nth-child(3n) {
+  --c1: 12px; --c2: 12px; --c3: 7px; --c4: 20px;
+  --fa1: 96deg; --fa2: 78deg; --fa3: 170deg; --fa4: -40deg;
+  --hv-neige-x: 67px;
+}
+:root[data-theme="hivernal"] .carte,
+:root[data-theme="hivernal"] .carte-checklist,
+:root[data-theme="hivernal"] .meteo-carte,
+:root[data-theme="hivernal"] .reglages-section,
+:root[data-theme="hivernal"] .sx-exo,
+:root[data-theme="hivernal"] .accueil-tuile,
+:root[data-theme="hivernal"] .accueil-carte:not(.seance-a-faire),
+:root[data-theme="hivernal"] .modal-contenu {
+  border-color: var(--hv-arete);
+  border-radius: 0;
+  -webkit-clip-path: polygon(var(--c1) 0, calc(100% - var(--c2)) 0, 100% var(--c2), 100% calc(100% - var(--c3)), calc(100% - var(--c3)) 100%, var(--c4) 100%, 0 calc(100% - var(--c4)), 0 var(--c1));
+  clip-path: polygon(var(--c1) 0, calc(100% - var(--c2)) 0, 100% var(--c2), 100% calc(100% - var(--c3)), calc(100% - var(--c3)) 100%, var(--c4) 100%, 0 calc(100% - var(--c4)), 0 var(--c1));
+  box-shadow: var(--tuile-lueur);
+  background-color: rgba(11,29,43,.82);
+  background-image:
+    linear-gradient(135deg, rgba(0,0,0,0) 0, rgba(0,0,0,0) 44%, var(--hv-arete) 44%, var(--hv-arete) 56%, rgba(0,0,0,0) 56%),
+    linear-gradient(45deg, rgba(0,0,0,0) 0, rgba(0,0,0,0) 44%, var(--hv-arete) 44%, var(--hv-arete) 56%, rgba(0,0,0,0) 56%),
+    linear-gradient(135deg, rgba(0,0,0,0) 0, rgba(0,0,0,0) 44%, var(--hv-arete) 44%, var(--hv-arete) 56%, rgba(0,0,0,0) 56%),
+    linear-gradient(45deg, rgba(0,0,0,0) 0, rgba(0,0,0,0) 44%, var(--hv-arete) 44%, var(--hv-arete) 56%, rgba(0,0,0,0) 56%),
+    var(--hv-neige),
+    linear-gradient(var(--fa1), rgba(190,236,255,.15) 0, rgba(190,236,255,.15) 21%, rgba(220,246,255,.36) 21%, rgba(220,246,255,.36) 21.9%, rgba(190,236,255,0) 21.9%),
+    linear-gradient(var(--fa2), rgba(0,0,0,0) 0, rgba(0,0,0,0) 62%, rgba(110,200,240,.11) 62%, rgba(110,200,240,.11) 86%, rgba(220,246,255,.30) 86%, rgba(220,246,255,.30) 86.8%, rgba(0,0,0,0) 86.8%),
+    linear-gradient(var(--fa3), rgba(2,12,20,.34) 0, rgba(2,12,20,.34) 16%, rgba(2,12,20,0) 16%),
+    linear-gradient(var(--fa4), rgba(2,12,20,.30) 0, rgba(2,12,20,.30) 15%, rgba(2,12,20,0) 15%),
+    linear-gradient(180deg, rgba(190,236,255,.10) 0, rgba(190,236,255,0) 46%);
+  background-repeat: no-repeat, no-repeat, no-repeat, no-repeat, repeat-x, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat;
+  background-size: var(--c1) var(--c1), var(--c2) var(--c2), var(--c3) var(--c3), var(--c4) var(--c4), 96px 11px, 100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%;
+  background-position: 0 0, 100% 0, 100% 100%, 0 100%, var(--hv-neige-x, 0px) 0, 0 0, 0 0, 0 0, 0 0, 0 0;
+  -webkit-background-origin: border-box; background-origin: border-box;
+}
+:root[data-theme="hivernal"] li.carte,
+:root[data-theme="hivernal"] .modal-contenu .carte,
+:root[data-theme="hivernal"] .modal-contenu .reglages-section,
+:root[data-theme="hivernal"] .ressenti-carte .sommeil-ligne,
+:root[data-theme="hivernal"] .ressenti-carte .ressenti-ligne:not(.booleens-ligne),
+:root[data-theme="hivernal"] #liste-historique-seances .hist-ligne {
+  --c1: 7px; --c2: 4px; --c3: 8px; --c4: 4px;
+  --fa1: 112deg; --fa2: 64deg; --fa3: 158deg; --fa4: -24deg;
+  --hv-neige-x: 0px;
+}
+:root[data-theme="hivernal"] li.carte:nth-child(even),
+:root[data-theme="hivernal"] .modal-contenu .carte:nth-child(even),
+:root[data-theme="hivernal"] .modal-contenu .reglages-section:nth-child(even),
+:root[data-theme="hivernal"] .ressenti-carte .sommeil-ligne:nth-child(even),
+:root[data-theme="hivernal"] .ressenti-carte .ressenti-ligne:not(.booleens-ligne):nth-child(even),
+:root[data-theme="hivernal"] #liste-historique-seances .hist-ligne:nth-child(even) {
+  --c1: 4px; --c2: 7px; --c3: 4px; --c4: 8px;
+  --fa1: 68deg; --fa2: 116deg; --fa3: 22deg; --fa4: 204deg;
+  --hv-neige-x: 0px;
+}
+:root[data-theme="hivernal"] li.carte,
+:root[data-theme="hivernal"] .modal-contenu .carte,
+:root[data-theme="hivernal"] .modal-contenu .reglages-section,
+:root[data-theme="hivernal"] .ressenti-carte .sommeil-ligne,
+:root[data-theme="hivernal"] .ressenti-carte .ressenti-ligne:not(.booleens-ligne),
+:root[data-theme="hivernal"] #liste-historique-seances .hist-ligne {
+  border-color: rgba(150,214,240,.26);
+  border-radius: 0;
+  box-shadow: none;
+  outline: none;
+  -webkit-clip-path: polygon(var(--c1) 0, calc(100% - var(--c2)) 0, 100% var(--c2), 100% calc(100% - var(--c3)), calc(100% - var(--c3)) 100%, var(--c4) 100%, 0 calc(100% - var(--c4)), 0 var(--c1));
+  clip-path: polygon(var(--c1) 0, calc(100% - var(--c2)) 0, 100% var(--c2), 100% calc(100% - var(--c3)), calc(100% - var(--c3)) 100%, var(--c4) 100%, 0 calc(100% - var(--c4)), 0 var(--c1));
+  background-color: rgba(9,24,37,.72);
+  background-image:
+    linear-gradient(135deg, rgba(0,0,0,0) 0, rgba(0,0,0,0) 44%, var(--hv-arete) 44%, var(--hv-arete) 56%, rgba(0,0,0,0) 56%),
+    linear-gradient(45deg, rgba(0,0,0,0) 0, rgba(0,0,0,0) 44%, var(--hv-arete) 44%, var(--hv-arete) 56%, rgba(0,0,0,0) 56%),
+    linear-gradient(135deg, rgba(0,0,0,0) 0, rgba(0,0,0,0) 44%, var(--hv-arete) 44%, var(--hv-arete) 56%, rgba(0,0,0,0) 56%),
+    linear-gradient(45deg, rgba(0,0,0,0) 0, rgba(0,0,0,0) 44%, var(--hv-arete) 44%, var(--hv-arete) 56%, rgba(0,0,0,0) 56%),
+    linear-gradient(var(--fa1), rgba(190,236,255,.15) 0, rgba(190,236,255,.15) 21%, rgba(220,246,255,.36) 21%, rgba(220,246,255,.36) 21.9%, rgba(190,236,255,0) 21.9%),
+    linear-gradient(var(--fa2), rgba(0,0,0,0) 0, rgba(0,0,0,0) 62%, rgba(110,200,240,.11) 62%, rgba(110,200,240,.11) 86%, rgba(220,246,255,.30) 86%, rgba(220,246,255,.30) 86.8%, rgba(0,0,0,0) 86.8%),
+    linear-gradient(var(--fa3), rgba(2,12,20,.34) 0, rgba(2,12,20,.34) 16%, rgba(2,12,20,0) 16%),
+    linear-gradient(var(--fa4), rgba(2,12,20,.30) 0, rgba(2,12,20,.30) 15%, rgba(2,12,20,0) 15%),
+    linear-gradient(180deg, rgba(190,236,255,.10) 0, rgba(190,236,255,0) 46%);
+  background-repeat: no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat;
+  background-size: var(--c1) var(--c1), var(--c2) var(--c2), var(--c3) var(--c3), var(--c4) var(--c4), 100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%;
+  background-position: 0 0, 100% 0, 100% 100%, 0 100%, 0 0, 0 0, 0 0, 0 0, 0 0;
+  -webkit-background-origin: border-box; background-origin: border-box;
+}
+
+/* --- Séance du jour : grand cristal bleu, halo glacé --- */
+:root[data-theme="hivernal"] .accueil-carte.seance-a-faire {
+  --c1: 20px; --c2: 10px; --c3: 22px; --c4: 11px;
+  --fa1: 112deg; --fa2: 64deg; --fa3: 158deg; --fa4: -24deg;
+  --hv-neige-x: 18px;
+  border-color: rgba(190,236,255,.7);
+  border-radius: 0;
+  -webkit-clip-path: polygon(var(--c1) 0, calc(100% - var(--c2)) 0, 100% var(--c2), 100% calc(100% - var(--c3)), calc(100% - var(--c3)) 100%, var(--c4) 100%, 0 calc(100% - var(--c4)), 0 var(--c1));
+  clip-path: polygon(var(--c1) 0, calc(100% - var(--c2)) 0, 100% var(--c2), 100% calc(100% - var(--c3)), calc(100% - var(--c3)) 100%, var(--c4) 100%, 0 calc(100% - var(--c4)), 0 var(--c1));
+  color: #fff;
+  box-shadow: inset 0 0 26px rgba(190,236,255,.28), inset 0 1px 0 rgba(255,255,255,.55);
+  -webkit-animation: none; animation: none;
+  background-color: #1F6A9C;
+  background-image:
+    linear-gradient(135deg, rgba(0,0,0,0) 0, rgba(0,0,0,0) 44%, var(--hv-arete) 44%, var(--hv-arete) 56%, rgba(0,0,0,0) 56%),
+    linear-gradient(45deg, rgba(0,0,0,0) 0, rgba(0,0,0,0) 44%, var(--hv-arete) 44%, var(--hv-arete) 56%, rgba(0,0,0,0) 56%),
+    linear-gradient(135deg, rgba(0,0,0,0) 0, rgba(0,0,0,0) 44%, var(--hv-arete) 44%, var(--hv-arete) 56%, rgba(0,0,0,0) 56%),
+    linear-gradient(45deg, rgba(0,0,0,0) 0, rgba(0,0,0,0) 44%, var(--hv-arete) 44%, var(--hv-arete) 56%, rgba(0,0,0,0) 56%),
+    var(--hv-neige),
+    linear-gradient(var(--fa1), rgba(225,248,255,.20) 0, rgba(225,248,255,.20) 24%, rgba(240,252,255,.55) 24%, rgba(240,252,255,.55) 24.9%, rgba(225,248,255,0) 24.9%),
+    linear-gradient(var(--fa2), rgba(0,0,0,0) 0, rgba(0,0,0,0) 58%, rgba(160,226,252,.18) 58%, rgba(160,226,252,.18) 83%, rgba(240,252,255,.45) 83%, rgba(240,252,255,.45) 83.9%, rgba(0,0,0,0) 83.9%),
+    linear-gradient(var(--fa3), rgba(2,18,40,.34) 0, rgba(2,18,40,.34) 17%, rgba(2,18,40,0) 17%),
+    linear-gradient(var(--fa4), rgba(2,18,40,.34) 0, rgba(2,18,40,.34) 16%, rgba(2,18,40,0) 16%),
+    linear-gradient(135deg, #48B8DE 0%, #2C80BC 52%, #1B4F88 100%);
+  background-repeat: no-repeat, no-repeat, no-repeat, no-repeat, repeat-x, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat;
+  background-size: var(--c1) var(--c1), var(--c2) var(--c2), var(--c3) var(--c3), var(--c4) var(--c4), 96px 11px, 100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%;
+  background-position: 0 0, 100% 0, 100% 100%, 0 100%, var(--hv-neige-x) 0, 0 0, 0 0, 0 0, 0 0, 0 0;
+  -webkit-background-origin: border-box; background-origin: border-box;
+}
+:root[data-theme="hivernal"] .accueil-carte.seance-a-faire .titre-affichage,
+:root[data-theme="hivernal"] .accueil-carte.seance-a-faire .texte-att { color: #fff; text-shadow: 0 1px 3px rgba(0,25,60,.6); }
+:root[data-theme="hivernal"] .accueil-carte.seance-a-faire::before {
+  background: radial-gradient(circle, rgba(236,251,255,.9) 0%, rgba(170,230,252,.5) 25%, rgba(120,205,245,.2) 45%, rgba(120,205,245,0) 70%);
+}
+:root[data-theme="hivernal"] .accueil-carte.seance-a-faire::after {
+  background:
+    conic-gradient(from 0deg, transparent 0deg, rgba(230,249,255,.85) 20deg, transparent 40deg, transparent 360deg),
+    conic-gradient(from 63deg, transparent 0deg, rgba(230,249,255,.75) 40deg, transparent 80deg, transparent 360deg),
+    conic-gradient(from 132deg, transparent 0deg, rgba(230,249,255,.85) 30deg, transparent 60deg, transparent 360deg),
+    conic-gradient(from 222deg, transparent 0deg, rgba(230,249,255,.7) 60deg, transparent 120deg, transparent 360deg),
+    conic-gradient(from 278deg, transparent 0deg, rgba(230,249,255,.8) 70deg, transparent 140deg, transparent 360deg),
+    conic-gradient(from 352deg, transparent 0deg, rgba(230,249,255,.75) 20deg, transparent 40deg, transparent 360deg);
+}
+
+/* --- États portés par la bordure : on les conserve --- */
+:root[data-theme="hivernal"] .meteo-carte { border-left-color: var(--meteo-couleur); }
+:root[data-theme="hivernal"] #liste-historique-seances .hist-ligne { border-left-color: var(--hist-etat, var(--couleur-cyan)); }
+:root[data-theme="hivernal"] .carte.agenda-entree { border-left-color: var(--couleur-cyan); }
+:root[data-theme="hivernal"] .carte.agenda-entree-fait { border-left-color: var(--couleur-succes); }
+:root[data-theme="hivernal"] .sx-exo-actif { border-color: var(--couleur-turquoise); box-shadow: inset 0 0 22px -6px var(--couleur-turquoise), var(--tuile-lueur); }
+
+/* ============================================================
+   HIVERNAL : EN-TÊTE (plaque de glace + glaçons) ET NAVIGATION (neige)
+   La plaque est dessinée par ::before pour que les glaçons et la neige ne soient pas coupés.
+   ============================================================ */
+:root[data-theme="hivernal"] .entete-carte,
+:root[data-theme="hivernal"] .nav-bas {
+  border: none;
+  border-radius: 0;
+  -webkit-backdrop-filter: none; backdrop-filter: none;
+}
+:root[data-theme="hivernal"] .entete-carte::before,
+:root[data-theme="hivernal"] .nav-bas::before {
+  --c1: 14px; --c2: 8px; --c3: 16px; --c4: 8px;
+  --fa1: 112deg; --fa2: 64deg; --fa3: 158deg; --fa4: -24deg;
+  border: 1px solid var(--hv-arete);
+  border-radius: 0;
+  opacity: 1;
+  -webkit-clip-path: polygon(var(--c1) 0, calc(100% - var(--c2)) 0, 100% var(--c2), 100% calc(100% - var(--c3)), calc(100% - var(--c3)) 100%, var(--c4) 100%, 0 calc(100% - var(--c4)), 0 var(--c1));
+  clip-path: polygon(var(--c1) 0, calc(100% - var(--c2)) 0, 100% var(--c2), 100% calc(100% - var(--c3)), calc(100% - var(--c3)) 100%, var(--c4) 100%, 0 calc(100% - var(--c4)), 0 var(--c1));
+  background-color: rgba(8,24,38,.9);
+  background-image:
+    linear-gradient(135deg, rgba(0,0,0,0) 0, rgba(0,0,0,0) 44%, var(--hv-arete) 44%, var(--hv-arete) 56%, rgba(0,0,0,0) 56%),
+    linear-gradient(45deg, rgba(0,0,0,0) 0, rgba(0,0,0,0) 44%, var(--hv-arete) 44%, var(--hv-arete) 56%, rgba(0,0,0,0) 56%),
+    linear-gradient(135deg, rgba(0,0,0,0) 0, rgba(0,0,0,0) 44%, var(--hv-arete) 44%, var(--hv-arete) 56%, rgba(0,0,0,0) 56%),
+    linear-gradient(45deg, rgba(0,0,0,0) 0, rgba(0,0,0,0) 44%, var(--hv-arete) 44%, var(--hv-arete) 56%, rgba(0,0,0,0) 56%),
+    linear-gradient(var(--fa1), rgba(190,236,255,.15) 0, rgba(190,236,255,.15) 21%, rgba(220,246,255,.36) 21%, rgba(220,246,255,.36) 21.9%, rgba(190,236,255,0) 21.9%),
+    linear-gradient(var(--fa2), rgba(0,0,0,0) 0, rgba(0,0,0,0) 62%, rgba(110,200,240,.11) 62%, rgba(110,200,240,.11) 86%, rgba(220,246,255,.30) 86%, rgba(220,246,255,.30) 86.8%, rgba(0,0,0,0) 86.8%),
+    linear-gradient(var(--fa3), rgba(2,12,20,.34) 0, rgba(2,12,20,.34) 16%, rgba(2,12,20,0) 16%),
+    linear-gradient(var(--fa4), rgba(2,12,20,.30) 0, rgba(2,12,20,.30) 15%, rgba(2,12,20,0) 15%),
+    linear-gradient(180deg, rgba(190,236,255,.10) 0, rgba(190,236,255,0) 46%);
+  background-repeat: no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat;
+  background-size: var(--c1) var(--c1), var(--c2) var(--c2), var(--c3) var(--c3), var(--c4) var(--c4), 100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%;
+  background-position: 0 0, 100% 0, 100% 100%, 0 100%, 0 0, 0 0, 0 0, 0 0, 0 0;
+  -webkit-background-origin: border-box; background-origin: border-box;
+}
+:root[data-theme="hivernal"] .nav-bas::before { --c1: 9px; --c2: 18px; --c3: 9px; --c4: 18px; --fa1: 68deg; --fa2: 116deg; --fa3: 22deg; --fa4: 204deg; }
+
+/* glaçons suspendus sous l'en-tête */
+:root[data-theme="hivernal"] .entete::after {
+  content: '';
+  position: absolute;
+  left: 30px; right: 30px;
+  top: calc(100% - 9px);
+  height: 40px;
+  background: var(--hv-stalactites) repeat-x 0 0 / 168px 40px;
+  pointer-events: none;
+}
+/* neige posée sur la barre de navigation */
+:root[data-theme="hivernal"] .nav-bas::after {
+  content: '';
+  position: absolute;
+  left: 16px; right: 16px;
+  top: -7px;
+  height: 11px;
+  background: var(--hv-neige) repeat-x 23px 0 / 96px 11px;
+  pointer-events: none;
+}
+
+/* pastille de l'onglet actif : une gemme */
+:root[data-theme="hivernal"] .nav-indicateur {
+  border-radius: 0;
+  -webkit-clip-path: polygon(9px 0, 100% 0, 100% calc(100% - 9px), calc(100% - 9px) 100%, 0 100%, 0 9px);
+  clip-path: polygon(9px 0, 100% 0, 100% calc(100% - 9px), calc(100% - 9px) 100%, 0 100%, 0 9px);
+}
+:root[data-theme="hivernal"] .nav-indicateur::before,
+:root[data-theme="hivernal"] .nav-indicateur::after { border-radius: 0; }
+:root[data-theme="hivernal"] .nav-indicateur::after { box-shadow: none; opacity: .75; }
+
+/* boutons pleins : gemme à deux coins coupés + reflet de facette */
+:root[data-theme="hivernal"] .btn-plein,
+:root[data-theme="hivernal"] .sx-valider,
+:root[data-theme="hivernal"] .sx-btn-fin {
+  position: relative;
+  z-index: 0;
+  border-radius: 0;
+  box-shadow: none;
+  -webkit-clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
+  clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
+}
+:root[data-theme="hivernal"] .btn-plein::before,
+:root[data-theme="hivernal"] .sx-valider::before,
+:root[data-theme="hivernal"] .sx-btn-fin::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    linear-gradient(112deg, rgba(255,255,255,.34) 0, rgba(255,255,255,.34) 26%, rgba(255,255,255,.7) 26%, rgba(255,255,255,.7) 27.2%, rgba(255,255,255,0) 27.2%),
+    linear-gradient(-24deg, rgba(0,30,70,.22) 0, rgba(0,30,70,.22) 20%, rgba(0,30,70,0) 20%);
+}
+:root[data-theme="hivernal"] .btn-contour,
+:root[data-theme="hivernal"] .sous-onglets,
+:root[data-theme="hivernal"] .sous-indicateur,
+:root[data-theme="hivernal"] .sous-indicateur::before,
+:root[data-theme="hivernal"] .sous-indicateur::after,
+:root[data-theme="hivernal"] .sous-onglet,
+:root[data-theme="hivernal"] .champ input,
+:root[data-theme="hivernal"] .champ select,
+:root[data-theme="hivernal"] .champ textarea { border-radius: 3px; }
+
+/* --- Couche avant (flocons existants + quelques scintillements et un voile de brume très léger) --- */
+.amb-scintille {
+  border-radius: 50%%;
+  background: radial-gradient(circle, #FFFFFF 0, rgba(255,255,255,.8) 30%%, rgba(200,238,255,0) 100%%);
+  box-shadow: 0 0 5px 1px rgba(205,240,255,.45);
+  animation-name: hvScintille;
+  animation-timing-function: ease-in-out;
+  --op: .75;
+}
+.amb-brume-givre {
+  background: radial-gradient(circle, rgba(190,226,245,.34) 0%%, rgba(190,226,245,.12) 45%%, rgba(190,226,245,0) 70%%);
+  --op: .22;
+}
