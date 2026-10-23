@@ -5908,7 +5908,7 @@ body { background: transparent; }
 .hv-brume {
   position: absolute;
   border-radius: 50%;
-  background: radial-gradient(ellipse at center, rgba(178,218,238,.36) 0%, rgba(178,218,238,.14) 42%, rgba(178,218,238,0) 70%);
+  background: radial-gradient(ellipse at center, rgba(178,218,238,.5) 0%, rgba(178,218,238,.22) 42%, rgba(178,218,238,0) 70%);
   opacity: 0;
   -webkit-animation: hvBrume linear infinite;
   animation: hvBrume linear infinite;

@@ -7055,8 +7055,7 @@ var AMBIANCES = {
   hivernal: [
     { c: 'amb-flocon amb-flocon-a', n: 14, t: [6, 22], d: [20, 38], dx: 170, r: 360 },
     { c: 'amb-flocon amb-flocon-b', n: 12, t: [6, 22], d: [20, 38], dx: 170, r: 360 },
-    { c: 'amb-scintille', n: 9, t: [2, 3.4], d: [6, 13], pos: 'libre' },
-    { c: 'amb-brume amb-brume-givre', n: 2, t: [320, 520], d: [60, 95], pos: 'h', y: [62, 98], dy: -24 }
+    { c: 'amb-scintille', n: 9, t: [2, 3.4], d: [6, 13], pos: 'libre' }
   ],
   paindepice: [
     { c: 'amb-etincelle', n: 18, t: [8, 18], d: [2, 5], pos: 'libre' }
@@ -7502,13 +7501,13 @@ var HIVER_SCROLL_ECHELLE = 500;
 var HIVER_MARGE = 230;              /* marge autour de l'écran pour que la parallaxe ne montre jamais de vide */
 
 var HIVER_PLANS = [
-  { genre: 'brume',      prof: 0.05, sc: 0.3,  n: 3,  d: [70, 110], op: [.5, .8] },
-  { genre: 'flocons',    prof: 0.10, sc: 1,    n: 26, t: [1.6, 3],   d: [38, 60], dx: 36,  op: [.25, .5],  forme: 'point' },
-  { genre: 'colline',    prof: 0.20, sc: 0.3,  haut: 170, couleur: '168,214,238', op: .26 },
+  { genre: 'brume',      prof: 0.05, sc: 0.3,  n: 4,  d: [60, 95], op: [.8, 1] },
+  { genre: 'flocons',    prof: 0.10, sc: 1,    n: 40, t: [2.5, 4.5], d: [38, 60], dx: 36,  op: [.45, .75], forme: 'point' },
+  { genre: 'colline',    prof: 0.20, sc: 0.3,  haut: 170, couleur: '168,214,238', op: .34 },
   { genre: 'scintilles', prof: 0.35, sc: 1,    n: 26, t: [1.8, 3.2], d: [5, 12], op: [.55, .95] },
-  { genre: 'flocons',    prof: 0.45, sc: 1,    n: 16, t: [3, 5.5],   d: [24, 38], dx: 60,  op: [.3, .55],  forme: 'point' },
-  { genre: 'colline',    prof: 0.65, sc: 0.3,  haut: 120, couleur: '205,236,252', op: .2 },
-  { genre: 'flocons',    prof: 1.00, sc: 1,    n: 8,  t: [11, 19],   d: [15, 24], dx: 100, r: 200, op: [.2, .38], forme: 'glyphe' }
+  { genre: 'flocons',    prof: 0.45, sc: 1,    n: 24, t: [5, 9],     d: [24, 38], dx: 60,  op: [.55, .9],  forme: 'point' },
+  { genre: 'colline',    prof: 0.65, sc: 0.3,  haut: 120, couleur: '205,236,252', op: .28 },
+  { genre: 'flocons',    prof: 1.00, sc: 1,    n: 12, t: [16, 28],   d: [15, 24], dx: 100, r: 200, op: [.4, .65], forme: 'glyphe' }
 ];
 
 var themeHiverCourant = null;
@@ -7584,7 +7583,7 @@ function htmlBrumeHiver(pl, W, H) {
   var html = '';
   for (var i = 0; i < n; i++) {
     var larg = aleaHiver(W * 0.9, W * 1.5);
-    var haut = aleaHiver(150, 260);
+    var haut = aleaHiver(220, 380);
     var duree = aleaHiver(pl.d[0], pl.d[1]);
     var s = 'left:' + (-larg).toFixed(0) + 'px;top:' + (H * aleaHiver(0.5, 0.92)).toFixed(0) + 'px;';
     s += 'width:' + larg.toFixed(0) + 'px;height:' + haut.toFixed(0) + 'px;';
