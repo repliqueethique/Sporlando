@@ -7055,7 +7055,7 @@ var AMBIANCES = {
   hivernal: [
     { c: 'amb-flocon amb-flocon-a', n: 14, t: [6, 22], d: [20, 38], dx: 170, r: 360 },
     { c: 'amb-flocon amb-flocon-b', n: 12, t: [6, 22], d: [20, 38], dx: 170, r: 360 },
-    { c: 'amb-scintille', n: 9, t: [2, 3.4], d: [6, 13], pos: 'libre' }
+    { c: 'amb-scintille', n: 22, t: [2, 3.6], d: [6, 13], pos: 'libre' }
   ],
   paindepice: [
     { c: 'amb-etincelle', n: 18, t: [8, 18], d: [2, 5], pos: 'libre' }
@@ -7504,9 +7504,10 @@ var HIVER_PLANS = [
   { genre: 'brume',      prof: 0.05, sc: 0.3,  n: 4,  d: [60, 95], op: [.8, 1] },
   { genre: 'flocons',    prof: 0.10, sc: 1,    n: 40, t: [2.5, 4.5], d: [38, 60], dx: 36,  op: [.45, .75], forme: 'point' },
   { genre: 'colline',    prof: 0.20, sc: 0.3,  haut: 170, couleur: '168,214,238', op: .34 },
-  { genre: 'scintilles', prof: 0.35, sc: 1,    n: 26, t: [1.8, 3.2], d: [5, 12], op: [.55, .95] },
+  { genre: 'scintilles', prof: 0.35, sc: 1,    n: 60, t: [1.8, 3.2], d: [5, 12], op: [.55, .95] },
   { genre: 'flocons',    prof: 0.45, sc: 1,    n: 24, t: [5, 9],     d: [24, 38], dx: 60,  op: [.55, .9],  forme: 'point' },
   { genre: 'colline',    prof: 0.65, sc: 0.3,  haut: 120, couleur: '205,236,252', op: .28 },
+  { genre: 'scintilles', prof: 0.80, sc: 1,    n: 22, t: [2.4, 4],   d: [6, 14], op: [.6, 1] },
   { genre: 'flocons',    prof: 1.00, sc: 1,    n: 12, t: [16, 28],   d: [15, 24], dx: 100, r: 200, op: [.4, .65], forme: 'glyphe' }
 ];
 
