@@ -5573,17 +5573,14 @@ body { background: transparent; }
   transform: scaleX(-1);
 }
 
-
-/* Hivernal : flèche anguleuse, effet glace */
+/* Hivernal : flèche anguleuse, colorée selon le thème */
 :root[data-theme="hivernal"] .fleche-navigation span {
   display: block;
   width: 46px;
   height: 35px;
-  background-color: transparent;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 92 69'%3E%3Cpath fill='%231c1a17' fill-rule='evenodd' d='M2 35 13 18 30 11 63 21 89 36 58 50 45 51 21 53Z'/%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: center;
-  background-size: contain;
+  background-color: var(--couleur-turquoise);
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 92 69'%3E%3Cpath fill='black' d='M2 35 13 18 30 11 63 21 89 36 58 50 45 51 21 53Z'/%3E%3C/svg%3E") center / contain no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 92 69'%3E%3Cpath fill='black' d='M2 35 13 18 30 11 63 21 89 36 58 50 45 51 21 53Z'/%3E%3C/svg%3E") center / contain no-repeat;
   clip-path: none;
 }
 
@@ -5591,7 +5588,6 @@ body { background: transparent; }
 :root[data-theme="hivernal"] .fleche-gauche span {
   transform: scaleX(-1);
 }
-
 
 /* Flibuste : flèche harpon */
 :root[data-theme="flibuste"] .fleche-navigation span {
