@@ -6363,3 +6363,721 @@ body { background: transparent; }
   background: radial-gradient(circle, rgba(190,226,245,.34) 0%, rgba(190,226,245,.12) 45%, rgba(190,226,245,0) 70%);
   --op: .22;
 }
+
+/* ============================================================
+   THÈME FLIBUSTE — « Nuit sur la Tortue »
+   Fichier à charger APRÈS style.css (voir index.html).
+   Tout est limité à :root[data-theme="flibuste"] : les autres thèmes ne changent pas.
+   Les décors sont construits par theme-pirate.js (pas besoin de toucher à app.js).
+
+   Ambiances (selon la page) :
+     Accueil / Séance / Étirements  -> le pont du navire (coque en planches, tangage, brume de mer)
+     Nutrition                      -> mur de taverne de Tortuga (pierre, poutre, poussière chaude)
+     Bibliothèque                   -> caverne au trésor (roche, veines d'or, éclats qui scintillent)
+     Historique                     -> galion coulé et kraken (eau noire, rayons de lune, bulles)
+   ============================================================ */
+
+/* ---------- 0. Palette et matières ---------- */
+:root[data-theme="flibuste"] {
+  --couleur-fond: #070F16;
+  --couleur-carte: #1B1510;
+  --couleur-carte-creux: #110C08;
+  --couleur-bordure: #4B3A22;
+  --couleur-turquoise: #E0AE45;          /* or */
+  --couleur-degrade: linear-gradient(135deg, #F6D77A 0%, #E0AE45 55%, #C58A2A 100%);
+  --couleur-cyan: #2A9D8F;               /* mer */
+  --couleur-texte: #F1E4C6;
+  --couleur-texte-att: #A99A7C;
+  --couleur-texte-titre: #F4CB6B;
+  --effet-texte: 0 2px 0 #060A0E, 0 0 10px rgba(240,170,60,.35);
+  --effet-halo: drop-shadow(0 0 4px rgba(240,170,60,.55));
+  /* nutrition / minuteur : rouge cachet de cire (à la place du violet) */
+  --couleur-nutrition: #A32D3A;
+  --couleur-nutrition-fond: #2A0F14;
+  --couleur-nutrition-fond-actif: #43181F;
+  --couleur-nutrition-clair: #E58A94;
+  --ombre: 0 4px 12px rgba(0,0,0,.55);
+  --verre-fond: rgba(17,12,8,.62);
+  --verre-fond-repli: rgba(17,12,8,.95);
+  --verre-bord: rgba(224,174,69,.28);
+  --tuile-bord: rgba(224,174,69,.34);
+  --tuile-rayon: 10px;
+  --tuile-decor: var(--pr-bois);
+  --meteo-bord: rgba(224,174,69,.45);
+
+  /* bois de cabine : veinures sombres horizontales */
+  --pr-bois: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cdefs%3E%3Cfilter id='g' x='0' y='0' width='100%25' height='100%25' color-interpolation-filters='sRGB'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.005 .09' numOctaves='3' seed='6' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .05 0 0 0 0 .03 0 0 0 0 .015 1.9 0 0 0 -.68'/%3E%3C/filter%3E%3C/defs%3E%3Crect width='240' height='240' fill='%23241A12'/%3E%3Crect width='240' height='240' filter='url(%23g)' opacity='.8'/%3E%3C/svg%3E");
+  /* cordage : fil torsadé */
+  --pr-corde: repeating-linear-gradient(58deg, #CDB07A 0, #CDB07A 2px, #6F5A33 2px, #6F5A33 4px);
+  /* ombre de panneau : éclairé en haut par une torche, sombre en bas */
+  --pr-eclaire: linear-gradient(180deg, rgba(255,176,90,.08) 0%, rgba(0,0,0,0) 38%, rgba(0,0,0,.32) 100%);
+  /* doublons */
+  --pr-piece-or: radial-gradient(circle at 34% 28%, #FFF3B8 0, #F5D06A 20%, #DDA93C 52%, #B27A22 80%, #8A5C14 100%);
+  --pr-piece-argent: radial-gradient(circle at 34% 28%, #FFFFFF 0, #E4EAEF 22%, #B6C1CB 55%, #8693A0 85%, #66727E 100%);
+  --pr-piece-vide: radial-gradient(circle at 50% 36%, #1C2631 0, #0B1118 70%, #05090D 100%);
+  --pr-laiton: linear-gradient(180deg, #F6D883 0%, #E0AE45 48%, #B47A22 100%);
+  /* papier vieilli (ordres cachetés, carte au trésor) */
+  --pr-taches: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='p' x='0' y='0' width='100%25' height='100%25' color-interpolation-filters='sRGB'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.012 .02' numOctaves='3' seed='5' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .5 0 0 0 0 .32 0 0 0 0 .14 1.3 0 0 0 -.45'/%3E%3C/filter%3E%3Crect width='240' height='240' filter='url(%23p)' opacity='.5'/%3E%3C/svg%3E");
+  --pr-papier: linear-gradient(180deg, #E9D8A9 0%, #D9C28C 58%, #C9AE74 100%);
+  --pr-lueur: 1;
+}
+
+/* ---------- 1. On remplace l'ancien fond et l'ancienne ambiance ---------- */
+:root[data-theme="flibuste"] .fond-theme,
+:root[data-theme="flibuste"] #ambiance-theme { display: none; }
+
+/* ---------- 2. Scène plein écran (derrière tout) ---------- */
+.pr-scene {
+  display: none;
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  z-index: -1;
+  overflow: hidden;
+  pointer-events: none;
+  background: var(--couleur-fond);
+}
+:root[data-theme="flibuste"] .pr-scene { display: block; }
+
+.pr-decor {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  opacity: 0;
+  visibility: hidden;
+  -webkit-transition: opacity .9s ease, visibility 0s linear .9s;
+  transition: opacity .9s ease, visibility 0s linear .9s;
+}
+.pr-decor.pr-actif {
+  opacity: 1;
+  visibility: visible;
+  -webkit-transition: opacity .9s ease, visibility 0s linear 0s;
+  transition: opacity .9s ease, visibility 0s linear 0s;
+}
+/* une scène qui n'est pas à l'écran est mise en pause (économise la batterie) */
+.pr-decor:not(.pr-actif) *,
+.pr-decor:not(.pr-actif) { -webkit-animation-play-state: paused !important; animation-play-state: paused !important; }
+
+/* léger décalage horizontal selon la page (voir JS) */
+.pr-fond {
+  position: absolute;
+  top: 0; bottom: 0; left: -70px; right: -70px;
+  -webkit-transition: -webkit-transform .6s cubic-bezier(.22,1,.36,1);
+  transition: transform .6s cubic-bezier(.22,1,.36,1);
+}
+.pr-texture {
+  position: absolute;
+  left: 0; right: 0; top: -240px; bottom: -240px;
+  background-repeat: repeat;
+  background-size: 240px 240px;
+}
+/* teinte de nuit par-dessus chaque décor */
+.pr-teinte {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+}
+
+/* --- Le pont : la coque tangue --- */
+.pr-pont .pr-texture { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240' viewBox='0 0 240 240'%3E %3Cdefs%3E %3Cfilter id='g' x='0' y='0' width='100%25' height='100%25' color-interpolation-filters='sRGB'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.006 .13' numOctaves='3' seed='8' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .02 0 0 0 0 .04 0 0 0 0 .06 1.7 0 0 0 -.62'/%3E%3C/filter%3E %3Cfilter id='g2' x='0' y='0' width='100%25' height='100%25' color-interpolation-filters='sRGB'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.004 .05' numOctaves='2' seed='21' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .55 0 0 0 0 .68 0 0 0 0 .78 1.4 0 0 0 -.7'/%3E%3C/filter%3E %3C/defs%3E %3Crect y='0' width='240' height='48' fill='%231B2832'/%3E %3Crect y='48' width='240' height='48' fill='%2315212B'/%3E %3Crect y='96' width='240' height='48' fill='%231E2C37'/%3E %3Crect y='144' width='240' height='48' fill='%23131F29'/%3E %3Crect y='192' width='240' height='48' fill='%2319262F'/%3E %3Crect width='240' height='240' filter='url(%23g2)' opacity='.30'/%3E %3Crect width='240' height='240' filter='url(%23g)' opacity='.85'/%3E %3Cg fill='%2304080C'%3E %3Crect y='46.5' width='240' height='3'/%3E%3Crect y='94.5' width='240' height='3'/%3E%3Crect y='142.5' width='240' height='3'/%3E%3Crect y='190.5' width='240' height='3'/%3E%3Crect y='0' width='240' height='1.5'/%3E%3Crect y='238.5' width='240' height='1.5'/%3E %3Crect x='64' y='0' width='3' height='46.5'/%3E%3Crect x='176' y='49.5' width='3' height='45'/%3E%3Crect x='104' y='97.5' width='3' height='45'/%3E%3Crect x='208' y='145.5' width='3' height='45'/%3E%3Crect x='30' y='193.5' width='3' height='45'/%3E %3C/g%3E %3Cg fill='%23fff' fill-opacity='.055'%3E %3Crect y='49.5' width='240' height='1'/%3E%3Crect y='97.5' width='240' height='1'/%3E%3Crect y='145.5' width='240' height='1'/%3E%3Crect y='193.5' width='240' height='1'/%3E%3Crect y='1.5' width='240' height='1'/%3E %3C/g%3E %3Cg fill='%233A4651' stroke='%2304080C' stroke-width='1.2'%3E %3Ccircle cx='58' cy='10' r='1.9'/%3E%3Ccircle cx='73' cy='10' r='1.9'/%3E%3Ccircle cx='58' cy='36' r='1.9'/%3E%3Ccircle cx='73' cy='36' r='1.9'/%3E %3Ccircle cx='170' cy='60' r='1.9'/%3E%3Ccircle cx='185' cy='60' r='1.9'/%3E%3Ccircle cx='170' cy='84' r='1.9'/%3E%3Ccircle cx='185' cy='84' r='1.9'/%3E %3Ccircle cx='98' cy='108' r='1.9'/%3E%3Ccircle cx='113' cy='108' r='1.9'/%3E%3Ccircle cx='98' cy='132' r='1.9'/%3E%3Ccircle cx='113' cy='132' r='1.9'/%3E %3Ccircle cx='202' cy='156' r='1.9'/%3E%3Ccircle cx='217' cy='156' r='1.9'/%3E%3Ccircle cx='202' cy='180' r='1.9'/%3E%3Ccircle cx='217' cy='180' r='1.9'/%3E %3Ccircle cx='24' cy='204' r='1.9'/%3E%3Ccircle cx='39' cy='204' r='1.9'/%3E%3Ccircle cx='24' cy='228' r='1.9'/%3E%3Ccircle cx='39' cy='228' r='1.9'/%3E %3C/g%3E %3Cg fill='none' stroke='%2304080C' stroke-opacity='.5'%3E %3Cellipse cx='140' cy='24' rx='7' ry='4'/%3E%3Cellipse cx='140' cy='24' rx='3' ry='1.6'/%3E %3Cellipse cx='30' cy='120' rx='8' ry='4.5'/%3E%3Cellipse cx='30' cy='120' rx='3.5' ry='1.8'/%3E %3Cellipse cx='150' cy='168' rx='6' ry='3.5'/%3E %3C/g%3E %3C/svg%3E"); }
+.pr-pont .pr-teinte { background: linear-gradient(180deg, rgba(3,9,14,.55) 0%, rgba(3,9,14,.30) 55%, rgba(3,9,14,.55) 100%); }
+.pr-roulis {
+  position: absolute;
+  top: -80px; bottom: -80px; left: 0; right: 0;
+  -webkit-transform-origin: 50% 115%;
+  transform-origin: 50% 115%;
+  -webkit-animation: prTangage 11s ease-in-out infinite;
+  animation: prTangage 11s ease-in-out infinite;
+}
+@-webkit-keyframes prTangage {
+  0%, 100% { -webkit-transform: rotate(-.9deg) translate3d(0,0,0); }
+  50%      { -webkit-transform: rotate(.9deg) translate3d(0,8px,0); }
+}
+@keyframes prTangage {
+  0%, 100% { transform: rotate(-.9deg) translate3d(0,0,0); }
+  50%      { transform: rotate(.9deg) translate3d(0,8px,0); }
+}
+
+/* --- Tortuga : mur de taverne --- */
+.pr-tortuga .pr-texture { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240' viewBox='0 0 240 240'%3E %3Cdefs%3E %3Cfilter id='n' x='0' y='0' width='100%25' height='100%25' color-interpolation-filters='sRGB'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.05' numOctaves='3' seed='4' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .06 0 0 0 0 .04 0 0 0 0 .02 1.6 0 0 0 -.55'/%3E%3C/filter%3E %3Cfilter id='w' x='0' y='0' width='100%25' height='100%25' color-interpolation-filters='sRGB'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.004 .07' numOctaves='3' seed='12' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .03 0 0 0 0 .015 0 0 0 0 .005 1.8 0 0 0 -.62'/%3E%3C/filter%3E %3C/defs%3E %3Crect width='240' height='240' fill='%23100B07'/%3E %3Cg stroke='%230A0705' stroke-width='3' stroke-linejoin='round'%3E %3C!-- rangée 1 --%3E %3Crect x='2' y='2' width='70' height='50' rx='7' fill='%232D241B'/%3E%3Crect x='76' y='2' width='52' height='50' rx='7' fill='%23372B1F'/%3E%3Crect x='132' y='2' width='64' height='50' rx='7' fill='%23292017'/%3E%3Crect x='200' y='2' width='38' height='50' rx='7' fill='%2333281D'/%3E %3C!-- rangée 2 --%3E %3Crect x='2' y='56' width='42' height='44' rx='7' fill='%23352A1E'/%3E%3Crect x='48' y='56' width='68' height='44' rx='7' fill='%232A2118'/%3E%3Crect x='120' y='56' width='50' height='44' rx='7' fill='%233A2E21'/%3E%3Crect x='174' y='56' width='64' height='44' rx='7' fill='%232E251A'/%3E %3C/g%3E %3C!-- poutre de bois --%3E %3Crect x='0' y='104' width='240' height='26' fill='%232A190D'/%3E %3Crect x='0' y='104' width='240' height='26' filter='url(%23w)' opacity='.9'/%3E %3Crect x='0' y='104' width='240' height='2' fill='%23000' opacity='.5'/%3E%3Crect x='0' y='128' width='240' height='2' fill='%23000' opacity='.6'/%3E%3Crect x='0' y='106' width='240' height='1' fill='%23fff' opacity='.07'/%3E %3Cg fill='%234A4038' stroke='%23050302' stroke-width='1.2'%3E%3Ccircle cx='22' cy='117' r='2.4'/%3E%3Ccircle cx='118' cy='117' r='2.4'/%3E%3Ccircle cx='214' cy='117' r='2.4'/%3E%3C/g%3E %3Cg stroke='%230A0705' stroke-width='3' stroke-linejoin='round'%3E %3C!-- rangée 3 --%3E %3Crect x='2' y='134' width='58' height='48' rx='7' fill='%2330261B'/%3E%3Crect x='64' y='134' width='74' height='48' rx='7' fill='%23271F16'/%3E%3Crect x='142' y='134' width='46' height='48' rx='7' fill='%23382C20'/%3E%3Crect x='192' y='134' width='46' height='48' rx='7' fill='%232D241A'/%3E %3C!-- rangée 4 --%3E %3Crect x='2' y='186' width='80' height='52' rx='7' fill='%232A2118'/%3E%3Crect x='86' y='186' width='48' height='52' rx='7' fill='%2336291D'/%3E%3Crect x='138' y='186' width='62' height='52' rx='7' fill='%232C231A'/%3E%3Crect x='204' y='186' width='34' height='52' rx='7' fill='%2333281C'/%3E %3C/g%3E %3Crect width='240' height='240' filter='url(%23n)' opacity='.8'/%3E %3Cg fill='none' stroke='%23fff' stroke-opacity='.05' stroke-width='1.2' stroke-linecap='round'%3E%3Cpath d='M8 8h58M80 8h44M136 8h56M6 62h34M52 62h60M124 62h42M8 140h50M68 140h66M8 192h72M90 192h40'/%3E%3C/g%3E %3C/svg%3E"); }
+.pr-tortuga .pr-teinte { background: linear-gradient(180deg, rgba(8,4,2,.62) 0%, rgba(8,4,2,.38) 55%, rgba(8,4,2,.62) 100%); }
+
+/* --- Caverne au trésor --- */
+.pr-caverne .pr-texture { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240' viewBox='0 0 240 240'%3E %3Cdefs%3E %3Cfilter id='a' x='0' y='0' width='100%25' height='100%25' color-interpolation-filters='sRGB'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.018' numOctaves='4' seed='9' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .26 0 0 0 0 .34 0 0 0 0 .33 2.1 0 0 0 -.78'/%3E%3C/filter%3E %3Cfilter id='b' x='0' y='0' width='100%25' height='100%25' color-interpolation-filters='sRGB'%3E%3CfeTurbulence type='turbulence' baseFrequency='.035' numOctaves='3' seed='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .02 0 0 0 0 .03 0 0 0 0 .03 -2.6 0 0 0 1.45'/%3E%3C/filter%3E %3C/defs%3E %3Crect width='240' height='240' fill='%23101B1F'/%3E %3Crect width='240' height='240' filter='url(%23a)' opacity='.9'/%3E %3Crect width='240' height='240' filter='url(%23b)' opacity='.7'/%3E %3Cg fill='none' stroke='%23E0AE45' stroke-linecap='round' stroke-linejoin='round'%3E %3Cpath d='M-4 70 L30 82 L52 66 L90 92 L118 80' stroke-opacity='.16' stroke-width='1.3'/%3E %3Cpath d='M130 190 L158 176 L186 196 L214 182 L244 200' stroke-opacity='.13' stroke-width='1.1'/%3E %3Cpath d='M200 20 L214 38 L206 56' stroke-opacity='.14' stroke-width='1.1'/%3E %3C/g%3E %3Cg fill='none' stroke='%2302070A' stroke-opacity='.6' stroke-width='1.3' stroke-linecap='round'%3E %3Cpath d='M20 150 L40 168 L34 196 L58 214'/%3E%3Cpath d='M110 12 L98 36 L120 52'/%3E%3Cpath d='M170 100 L158 124 L182 140 L176 164'/%3E %3C/g%3E %3Cg fill='%23F6D77A' fill-opacity='.55'%3E%3Ccircle cx='52' cy='66' r='1.1'/%3E%3Ccircle cx='158' cy='176' r='1.1'/%3E%3Ccircle cx='214' cy='38' r='1'/%3E%3C/g%3E %3C/svg%3E"); }
+.pr-caverne .pr-teinte {
+  background:
+    radial-gradient(ellipse at 15% 85%, rgba(255,150,50,.10), rgba(255,150,50,0) 55%),
+    linear-gradient(180deg, rgba(2,8,10,.55) 0%, rgba(2,8,10,.30) 55%, rgba(2,8,10,.60) 100%);
+}
+
+/* --- Galion coulé et kraken --- */
+.pr-galion {
+  background: linear-gradient(180deg, #04141C 0%, #062630 52%, #031017 100%);
+}
+.pr-rais {
+  position: absolute;
+  top: -15%;
+  height: 130%;
+  background: linear-gradient(90deg, rgba(150,225,235,0) 0%, rgba(150,225,235,.11) 50%, rgba(150,225,235,0) 100%);
+  -webkit-transform: rotate(13deg);
+  transform: rotate(13deg);
+  -webkit-animation: prRais 10s ease-in-out infinite alternate;
+  animation: prRais 10s ease-in-out infinite alternate;
+}
+.pr-rais-1 { left: 8%;  width: 22vw; }
+.pr-rais-2 { left: 42%; width: 14vw; -webkit-animation-duration: 13s; animation-duration: 13s; -webkit-animation-delay: -4s; animation-delay: -4s; }
+.pr-rais-3 { left: 70%; width: 26vw; -webkit-animation-duration: 16s; animation-duration: 16s; -webkit-animation-delay: -9s; animation-delay: -9s; }
+@-webkit-keyframes prRais { from { opacity: .35; } to { opacity: 1; } }
+@keyframes prRais { from { opacity: .35; } to { opacity: 1; } }
+.pr-epave {
+  position: absolute;
+  left: -16vw; bottom: -5vh;
+  width: 130vw; height: 80vw;
+  max-width: 1000px; max-height: 640px;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 640 380' width='640' height='380'%3E %3Cg fill='%2303121A'%3E %3Cpath d='M30 118 L30 74 L88 74 L88 100 L150 100 L150 122 L430 122 L430 104 L520 94 L606 62 L602 74 L530 110 L506 146 C474 218 386 268 300 272 C198 276 98 244 54 176 C38 152 32 134 30 118 Z'/%3E %3Cpath d='M254 122 L249 22 L255 14 L258 24 L262 18 L266 30 L270 122 Z'/%3E %3Cpath d='M196 46 L336 64 L335 71 L195 53 Z'/%3E %3Cpath d='M381 122 L378 74 L383 66 L387 72 L390 122 Z'/%3E %3Cpath d='M54 74 L58 52 L64 74 Z'/%3E %3C/g%3E %3Cg fill='%2306202B'%3E%3Cpath d='M200 53 C208 92 188 112 214 130 L252 128 C247 98 264 76 261 60 Z'/%3E%3C/g%3E %3Cg fill='%23010A0F'%3E %3Crect x='128' y='154' width='15' height='12' rx='2'/%3E%3Crect x='170' y='156' width='15' height='12' rx='2'/%3E%3Crect x='212' y='158' width='15' height='12' rx='2'/%3E%3Crect x='254' y='159' width='15' height='12' rx='2'/%3E%3Crect x='296' y='159' width='15' height='12' rx='2'/%3E%3Crect x='338' y='157' width='15' height='12' rx='2'/%3E%3Crect x='380' y='152' width='15' height='12' rx='2'/%3E %3Cpath d='M170 208 L196 196 L214 214 L240 206 L252 232 L224 246 L196 240 L176 228 Z'/%3E %3Crect x='58' y='92' width='13' height='10' rx='2'/%3E %3C/g%3E %3Cg stroke='%230B3340' stroke-width='2.2' fill='none' stroke-linecap='round'%3E %3Cpath d='M186 198 L190 244M205 206 L206 250M224 210 L226 250M243 208 L242 240'/%3E %3Cpath d='M150 134 C300 142 420 140 500 128M76 180 C150 224 260 244 330 240M60 150 C70 170 84 188 96 198'/%3E %3Cpath d='M120 270 C112 300 130 320 120 352M470 220 C484 252 470 280 482 312M322 276 C312 306 330 330 318 364' stroke='%230A3A42' stroke-width='2'/%3E %3C/g%3E %3Cg fill='%23051E27'%3E%3Crect x='52' y='168' width='10' height='58' rx='3' transform='rotate(26 57 197)'/%3E%3C/g%3E %3C/svg%3E") no-repeat left bottom / contain;
+  -webkit-transform-origin: 20% 90%;
+  transform-origin: 20% 90%;
+  -webkit-transform: rotate(-7deg);
+  transform: rotate(-7deg);
+  -webkit-animation: prDerive 14s ease-in-out infinite alternate;
+  animation: prDerive 14s ease-in-out infinite alternate;
+}
+@-webkit-keyframes prDerive { from { -webkit-transform: rotate(-7deg) translate3d(0,0,0); } to { -webkit-transform: rotate(-6.2deg) translate3d(10px,-8px,0); } }
+@keyframes prDerive { from { transform: rotate(-7deg) translate3d(0,0,0); } to { transform: rotate(-6.2deg) translate3d(10px,-8px,0); } }
+.pr-kraken {
+  position: absolute;
+  bottom: -4vh;
+  width: 150px; height: 64vh;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 170 440' width='170' height='440'%3E %3Cdefs%3E%3ClinearGradient id='k' x1='0' x2='1'%3E%3Cstop offset='0' stop-color='%230A2C34'/%3E%3Cstop offset='1' stop-color='%23041419'/%3E%3C/linearGradient%3E%3C/defs%3E %3Cpath fill='url(%23k)' d='M148 440 C150 352 96 326 84 252 C76 202 116 172 104 122 C96 88 66 74 56 44 C52 30 56 18 66 14 C60 26 66 36 78 48 C96 68 118 94 126 128 C138 176 100 210 110 250 C122 308 176 338 176 440 Z'/%3E %3Cg fill='%230F4650' fill-opacity='.85'%3E %3Ccircle cx='96' cy='262' r='5.4'/%3E%3Ccircle cx='98' cy='236' r='5'/%3E%3Ccircle cx='106' cy='212' r='4.6'/%3E%3Ccircle cx='110' cy='186' r='4.2'/%3E%3Ccircle cx='108' cy='160' r='3.8'/%3E%3Ccircle cx='102' cy='136' r='3.4'/%3E%3Ccircle cx='90' cy='112' r='3'/%3E%3Ccircle cx='78' cy='90' r='2.6'/%3E%3Ccircle cx='68' cy='68' r='2.2'/%3E %3Ccircle cx='116' cy='298' r='5.8'/%3E%3Ccircle cx='134' cy='330' r='6'/%3E%3Ccircle cx='148' cy='366' r='6.2'/%3E %3C/g%3E %3Cg fill='%231B7783' fill-opacity='.5'%3E%3Ccircle cx='95' cy='260' r='2'/%3E%3Ccircle cx='97' cy='234' r='1.8'/%3E%3Ccircle cx='105' cy='210' r='1.6'/%3E%3Ccircle cx='115' cy='296' r='2.2'/%3E%3Ccircle cx='133' cy='328' r='2.2'/%3E%3Ccircle cx='147' cy='364' r='2.4'/%3E%3C/g%3E %3C/svg%3E") no-repeat center bottom / contain;
+  -webkit-transform-origin: 50% 100%;
+  transform-origin: 50% 100%;
+  opacity: .9;
+}
+.pr-kraken-d { right: -26px; -webkit-animation: prOnde 8s ease-in-out infinite alternate; animation: prOnde 8s ease-in-out infinite alternate; }
+.pr-kraken-g {
+  left: -44px; height: 44vh; width: 110px;
+  -webkit-transform: scaleX(-1);
+  transform: scaleX(-1);
+  -webkit-animation: prOndeG 10s ease-in-out infinite alternate;
+  animation: prOndeG 10s ease-in-out infinite alternate;
+}
+@-webkit-keyframes prOnde { from { -webkit-transform: rotate(-4deg); } to { -webkit-transform: rotate(5deg); } }
+@keyframes prOnde { from { transform: rotate(-4deg); } to { transform: rotate(5deg); } }
+@-webkit-keyframes prOndeG { from { -webkit-transform: scaleX(-1) rotate(-5deg); } to { -webkit-transform: scaleX(-1) rotate(4deg); } }
+@keyframes prOndeG { from { transform: scaleX(-1) rotate(-5deg); } to { transform: scaleX(-1) rotate(4deg); } }
+/* l'œil du kraken, tout au fond : il cligne de temps en temps */
+.pr-oeil {
+  position: absolute;
+  right: 12vw; bottom: 30vh;
+  width: 42px; height: 42px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #D6EE74 0, #8CBF31 42%, #274A12 74%, rgba(0,0,0,0) 77%);
+  opacity: .32;
+  -webkit-animation: prClin 11s ease-in-out infinite;
+  animation: prClin 11s ease-in-out infinite;
+}
+.pr-oeil::after {
+  content: '';
+  position: absolute;
+  left: 50%; top: 50%;
+  width: 7px; height: 30px;
+  margin: -15px 0 0 -3.5px;
+  border-radius: 50%;
+  background: #02080A;
+}
+@-webkit-keyframes prClin { 0%, 93%, 100% { -webkit-transform: scaleY(1); } 96% { -webkit-transform: scaleY(.06); } }
+@keyframes prClin { 0%, 93%, 100% { transform: scaleY(1); } 96% { transform: scaleY(.06); } }
+.pr-galion .pr-teinte { background: linear-gradient(180deg, rgba(0,6,9,.15) 0%, rgba(0,6,9,.42) 100%); }
+
+/* ---------- 3. Calque avant : nuit, lueurs de flamme, particules (au-dessus du contenu, sous l'en-tête) ---------- */
+.pr-avant {
+  display: none;
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  z-index: 5;
+  overflow: hidden;
+  pointer-events: none;
+}
+:root[data-theme="flibuste"] .pr-avant { display: block; }
+
+.pr-nuit {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: radial-gradient(ellipse at 50% 42%, rgba(0,0,0,0) 45%, rgba(0,5,9,.42) 100%);
+}
+
+/* Lueurs : deux torches hors champ (bas gauche, haut droite). Seule l'opacité bouge, c'est léger. */
+.pr-lueurs {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  opacity: var(--pr-lueur, 1);
+  -webkit-transition: opacity 1s ease;
+  transition: opacity 1s ease;
+}
+.pr-lueur { position: absolute; border-radius: 50%; }
+.pr-lueur-g {
+  left: -62vw; bottom: -26vh;
+  width: 104vw; height: 104vw; min-width: 520px; min-height: 520px;
+  background: radial-gradient(circle, rgba(255,160,60,.24) 0%, rgba(255,120,30,.10) 38%, rgba(255,100,20,0) 68%);
+  -webkit-animation: prFlamme1 3.1s ease-in-out infinite;
+  animation: prFlamme1 3.1s ease-in-out infinite;
+}
+.pr-lueur-d {
+  right: -70vw; top: -22vh;
+  width: 110vw; height: 110vw; min-width: 560px; min-height: 560px;
+  background: radial-gradient(circle, rgba(255,190,90,.17) 0%, rgba(255,140,40,.07) 38%, rgba(255,110,30,0) 68%);
+  -webkit-animation: prFlamme2 4.3s ease-in-out infinite;
+  animation: prFlamme2 4.3s ease-in-out infinite;
+}
+@-webkit-keyframes prFlamme1 {
+  0% { opacity: .82; } 8% { opacity: 1; } 14% { opacity: .70; } 22% { opacity: .96; } 31% { opacity: .78; }
+  47% { opacity: 1; } 55% { opacity: .72; } 70% { opacity: .95; } 83% { opacity: .80; } 100% { opacity: .82; }
+}
+@keyframes prFlamme1 {
+  0% { opacity: .82; } 8% { opacity: 1; } 14% { opacity: .70; } 22% { opacity: .96; } 31% { opacity: .78; }
+  47% { opacity: 1; } 55% { opacity: .72; } 70% { opacity: .95; } 83% { opacity: .80; } 100% { opacity: .82; }
+}
+@-webkit-keyframes prFlamme2 {
+  0% { opacity: .9; } 12% { opacity: .68; } 20% { opacity: 1; } 36% { opacity: .76; } 44% { opacity: .96; }
+  61% { opacity: .70; } 74% { opacity: 1; } 90% { opacity: .8; } 100% { opacity: .9; }
+}
+@keyframes prFlamme2 {
+  0% { opacity: .9; } 12% { opacity: .68; } 20% { opacity: 1; } 36% { opacity: .76; } 44% { opacity: .96; }
+  61% { opacity: .70; } 74% { opacity: 1; } 90% { opacity: .8; } 100% { opacity: .9; }
+}
+/* intensité des lueurs selon la scène */
+:root[data-pr-scene="pont"]     { --pr-lueur: 1; }
+:root[data-pr-scene="tortuga"]  { --pr-lueur: 1.15; }
+:root[data-pr-scene="caverne"]  { --pr-lueur: .85; }
+:root[data-pr-scene="galion"]   { --pr-lueur: .22; }
+
+/* groupes de particules : affichés selon la scène */
+.pr-g { display: none; position: absolute; top: 0; left: 0; right: 0; bottom: 0; }
+:root[data-pr-scene="pont"] .pr-g-braise,   :root[data-pr-scene="pont"] .pr-g-brume,
+:root[data-pr-scene="tortuga"] .pr-g-braise, :root[data-pr-scene="tortuga"] .pr-g-poussiere,
+:root[data-pr-scene="caverne"] .pr-g-braise, :root[data-pr-scene="caverne"] .pr-g-brille,
+:root[data-pr-scene="galion"] .pr-g-bulle { display: block; }
+
+.pr-p { position: absolute; opacity: 0; }
+/* braises qui montent de la torche (bas gauche) */
+.pr-braise {
+  bottom: -12px;
+  border-radius: 50%;
+  background: #FFB454;
+  box-shadow: 0 0 5px 1px rgba(255,150,40,.75);
+  -webkit-animation: prBraise 9s linear infinite;
+  animation: prBraise 9s linear infinite;
+}
+@-webkit-keyframes prBraise { 0% { -webkit-transform: translate3d(0,0,0) scale(1); opacity: 0; } 10% { opacity: .95; } 100% { -webkit-transform: translate3d(var(--dx),var(--dy),0) scale(.3); opacity: 0; } }
+@keyframes prBraise { 0% { transform: translate3d(0,0,0) scale(1); opacity: 0; } 10% { opacity: .95; } 100% { transform: translate3d(var(--dx),var(--dy),0) scale(.3); opacity: 0; } }
+/* brume de mer */
+.pr-brume {
+  border-radius: 50%;
+  background: radial-gradient(ellipse, rgba(150,185,205,.22) 0%, rgba(150,185,205,.08) 50%, rgba(150,185,205,0) 72%);
+  -webkit-animation: prBrume 26s linear infinite;
+  animation: prBrume 26s linear infinite;
+}
+@-webkit-keyframes prBrume { 0% { -webkit-transform: translate3d(0,0,0); opacity: 0; } 20% { opacity: 1; } 80% { opacity: 1; } 100% { -webkit-transform: translate3d(var(--dx),0,0); opacity: 0; } }
+@keyframes prBrume { 0% { transform: translate3d(0,0,0); opacity: 0; } 20% { opacity: 1; } 80% { opacity: 1; } 100% { transform: translate3d(var(--dx),0,0); opacity: 0; } }
+/* éclats d'or de la caverne */
+.pr-brille {
+  color: #F6D77A;
+  line-height: 1;
+  text-shadow: 0 0 6px rgba(246,215,122,.85);
+  -webkit-animation: prBrille 4s ease-in-out infinite;
+  animation: prBrille 4s ease-in-out infinite;
+}
+.pr-brille::before { content: '\2726'; }
+@-webkit-keyframes prBrille { 0%, 100% { opacity: 0; -webkit-transform: scale(.3) rotate(0deg); } 50% { opacity: .95; -webkit-transform: scale(1) rotate(45deg); } }
+@keyframes prBrille { 0%, 100% { opacity: 0; transform: scale(.3) rotate(0deg); } 50% { opacity: .95; transform: scale(1) rotate(45deg); } }
+/* bulles du galion */
+.pr-bulle {
+  bottom: -30px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(150,225,235,.55);
+  background: radial-gradient(circle at 30% 30%, rgba(190,245,250,.35), rgba(190,245,250,0) 60%);
+  -webkit-animation: prBulle 18s linear infinite;
+  animation: prBulle 18s linear infinite;
+}
+@-webkit-keyframes prBulle { 0% { -webkit-transform: translate3d(0,0,0); opacity: 0; } 10% { opacity: .75; } 50% { -webkit-transform: translate3d(var(--dx),-56vh,0); } 100% { -webkit-transform: translate3d(0,-112vh,0); opacity: 0; } }
+@keyframes prBulle { 0% { transform: translate3d(0,0,0); opacity: 0; } 10% { opacity: .75; } 50% { transform: translate3d(var(--dx),-56vh,0); } 100% { transform: translate3d(0,-112vh,0); opacity: 0; } }
+/* poussière chaude de la taverne */
+.pr-poussiere {
+  border-radius: 50%;
+  background: rgba(255,214,150,.7);
+  box-shadow: 0 0 4px rgba(255,190,110,.6);
+  -webkit-animation: prPoussiere 12s ease-in-out infinite;
+  animation: prPoussiere 12s ease-in-out infinite;
+}
+@-webkit-keyframes prPoussiere { 0%, 100% { opacity: 0; -webkit-transform: translate3d(0,0,0); } 30%, 70% { opacity: .75; } 50% { -webkit-transform: translate3d(var(--dx),var(--dy),0); } }
+@keyframes prPoussiere { 0%, 100% { opacity: 0; transform: translate3d(0,0,0); } 30%, 70% { opacity: .75; } 50% { transform: translate3d(var(--dx),var(--dy),0); } }
+
+/* ---------- 4. Panneaux de bois à bordure de cordage ---------- */
+:root[data-theme="flibuste"] .carte:not(li),
+:root[data-theme="flibuste"] .carte-checklist,
+:root[data-theme="flibuste"] .meteo-carte,
+:root[data-theme="flibuste"] .reglages-section,
+:root[data-theme="flibuste"] .sx-exo,
+:root[data-theme="flibuste"] .accueil-tuile,
+:root[data-theme="flibuste"] .accueil-carte:not(.seance-a-faire),
+:root[data-theme="flibuste"] .modal-contenu {
+  --couleur-bordure: rgba(224,174,69,.26);
+  border: 3px solid transparent;
+  border-radius: 12px;
+  background-color: #17110C;
+  background-image: var(--pr-eclaire), var(--pr-bois), var(--pr-corde);
+  background-size: 100% 100%, 240px 240px, auto;
+  background-repeat: no-repeat, repeat, repeat;
+  background-origin: padding-box, padding-box, border-box;
+  background-clip: padding-box, padding-box, border-box;
+  box-shadow: inset 0 0 0 1px rgba(0,0,0,.6), 0 7px 16px rgba(0,0,0,.6);
+}
+/* éléments de liste (exercices, aliments...) : planche simple, sans cordage */
+:root[data-theme="flibuste"] li.carte,
+:root[data-theme="flibuste"] .hist-ligne {
+  border: 1px solid rgba(224,174,69,.30);
+  border-radius: 10px;
+  background-color: #1A140F;
+  background-image: var(--pr-eclaire), var(--pr-bois);
+  background-size: 100% 100%, 240px 240px;
+  background-repeat: no-repeat, repeat;
+  box-shadow: 0 3px 9px rgba(0,0,0,.5);
+}
+:root[data-theme="flibuste"] .hist-ligne { border-left: 4px solid var(--hist-etat, var(--couleur-cyan)); }
+/* blocs imbriqués dans une fenêtre : pas de double cordage */
+:root[data-theme="flibuste"] .modal-contenu .carte,
+:root[data-theme="flibuste"] .modal-contenu .reglages-section {
+  border: 1px solid rgba(224,174,69,.28);
+  background-image: none;
+  background-color: var(--couleur-carte-creux);
+  box-shadow: none;
+}
+:root[data-theme="flibuste"] .sx-exo-actif {
+  box-shadow: inset 0 0 0 1px rgba(0,0,0,.6), 0 0 0 1px rgba(224,174,69,.55), 0 0 22px -4px rgba(240,170,60,.65), 0 7px 16px rgba(0,0,0,.6);
+}
+:root[data-theme="flibuste"] .modal-contenu { border-radius: 16px; }
+
+/* En-tête, barre de séance et navigation : planches + liseré de laiton + cordage */
+:root[data-theme="flibuste"] .entete-carte,
+:root[data-theme="flibuste"] .sx-entete,
+:root[data-theme="flibuste"] .nav-bas {
+  border: 2px solid #8C6420;
+  border-radius: 12px;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+  box-shadow: inset 0 0 0 1px rgba(255,225,150,.16), 0 9px 22px rgba(0,0,0,.65);
+}
+:root[data-theme="flibuste"] .entete-carte::before,
+:root[data-theme="flibuste"] .sx-entete::before,
+:root[data-theme="flibuste"] .nav-bas::before {
+  border-radius: 9px;
+  opacity: 1;
+  background-color: #130E09;
+  background-image: var(--pr-eclaire), var(--pr-bois);
+  background-size: 100% 100%, 240px 240px;
+  background-repeat: no-repeat, repeat;
+}
+:root[data-theme="flibuste"] .entete-carte::after,
+:root[data-theme="flibuste"] .nav-bas::after {
+  content: '';
+  position: absolute;
+  left: 14px; right: 14px;
+  height: 5px;
+  border-radius: 3px;
+  background: var(--pr-corde);
+  box-shadow: 0 2px 3px rgba(0,0,0,.65);
+  pointer-events: none;
+}
+:root[data-theme="flibuste"] .entete-carte::after { bottom: -8px; }
+:root[data-theme="flibuste"] .nav-bas::after { top: -8px; }
+/* le fondu sous l'en-tête suit la couleur de nuit */
+:root[data-theme="flibuste"] .entete::before { background: linear-gradient(to bottom, rgba(7,15,22,.92) 55%, rgba(7,15,22,0) 100%); }
+/* pastille de l'onglet actif */
+:root[data-theme="flibuste"] .nav-indicateur,
+:root[data-theme="flibuste"] .nav-indicateur::before,
+:root[data-theme="flibuste"] .nav-indicateur::after { border-radius: 9px; }
+:root[data-theme="flibuste"] .sous-onglets {
+  background-color: #120D09;
+  background-image: var(--pr-bois);
+  background-size: 240px 240px;
+  border: 2px solid #8C6420;
+  border-radius: 12px;
+  box-shadow: inset 0 0 0 1px rgba(0,0,0,.55), 0 6px 14px rgba(0,0,0,.5);
+}
+:root[data-theme="flibuste"] .sous-indicateur,
+:root[data-theme="flibuste"] .sous-indicateur::before,
+:root[data-theme="flibuste"] .sous-indicateur::after { border-radius: 8px; }
+
+/* ---------- 5. Pavillon noir qui flotte (en-tête) ---------- */
+.pr-pavillon { display: none; }
+:root[data-theme="flibuste"] .pr-pavillon {
+  display: block;
+  position: absolute;
+  right: 62px; top: 50%;
+  width: 66px; height: 44px;
+  margin-top: -22px;
+  pointer-events: none;
+}
+:root[data-theme="flibuste"] .pr-pavillon svg { display: block; width: 100%; height: 100%; overflow: visible; }
+
+/* ---------- 6. Doublons (boutons ronds) ---------- */
+/* Routine du jour : emplacement vide -> doublon d'or qui tourne quand on le gagne */
+:root[data-theme="flibuste"] .todo-rond {
+  border: 2px solid #A87B2C;
+  background-color: transparent;
+  background-image: var(--pr-piece-vide);
+  box-shadow: inset 0 0 0 3px rgba(0,0,0,.45), inset 0 3px 7px rgba(0,0,0,.75), 0 1px 0 rgba(255,225,150,.22);
+}
+:root[data-theme="flibuste"] .todo-fait .todo-rond {
+  border-color: #7A520F;
+  background-image: var(--pr-piece-or);
+  box-shadow: inset 0 0 0 3px #E9BC52, inset 0 0 0 4px rgba(122,82,15,.75), inset 0 -3px 5px rgba(110,70,10,.4), 0 0 14px 1px rgba(240,180,60,.45), 0 3px 5px rgba(0,0,0,.6);
+  -webkit-animation: prPiece .7s ease;
+  animation: prPiece .7s ease;
+}
+:root[data-theme="flibuste"] .todo-fait .todo-emoji { opacity: .88; text-shadow: 0 0 0 #5A3809, 0 1.2px 0 rgba(255,236,170,.85); }
+@-webkit-keyframes prPiece { 0% { -webkit-transform: scaleX(1); } 25% { -webkit-transform: scaleX(.05); } 50% { -webkit-transform: scaleX(1); } 75% { -webkit-transform: scaleX(.05); } 100% { -webkit-transform: scaleX(1); } }
+@keyframes prPiece { 0% { transform: scaleX(1); } 25% { transform: scaleX(.05); } 50% { transform: scaleX(1); } 75% { transform: scaleX(.05); } 100% { transform: scaleX(1); } }
+
+/* Validation d'une série */
+:root[data-theme="flibuste"] .bulle-validation {
+  border: 2px solid #A87B2C;
+  background-image: var(--pr-piece-vide);
+  box-shadow: inset 0 2px 5px rgba(0,0,0,.75);
+}
+:root[data-theme="flibuste"] .bulle-validation.bulle-validation-faite {
+  background-color: transparent !important;
+  background-image: var(--pr-piece-or);
+  border-color: #7A520F !important;
+  color: #5A3809 !important;
+  text-shadow: 0 1px 0 rgba(255,236,170,.85);
+  box-shadow: inset 0 0 0 2px #E9BC52, inset 0 -2px 3px rgba(110,70,10,.4), 0 0 8px rgba(240,180,60,.4), 0 2px 3px rgba(0,0,0,.6);
+  -webkit-animation: prPiece .6s ease;
+  animation: prPiece .6s ease;
+}
+/* Numéro d'exercice : doublon d'or (en cours), pièce de huit en argent (terminé) */
+:root[data-theme="flibuste"] .sx-exo-pastille {
+  border: 2px solid #A87B2C;
+  background-image: var(--pr-piece-vide);
+  box-shadow: inset 0 2px 5px rgba(0,0,0,.7);
+}
+:root[data-theme="flibuste"] .sx-exo-actif .sx-exo-pastille {
+  background-image: var(--pr-piece-or);
+  border-color: #7A520F;
+  color: #4A2E06;
+  box-shadow: inset 0 0 0 2px #E9BC52, 0 0 12px rgba(240,180,60,.55);
+}
+:root[data-theme="flibuste"] .sx-exo-termine .sx-exo-pastille {
+  background-color: transparent;
+  background-image: var(--pr-piece-argent);
+  border-color: #56616C;
+  color: #2E3842;
+  box-shadow: inset 0 0 0 2px #D5DDE4, 0 2px 4px rgba(0,0,0,.55);
+}
+/* Annuler la séance, logo, réglages : pièces rondes */
+:root[data-theme="flibuste"] .sx-btn-rond {
+  border-radius: 50%;
+  border: 2px solid #A87B2C;
+  background-image: var(--pr-piece-vide);
+  box-shadow: inset 0 2px 5px rgba(0,0,0,.7);
+}
+:root[data-theme="flibuste"] .entete-logo {
+  border: 2px solid #7A520F;
+  border-radius: 50%;
+  background-image: var(--pr-piece-or);
+  box-shadow: inset 0 0 0 2px #E9BC52, inset 0 -3px 5px rgba(110,70,10,.4), 0 3px 6px rgba(0,0,0,.6);
+  -webkit-animation: prBalance 5.5s ease-in-out infinite;
+  animation: prBalance 5.5s ease-in-out infinite;
+}
+:root[data-theme="flibuste"] .entete-logo::before { display: none; }
+:root[data-theme="flibuste"] .entete-logo img { width: 24px; height: 24px; }
+@-webkit-keyframes prBalance { 0%, 100% { -webkit-transform: rotate(-4deg); } 50% { -webkit-transform: rotate(4deg); } }
+@keyframes prBalance { 0%, 100% { transform: rotate(-4deg); } 50% { transform: rotate(4deg); } }
+/* Réglages : hublot de laiton */
+:root[data-theme="flibuste"] .bouton-reglages {
+  border: 3px solid #B8862E;
+  border-radius: 50%;
+  background: transparent;
+  color: #F4CB6B;
+  box-shadow: inset 0 0 0 1px #5A3A0C, 0 0 0 1px #4A2F08, 0 4px 10px rgba(0,0,0,.6);
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+:root[data-theme="flibuste"] .bouton-reglages::before { border-radius: 50%; opacity: 1; background: radial-gradient(circle at 40% 30%, #1C3A46 0, #0A1820 75%); }
+:root[data-theme="flibuste"] .bouton-reglages::after { border-radius: 50%; opacity: .18; }
+
+/* ---------- 7. Boutons : plaques de laiton ---------- */
+:root[data-theme="flibuste"] .btn-plein,
+:root[data-theme="flibuste"] .sx-valider,
+:root[data-theme="flibuste"] .sx-btn-fin {
+  background: var(--pr-laiton);
+  color: #1C1105;
+  border: 1px solid #7C5314;
+  border-radius: 12px;
+  text-shadow: 0 1px 0 rgba(255,240,190,.55);
+  box-shadow: inset 0 1px 0 rgba(255,246,205,.7), inset 0 -2px 0 rgba(90,55,10,.35), 0 3px 0 #5C3A0B, 0 8px 12px rgba(0,0,0,.5);
+}
+:root[data-theme="flibuste"] .btn-plein:active,
+:root[data-theme="flibuste"] .sx-valider:active,
+:root[data-theme="flibuste"] .sx-btn-fin:active {
+  -webkit-transform: translateY(2px);
+  transform: translateY(2px);
+  opacity: 1;
+  box-shadow: inset 0 1px 0 rgba(255,246,205,.6), 0 1px 0 #5C3A0B, 0 3px 6px rgba(0,0,0,.5);
+}
+:root[data-theme="flibuste"] .sx-hero-echauf .sx-valider { background: linear-gradient(180deg, #F0B873 0%, #D77F3A 50%, #A54F1E 100%); border-color: #6E3010; box-shadow: inset 0 1px 0 rgba(255,225,190,.6), 0 3px 0 #4E200A, 0 8px 12px rgba(0,0,0,.5); }
+:root[data-theme="flibuste"] .btn-contour { border-color: rgba(224,174,69,.5); }
+:root[data-theme="flibuste"] .reglages-segment.reglage-option-active,
+:root[data-theme="flibuste"] .chip-actif { background: var(--pr-laiton); color: #1C1105; border-color: #7C5314; }
+:root[data-theme="flibuste"] .carte-titre { letter-spacing: .05em; }
+
+/* ---------- 8. Séance active : plaque gravée + minuteur en hublot + cachet de cire ---------- */
+:root[data-theme="flibuste"] .sx-hero {
+  border: 2px solid #B8862E;
+  border-radius: 14px;
+  background-color: #130D09;
+  background-image: var(--pr-bois);
+  background-size: 240px 240px;
+  box-shadow: inset 0 0 0 1px rgba(0,0,0,.6), 0 0 26px -8px rgba(224,174,69,.55), 0 6px 14px rgba(0,0,0,.5);
+}
+:root[data-theme="flibuste"] .sx-hero-echauf { border-color: #C46F2E; box-shadow: inset 0 0 0 1px rgba(0,0,0,.6), 0 0 24px -8px rgba(215,127,58,.6), 0 6px 14px rgba(0,0,0,.5); }
+:root[data-theme="flibuste"] .sx-hero-valeur {
+  border-radius: 10px;
+  background: #0C0805;
+  border: 1px solid #5A4222;
+  box-shadow: inset 0 3px 8px rgba(0,0,0,.85);
+}
+:root[data-theme="flibuste"] .sx-hero-valeur input { text-shadow: 0 0 14px rgba(224,174,69,.5); }
+:root[data-theme="flibuste"] .cdr-cercle-zone,
+:root[data-theme="flibuste"] .cdr-verre-disque {
+  box-shadow: 0 0 0 5px #8C6420, 0 0 0 7px #3A260A, inset 0 0 0 2px rgba(255,220,140,.22), 0 9px 20px rgba(0,0,0,.65);
+}
+:root[data-theme="flibuste"] .cdr-pill { border-color: #B8862E; box-shadow: inset 0 0 0 1px rgba(0,0,0,.5), 0 4px 14px rgba(0,0,0,.55); }
+/* le bouton « Lancer » du minuteur est un cachet de cire rouge */
+:root[data-theme="flibuste"] .cdr-bouton-lancer {
+  background: radial-gradient(circle at 35% 30%, #E0504A 0, #B3231F 42%, #7E1412 80%, #5E0E0D 100%);
+  box-shadow: inset 0 0 0 3px rgba(255,120,110,.18), inset 0 0 0 5px rgba(70,8,8,.32), inset 0 -4px 6px rgba(0,0,0,.35), 0 4px 8px rgba(0,0,0,.6);
+}
+
+/* ---------- 9. Accueil : enseignes suspendues + ordres cachetés ---------- */
+:root[data-theme="flibuste"] .accueil-tuile {
+  overflow: visible;
+  margin-top: 16px;
+  -webkit-transform-origin: 50% -17px;
+  transform-origin: 50% -17px;
+  -webkit-animation: prPendule 6.4s ease-in-out infinite;
+  animation: prPendule 6.4s ease-in-out infinite;
+}
+:root[data-theme="flibuste"] .accueil-tuile:nth-child(2) { -webkit-animation-duration: 7.3s; animation-duration: 7.3s; -webkit-animation-delay: -2.4s; animation-delay: -2.4s; }
+:root[data-theme="flibuste"] .accueil-tuile:nth-child(3) { -webkit-animation-duration: 6.8s; animation-duration: 6.8s; -webkit-animation-delay: -4.7s; animation-delay: -4.7s; }
+:root[data-theme="flibuste"] .accueil-tuile:active { box-shadow: inset 0 0 0 1px rgba(0,0,0,.6), 0 0 18px rgba(240,170,60,.5), 0 7px 16px rgba(0,0,0,.6); }
+/* les deux cordes en V */
+:root[data-theme="flibuste"] .accueil-tuile::before {
+  content: '';
+  display: block;
+  position: absolute;
+  top: -20px; left: 12%; right: 12%;
+  height: 20px;
+  z-index: 0;
+  opacity: 1;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 20' preserveAspectRatio='none'%3E%3Cpath d='M3 20L50 2L97 20' fill='none' stroke='%23CDB07A' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cpath d='M3 20L50 2L97 20' fill='none' stroke='%236F5A33' stroke-width='2.2' stroke-dasharray='1.6 2.2' stroke-linecap='round' stroke-linejoin='round'/%3E%3Ccircle cx='50' cy='2.5' r='2.6' fill='%23D9A53A' stroke='%235A3A0C' stroke-width='.8'/%3E%3Ccircle cx='3' cy='19' r='2.2' fill='%23B8862E' stroke='%233A260A' stroke-width='.8'/%3E%3Ccircle cx='97' cy='19' r='2.2' fill='%23B8862E' stroke='%233A260A' stroke-width='.8'/%3E%3C/svg%3E") no-repeat center bottom / 100% 100%;
+}
+@-webkit-keyframes prPendule { 0%, 100% { -webkit-transform: rotate(-1.1deg); } 50% { -webkit-transform: rotate(1.1deg); } }
+@keyframes prPendule { 0%, 100% { transform: rotate(-1.1deg); } 50% { transform: rotate(1.1deg); } }
+:root[data-theme="flibuste"] .accueil-carte:not(.seance-a-faire)::before { display: none; }
+
+/* parchemin : encre brune sur papier */
+:root[data-theme="flibuste"] .accueil-carte.seance-a-faire,
+:root[data-theme="flibuste"] .carte.pr-carte-tresor {
+  --couleur-texte: #2B1A0C;
+  --couleur-texte-att: #6A4E33;
+  --couleur-texte-titre: #5E1A12;
+  --couleur-bordure: rgba(70,42,18,.45);
+  --couleur-carte: #E8D3A0;
+  --couleur-carte-creux: #D8BD86;
+  --couleur-turquoise: #8A2A12;
+  --couleur-cyan: #8B5A1D;
+  --couleur-degrade: linear-gradient(135deg, #9B2A14, #6E1608);
+  --couleur-succes: #3F6B1E;
+  --couleur-alerte: #9B1C10;
+  --couleur-avertissement: #A8650C;
+  --couleur-nutrition: #8A2A3A;
+  --effet-texte: none;
+  --effet-halo: none;
+  color: var(--couleur-texte);
+  background-color: #DCC590;
+  background-image: var(--pr-taches), var(--pr-papier);
+  background-size: 240px 240px, 100% 100%;
+  background-repeat: repeat, no-repeat;
+  background-origin: border-box;
+  background-clip: border-box;
+  border: 1px solid rgba(60,32,10,.6);
+  border-radius: 4px 10px 5px 11px / 10px 4px 11px 5px;
+  box-shadow: inset 0 0 30px rgba(110,62,18,.65), inset 0 0 0 1px rgba(60,32,10,.25), 0 7px 16px rgba(0,0,0,.65);
+  -webkit-animation: none;
+  animation: none;
+}
+:root[data-theme="flibuste"] .accueil-carte.seance-a-faire { padding-right: 78px; }
+:root[data-theme="flibuste"] .accueil-carte.seance-a-faire .particules { display: none; }
+:root[data-theme="flibuste"] .accueil-carte.seance-a-faire .titre-affichage { color: var(--couleur-texte-titre); text-shadow: none; }
+:root[data-theme="flibuste"] .accueil-carte.seance-a-faire .texte-att { color: var(--couleur-texte-att); }
+/* cachet de cire */
+:root[data-theme="flibuste"] .accueil-carte.seance-a-faire::before {
+  content: '';
+  display: block;
+  position: absolute;
+  top: 50%; right: 16px; left: auto;
+  width: 48px; height: 48px;
+  margin-top: -24px;
+  z-index: 2;
+  opacity: 1;
+  -webkit-transform: rotate(-9deg);
+  transform: rotate(-9deg);
+  -webkit-animation: none;
+  animation: none;
+  border-radius: 47% 53% 49% 51% / 52% 46% 54% 48%;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 44' width='40' height='44'%3E %3Cg stroke='%237A1414' stroke-width='3.2' stroke-linecap='round' fill='none'%3E%3Cpath d='M5.5 31.5L34.5 40.5M34.5 31.5L5.5 40.5'/%3E%3C/g%3E %3Cg fill='%237A1414'%3E%3Ccircle cx='5' cy='31' r='2.2'/%3E%3Ccircle cx='35' cy='31' r='2.2'/%3E%3Ccircle cx='5' cy='41' r='2.2'/%3E%3Ccircle cx='35' cy='41' r='2.2'/%3E%3C/g%3E %3Cpath fill='%237A1414' d='M20 3C12.4 3 7.5 8 7.5 14.2c0 3.8 1.9 6.6 4.2 8.1V28c0 1.2 1 2.2 2.2 2.2h12.2c1.2 0 2.2-1 2.2-2.2v-5.7c2.3-1.5 4.2-4.3 4.2-8.1C32.5 8 27.6 3 20 3z'/%3E %3Cg fill='%234A0A0A'%3E%3Cellipse cx='14.8' cy='15.2' rx='3.4' ry='3.7'/%3E%3Cellipse cx='25.2' cy='15.2' rx='3.4' ry='3.7'/%3E%3Cpath d='M20 19.6l-2.2 4h4.4z'/%3E%3Crect x='15.6' y='25.6' width='1.6' height='4' rx='.6'/%3E%3Crect x='19.2' y='25.6' width='1.6' height='4' rx='.6'/%3E%3Crect x='22.8' y='25.6' width='1.6' height='4' rx='.6'/%3E%3C/g%3E %3C/svg%3E") center 56% / 60% no-repeat, radial-gradient(circle at 35% 30%, #E0504A 0, #B3231F 40%, #7E1412 78%, #5E0E0D 100%);
+  box-shadow: inset 0 0 0 3px rgba(255,120,110,.20), inset 0 0 0 5px rgba(70,8,8,.35), inset 0 -3px 5px rgba(0,0,0,.35), 0 3px 6px rgba(0,0,0,.55);
+}
+/* La bavure de cire */
+:root[data-theme="flibuste"] .accueil-carte.seance-a-faire::after {
+  content: '';
+  display: block;
+  position: absolute;
+  right: 14px; top: 50%;
+  margin-top: 14px;
+  width: 15px; height: 12px;
+  z-index: 1;
+  border-radius: 50% 50% 55% 45%;
+  background: #8E1B19;
+  -webkit-transform: rotate(24deg);
+  transform: rotate(24deg);
+  box-shadow: inset 0 -2px 2px rgba(0,0,0,.3);
+}
+
+/* ---------- 10. Historique : le calendrier devient une carte au trésor ---------- */
+:root[data-theme="flibuste"] .pr-carte-tresor { position: relative; }
+:root[data-theme="flibuste"] .pr-carte-tresor::before {
+  content: '';
+  position: absolute;
+  right: 8px; bottom: 8px;
+  width: 58px; height: 58px;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 60 60'%3E%3Cg fill='none' stroke='%235B3A16' stroke-width='1.3' stroke-linejoin='round'%3E%3Ccircle cx='30' cy='30' r='26'/%3E%3Ccircle cx='30' cy='30' r='21' stroke-width='.7'/%3E%3Cpath d='M30 2L35 25L58 30L35 35L30 58L25 35L2 30L25 25Z' fill='%235B3A16' fill-opacity='.55'/%3E%3Cpath d='M12 12L27 27M48 12L33 27M12 48L27 33M48 48L33 33' stroke-width='.9'/%3E%3C/g%3E%3Cpath d='M30 6l3 6h-6z' fill='%238A2A12'/%3E%3C/svg%3E") no-repeat center / contain;
+  opacity: .22;
+  pointer-events: none;
+}
+:root[data-theme="flibuste"] .pr-carte-tresor .cal-jour-select .cal-jour-bouton {
+  background:
+    linear-gradient(45deg, rgba(0,0,0,0) 44%, rgba(155,28,28,.72) 44%, rgba(155,28,28,.72) 56%, rgba(0,0,0,0) 56%),
+    linear-gradient(-45deg, rgba(0,0,0,0) 44%, rgba(155,28,28,.72) 44%, rgba(155,28,28,.72) 56%, rgba(0,0,0,0) 56%);
+  color: #2B1A0C;
+  font-weight: 800;
+}
+
+/* ---------- 11. Graphiques : encre dorée sur la nuit ---------- */
+:root[data-theme="flibuste"] .svg-conteneur line:not(.meteo-grille):not(.meteo-now-ligne) { stroke: rgba(224,174,69,.16); }
+
+/* ---------- 12. Calme : pas de mouvement si l'appareil le demande ou si PIRATE_ANIME = false ---------- */
+@media (prefers-reduced-motion: reduce) {
+  .pr-scene *, .pr-avant *, .pr-scene, .pr-avant { -webkit-animation: none !important; animation: none !important; }
+  :root[data-theme="flibuste"] .accueil-tuile, :root[data-theme="flibuste"] .entete-logo { -webkit-animation: none; animation: none; }
+}
+:root.pr-calme .pr-scene *, :root.pr-calme .pr-avant *,
+:root.pr-calme .accueil-tuile, :root.pr-calme .entete-logo { -webkit-animation: none !important; animation: none !important; }

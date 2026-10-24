@@ -8617,3 +8617,199 @@ document.addEventListener('click', function (e) {
 });
 
 })();
+
+/* ============================================================
+   THÈME FLIBUSTE — décors (à charger APRÈS app.js)
+   Construit les scènes (pont, taverne de Tortuga, caverne au trésor, galion coulé),
+   les lueurs de torches, les particules et le pavillon noir de l'en-tête.
+   Il ne modifie pas app.js : il observe seulement le thème et la page affichée.
+   ============================================================ */
+(function () {
+'use strict';
+
+var PIRATE_ANIME = true;   /* false = plus aucun mouvement (décors fixes) */
+
+/* quelle scène pour quelle page */
+var SCENE_PAR_PAGE = { accueil: 'pont', seance: 'pont', etirement: 'pont', nutrition: 'tortuga', bibliotheque: 'caverne', historique: 'galion' };
+var INDEX_PAGE = { accueil: 0, etirement: 0, seance: 1, nutrition: 2, bibliotheque: 3, historique: 4 };
+var DECALAGE_PAGE_PX = 24;      /* décalage horizontal du décor par onglet */
+var VITESSE_SCROLL = 0.5;       /* 0 = décor immobile, 1 = suit le contenu */
+var PERIODE_TEXTURE = 240;      /* taille des motifs (ne pas changer) */
+
+var racine = document.documentElement;
+var scene = null, avant = null, decors = {}, sceneCourante = null, attente = false;
+
+function alea(min, max) { return min + Math.random() * (max - min); }
+function estPirate() { return racine.getAttribute('data-theme') === 'flibuste'; }
+
+if (!PIRATE_ANIME || (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches)) {
+  racine.className += ' pr-calme';
+}
+
+/* ---------- pavillon noir (SVG animé) ---------- */
+function htmlPavillon() {
+  var d1 = 'M2.6 4 C16 0,30 9,44 5 S60 3,68 6 C65 12,66 18,68 24 C66 31,67 36,69 40 C60 43,52 36,44 40 S16 44,2.6 40 Z';
+  var d2 = 'M2.6 4 C16 8,30 1,44 5 S60 9,68 5 C66 11,65 18,67 23 C68 30,66 36,68 41 C60 38,52 44,44 40 S16 36,2.6 40 Z';
+  var d3 = 'M2.6 4 C16 3,30 6,44 4 S60 6,68 7 C64 13,67 19,69 25 C65 32,66 35,67 39 C60 41,52 40,44 41 S16 41,2.6 40 Z';
+  var anim = PIRATE_ANIME;
+  return '<svg viewBox="0 0 70 46" xmlns="http://www.w3.org/2000/svg">' +
+    '<rect x="0" y="0" width="2.6" height="46" rx="1.2" fill="#8B6A3A"/><circle cx="1.3" cy="1.3" r="2.5" fill="#D9A53A"/>' +
+    '<g>' +
+    (anim ? '<animateTransform attributeName="transform" type="skewY" values="0;-2.5;0;2.5;0" dur="3.4s" repeatCount="indefinite"/>' : '') +
+    '<path fill="#05070A" stroke="#B7945A" stroke-width=".9" stroke-linejoin="round" d="' + d1 + '">' +
+    (anim ? '<animate attributeName="d" dur="2.6s" repeatCount="indefinite" values="' + d1 + ';' + d2 + ';' + d3 + ';' + d1 + '"/>' : '') +
+    '</path>' +
+    '<g transform="translate(20 7) scale(.62)">' +
+    '<path fill="#F2E6C8" d="M20 3C12.4 3 7.5 8 7.5 14.2c0 3.8 1.9 6.6 4.2 8.1V28c0 1.2 1 2.2 2.2 2.2h12.2c1.2 0 2.2-1 2.2-2.2v-5.7c2.3-1.5 4.2-4.3 4.2-8.1C32.5 8 27.6 3 20 3z"/>' +
+    '<g fill="#05070A"><ellipse cx="14.8" cy="15.2" rx="3.4" ry="3.7"/><ellipse cx="25.2" cy="15.2" rx="3.4" ry="3.7"/><path d="M20 19.6l-2.2 4h4.4z"/></g>' +
+    '<g stroke="#F2E6C8" stroke-width="3.2" stroke-linecap="round"><path d="M5.5 31.5L34.5 40.5M34.5 31.5L5.5 40.5"/></g>' +
+    '</g></g></svg>';
+}
+
+function poserPavillon() {
+  var carte = document.querySelector('.entete-carte');
+  if (!carte || carte.querySelector('.pr-pavillon')) { return; }
+  var el = document.createElement('div');
+  el.className = 'pr-pavillon';
+  el.innerHTML = htmlPavillon();
+  var droite = carte.querySelector('.zone-entete-droite');
+  if (droite) { carte.insertBefore(el, droite); } else { carte.appendChild(el); }
+}
+
+/* ---------- scènes ---------- */
+function htmlDecor(nom, contenu, roulis) {
+  var texture = '<div class="pr-texture"></div>';
+  var fond = roulis ? '<div class="pr-roulis">' + texture + '</div>' : texture;
+  return '<div class="pr-decor pr-' + nom + '"><div class="pr-fond">' + (contenu || fond) + '</div><div class="pr-teinte"></div></div>';
+}
+
+function construireScene() {
+  if (scene) { return; }
+  scene = document.createElement('div');
+  scene.className = 'pr-scene';
+  scene.innerHTML =
+    htmlDecor('pont', null, true) +
+    htmlDecor('tortuga') +
+    htmlDecor('caverne') +
+    htmlDecor('galion',
+      '<div class="pr-rais pr-rais-1"></div><div class="pr-rais pr-rais-2"></div><div class="pr-rais pr-rais-3"></div>' +
+      '<div class="pr-epave"></div><div class="pr-oeil"></div><div class="pr-kraken pr-kraken-g"></div><div class="pr-kraken pr-kraken-d"></div>');
+  document.body.insertBefore(scene, document.body.firstChild);
+  var noms = ['pont', 'tortuga', 'caverne', 'galion'];
+  for (var i = 0; i < noms.length; i++) { decors[noms[i]] = scene.querySelector('.pr-' + noms[i]); }
+
+  avant = document.createElement('div');
+  avant.className = 'pr-avant';
+  avant.innerHTML = '<div class="pr-nuit"></div>' +
+    '<div class="pr-lueurs"><div class="pr-lueur pr-lueur-g"></div><div class="pr-lueur pr-lueur-d"></div></div>' +
+    groupe('braise', 9, function (i) {
+      var t = alea(2, 4).toFixed(1), d = alea(6, 13);
+      return 'left:' + alea(0, 26).toFixed(0) + '%;width:' + t + 'px;height:' + t + 'px;' + temps(d) +
+        '--dx:' + alea(10, 90).toFixed(0) + 'px;--dy:-' + alea(260, 640).toFixed(0) + 'px;';
+    }) +
+    groupe('brume', 3, function (i) {
+      var d = alea(22, 36);
+      return 'left:-30vw;bottom:' + alea(-8, 6).toFixed(0) + '%;width:' + alea(70, 110).toFixed(0) + 'vw;height:' + alea(22, 36).toFixed(0) + 'vh;' + temps(d) +
+        '--dx:' + alea(50, 90).toFixed(0) + 'vw;';
+    }) +
+    groupe('brille', 14, function (i) {
+      var d = alea(2.4, 5.6);
+      return 'left:' + alea(2, 96).toFixed(0) + '%;top:' + alea(4, 92).toFixed(0) + '%;font-size:' + alea(7, 15).toFixed(0) + 'px;' + temps(d);
+    }) +
+    groupe('bulle', 14, function (i) {
+      var t = alea(6, 22).toFixed(0), d = alea(12, 26);
+      return 'left:' + alea(0, 98).toFixed(0) + '%;width:' + t + 'px;height:' + t + 'px;' + temps(d) +
+        '--dx:' + alea(-40, 40).toFixed(0) + 'px;';
+    }) +
+    groupe('poussiere', 12, function (i) {
+      var t = alea(1.6, 3).toFixed(1), d = alea(8, 16);
+      return 'left:' + alea(0, 98).toFixed(0) + '%;top:' + alea(0, 96).toFixed(0) + '%;width:' + t + 'px;height:' + t + 'px;' + temps(d) +
+        '--dx:' + alea(-60, 60).toFixed(0) + 'px;--dy:' + alea(-60, 60).toFixed(0) + 'px;';
+    });
+  document.body.appendChild(avant);
+}
+
+function temps(duree) {
+  return 'animation-duration:' + duree.toFixed(1) + 's;-webkit-animation-duration:' + duree.toFixed(1) + 's;' +
+    'animation-delay:-' + (Math.random() * duree).toFixed(1) + 's;-webkit-animation-delay:-' + (Math.random() * duree).toFixed(1) + 's;';
+}
+
+function groupe(nom, n, style) {
+  var h = '<div class="pr-g pr-g-' + nom + '">';
+  for (var i = 0; i < n; i++) { h += '<span class="pr-p pr-' + nom + '" style="' + style(i) + '"></span>'; }
+  return h + '</div>';
+}
+
+/* ---------- mise à jour : thème, page, défilement ---------- */
+function pageAffichee() {
+  var p = document.querySelector('.page.page-active');
+  return p ? p.id.replace('page-', '') : 'accueil';
+}
+
+function marquerCartes() {
+  /* le calendrier de l'agenda devient une carte au trésor */
+  var grille = document.getElementById('cal-grille');
+  if (!grille) { return; }
+  var carte = grille.parentNode;
+  while (carte && carte !== document.body && !(carte.className && String(carte.className).indexOf('carte') !== -1)) { carte = carte.parentNode; }
+  if (carte && carte !== document.body && String(carte.className).indexOf('pr-carte-tresor') === -1) { carte.className += ' pr-carte-tresor'; }
+}
+
+function transformer(el, x, y) {
+  var v = 'translate3d(' + x + 'px,' + y + 'px,0)';
+  el.style.webkitTransform = v;
+  el.style.transform = v;
+}
+
+function decalerTextures() {
+  if (!scene) { return; }
+  var y = -((window.pageYOffset * VITESSE_SCROLL) % PERIODE_TEXTURE);
+  var t = scene.querySelectorAll('.pr-texture');
+  for (var i = 0; i < t.length; i++) { transformer(t[i], 0, y); }
+}
+
+function majScene() {
+  attente = false;
+  if (!estPirate()) {
+    racine.removeAttribute('data-pr-scene');
+    return;
+  }
+  construireScene();
+  poserPavillon();
+  marquerCartes();
+  var page = pageAffichee();
+  var nom = SCENE_PAR_PAGE[page] || 'pont';
+  if (nom !== sceneCourante) {
+    for (var k in decors) {
+      if (decors.hasOwnProperty(k)) {
+        if (k === nom) { decors[k].className += ' pr-actif'; }
+        else { decors[k].className = decors[k].className.replace(/\s*pr-actif/g, ''); }
+      }
+    }
+    racine.setAttribute('data-pr-scene', nom);
+    sceneCourante = nom;
+  }
+  var dx = -(INDEX_PAGE[page] || 0) * DECALAGE_PAGE_PX;
+  var fonds = scene.querySelectorAll('.pr-fond');
+  for (var i = 0; i < fonds.length; i++) { transformer(fonds[i], dx, 0); }
+  decalerTextures();
+}
+
+function planifier() {
+  if (attente) { return; }
+  attente = true;
+  window.requestAnimationFrame(majScene);
+}
+
+/* le thème change (attribut data-theme) */
+new MutationObserver(planifier).observe(racine, { attributes: true, attributeFilter: ['data-theme'] });
+/* la page change (classe page-active) */
+var main = document.querySelector('main');
+if (main) { new MutationObserver(planifier).observe(main, { attributes: true, attributeFilter: ['class'], subtree: true }); }
+window.addEventListener('scroll', function () {
+  if (!scene || !estPirate()) { return; }
+  window.requestAnimationFrame(decalerTextures);
+}, false);
+
+majScene();
+})();
