@@ -6593,6 +6593,10 @@ var voixActive = false;
 var voixReco = null;
 var voixDerniereActionMs = 0;
 var voixFinDemandeeMs = 0;
+var voixDerniereAction = '';
+var VOIX_PAS_POIDS = 2.5;            /* kg ajoutés/retirés par "plus/moins de poids" : mets le même pas que tes boutons + / - */
+var VOIX_PAS_REPS = 1;
+var VOIX_LANCER_APRES_REGLAGE = false; /* true = "minuteur 90 secondes" règle ET lance le minuteur */
 
 function voixEstSupportee() {
   return !!(window.SpeechRecognition || window.webkitSpeechRecognition);
@@ -6661,51 +6665,188 @@ function demarrerEcouteVoix() {
   try { reco.start(); } catch (e) {}
 }
 
-function validerSerieEnCoursVocal() {
-  if (!etat.seanceActive) { return false; }
+var VOIX_NOMBRES = { zero: 0, un: 1, une: 1, deux: 2, trois: 3, quatre: 4, cinq: 5, six: 6, sept: 7, huit: 8, neuf: 9, dix: 10, onze: 11, douze: 12, treize: 13, quatorze: 14, quinze: 15, seize: 16, vingt: 20, vingts: 20, trente: 30, quarante: 40, cinquante: 50, soixante: 60, cent: 100 };
+
+function voixEstMotNombre(mot) {
+  return VOIX_NOMBRES.hasOwnProperty(mot);
+}
+
+/* "deux minutes trente" -> "2 minutes 30" (le navigateur écrit parfois les nombres en lettres) */
+function voixNombresEnChiffres(texte) {
+  var mots = texte.split(' ');
+  var sortie = [];
+  var i = 0;
+  while (i < mots.length) {
+    if (!voixEstMotNombre(mots[i])) { sortie.push(mots[i]); i++; continue; }
+    var total = 0;
+    var precedent = 0;
+    while (i < mots.length && voixEstMotNombre(mots[i])) {
+      var v = VOIX_NOMBRES[mots[i]];
+      if (v === 100) { total = (total === 0 ? 1 : total) * 100; }
+      else if (v === 20 && precedent === 4 && total === 4) { total = 80; }
+      else { total += v; }
+      precedent = v;
+      i++;
+      if (i + 1 < mots.length && mots[i] === 'et' && voixEstMotNombre(mots[i + 1])) { i++; }
+    }
+    sortie.push(String(total));
+  }
+  return sortie.join(' ');
+}
+
+/* Position de la série en cours : première série non validée de la séance */
+function voixPositionEnCours() {
+  if (!etat.seanceActive) { return null; }
   var exs = etat.seanceActive.exercices;
   for (var e = 0; e < exs.length; e++) {
     for (var s = 0; s < exs[e].series.length; s++) {
-      if (!exs[e].series[s].fait) { basculerSerieFaite(e, s); return true; }
+      if (!exs[e].series[s].fait) { return { ex: e, serie: s }; }
     }
   }
-  return false;
+  return null;
+}
+
+function validerSerieEnCoursVocal() {
+  var pos = voixPositionEnCours();
+  if (!pos) { return false; }
+  basculerSerieFaite(pos.ex, pos.serie);
+  return true;
+}
+
+function voixAjusterSerie(champ, delta) {
+  var pos = voixPositionEnCours();
+  if (!pos) { afficherToast('Toutes les séries sont déjà validées.'); return; }
+  var serie = etat.seanceActive.exercices[pos.ex].series[pos.serie];
+  if (champ === 'poids') {
+    serie.poids = Math.max(0, Math.round((serie.poids + delta) * 100) / 100);
+    afficherToast('🎤 ' + serie.poids + ' kg');
+  } else {
+    serie.reps = Math.max(0, serie.reps + delta);
+    afficherToast('🎤 ' + serie.reps + ' reps');
+  }
+  sauvegarderEtat();
+  rendreExercicesActifs();
+}
+
+function voixDefinirRpe(valeur) {
+  var pos = voixPositionEnCours();
+  var exIndex = pos ? pos.ex : (etat.seanceActive.exercices.length - 1);
+  if (valeur < 0 || valeur > 10) { afficherToast('RPE : un chiffre entre 0 et 10.'); return; }
+  modifierRpeExercice(exIndex, valeur);
+  rendreExercicesActifs();
+  afficherToast('🎤 RPE ' + valeur);
+}
+
+/* Clique sur le bouton d'échauffement de l'exercice en cours (repéré par "chauff" dans son data-action) */
+function voixAjouterEchauffement() {
+  var pos = voixPositionEnCours();
+  var bouton = null;
+  if (pos) { bouton = document.querySelector('[data-action*="chauff"][data-ex="' + pos.ex + '"]'); }
+  if (!bouton) { bouton = document.querySelector('.bloc-exercice-actif [data-action*="chauff"]'); }
+  if (!bouton) { afficherToast('Bouton d\'échauffement introuvable.'); return; }
+  bouton.click();
+}
+
+/* Lit une durée dans le texte : "2 minutes", "90 secondes", "1 minute 30", "30" -> secondes, ou null */
+function voixExtraireDuree(t) {
+  var total = 0;
+  var trouve = false;
+  var mMin = t.match(/(\d+) ?min/);
+  var mSec = t.match(/(\d+) ?sec/);
+  if (mMin) { total += parseInt(mMin[1], 10) * 60; trouve = true; }
+  if (mSec) { total += parseInt(mSec[1], 10); trouve = true; }
+  if (mMin && !mSec) {
+    var mApres = t.match(/min\w* (?:et )?(\d+)\s*$/);
+    if (mApres) { total += parseInt(mApres[1], 10); }
+    else if (t.indexOf('demi') !== -1) { total += 30; }
+  }
+  if (!trouve) {
+    var mNu = t.match(/minuteur (\d+)\s*$/);
+    if (mNu) { total = parseInt(mNu[1], 10); trouve = true; }
+  }
+  if (!trouve || total <= 0) { return null; }
+  return Math.min(total, 59 * 60 + 59);
+}
+
+function voixRegler(totalSec) {
+  var minutes = Math.floor(totalSec / 60);
+  var secondes = totalSec % 60;
+  derniereMinutesReglees = minutes;
+  dernieresSecondesReglees = secondes;
+  var champMin = document.getElementById('cdr-minutes');
+  var champSec = document.getElementById('cdr-secondes');
+  if (champMin) { champMin.value = minutes; }
+  if (champSec) { champSec.value = secondes; }
+  var morceaux = [];
+  if (minutes) { morceaux.push(minutes + ' min'); }
+  if (secondes) { morceaux.push(secondes + ' s'); }
+  afficherToast('🎤 Minuteur réglé : ' + morceaux.join(' '));
 }
 
 function traiterCommandeVocale(texte) {
-  var t = normaliserTexteRecherche(texte).replace(/[^a-z ]/g, ' ');
+  var t = normaliserTexteRecherche(texte).replace(/[^a-z0-9 ]/g, ' ').replace(/ +/g, ' ');
+  t = voixNombresEnChiffres(t);
   var action = null;
+  var mRpe = t.match(/\br ?p ?e\b ?(\d+)/);
+
   if (t.indexOf('desactiv') !== -1) { action = 'desactive'; }
+  else if (mRpe) { action = 'rpe'; }
   else if (t.indexOf('minuteur') !== -1 || t.indexOf('minuterie') !== -1) { action = 'minuteur'; }
+  else if (/\bstop\b/.test(t) || t.indexOf('annul') !== -1) { action = 'stop'; }
+  else if (t.indexOf('echauff') !== -1) { action = 'echauffement'; }
+  else if (/plus.*poid/.test(t)) { action = 'poids+'; }
+  else if (/moins.*poid/.test(t)) { action = 'poids-'; }
+  else if (/plus.*rep/.test(t)) { action = 'reps+'; }
+  else if (/moins.*rep/.test(t)) { action = 'reps-'; }
   else if (t.indexOf('valid') !== -1) { action = 'valide'; }
-  else if (/\bfin\b/.test(t)) { action = 'fin'; }
+  else if (t.indexOf('termin') !== -1) { action = 'terminer'; }
   if (!action) { return; }
 
   var maintenant = Date.now();
-  if (maintenant - voixDerniereActionMs < 1500) { return; }
+  if (action === voixDerniereAction && (maintenant - voixDerniereActionMs) < 1500) { return; }
+  voixDerniereAction = action;
   voixDerniereActionMs = maintenant;
 
   if (action === 'desactive') { desactiverCommandeVocale(); return; }
   if (!etat.seanceActive) { return; }
 
+  var confirmationFinOuverte = voixFinDemandeeMs && (maintenant - voixFinDemandeeMs) < 15000 && document.querySelector('[data-action="confirmation-valider"]');
+
+  if (action === 'rpe') { voixDefinirRpe(parseInt(mRpe[1], 10)); return; }
+
   if (action === 'minuteur') {
+    var duree = voixExtraireDuree(t);
+    if (duree !== null) {
+      voixRegler(duree);
+      if (!VOIX_LANCER_APRES_REGLAGE) { return; }
+    }
     if (compteARebours.actif) { afficherToast('Le minuteur tourne déjà.'); return; }
-    afficherToast('🎤 Minuteur');
+    if (duree === null) { afficherToast('🎤 Minuteur'); }
     lancerCompteARebours();
     return;
   }
+
+  if (action === 'stop') {
+    if (confirmationFinOuverte) { voixFinDemandeeMs = 0; annulerConfirmation(); return; }
+    if (compteARebours.actif) { arreterCompteARebours(); afficherToast('🎤 Minuteur arrêté'); }
+    else { afficherToast('Aucun minuteur en cours.'); }
+    return;
+  }
+
+  if (action === 'echauffement') { voixAjouterEchauffement(); return; }
+  if (action === 'poids+') { voixAjusterSerie('poids', VOIX_PAS_POIDS); return; }
+  if (action === 'poids-') { voixAjusterSerie('poids', -VOIX_PAS_POIDS); return; }
+  if (action === 'reps+') { voixAjusterSerie('reps', VOIX_PAS_REPS); return; }
+  if (action === 'reps-') { voixAjusterSerie('reps', -VOIX_PAS_REPS); return; }
+
   if (action === 'valide') {
-    /* "fin" a ouvert la confirmation : "valide" dans les 15 s la confirme */
-    if (voixFinDemandeeMs && (maintenant - voixFinDemandeeMs) < 15000 && document.querySelector('[data-action="confirmation-valider"]')) {
-      voixFinDemandeeMs = 0;
-      validerConfirmation();
-      return;
-    }
+    if (confirmationFinOuverte) { voixFinDemandeeMs = 0; validerConfirmation(); return; }
     if (validerSerieEnCoursVocal()) { afficherToast('🎤 Série validée'); }
     else { afficherToast('Toutes les séries sont déjà validées.'); }
     return;
   }
-  if (action === 'fin') {
+
+  if (action === 'terminer') {
     voixFinDemandeeMs = maintenant;
     terminerSeance();
   }
@@ -7794,7 +7935,7 @@ function allumerFacettesHiver(lx, ly) {
     '<polygon points="' + f2[0] + ',' + f2[1] + ' ' + f2[2] + ',' + f2[3] + ' ' + f2[4] + ',' + f2[5] + '" fill="url(#' + id + ')"/></svg>';
   fondMotif.insertAdjacentHTML('beforeend', svg);
   var el = fondMotif.lastChild;
-  window.setTimeout(function () { if (el && el.parentNode) { el.parentNode.removeChild(el); } }, 1300);
+  window.setTimeout(function () { if (el && el.parentNode) { el.parentNode.removeChild(el); } }, 3000);
 }
 
 function faireBrillerCartesHiver(lx, ly) {

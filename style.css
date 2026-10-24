@@ -6140,11 +6140,11 @@ body { background: transparent; }
   position: absolute;
   pointer-events: none;
   opacity: 0;
-  -webkit-animation: hvFlash 1.1s ease-out 1 forwards;
-  animation: hvFlash 1.1s ease-out 1 forwards;
+  -webkit-animation: hvFlash 2.8s ease-in-out 1 forwards;
+  animation: hvFlash 2.8s ease-in-out 1 forwards;
 }
-@-webkit-keyframes hvFlash { 0% { opacity: 0; } 12% { opacity: 1; } 100% { opacity: 0; } }
-@keyframes hvFlash { 0% { opacity: 0; } 12% { opacity: 1; } 100% { opacity: 0; } }
+@-webkit-keyframes hvFlash { 0% { opacity: 0; } 40% { opacity: 1; } 100% { opacity: 0; } }
+@keyframes hvFlash { 0% { opacity: 0; } 40% { opacity: 1; } 100% { opacity: 0; } }
 :root[data-theme="hivernal"] .carte,
 :root[data-theme="hivernal"] .carte-checklist,
 :root[data-theme="hivernal"] .reglages-section,
