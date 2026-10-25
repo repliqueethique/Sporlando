@@ -7088,7 +7088,7 @@ body { background: transparent; }
   border-radius: 0;
   background: none;
   box-shadow: none;
-  padding: 11px 10px 11px 14px;
+  padding: 11px 10px 11px 30px;
   -webkit-backdrop-filter: none;
   backdrop-filter: none;
 }
@@ -7100,41 +7100,58 @@ body { background: transparent; }
 /* l'ancien petit drapeau est caché */
 :root[data-theme="flibuste"] .pr-pavillon { display: none !important; }
 
-/* le tissu */
-.pr-drapeau, .pr-embleme { display: none; }
+/* le tissu et les cordages (se déforment avec la largeur) */
+.pr-drapeau, .pr-mat, .pr-os { display: none; }
 .bouton-reglages > .pr-gouvernail { display: none; }
 :root[data-theme="flibuste"] .pr-drapeau {
   display: block;
   position: absolute;
-  left: -6px; top: -8px;
-  width: calc(100% + 12px);
+  left: 10px; top: -8px;
+  width: calc(100% - 4px);
   height: calc(100% + 16px);
   overflow: visible;
   pointer-events: none;
 }
-/* le crâne brodé */
-:root[data-theme="flibuste"] .pr-embleme {
+/* le mât, les liens et les cordes tendues (taille fixe, collés à gauche) */
+:root[data-theme="flibuste"] .pr-mat {
   display: block;
   position: absolute;
-  right: 66px; top: 50%;
-  width: 34px; height: 37px;
-  margin-top: -18px;
-  opacity: .9;
+  left: -20px; top: -70px;
+  width: 70px; height: 180px;
+  overflow: visible;
   pointer-events: none;
-  z-index: 1;
 }
-:root[data-theme="flibuste"] .pr-embleme svg { display: block; width: 100%; height: 100%; }
+
+/* logo : plus de doublon, juste le logo posé sur des os croisés */
+:root[data-theme="flibuste"] .entete-logo {
+  position: relative;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  box-shadow: none;
+  -webkit-animation: none;
+  animation: none;
+}
+:root[data-theme="flibuste"] .entete-logo::before { display: none; }
+:root[data-theme="flibuste"] .entete-logo img { position: relative; z-index: 1; width: 34px; height: 34px; }
+:root[data-theme="flibuste"] .pr-os {
+  display: block;
+  position: absolute;
+  left: 50%; top: 50%;
+  width: 60px; height: 46px;
+  margin: -23px 0 0 -30px;
+  pointer-events: none;
+}
 
 /* le texte suit un peu le tissu */
-:root[data-theme="flibuste"] .entete-marque,
-:root[data-theme="flibuste"] .pr-embleme {
+:root[data-theme="flibuste"] .entete-marque {
   -webkit-transform-origin: 0 50%;
   transform-origin: 0 50%;
-  -webkit-animation: prOndule 3.6s ease-in-out infinite;
-  animation: prOndule 3.6s ease-in-out infinite;
+  -webkit-animation: prOndule 2s ease-in-out infinite;
+  animation: prOndule 2s ease-in-out infinite;
 }
-@-webkit-keyframes prOndule { 0%, 100% { -webkit-transform: skewY(-.7deg); } 50% { -webkit-transform: skewY(.7deg); } }
-@keyframes prOndule { 0%, 100% { transform: skewY(-.7deg); } 50% { transform: skewY(.7deg); } }
+@-webkit-keyframes prOndule { 0%, 100% { -webkit-transform: skewY(-.8deg); } 50% { -webkit-transform: skewY(.8deg); } }
+@keyframes prOndule { 0%, 100% { transform: skewY(-.8deg); } 50% { transform: skewY(.8deg); } }
 
 /* le gouvernail remplace la roue dentée : plus de rond, juste la barre */
 :root[data-theme="flibuste"] .bouton-reglages {
@@ -7161,6 +7178,6 @@ body { background: transparent; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  :root[data-theme="flibuste"] .entete-marque, :root[data-theme="flibuste"] .pr-embleme { -webkit-animation: none; animation: none; }
+  :root[data-theme="flibuste"] .entete-marque { -webkit-animation: none; animation: none; }
 }
-:root.pr-calme[data-theme="flibuste"] .entete-marque, :root.pr-calme[data-theme="flibuste"] .pr-embleme { -webkit-animation: none; animation: none; }
+:root.pr-calme[data-theme="flibuste"] .entete-marque { -webkit-animation: none; animation: none; }

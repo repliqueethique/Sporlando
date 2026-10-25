@@ -8821,25 +8821,36 @@ majScene();
 var racine = document.documentElement;
 
 /* Réglages du vent (tu peux les modifier) */
-var VENT = true;        /* false = drapeau immobile */
-var PERIODE = 3.6;      /* secondes pour qu'un pli traverse le drapeau : plus petit = plus de vent */
-var AMPLITUDE = 3.2;    /* hauteur des ondulations du bord, en pixels */
+var VENT = true;        /* false = tout est immobile */
+var PERIODE = 2.0;      /* secondes pour qu'un pli traverse le drapeau : plus petit = plus de vent */
+var AMPLITUDE = 3.6;    /* hauteur des ondulations du bord, en pixels */
 
 var calme = !VENT || racine.className.indexOf('pr-calme') !== -1;
 var W = 400, H = 68, HAUT = 6, BAS = 62, LONG = 133, ETAPES = 12;
 
-/* bord du tissu à un instant donné (phase de 0 à 1) : l'onde grandit vers le bout libre (à droite) */
+/* bord droit déchiré : [position de haut en bas (0 à 1), profondeur de la déchirure] */
+var DECHIRURE = [[.10,3],[.16,13],[.21,2],[.29,5],[.325,34],[.35,6],[.42,16],[.47,4],[.56,10],[.60,30],[.635,7],[.72,18],[.78,3],[.86,12],[.92,4]];
+
+function onde(x, phase, decalage) {
+  return AMPLITUDE * (0.2 + 0.8 * (x / W)) * Math.sin(2 * Math.PI * (x / LONG - phase) + decalage);
+}
+
+/* forme du tissu à un instant donné (phase de 0 à 1) : l'onde grandit vers le bout libre, les lambeaux battent plus fort */
 function formeTissu(phase) {
-  var N = 40, haut = [], bas = [], i, x, k, a;
+  var N = 40, haut = [], bas = [], dech = [], i, j, x, t, dx, xx, yh, yb, flot;
   for (i = 0; i <= N; i++) {
     x = i * W / N;
-    k = 0.2 + 0.8 * (x / W);
-    a = 2 * Math.PI * (x / LONG - phase);
-    haut.push(x.toFixed(1) + ',' + (HAUT + AMPLITUDE * k * Math.sin(a)).toFixed(2));
-    bas.push(x.toFixed(1) + ',' + (BAS + AMPLITUDE * k * Math.sin(a + 0.45)).toFixed(2));
+    haut.push(x.toFixed(1) + ',' + (HAUT + onde(x, phase, 0)).toFixed(2));
+    bas.push(x.toFixed(1) + ',' + (BAS + onde(x, phase, 0.45)).toFixed(2));
+  }
+  for (j = 0; j < DECHIRURE.length; j++) {
+    t = DECHIRURE[j][0]; dx = DECHIRURE[j][1]; xx = W - dx;
+    yh = HAUT + onde(xx, phase, 0); yb = BAS + onde(xx, phase, 0.45);
+    flot = dx > 8 ? 2.2 * Math.sin(4 * Math.PI * phase + t * 9) * (dx / 34) : 0;
+    dech.push(xx.toFixed(1) + ',' + (yh + t * (yb - yh) + flot).toFixed(2));
   }
   bas.reverse();
-  return 'M' + haut.join(' L') + ' L' + bas.join(' L') + ' Z';
+  return 'M' + haut.join(' L') + ' L' + dech.join(' L') + ' L' + bas.join(' L') + ' Z';
 }
 
 function valeursTissu() {
@@ -8861,12 +8872,40 @@ function degrade(id, longueur, inclinaison, clair, sombre, duree) {
     '</linearGradient>';
 }
 
+/* cordage : une corde = une ombre, un brin sombre et un brin clair en pointillés (effet torsadé) */
+function cordeStyle(d, ep, fixe) {
+  var ve = fixe ? '' : ' vector-effect="non-scaling-stroke"';
+  return '<path d="' + d + '" fill="none" stroke="#000" stroke-opacity=".45" stroke-width="' + (ep + 1.4) + '" stroke-linecap="round" transform="translate(0 2)"' + ve + '/>' +
+    '<path d="' + d + '" fill="none" stroke="#5E4A2A" stroke-width="' + ep + '" stroke-linecap="round"' + ve + '/>' +
+    '<path d="' + d + '" fill="none" stroke="#BFA26C" stroke-width="' + (ep * 0.62).toFixed(2) + '" stroke-dasharray="' + (ep * 0.8).toFixed(2) + ' ' + (ep * 0.9).toFixed(2) + '"' + ve + '/>';
+}
+
+/* corde qui pend (courbe) : de (x0,y0) à (x1,y1), avec une flèche de 'creux' pixels ; elle se balance doucement */
+function swagD(x0, y0, x1, y1, creux, decal) {
+  return 'M' + x0 + ' ' + y0 + ' Q' + ((x0 + x1) / 2 + decal) + ' ' + ((y0 + y1) / 2 + 2 * creux) + ' ' + x1 + ' ' + y1;
+}
+function swagDef(id, x0, y0, x1, y1, creux, duree) {
+  var d = swagD(x0, y0, x1, y1, creux, 0);
+  var anim = calme ? '' : '<animate attributeName="d" dur="' + duree + 's" repeatCount="indefinite" values="' +
+    d + ';' + swagD(x0, y0, x1, y1, creux * 1.1, 7) + ';' + d + ';' + swagD(x0, y0, x1, y1, creux * 0.93, -7) + ';' + d + '"/>';
+  return '<path id="' + id + '" d="' + d + '" fill="none" stroke-linecap="round" vector-effect="non-scaling-stroke">' + anim + '</path>';
+}
+function swagUse(id, ep) {
+  var l = 'href="#' + id + '" xlink:href="#' + id + '"';
+  return '<use ' + l + ' stroke="#000" stroke-opacity=".45" stroke-width="' + (ep + 1.4) + '" transform="translate(0 2)"/>' +
+    '<use ' + l + ' stroke="#5E4A2A" stroke-width="' + ep + '"/>' +
+    '<use ' + l + ' stroke="#BFA26C" stroke-width="' + (ep * 0.62).toFixed(2) + '" stroke-dasharray="' + (ep * 0.8).toFixed(2) + ' ' + (ep * 0.9).toFixed(2) + '"/>';
+}
+
+/* le tissu, les cordages qui pendent derrière et devant */
 function svgDrapeau() {
-  var d0 = formeTissu(0);
   var lien = 'href="#pr-tissu" xlink:href="#pr-tissu"';
   return '<svg class="pr-drapeau" viewBox="0 0 ' + W + ' ' + H + '" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">' +
     '<defs>' +
-    '<path id="pr-tissu" d="' + d0 + '">' + (calme ? '' : '<animate attributeName="d" dur="' + PERIODE + 's" repeatCount="indefinite" values="' + valeursTissu() + '"/>') + '</path>' +
+    '<path id="pr-tissu" d="' + formeTissu(0) + '">' + (calme ? '' : '<animate attributeName="d" dur="' + PERIODE + 's" repeatCount="indefinite" values="' + valeursTissu() + '"/>') + '</path>' +
+    swagDef('pr-c-fond', 0, 46, 330, 50, 30, 3.4) +
+    swagDef('pr-c-av1', 196, -16, 286, -16, 48, 2.3) +
+    swagDef('pr-c-av2', 286, -16, 342, -16, 36, 2.7) +
     degrade('pr-pli-a', LONG, 7, 0.13, 0.55, PERIODE) +
     degrade('pr-pli-b', LONG * 0.4, 7, 0.045, 0.20, PERIODE * 0.4) +
     '<linearGradient id="pr-plat" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#10151B" stop-opacity=".62"/><stop offset=".5" stop-color="#10151B" stop-opacity="0"/></linearGradient>' +
@@ -8874,6 +8913,7 @@ function svgDrapeau() {
     '<radialGradient id="pr-torche" gradientUnits="userSpaceOnUse" cx="0" cy="' + H + '" r="230"><stop offset="0" stop-color="#FF9640" stop-opacity=".20"/><stop offset="1" stop-color="#FF9640" stop-opacity="0"/></radialGradient>' +
     '<pattern id="pr-trame" width="3" height="3" patternUnits="userSpaceOnUse"><path d="M0 .5H3M.5 0V3" stroke="#fff" stroke-opacity=".03" stroke-width=".7" fill="none"/></pattern>' +
     '</defs>' +
+    swagUse('pr-c-fond', 3) +
     '<use ' + lien + ' transform="translate(0 9)" fill="#000" fill-opacity=".16"/>' +
     '<use ' + lien + ' transform="translate(0 5)" fill="#000" fill-opacity=".30"/>' +
     '<use ' + lien + ' fill="#10151B"/>' +
@@ -8883,17 +8923,60 @@ function svgDrapeau() {
     '<use ' + lien + ' fill="url(#pr-plat)"/>' +
     '<use ' + lien + ' fill="url(#pr-torche)"/>' +
     '<use ' + lien + ' fill="url(#pr-vertical)"/>' +
+    swagUse('pr-c-av1', 2.8) +
+    swagUse('pr-c-av2', 2.6) +
     '</svg>';
 }
 
-/* crâne brodé sur le tissu */
-function svgEmbleme() {
-  return '<svg viewBox="0 0 40 44" xmlns="http://www.w3.org/2000/svg">' +
-    '<g stroke="#E6DABF" stroke-width="3.2" stroke-linecap="round" fill="none"><path d="M5.5 31.5L34.5 40.5M34.5 31.5L5.5 40.5"/></g>' +
-    '<g fill="#E6DABF"><circle cx="5" cy="31" r="2.2"/><circle cx="35" cy="31" r="2.2"/><circle cx="5" cy="41" r="2.2"/><circle cx="35" cy="41" r="2.2"/></g>' +
-    '<path fill="#E6DABF" d="M20 3C12.4 3 7.5 8 7.5 14.2c0 3.8 1.9 6.6 4.2 8.1V28c0 1.2 1 2.2 2.2 2.2h12.2c1.2 0 2.2-1 2.2-2.2v-5.7c2.3-1.5 4.2-4.3 4.2-8.1C32.5 8 27.6 3 20 3z"/>' +
-    '<g fill="#10151B"><ellipse cx="14.8" cy="15.2" rx="3.4" ry="3.7"/><ellipse cx="25.2" cy="15.2" rx="3.4" ry="3.7"/><path d="M20 19.6l-2.2 4h4.4z"/><rect x="15.6" y="25.6" width="1.6" height="4" rx=".6"/><rect x="19.2" y="25.6" width="1.6" height="4" rx=".6"/><rect x="22.8" y="25.6" width="1.6" height="4" rx=".6"/></g>' +
-    '</svg>';
+/* le mât (coupé par le bord gauche de l'écran), les liens du drapeau et les cordes tendues qui sortent du champ.
+   Coordonnées en pixels : x = position dans l'en-tête + 20, y = position dans l'en-tête + 70 */
+function svgMat() {
+  var i, s = '<svg class="pr-mat" viewBox="0 0 70 180" xmlns="http://www.w3.org/2000/svg">' +
+    '<defs>' +
+    '<linearGradient id="pr-bois-mat" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#22140A"/><stop offset=".28" stop-color="#8A5C30"/><stop offset=".5" stop-color="#6B4524"/><stop offset=".82" stop-color="#2E1B0D"/><stop offset="1" stop-color="#150C05"/></linearGradient>' +
+    '<linearGradient id="pr-fondu" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff"/><stop offset=".76" stop-color="#fff"/><stop offset="1" stop-color="#000"/></linearGradient>' +
+    '<mask id="pr-masque-mat" maskUnits="userSpaceOnUse" x="-20" y="0" width="120" height="180"><rect x="-20" y="0" width="120" height="180" fill="url(#pr-fondu)"/></mask>' +
+    '</defs>' +
+    '<g mask="url(#pr-masque-mat)">' +
+    '<rect x="3" y="0" width="16" height="180" fill="url(#pr-bois-mat)"/>' +
+    '<g stroke="#120a04" stroke-opacity=".42" stroke-width=".7" fill="none"><path d="M6.5 0V180M9 0C10 40 8 90 9.5 180M12.5 0C11.5 50 13.5 110 12.5 180M15.5 0V180"/></g>' +
+    '<g><rect x="2.5" y="98" width="17" height="6.5" fill="#1D232A"/><rect x="2.5" y="98" width="17" height="1.4" fill="#fff" fill-opacity=".14"/><circle cx="6" cy="101.3" r=".9" fill="#566069"/><circle cx="16" cy="101.3" r=".9" fill="#566069"/>' +
+    '<rect x="2.5" y="148" width="17" height="6.5" fill="#1D232A"/><rect x="2.5" y="148" width="17" height="1.4" fill="#fff" fill-opacity=".14"/><circle cx="6" cy="151.3" r=".9" fill="#566069"/><circle cx="16" cy="151.3" r=".9" fill="#566069"/></g>' +
+    '</g>';
+  /* liens du drapeau sur le mât : cordes tendues obliques + tours de corde autour du mât */
+  s += cordeStyle('M33.5 92 L11 80', 3, true) + cordeStyle('M33.5 116 L11 130', 3, true);
+  for (i = 0; i < 3; i++) {
+    s += cordeStyle('M3 ' + (77 + i * 3.2) + ' L19 ' + (82 + i * 3.2), 2.6, true);
+    s += cordeStyle('M3 ' + (127 + i * 3.2) + ' L19 ' + (132 + i * 3.2), 2.6, true);
+  }
+  /* cordes tendues qui sortent du champ : l'une vers le haut, l'autre vers la gauche */
+  s += cordeStyle('M33.5 73 L66 20', 3.2, true) + cordeStyle('M33.5 133 L-14 162', 3.2, true);
+  /* œillets de laiton sur le bord du drapeau */
+  var ys = [73, 92, 116, 133];
+  for (i = 0; i < ys.length; i++) {
+    s += '<circle cx="33.5" cy="' + ys[i] + '" r="3" fill="#1C1206" stroke="#D2A03A" stroke-width="1.3"/><circle cx="33.5" cy="' + ys[i] + '" r="1" fill="#000"/>';
+  }
+  return s + '</svg>';
+}
+
+/* os croisés derrière le logo */
+function svgOs() {
+  function os(x0, y0, x1, y1) {
+    var dx = x1 - x0, dy = y1 - y0, l = Math.sqrt(dx * dx + dy * dy), ux = dx / l, uy = dy / l, px = -uy, py = ux, k, e, t = '';
+    function trait(c, w, dec) { return '<path d="M' + (x0 + dec) + ' ' + (y0 + dec) + 'L' + (x1 + dec) + ' ' + (y1 + dec) + '" stroke="' + c + '" stroke-width="' + w + '" stroke-linecap="round"/>'; }
+    t += trait('#000', 5.6, 1.6).replace('<path', '<path opacity=".4"');
+    t += trait('#8F8266', 5.8, 0) + trait('#CFC1A0', 4.4, 0) + trait('#F0E7CF', 2, -0.4);
+    for (k = 0; k < 2; k++) {
+      e = k ? [x1, y1] : [x0, y0];
+      [-1, 1].forEach(function (sg) {
+        var cx = e[0] + px * sg * 3.1 - ux * (k ? -0.6 : 0.6), cy = e[1] + py * sg * 3.1 - uy * (k ? -0.6 : 0.6);
+        t += '<circle cx="' + cx.toFixed(1) + '" cy="' + cy.toFixed(1) + '" r="3.3" fill="#CFC1A0" stroke="#8F8266" stroke-width=".8"/>' +
+             '<circle cx="' + (cx - 0.8).toFixed(1) + '" cy="' + (cy - 0.9).toFixed(1) + '" r="1.2" fill="#F0E7CF"/>';
+      });
+    }
+    return t;
+  }
+  return '<svg class="pr-os" viewBox="0 0 60 46" xmlns="http://www.w3.org/2000/svg">' + os(8, 8, 52, 38) + os(52, 8, 8, 38) + '</svg>';
 }
 
 /* gouvernail en bois et laiton */
@@ -8918,26 +9001,24 @@ function svgGouvernail() {
   return s;
 }
 
+function versNoeud(html) {
+  var tmp = document.createElement('div');
+  tmp.innerHTML = html;
+  return tmp.firstChild;
+}
+
 function poserEntete() {
   var carte = document.querySelector('.entete-carte');
   if (!carte || carte.querySelector('.pr-drapeau')) { return; }
 
-  var tmp = document.createElement('div');
-  tmp.innerHTML = svgDrapeau();
-  carte.insertBefore(tmp.firstChild, carte.firstChild);
+  carte.insertBefore(versNoeud(svgDrapeau()), carte.firstChild);
+  carte.insertBefore(versNoeud(svgMat()), carte.firstChild.nextSibling);
 
-  var embleme = document.createElement('div');
-  embleme.className = 'pr-embleme';
-  embleme.innerHTML = svgEmbleme();
-  var droite = carte.querySelector('.zone-entete-droite');
-  if (droite) { carte.insertBefore(embleme, droite); } else { carte.appendChild(embleme); }
+  var logo = carte.querySelector('.entete-logo');
+  if (logo) { logo.insertBefore(versNoeud(svgOs()), logo.firstChild); }
 
   var bouton = carte.querySelector('.bouton-reglages');
-  if (bouton) {
-    var g = document.createElement('div');
-    g.innerHTML = svgGouvernail();
-    bouton.insertBefore(g.firstChild, bouton.firstChild);
-  }
+  if (bouton) { bouton.insertBefore(versNoeud(svgGouvernail()), bouton.firstChild); }
 }
 
 poserEntete();
