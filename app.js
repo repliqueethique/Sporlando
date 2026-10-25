@@ -8813,3 +8813,132 @@ window.addEventListener('scroll', function () {
 
 majScene();
 })();
+
+/* ===== THÈME FLIBUSTE : L'EN-TÊTE DEVIENT UN DRAPEAU NOIR ===== */
+(function () {
+'use strict';
+
+var racine = document.documentElement;
+
+/* Réglages du vent (tu peux les modifier) */
+var VENT = true;        /* false = drapeau immobile */
+var PERIODE = 3.6;      /* secondes pour qu'un pli traverse le drapeau : plus petit = plus de vent */
+var AMPLITUDE = 3.2;    /* hauteur des ondulations du bord, en pixels */
+
+var calme = !VENT || racine.className.indexOf('pr-calme') !== -1;
+var W = 400, H = 68, HAUT = 6, BAS = 62, LONG = 133, ETAPES = 12;
+
+/* bord du tissu à un instant donné (phase de 0 à 1) : l'onde grandit vers le bout libre (à droite) */
+function formeTissu(phase) {
+  var N = 40, haut = [], bas = [], i, x, k, a;
+  for (i = 0; i <= N; i++) {
+    x = i * W / N;
+    k = 0.2 + 0.8 * (x / W);
+    a = 2 * Math.PI * (x / LONG - phase);
+    haut.push(x.toFixed(1) + ',' + (HAUT + AMPLITUDE * k * Math.sin(a)).toFixed(2));
+    bas.push(x.toFixed(1) + ',' + (BAS + AMPLITUDE * k * Math.sin(a + 0.45)).toFixed(2));
+  }
+  bas.reverse();
+  return 'M' + haut.join(' L') + ' L' + bas.join(' L') + ' Z';
+}
+
+function valeursTissu() {
+  var v = [], i;
+  for (i = 0; i <= ETAPES; i++) { v.push(formeTissu(i / ETAPES)); }
+  return v.join(';');
+}
+
+/* dégradé de plis : lumière où le tissu fait face à la torche, ombre ailleurs */
+function degrade(id, longueur, inclinaison, clair, sombre, duree) {
+  var s = '', i, u, v;
+  for (i = 0; i <= 16; i++) {
+    u = i / 16;
+    v = Math.cos(2 * Math.PI * u);
+    s += '<stop offset="' + u.toFixed(4) + '" stop-color="' + (v > 0 ? '#DED4C4' : '#000000') + '" stop-opacity="' + (v > 0 ? v * clair : -v * sombre).toFixed(3) + '"/>';
+  }
+  return '<linearGradient id="' + id + '" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="' + longueur + '" y2="0" spreadMethod="repeat" gradientTransform="rotate(' + inclinaison + ')">' + s +
+    (calme ? '' : '<animateTransform attributeName="gradientTransform" type="translate" additive="sum" from="0 0" to="' + longueur + ' 0" dur="' + duree.toFixed(2) + 's" repeatCount="indefinite"/>') +
+    '</linearGradient>';
+}
+
+function svgDrapeau() {
+  var d0 = formeTissu(0);
+  var lien = 'href="#pr-tissu" xlink:href="#pr-tissu"';
+  return '<svg class="pr-drapeau" viewBox="0 0 ' + W + ' ' + H + '" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">' +
+    '<defs>' +
+    '<path id="pr-tissu" d="' + d0 + '">' + (calme ? '' : '<animate attributeName="d" dur="' + PERIODE + 's" repeatCount="indefinite" values="' + valeursTissu() + '"/>') + '</path>' +
+    degrade('pr-pli-a', LONG, 7, 0.13, 0.55, PERIODE) +
+    degrade('pr-pli-b', LONG * 0.4, 7, 0.045, 0.20, PERIODE * 0.4) +
+    '<linearGradient id="pr-plat" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#10151B" stop-opacity=".62"/><stop offset=".5" stop-color="#10151B" stop-opacity="0"/></linearGradient>' +
+    '<linearGradient id="pr-vertical" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#000" stop-opacity=".30"/><stop offset=".3" stop-color="#000" stop-opacity="0"/><stop offset=".7" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".38"/></linearGradient>' +
+    '<radialGradient id="pr-torche" gradientUnits="userSpaceOnUse" cx="0" cy="' + H + '" r="230"><stop offset="0" stop-color="#FF9640" stop-opacity=".20"/><stop offset="1" stop-color="#FF9640" stop-opacity="0"/></radialGradient>' +
+    '<pattern id="pr-trame" width="3" height="3" patternUnits="userSpaceOnUse"><path d="M0 .5H3M.5 0V3" stroke="#fff" stroke-opacity=".03" stroke-width=".7" fill="none"/></pattern>' +
+    '</defs>' +
+    '<use ' + lien + ' transform="translate(0 9)" fill="#000" fill-opacity=".16"/>' +
+    '<use ' + lien + ' transform="translate(0 5)" fill="#000" fill-opacity=".30"/>' +
+    '<use ' + lien + ' fill="#10151B"/>' +
+    '<use ' + lien + ' fill="url(#pr-trame)"/>' +
+    '<use ' + lien + ' fill="url(#pr-pli-a)"/>' +
+    '<use ' + lien + ' fill="url(#pr-pli-b)"/>' +
+    '<use ' + lien + ' fill="url(#pr-plat)"/>' +
+    '<use ' + lien + ' fill="url(#pr-torche)"/>' +
+    '<use ' + lien + ' fill="url(#pr-vertical)"/>' +
+    '</svg>';
+}
+
+/* crâne brodé sur le tissu */
+function svgEmbleme() {
+  return '<svg viewBox="0 0 40 44" xmlns="http://www.w3.org/2000/svg">' +
+    '<g stroke="#E6DABF" stroke-width="3.2" stroke-linecap="round" fill="none"><path d="M5.5 31.5L34.5 40.5M34.5 31.5L5.5 40.5"/></g>' +
+    '<g fill="#E6DABF"><circle cx="5" cy="31" r="2.2"/><circle cx="35" cy="31" r="2.2"/><circle cx="5" cy="41" r="2.2"/><circle cx="35" cy="41" r="2.2"/></g>' +
+    '<path fill="#E6DABF" d="M20 3C12.4 3 7.5 8 7.5 14.2c0 3.8 1.9 6.6 4.2 8.1V28c0 1.2 1 2.2 2.2 2.2h12.2c1.2 0 2.2-1 2.2-2.2v-5.7c2.3-1.5 4.2-4.3 4.2-8.1C32.5 8 27.6 3 20 3z"/>' +
+    '<g fill="#10151B"><ellipse cx="14.8" cy="15.2" rx="3.4" ry="3.7"/><ellipse cx="25.2" cy="15.2" rx="3.4" ry="3.7"/><path d="M20 19.6l-2.2 4h4.4z"/><rect x="15.6" y="25.6" width="1.6" height="4" rx=".6"/><rect x="19.2" y="25.6" width="1.6" height="4" rx=".6"/><rect x="22.8" y="25.6" width="1.6" height="4" rx=".6"/></g>' +
+    '</svg>';
+}
+
+/* gouvernail en bois et laiton */
+function svgGouvernail() {
+  var s = '<svg class="pr-gouvernail" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">' +
+    '<defs><radialGradient id="pr-laiton-moyeu" cx=".35" cy=".3" r=".8"><stop offset="0" stop-color="#FFF0A8"/><stop offset=".5" stop-color="#E0AE45"/><stop offset="1" stop-color="#8A5C14"/></radialGradient></defs>';
+  var i, a, c, sn, x1, y1, x2, y2;
+  for (i = 0; i < 8; i++) {
+    a = i * Math.PI / 4; c = Math.cos(a); sn = Math.sin(a);
+    x1 = 24 + c * 6; y1 = 24 + sn * 6; x2 = 24 + c * 20; y2 = 24 + sn * 20;
+    s += '<path d="M' + x1.toFixed(1) + ' ' + y1.toFixed(1) + 'L' + x2.toFixed(1) + ' ' + y2.toFixed(1) + '" stroke="#3E2410" stroke-width="4" stroke-linecap="round"/>' +
+         '<path d="M' + x1.toFixed(1) + ' ' + y1.toFixed(1) + 'L' + x2.toFixed(1) + ' ' + y2.toFixed(1) + '" stroke="#8C5A2C" stroke-width="2.3" stroke-linecap="round"/>' +
+         '<circle cx="' + (24 + c * 21.2).toFixed(1) + '" cy="' + (24 + sn * 21.2).toFixed(1) + '" r="2.7" fill="#7A4B22" stroke="#3E2410" stroke-width=".9"/>' +
+         '<circle cx="' + (24 + c * 20.6).toFixed(1) + '" cy="' + (24 + sn * 20.6 - 0.7).toFixed(1) + '" r="1" fill="#C99560"/>';
+  }
+  s += '<circle cx="24" cy="24" r="13.5" fill="none" stroke="#3E2410" stroke-width="5.4"/>' +
+       '<circle cx="24" cy="24" r="13.5" fill="none" stroke="#8C5A2C" stroke-width="3.5"/>' +
+       '<path d="M12.6 19A12.6 12.6 0 0 1 22 11.6" fill="none" stroke="#D2A06A" stroke-width="1" stroke-linecap="round"/>' +
+       '<circle cx="24" cy="24" r="8.4" fill="none" stroke="#B8862E" stroke-width="1.1"/>' +
+       '<circle cx="24" cy="24" r="5.8" fill="url(#pr-laiton-moyeu)" stroke="#4A2F08" stroke-width=".9"/>' +
+       '<circle cx="24" cy="24" r="1.7" fill="#4A2F08"/></svg>';
+  return s;
+}
+
+function poserEntete() {
+  var carte = document.querySelector('.entete-carte');
+  if (!carte || carte.querySelector('.pr-drapeau')) { return; }
+
+  var tmp = document.createElement('div');
+  tmp.innerHTML = svgDrapeau();
+  carte.insertBefore(tmp.firstChild, carte.firstChild);
+
+  var embleme = document.createElement('div');
+  embleme.className = 'pr-embleme';
+  embleme.innerHTML = svgEmbleme();
+  var droite = carte.querySelector('.zone-entete-droite');
+  if (droite) { carte.insertBefore(embleme, droite); } else { carte.appendChild(embleme); }
+
+  var bouton = carte.querySelector('.bouton-reglages');
+  if (bouton) {
+    var g = document.createElement('div');
+    g.innerHTML = svgGouvernail();
+    bouton.insertBefore(g.firstChild, bouton.firstChild);
+  }
+}
+
+poserEntete();
+})();

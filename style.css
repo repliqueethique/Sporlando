@@ -7081,3 +7081,86 @@ body { background: transparent; }
 }
 :root.pr-calme .pr-scene *, :root.pr-calme .pr-avant *,
 :root.pr-calme .accueil-tuile, :root.pr-calme .entete-logo { -webkit-animation: none !important; animation: none !important; }
+
+/* ===== THÈME FLIBUSTE : L'EN-TÊTE DEVIENT UN DRAPEAU NOIR ===== */
+:root[data-theme="flibuste"] .entete-carte {
+  border: 0;
+  border-radius: 0;
+  background: none;
+  box-shadow: none;
+  padding: 11px 10px 11px 14px;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+:root[data-theme="flibuste"] .entete-carte::before,
+:root[data-theme="flibuste"] .entete-carte::after { display: none; }
+:root[data-theme="flibuste"] .entete-marque,
+:root[data-theme="flibuste"] .zone-entete-droite { position: relative; z-index: 1; }
+
+/* l'ancien petit drapeau est caché */
+:root[data-theme="flibuste"] .pr-pavillon { display: none !important; }
+
+/* le tissu */
+.pr-drapeau, .pr-embleme { display: none; }
+.bouton-reglages > .pr-gouvernail { display: none; }
+:root[data-theme="flibuste"] .pr-drapeau {
+  display: block;
+  position: absolute;
+  left: -6px; top: -8px;
+  width: calc(100% + 12px);
+  height: calc(100% + 16px);
+  overflow: visible;
+  pointer-events: none;
+}
+/* le crâne brodé */
+:root[data-theme="flibuste"] .pr-embleme {
+  display: block;
+  position: absolute;
+  right: 66px; top: 50%;
+  width: 34px; height: 37px;
+  margin-top: -18px;
+  opacity: .9;
+  pointer-events: none;
+  z-index: 1;
+}
+:root[data-theme="flibuste"] .pr-embleme svg { display: block; width: 100%; height: 100%; }
+
+/* le texte suit un peu le tissu */
+:root[data-theme="flibuste"] .entete-marque,
+:root[data-theme="flibuste"] .pr-embleme {
+  -webkit-transform-origin: 0 50%;
+  transform-origin: 0 50%;
+  -webkit-animation: prOndule 3.6s ease-in-out infinite;
+  animation: prOndule 3.6s ease-in-out infinite;
+}
+@-webkit-keyframes prOndule { 0%, 100% { -webkit-transform: skewY(-.7deg); } 50% { -webkit-transform: skewY(.7deg); } }
+@keyframes prOndule { 0%, 100% { transform: skewY(-.7deg); } 50% { transform: skewY(.7deg); } }
+
+/* le gouvernail remplace la roue dentée : plus de rond, juste la barre */
+:root[data-theme="flibuste"] .bouton-reglages {
+  width: 44px; height: 44px;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  box-shadow: none;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+:root[data-theme="flibuste"] .bouton-reglages::before,
+:root[data-theme="flibuste"] .bouton-reglages::after { display: none; }
+:root[data-theme="flibuste"] .bouton-reglages > svg:not(.pr-gouvernail) { display: none; }
+:root[data-theme="flibuste"] .bouton-reglages .pr-gouvernail {
+  display: block;
+  width: 44px; height: 44px;
+  -webkit-transition: -webkit-transform .6s cubic-bezier(.34, 1.4, .64, 1);
+  transition: transform .6s cubic-bezier(.34, 1.4, .64, 1);
+}
+:root[data-theme="flibuste"] .bouton-reglages:active .pr-gouvernail {
+  -webkit-transform: rotate(60deg);
+  transform: rotate(60deg);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root[data-theme="flibuste"] .entete-marque, :root[data-theme="flibuste"] .pr-embleme { -webkit-animation: none; animation: none; }
+}
+:root.pr-calme[data-theme="flibuste"] .entete-marque, :root.pr-calme[data-theme="flibuste"] .pr-embleme { -webkit-animation: none; animation: none; }
