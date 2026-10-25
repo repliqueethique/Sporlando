@@ -7201,3 +7201,4 @@ body { background: transparent; }
   :root[data-theme="flibuste"] .entete-marque { -webkit-animation: none; animation: none; }
 }
 :root.pr-calme[data-theme="flibuste"] .entete-marque { -webkit-animation: none; animation: none; }
+

@@ -7164,6 +7164,36 @@ function majIconeNutrition(theme) {
 }
 
 /* ============================================================
+   ICÔNE ACCUEIL PAR THÈME (barre de navigation)
+   Une ligne par thème. "defaut" sert pour sombre, clair et auto.
+   Mets seulement le contenu du SVG (les <path>, <circle>...), pas la balise <svg>.
+   Si un thème n'a pas de ligne, il utilise "defaut".
+   ============================================================ */
+var ICONES_ACCUEIL = {
+  defaut: '<path d="M3 11l9-8 9 8"/><path d="M5 10v10h5v-6h4v6h5V10"/>',
+
+  automnal: '',
+  effroi: '<path id="Forme_19" data-name="Forme 19" class="cls-1" d="M5,17l1,5h6V20a9.223,9.223,0,0,1,2-3c1.314,0.481,2,3,2,3v2h2l1-4,1-1V14h1s-2-2.712-2-5c0,2.32-2,5-2,5h0V13s-2-1.138-2-2H13V9h1s-3-4.889-3-7c0,2.156-3,7-3,7H9v2H8S5,8.624,5,6c0,2.605-3,5-3,5H3v4Z"/> <path id="Forme_24" data-name="Forme 24" class="cls-1" d="M12,22h5"/>    <path id="Forme_20" data-name="Forme 20" class="cls-1" d="M11,9v2"/>    <path id="Forme_21" data-name="Forme 21" class="cls-1" d="M5,12v1"/> <path id="Forme_22" data-name="Forme 22" class="cls-1" d="M18,14v1H7V11H9s0.468,3,2,3,2-2,2-2V11"/> <path id="Forme_23" data-name="Forme 23" class="cls-1" d="M8,20h2a3.348,3.348,0,0,0-1-3A3.15,3.15,0,0,0,8,20Z"/> <path id="Forme_26" data-name="Forme 26" class="cls-1" d="M16,5l1,1,1-1"/>    <path id="Forme_25" data-name="Forme 25" class="cls-1" d="M14,22V18"/>',
+  hivernal: '',
+  paindepice: '',
+  printanier: '',
+  pastel: '',
+  estival: '',
+  cyberpunk: '',
+  steampunk: '',
+  flibuste: '<path id="Forme_19" data-name="Forme 19" class="cls-1" d="M5,17l1,5h6V20a9.223,9.223,0,0,1,2-3c1.314,0.481,2,3,2,3v2h2l1-4,1-1V14h1s-2-2.712-2-5c0,2.32-2,5-2,5h0V13s-2-1.138-2-2H13V9h1s-3-4.889-3-7c0,2.156-3,7-3,7H9v2H8S5,8.624,5,6c0,2.605-3,5-3,5H3v4Z"/>    <path id="Forme_24" data-name="Forme 24" class="cls-1" d="M12,22h5"/>    <path id="Forme_20" data-name="Forme 20" class="cls-1" d="M11,9v2"/>    <path id="Forme_21" data-name="Forme 21" class="cls-1" d="M5,12v1"/>    <path id="Forme_22" data-name="Forme 22" class="cls-1" d="M18,14v1H7V11H9s0.468,3,2,3,2-2,2-2V11"/>    <path id="Forme_23" data-name="Forme 23" class="cls-1" d="M8,20h2a3.348,3.348,0,0,0-1-3A3.15,3.15,0,0,0,8,20Z"/>    <path id="Forme_26" data-name="Forme 26" class="cls-1" d="M16,5l1,1,1-1"/>    <path id="Forme_25" data-name="Forme 25" class="cls-1" d="M14,22V18"/>',
+  ruedor: '',
+  wasteland: ''
+};
+
+function majIconeAccueil(theme) {
+  var zone = document.querySelector('.nav-onglet[data-page="accueil"] .nav-icone');
+  if (!zone) { return; }
+  var contenu = ICONES_ACCUEIL[theme] || ICONES_ACCUEIL.defaut;
+  zone.innerHTML = '<svg viewBox="0 0 24 24">' + contenu + '</svg>';
+}
+
+/* ============================================================
    AMBIANCE PAR THÈME
    c = classes CSS    n = nombre de particules
    t = taille en px [min, max]    d = durée en secondes [min, max]
@@ -8503,6 +8533,7 @@ function appliquerTheme() {
   }
   document.documentElement.setAttribute('data-theme', themeEffectif);
   majIconeNutrition(themeEffectif);
+  majIconeAccueil(themeEffectif);
   majAmbiance(themeEffectif);
   majRouages(themeEffectif);
   majHiver(themeEffectif);
