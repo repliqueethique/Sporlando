@@ -8880,21 +8880,21 @@ function cordeStyle(d, ep, fixe) {
     '<path d="' + d + '" fill="none" stroke="#BFA26C" stroke-width="' + (ep * 0.62).toFixed(2) + '" stroke-dasharray="' + (ep * 0.8).toFixed(2) + ' ' + (ep * 0.9).toFixed(2) + '"' + ve + '/>';
 }
 
-/* corde qui pend (courbe) : de (x0,y0) à (x1,y1), avec une flèche de 'creux' pixels ; elle se balance doucement */
-function swagD(x0, y0, x1, y1, creux, decal) {
-  return 'M' + x0 + ' ' + y0 + ' Q' + ((x0 + x1) / 2 + decal) + ' ' + ((y0 + y1) / 2 + 2 * creux) + ' ' + x1 + ' ' + y1;
+/* corde qui pend (courbe) : de (x0,y0) à (x1,y1), avec un creux de 'creux' pixels. Forme fixe : seul le balancement bouge */
+function swagDef(id, x0, y0, x1, y1, creux) {
+  var d = 'M' + x0 + ' ' + y0 + ' Q' + ((x0 + x1) / 2) + ' ' + ((y0 + y1) / 2 + 2 * creux) + ' ' + x1 + ' ' + y1;
+  return '<path id="' + id + '" d="' + d + '" fill="none" stroke-linecap="round" vector-effect="non-scaling-stroke"/>';
 }
-function swagDef(id, x0, y0, x1, y1, creux, duree) {
-  var d = swagD(x0, y0, x1, y1, creux, 0);
-  var anim = calme ? '' : '<animate attributeName="d" dur="' + duree + 's" repeatCount="indefinite" values="' +
-    d + ';' + swagD(x0, y0, x1, y1, creux * 1.1, 7) + ';' + d + ';' + swagD(x0, y0, x1, y1, creux * 0.93, -7) + ';' + d + '"/>';
-  return '<path id="' + id + '" d="' + d + '" fill="none" stroke-linecap="round" vector-effect="non-scaling-stroke">' + anim + '</path>';
-}
-function swagUse(id, ep) {
+/* la corde se balance en pivotant lentement autour de son point d'attache (amplitude en degrés, durée en secondes) */
+function swagUse(id, ep, cx, cy, amplitude, duree, debut) {
   var l = 'href="#' + id + '" xlink:href="#' + id + '"';
-  return '<use ' + l + ' stroke="#000" stroke-opacity=".45" stroke-width="' + (ep + 1.4) + '" transform="translate(0 2)"/>' +
+  var anim = calme ? '' : '<animateTransform attributeName="transform" type="rotate" calcMode="spline" keyTimes="0;.5;1" keySplines=".45 0 .55 1;.45 0 .55 1" dur="' + duree + 's" begin="' + debut + 's" repeatCount="indefinite" values="' +
+    (-amplitude) + ' ' + cx + ' ' + cy + ';' + amplitude + ' ' + cx + ' ' + cy + ';' + (-amplitude) + ' ' + cx + ' ' + cy + '"/>';
+  return '<g>' + anim +
+    '<use ' + l + ' stroke="#000" stroke-opacity=".45" stroke-width="' + (ep + 1.4) + '" transform="translate(0 2)"/>' +
     '<use ' + l + ' stroke="#5E4A2A" stroke-width="' + ep + '"/>' +
-    '<use ' + l + ' stroke="#BFA26C" stroke-width="' + (ep * 0.62).toFixed(2) + '" stroke-dasharray="' + (ep * 0.8).toFixed(2) + ' ' + (ep * 0.9).toFixed(2) + '"/>';
+    '<use ' + l + ' stroke="#BFA26C" stroke-width="' + (ep * 0.62).toFixed(2) + '" stroke-dasharray="' + (ep * 0.8).toFixed(2) + ' ' + (ep * 0.9).toFixed(2) + '"/>' +
+    '</g>';
 }
 
 /* le tissu, les cordages qui pendent derrière et devant */
@@ -8903,9 +8903,9 @@ function svgDrapeau() {
   return '<svg class="pr-drapeau" viewBox="0 0 ' + W + ' ' + H + '" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">' +
     '<defs>' +
     '<path id="pr-tissu" d="' + formeTissu(0) + '">' + (calme ? '' : '<animate attributeName="d" dur="' + PERIODE + 's" repeatCount="indefinite" values="' + valeursTissu() + '"/>') + '</path>' +
-    swagDef('pr-c-fond', 0, 46, 330, 50, 30, 3.4) +
-    swagDef('pr-c-av1', 196, -16, 286, -16, 48, 2.3) +
-    swagDef('pr-c-av2', 286, -16, 342, -16, 36, 2.7) +
+    swagDef('pr-c-fond', 0, 46, 330, 50, 30) +
+    swagDef('pr-c-av1', 196, -16, 286, -16, 48) +
+    swagDef('pr-c-av2', 286, -16, 342, -16, 36) +
     degrade('pr-pli-a', LONG, 7, 0.13, 0.55, PERIODE) +
     degrade('pr-pli-b', LONG * 0.4, 7, 0.045, 0.20, PERIODE * 0.4) +
     '<linearGradient id="pr-plat" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#10151B" stop-opacity=".62"/><stop offset=".5" stop-color="#10151B" stop-opacity="0"/></linearGradient>' +
@@ -8913,7 +8913,7 @@ function svgDrapeau() {
     '<radialGradient id="pr-torche" gradientUnits="userSpaceOnUse" cx="0" cy="' + H + '" r="230"><stop offset="0" stop-color="#FF9640" stop-opacity=".20"/><stop offset="1" stop-color="#FF9640" stop-opacity="0"/></radialGradient>' +
     '<pattern id="pr-trame" width="3" height="3" patternUnits="userSpaceOnUse"><path d="M0 .5H3M.5 0V3" stroke="#fff" stroke-opacity=".03" stroke-width=".7" fill="none"/></pattern>' +
     '</defs>' +
-    swagUse('pr-c-fond', 3) +
+    swagUse('pr-c-fond', 3, 165, 46, 1.6, 8, 0) +
     '<use ' + lien + ' transform="translate(0 9)" fill="#000" fill-opacity=".16"/>' +
     '<use ' + lien + ' transform="translate(0 5)" fill="#000" fill-opacity=".30"/>' +
     '<use ' + lien + ' fill="#10151B"/>' +
@@ -8923,26 +8923,15 @@ function svgDrapeau() {
     '<use ' + lien + ' fill="url(#pr-plat)"/>' +
     '<use ' + lien + ' fill="url(#pr-torche)"/>' +
     '<use ' + lien + ' fill="url(#pr-vertical)"/>' +
-    swagUse('pr-c-av1', 2.8) +
-    swagUse('pr-c-av2', 2.6) +
+    swagUse('pr-c-av1', 2.8, 241, -16, 2.6, 6.4, 0.7) +
+    swagUse('pr-c-av2', 2.6, 314, -16, 3.2, 5.2, 1.4) +
     '</svg>';
 }
 
 /* le mât (coupé par le bord gauche de l'écran), les liens du drapeau et les cordes tendues qui sortent du champ.
    Coordonnées en pixels : x = position dans l'en-tête + 20, y = position dans l'en-tête + 70 */
 function svgMat() {
-  var i, s = '<svg class="pr-mat" viewBox="0 0 70 180" xmlns="http://www.w3.org/2000/svg">' +
-    '<defs>' +
-    '<linearGradient id="pr-bois-mat" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#22140A"/><stop offset=".28" stop-color="#8A5C30"/><stop offset=".5" stop-color="#6B4524"/><stop offset=".82" stop-color="#2E1B0D"/><stop offset="1" stop-color="#150C05"/></linearGradient>' +
-    '<linearGradient id="pr-fondu" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff"/><stop offset=".76" stop-color="#fff"/><stop offset="1" stop-color="#000"/></linearGradient>' +
-    '<mask id="pr-masque-mat" maskUnits="userSpaceOnUse" x="-20" y="0" width="120" height="180"><rect x="-20" y="0" width="120" height="180" fill="url(#pr-fondu)"/></mask>' +
-    '</defs>' +
-    '<g mask="url(#pr-masque-mat)">' +
-    '<rect x="3" y="0" width="16" height="180" fill="url(#pr-bois-mat)"/>' +
-    '<g stroke="#120a04" stroke-opacity=".42" stroke-width=".7" fill="none"><path d="M6.5 0V180M9 0C10 40 8 90 9.5 180M12.5 0C11.5 50 13.5 110 12.5 180M15.5 0V180"/></g>' +
-    '<g><rect x="2.5" y="98" width="17" height="6.5" fill="#1D232A"/><rect x="2.5" y="98" width="17" height="1.4" fill="#fff" fill-opacity=".14"/><circle cx="6" cy="101.3" r=".9" fill="#566069"/><circle cx="16" cy="101.3" r=".9" fill="#566069"/>' +
-    '<rect x="2.5" y="148" width="17" height="6.5" fill="#1D232A"/><rect x="2.5" y="148" width="17" height="1.4" fill="#fff" fill-opacity=".14"/><circle cx="6" cy="151.3" r=".9" fill="#566069"/><circle cx="16" cy="151.3" r=".9" fill="#566069"/></g>' +
-    '</g>';
+  var i, s = '<svg class="pr-mat" viewBox="0 0 70 180" xmlns="http://www.w3.org/2000/svg">';
   /* liens du drapeau sur le mât : cordes tendues obliques + tours de corde autour du mât */
   s += cordeStyle('M33.5 92 L11 80', 3, true) + cordeStyle('M33.5 116 L11 130', 3, true);
   for (i = 0; i < 3; i++) {
@@ -9007,12 +8996,27 @@ function versNoeud(html) {
   return tmp.firstChild;
 }
 
+var mat = null;
+function placerMat() {
+  var carte = document.querySelector('.entete-carte');
+  if (!mat || !carte) { return; }
+  mat.style.left = (carte.getBoundingClientRect().left - 17) + 'px';
+}
+
 function poserEntete() {
   var carte = document.querySelector('.entete-carte');
   if (!carte || carte.querySelector('.pr-drapeau')) { return; }
 
   carte.insertBefore(versNoeud(svgDrapeau()), carte.firstChild);
   carte.insertBefore(versNoeud(svgMat()), carte.firstChild.nextSibling);
+
+  /* le mât : une bande fixe qui descend de tout en haut jusqu'en bas de l'écran */
+  mat = document.createElement('div');
+  mat.className = 'pr-mat-fixe';
+  document.body.appendChild(mat);
+  placerMat();
+  window.addEventListener('resize', placerMat, false);
+  window.addEventListener('orientationchange', placerMat, false);
 
   var logo = carte.querySelector('.entete-logo');
   if (logo) { logo.insertBefore(versNoeud(svgOs()), logo.firstChild); }

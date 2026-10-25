@@ -7122,6 +7122,26 @@ body { background: transparent; }
   pointer-events: none;
 }
 
+/* le mât : bande en bois qui descend de tout en haut jusqu'en bas de l'écran, coupée par le bord gauche */
+.pr-mat-fixe { display: none; }
+:root[data-theme="flibuste"] .pr-mat-fixe {
+  display: block;
+  position: fixed;
+  top: 0; bottom: 0;
+  left: -5px;
+  width: 16px;
+  z-index: 19;
+  pointer-events: none;
+  background:
+    repeating-linear-gradient(180deg, rgba(255,255,255,0) 0, rgba(255,255,255,0) 88px, rgba(255,255,255,.14) 88px, rgba(255,255,255,.14) 89.4px, rgba(0,0,0,0) 89.4px, rgba(0,0,0,0) 140px),
+    repeating-linear-gradient(180deg, rgba(0,0,0,0) 0, rgba(0,0,0,0) 88px, #1D232A 88px, #1D232A 94.5px, rgba(0,0,0,0) 94.5px, rgba(0,0,0,0) 140px),
+    repeating-linear-gradient(90deg, rgba(0,0,0,0) 0, rgba(0,0,0,0) 2.6px, rgba(18,10,4,.34) 2.6px, rgba(18,10,4,.34) 3.3px),
+    linear-gradient(90deg, #22140A 0%, #5A3A1E 35%, #8A5C30 58%, #3A2412 85%, #150C05 100%);
+  box-shadow: 2px 0 6px rgba(0,0,0,.5);
+}
+/* le fondu sous l'en-tête ne recouvre pas le mât */
+:root[data-theme="flibuste"] .entete::before { left: 14px; }
+
 /* logo : plus de doublon, juste le logo posé sur des os croisés */
 :root[data-theme="flibuste"] .entete-logo {
   position: relative;
