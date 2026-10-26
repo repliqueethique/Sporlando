@@ -7181,7 +7181,7 @@ var ICONES_ACCUEIL = {
   estival: '',
   cyberpunk: '',
   steampunk: '',
-  flibuste: '<path id="Forme_19" data-name="Forme 19" class="cls-1" d="M5,17l1,5h6V20a9.223,9.223,0,0,1,2-3c1.314,0.481,2,3,2,3v2h2l1-4,1-1V14h1s-2-2.712-2-5c0,2.32-2,5-2,5h0V13s-2-1.138-2-2H13V9h1s-3-4.889-3-7c0,2.156-3,7-3,7H9v2H8S5,8.624,5,6c0,2.605-3,5-3,5H3v4Z"/>    <path id="Forme_24" data-name="Forme 24" class="cls-1" d="M12,22h5"/>    <path id="Forme_20" data-name="Forme 20" class="cls-1" d="M11,9v2"/>    <path id="Forme_21" data-name="Forme 21" class="cls-1" d="M5,12v1"/>    <path id="Forme_22" data-name="Forme 22" class="cls-1" d="M18,14v1H7V11H9s0.468,3,2,3,2-2,2-2V11"/>    <path id="Forme_23" data-name="Forme 23" class="cls-1" d="M8,20h2a3.348,3.348,0,0,0-1-3A3.15,3.15,0,0,0,8,20Z"/>    <path id="Forme_26" data-name="Forme 26" class="cls-1" d="M16,5l1,1,1-1"/>    <path id="Forme_25" data-name="Forme 25" class="cls-1" d="M14,22V18"/>',
+  flibuste: '<path id="Forme_15" data-name="Forme 15" class="cls-1" d="M1,12l2,1s1.718,3.117,1,4-2.158,5,2,5H18a5.368,5.368,0,0,0,1-6c-1.485-2.012-.7-1.891,0-2a9.346,9.346,0,0,0,2-1l1-4-7,2-1,4H8L7,13H3"/>    <path id="Forme_16" data-name="Forme 16" class="cls-2" d="M18,22h3V20s0.131-1.979-1-2"/>  <path id="Forme_17" data-name="Forme 17" class="cls-1" d="M8.693,10.718h6.025S11.1,9.175,11.1,5.9s3.615-3.615,3.615-3.615H9.9S6.283,2.715,6.283,5.9A6.1,6.1,0,0,0,8.693,10.718Z"/>    <path id="Forme_18" data-name="Forme 18" class="cls-3" d="M11,11v4"/>    <path class="cls-1" d="M8,17H9v1H8V17Z"/> <path id="Rectangle_1_copie" data-name="Rectangle 1 copie" class="cls-1" d="M11,17h1v1H11V17Z"/> <path id="Rectangle_1_copie_2" data-name="Rectangle 1 copie 2" class="cls-1" d="M14,17h1v1H14V17Z"/>',
   ruedor: '',
   wasteland: ''
 };
