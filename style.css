@@ -7252,13 +7252,16 @@ body { background: transparent; }
   position: absolute;
   left: 0; right: 12px; top: 7px; bottom: 7px;
   border-radius: 5px;
+  background-color: #7A0F22;
   background-image:
-    radial-gradient(circle at calc(100% - 56px) 50%, #EAC25A 0, #EAC25A 1.4px, #5A3A0C 2.2px, rgba(0,0,0,.4) 3.2px, rgba(0,0,0,0) 4.8px),
-    radial-gradient(circle at calc(100% - 110px) 50%, #EAC25A 0, #EAC25A 1.4px, #5A3A0C 2.2px, rgba(0,0,0,.4) 3.2px, rgba(0,0,0,0) 4.8px),
-    radial-gradient(circle at calc(100% - 164px) 50%, #EAC25A 0, #EAC25A 1.4px, #5A3A0C 2.2px, rgba(0,0,0,.4) 3.2px, rgba(0,0,0,0) 4.8px),
-    repeating-linear-gradient(45deg, rgba(0,0,0,.15) 0, rgba(0,0,0,.15) 1px, rgba(0,0,0,0) 1px, rgba(0,0,0,0) 14px),
-    repeating-linear-gradient(-45deg, rgba(0,0,0,.15) 0, rgba(0,0,0,.15) 1px, rgba(0,0,0,0) 1px, rgba(0,0,0,0) 14px),
-    radial-gradient(ellipse at 50% 0, #DB3C54 0, #A71B31 50%, #690C1B 100%);
+    var(--pr-capiton),
+    linear-gradient(115deg, rgba(255,150,165,0) 18%, rgba(255,150,165,.2) 38%, rgba(255,150,165,0) 58%),
+    radial-gradient(ellipse at 30% 0, rgba(255,120,140,.3) 0, rgba(255,120,140,0) 62%),
+    var(--pr-velours),
+    radial-gradient(ellipse at 50% 0, #C8283F 0, #94152B 52%, #580A17 100%);
+  background-size: 190px 100%, 100% 100%, 100% 100%, 140px 140px, 100% 100%;
+  background-position: right center, 0 0, 0 0, 0 0, 0 0;
+  background-repeat: no-repeat, no-repeat, no-repeat, repeat, no-repeat;
   box-shadow: inset 0 0 0 1.5px rgba(217,169,58,.9), inset 0 0 12px 2px rgba(0,0,0,.65), 0 0 0 1.5px #170D06, 0 1px 0 1.5px rgba(255,200,130,.16);
 }
 /* face avant du tiroir : fine bande de bois avec sa poignée de laiton */

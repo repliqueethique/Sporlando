@@ -9135,11 +9135,50 @@ function uri(corps) {
   return 'url("data:image/svg+xml,' + encodeURIComponent(svg) + '")';
 }
 
+/* velours : fin duvet, irrégularités du poil et traces de brossage (une tuile qui se répète) */
+function velours() {
+  function bruit(id, freq, graine, matrice) {
+    return '<filter id="' + id + '" x="0" y="0" width="100%" height="100%" color-interpolation-filters="sRGB"><feTurbulence type="fractalNoise" baseFrequency="' + freq + '" numOctaves="2" seed="' + graine + '" stitchTiles="stitch"/><feColorMatrix values="' + matrice + '"/></filter>';
+  }
+  var svg = '<svg xmlns="http://www.w3.org/2000/svg" width="140" height="140"><defs>' +
+    bruit('a', '.9', 7, '0 0 0 0 1 0 0 0 0 .55 0 0 0 0 .62 2.4 0 0 0 -1.05') +
+    bruit('b', '.8', 21, '0 0 0 0 .1 0 0 0 0 0 0 0 0 0 .03 2.4 0 0 0 -1') +
+    bruit('c', '.035 .02', 4, '0 0 0 0 .1 0 0 0 0 0 0 0 0 0 .02 1.9 0 0 0 -.8') +
+    bruit('d', '.03 .05', 11, '0 0 0 0 1 0 0 0 0 .5 0 0 0 0 .55 1.7 0 0 0 -.78') +
+    bruit('e', '.012 .55', 3, '0 0 0 0 1 0 0 0 0 .6 0 0 0 0 .65 1.5 0 0 0 -.74') +
+    '</defs><rect width="140" height="140" filter="url(#c)" opacity=".7"/><rect width="140" height="140" filter="url(#d)" opacity=".55"/>' +
+    '<rect width="140" height="140" filter="url(#e)" opacity=".42"/><rect width="140" height="140" filter="url(#b)" opacity=".62"/><rect width="140" height="140" filter="url(#a)" opacity=".45"/></svg>';
+  return 'url("data:image/svg+xml,' + encodeURIComponent(svg) + '")';
+}
+
+/* capitons : 3 boutons dorés qui tirent le tissu, avec leurs plis (calé sur le bord droit de l'écrin) */
+function capiton() {
+  var xs = [23.5, 77.5, 131.5], s = '', i, k, d;
+  var dirs = [[-1, -1], [1, -1], [-1, 1], [1, 1]];
+  for (i = 0; i < xs.length; i++) {
+    for (k = 0; k < 4; k++) {
+      d = 'M' + xs[i] + ' 27L' + (xs[i] + dirs[k][0] * 26) + ' ' + (27 + dirs[k][1] * 27);
+      s += '<path d="' + d + '" stroke="#1E0006" stroke-opacity=".32" stroke-width="2.6" stroke-linecap="round" fill="none"/>' +
+           '<path d="' + d + '" transform="translate(' + (dirs[k][0] * 1.4) + ' 1.4)" stroke="#FF8C98" stroke-opacity=".17" stroke-width="1.3" stroke-linecap="round" fill="none"/>';
+    }
+    s += '<circle cx="' + xs[i] + '" cy="27" r="15" fill="url(#d)"/>' +
+         '<circle cx="' + xs[i] + '" cy="28" r="3.9" fill="#000" fill-opacity=".5"/>' +
+         '<circle cx="' + xs[i] + '" cy="27" r="3.2" fill="url(#o)" stroke="#4A2F08" stroke-width=".7"/>' +
+         '<circle cx="' + (xs[i] - 1) + '" cy="26" r=".9" fill="#fff" fill-opacity=".8"/>';
+  }
+  var svg = '<svg xmlns="http://www.w3.org/2000/svg" width="190" height="54" viewBox="0 0 190 54"><defs>' +
+    '<radialGradient id="d"><stop offset="0" stop-color="#000" stop-opacity=".55"/><stop offset=".5" stop-color="#000" stop-opacity=".2"/><stop offset="1" stop-color="#000" stop-opacity="0"/></radialGradient>' +
+    '<radialGradient id="o" cx=".35" cy=".3" r=".8"><stop offset="0" stop-color="#FFF0A8"/><stop offset=".5" stop-color="#E0AE45"/><stop offset="1" stop-color="#8A5C14"/></radialGradient></defs>' + s + '</svg>';
+  return 'url("data:image/svg+xml,' + encodeURIComponent(svg) + '")';
+}
+
 /* les trois pierres : couleur sombre, moyenne, claire + couleur de l'empreinte */
 var SAPHIR   = ['#0A2A7A', '#2B6BE0', '#9CCBFF'];
 var RUBIS    = ['#6E0818', '#D42040', '#FF9AAB'];
 var EMERAUDE = ['#04472B', '#12A065', '#8DF5BE'];
 var vars = {
+  '--pr-velours': velours(),
+  '--pr-capiton': capiton(),
   '--pr-gem-eau': uri(brillant(SAPHIR, 0)),
   '--pr-gem-etir': uri(brillant(RUBIS, 11)),
   '--pr-gem-pes': uri(emeraude(EMERAUDE)),
