@@ -7202,11 +7202,11 @@ body { background: transparent; }
 }
 :root.pr-calme[data-theme="flibuste"] .entete-marque { -webkit-animation: none; animation: none; }
 
-/* ===== THÈME FLIBUSTE : ROUTINE = COFFRET OUVERT, ÉCRIN ROUGE ET 3 JOYAUX ===== */
+/* ===== THÈME FLIBUSTE : ROUTINE = DESSUS DE COFFRE + TIROIR À JOYAUX ===== */
 .pr-cf { display: none; }
 :root[data-theme="flibuste"] .todo-barre {
   display: block;
-  height: 160px;
+  height: 84px;
   min-height: 0;
   padding: 0;
   border: 0;
@@ -7217,99 +7217,96 @@ body { background: transparent; }
 }
 :root[data-theme="flibuste"] .todo-barre .pr-cf { display: block; position: absolute; pointer-events: none; }
 
-/* couvercle relevé : bois sombre, deux sangles de fer, rivets */
-:root[data-theme="flibuste"] .todo-barre .pr-cf-couvercle {
-  left: 8px; right: 8px; top: 4px; height: 62px;
-  border-radius: 34px 34px 3px 3px / 26px 26px 3px 3px;
-  background-color: #20150C;
+/* dessus du coffre (vu de haut) : planches, deux sangles de fer, rivets */
+:root[data-theme="flibuste"] .todo-barre .pr-cf-dessus {
+  left: 0; top: 2px; width: 150px; height: 76px;
+  z-index: 1;
+  border-radius: 7px;
+  background-color: #241811;
   background-image:
-    radial-gradient(circle at 13.75% 15px, #AEB8C2 0, #AEB8C2 1.4px, #3A444E 2px, rgba(0,0,0,0) 2.7px),
-    radial-gradient(circle at 13.75% 45px, #AEB8C2 0, #AEB8C2 1.4px, #3A444E 2px, rgba(0,0,0,0) 2.7px),
-    radial-gradient(circle at 86.25% 15px, #AEB8C2 0, #AEB8C2 1.4px, #3A444E 2px, rgba(0,0,0,0) 2.7px),
-    radial-gradient(circle at 86.25% 45px, #AEB8C2 0, #AEB8C2 1.4px, #3A444E 2px, rgba(0,0,0,0) 2.7px),
-    linear-gradient(90deg, rgba(0,0,0,0) 0, rgba(0,0,0,0) 11%, #2A323B 11%, #1A2027 14%, #12171C 16.5%, rgba(0,0,0,0) 16.5%, rgba(0,0,0,0) 83.5%, #2A323B 83.5%, #1A2027 86%, #12171C 89%, rgba(0,0,0,0) 89%),
-    repeating-linear-gradient(90deg, rgba(0,0,0,.5) 0, rgba(0,0,0,.5) 2px, rgba(0,0,0,0) 2px, rgba(0,0,0,0) 54px),
+    radial-gradient(circle at 12px 11px, #AEB8C2 0, #AEB8C2 1.4px, #3A444E 2px, rgba(0,0,0,0) 2.7px),
+    radial-gradient(circle at 12px 64px, #AEB8C2 0, #AEB8C2 1.4px, #3A444E 2px, rgba(0,0,0,0) 2.7px),
+    radial-gradient(circle at 138px 11px, #AEB8C2 0, #AEB8C2 1.4px, #3A444E 2px, rgba(0,0,0,0) 2.7px),
+    radial-gradient(circle at 138px 64px, #AEB8C2 0, #AEB8C2 1.4px, #3A444E 2px, rgba(0,0,0,0) 2.7px),
+    linear-gradient(90deg, rgba(0,0,0,0) 0, rgba(0,0,0,0) 7px, #2A323B 7px, #1A2027 11px, #12171C 17px, rgba(0,0,0,0) 17px, rgba(0,0,0,0) 133px, #2A323B 133px, #1A2027 137px, #12171C 143px, rgba(0,0,0,0) 143px),
+    repeating-linear-gradient(180deg, rgba(0,0,0,0) 0, rgba(0,0,0,0) 23px, rgba(0,0,0,.55) 23px, rgba(0,0,0,.55) 25px),
+    linear-gradient(180deg, rgba(255,190,110,.12) 0, rgba(0,0,0,0) 40%, rgba(0,0,0,.28) 100%),
     var(--pr-bois);
-  background-size: auto, auto, auto, auto, 100% 100%, auto, 240px 240px;
-  box-shadow: inset 0 0 0 2px #0E0905, inset 0 -12px 16px rgba(0,0,0,.6), inset 0 6px 10px rgba(255,170,90,.07);
-}
-/* écrin de velours rouge : liseré doré, capitons, alvéoles à joyaux */
-:root[data-theme="flibuste"] .todo-barre .pr-cf-ecrin {
-  left: 18px; right: 18px; top: 50px; height: 76px;
-  border-radius: 13px;
-  background-image:
-    radial-gradient(circle at calc(50% - 108px) 50%, #EAC25A 0, #EAC25A 1.6px, #5A3A0C 2.4px, rgba(0,0,0,.4) 3.6px, rgba(0,0,0,0) 5.4px),
-    radial-gradient(circle at calc(50% - 36px) 50%, #EAC25A 0, #EAC25A 1.6px, #5A3A0C 2.4px, rgba(0,0,0,.4) 3.6px, rgba(0,0,0,0) 5.4px),
-    radial-gradient(circle at calc(50% + 36px) 50%, #EAC25A 0, #EAC25A 1.6px, #5A3A0C 2.4px, rgba(0,0,0,.4) 3.6px, rgba(0,0,0,0) 5.4px),
-    radial-gradient(circle at calc(50% + 108px) 50%, #EAC25A 0, #EAC25A 1.6px, #5A3A0C 2.4px, rgba(0,0,0,.4) 3.6px, rgba(0,0,0,0) 5.4px),
-    linear-gradient(180deg, rgba(0,0,0,.5) 0, rgba(0,0,0,0) 36%),
-    repeating-linear-gradient(45deg, rgba(0,0,0,.15) 0, rgba(0,0,0,.15) 1px, rgba(0,0,0,0) 1px, rgba(0,0,0,0) 15px),
-    repeating-linear-gradient(-45deg, rgba(0,0,0,.15) 0, rgba(0,0,0,.15) 1px, rgba(0,0,0,0) 1px, rgba(0,0,0,0) 15px),
-    radial-gradient(ellipse at 50% 0, #DB3C54 0, #A71B31 48%, #690C1B 100%);
-  box-shadow: inset 0 0 0 2px #D9A93A, inset 0 0 0 3.5px #5E3E0C, inset 0 0 16px rgba(0,0,0,.6), 0 3px 0 #2A1905, 0 8px 12px rgba(0,0,0,.55);
-}
-/* face avant du coffre : bande de fer rivetée, planches, serrure en laiton */
-:root[data-theme="flibuste"] .todo-barre .pr-cf-face {
-  left: 0; right: 0; top: 122px; bottom: 0;
-  border-radius: 3px 3px 12px 12px;
-  background-color: #2A1A0E;
-  background-image:
-    radial-gradient(circle at 50% 50%, #B2BCC6 0, #B2BCC6 1.3px, #38424C 1.9px, rgba(0,0,0,0) 2.6px),
-    linear-gradient(180deg, #505A66 0, #262D35 55%, #14181D 100%),
-    linear-gradient(90deg, rgba(0,0,0,0) 0, rgba(0,0,0,0) 11%, #2A323B 11%, #1A2027 14%, #12171C 16.5%, rgba(0,0,0,0) 16.5%, rgba(0,0,0,0) 83.5%, #2A323B 83.5%, #1A2027 86%, #12171C 89%, rgba(0,0,0,0) 89%),
-    repeating-linear-gradient(180deg, rgba(0,0,0,0) 0, rgba(0,0,0,0) 14px, rgba(0,0,0,.55) 14px, rgba(0,0,0,.55) 16px),
-    var(--pr-bois);
-  background-size: 26px 11px, 100% 11px, 100% 100%, auto, 240px 240px;
-  background-repeat: repeat-x, no-repeat, no-repeat, repeat, repeat;
-  box-shadow: inset 0 1px 0 rgba(255,255,255,.14), 0 8px 14px rgba(0,0,0,.6);
-}
-:root[data-theme="flibuste"] .todo-barre .pr-cf-face::after {
-  content: '';
-  position: absolute;
-  left: 50%; top: 5px;
-  width: 26px; height: 26px;
-  margin-left: -13px;
-  border-radius: 5px 5px 13px 13px;
-  border: 1.5px solid #5A3A0C;
-  background-image:
-    radial-gradient(circle at 50% 40%, #140B03 0, #140B03 3.1px, rgba(0,0,0,0) 3.7px),
-    linear-gradient(#140B03, #140B03),
-    linear-gradient(145deg, #F8DE86, #D9A93A 50%, #8A5C14);
-  background-size: 100% 100%, 3.4px 9px, 100% 100%;
-  background-position: 0 0, 50% 64%, 0 0;
-  background-repeat: no-repeat;
-  box-shadow: inset 0 1px 0 rgba(255,255,255,.55), 0 2px 4px rgba(0,0,0,.65);
+  background-size: auto, auto, auto, auto, 100% 100%, auto, 100% 100%, 240px 240px;
+  box-shadow: inset 0 0 0 1.5px #0E0905, inset 0 1px 0 rgba(255,200,130,.25), inset 0 -3px 5px rgba(0,0,0,.45), 6px 3px 10px rgba(0,0,0,.6);
 }
 
-/* titre gravé sur le couvercle */
+/* tiroir ouvert vers la droite : cadre de bois (le fond sous le dessus du coffre est caché) */
+:root[data-theme="flibuste"] .todo-barre .pr-cf-tiroir {
+  left: 118px; right: 0; top: 6px; height: 68px;
+  z-index: 0;
+  border-radius: 4px 9px 9px 4px;
+  background-color: #46301B;
+  background-image: linear-gradient(180deg, rgba(255,200,130,.16) 0, rgba(0,0,0,.22) 100%), var(--pr-bois);
+  background-size: 100% 100%, 240px 240px;
+  box-shadow: inset 0 0 0 1.5px #0E0905, inset 0 1.5px 0 rgba(255,200,130,.28), inset 0 -2px 3px rgba(0,0,0,.4), 0 5px 9px rgba(0,0,0,.55);
+}
+/* l'écrin de velours rouge, enchâssé dans le cadre */
+:root[data-theme="flibuste"] .todo-barre .pr-cf-tiroir::before {
+  content: '';
+  position: absolute;
+  left: 0; right: 12px; top: 7px; bottom: 7px;
+  border-radius: 5px;
+  background-image:
+    radial-gradient(circle at calc(100% - 56px) 50%, #EAC25A 0, #EAC25A 1.4px, #5A3A0C 2.2px, rgba(0,0,0,.4) 3.2px, rgba(0,0,0,0) 4.8px),
+    radial-gradient(circle at calc(100% - 110px) 50%, #EAC25A 0, #EAC25A 1.4px, #5A3A0C 2.2px, rgba(0,0,0,.4) 3.2px, rgba(0,0,0,0) 4.8px),
+    radial-gradient(circle at calc(100% - 164px) 50%, #EAC25A 0, #EAC25A 1.4px, #5A3A0C 2.2px, rgba(0,0,0,.4) 3.2px, rgba(0,0,0,0) 4.8px),
+    repeating-linear-gradient(45deg, rgba(0,0,0,.15) 0, rgba(0,0,0,.15) 1px, rgba(0,0,0,0) 1px, rgba(0,0,0,0) 14px),
+    repeating-linear-gradient(-45deg, rgba(0,0,0,.15) 0, rgba(0,0,0,.15) 1px, rgba(0,0,0,0) 1px, rgba(0,0,0,0) 14px),
+    radial-gradient(ellipse at 50% 0, #DB3C54 0, #A71B31 50%, #690C1B 100%);
+  box-shadow: inset 0 0 0 1.5px rgba(217,169,58,.9), inset 0 0 12px 2px rgba(0,0,0,.65), 0 0 0 1.5px #170D06, 0 1px 0 1.5px rgba(255,200,130,.16);
+}
+/* face avant du tiroir : fine bande de bois avec sa poignée de laiton */
+:root[data-theme="flibuste"] .todo-barre .pr-cf-tiroir::after {
+  content: '';
+  position: absolute;
+  right: 0; top: 0; bottom: 0;
+  width: 12px;
+  border-radius: 0 9px 9px 0;
+  background-color: #33210F;
+  background-image:
+    linear-gradient(90deg, #8A5C14 0, #F6D77A 45%, #8A5C14 100%),
+    linear-gradient(90deg, rgba(0,0,0,.4) 0, rgba(0,0,0,0) 40%, rgba(0,0,0,.3) 100%),
+    var(--pr-bois);
+  background-size: 4px 24px, 100% 100%, 240px 240px;
+  background-position: 50% 50%, 0 0, 0 0;
+  background-repeat: no-repeat, no-repeat, repeat;
+  box-shadow: inset 0 0 0 1.5px #0E0905, inset 1px 0 0 rgba(255,200,130,.22);
+}
+
+/* titre gravé sur le dessus du coffre (à gauche, comme avant) */
 :root[data-theme="flibuste"] .todo-barre .todo-texte {
-  position: absolute; left: 0; right: 0; top: 17px;
+  position: absolute; left: 0; top: 2px;
+  width: 150px; height: 76px;
   justify-content: center;
   z-index: 2;
   pointer-events: none;
 }
-:root[data-theme="flibuste"] .todo-barre .todo-titre { font-size: 25px; letter-spacing: .1em; text-shadow: none; -webkit-filter: drop-shadow(0 2px 0 #000); filter: drop-shadow(0 2px 0 #000); }
+:root[data-theme="flibuste"] .todo-barre .todo-titre { font-size: 20px; letter-spacing: .07em; text-shadow: none; -webkit-filter: drop-shadow(0 2px 0 #000); filter: drop-shadow(0 2px 0 #000); }
 
-/* barre de progression : lingot d'or incrusté dans la face avant */
+/* barre de progression : fine ligne d'or sous le coffre */
 :root[data-theme="flibuste"] .todo-barre .todo-progression {
-  left: 28px; right: 28px; bottom: 7px; height: 5px;
-  border-radius: 3px;
-  background: rgba(0,0,0,.62);
-  box-shadow: inset 0 1px 2px #000, 0 1px 0 rgba(255,225,150,.2);
+  left: 10px; right: 10px; bottom: 0; height: 3px;
+  border-radius: 2px;
+  background: rgba(0,0,0,.55);
   z-index: 2;
 }
-:root[data-theme="flibuste"] .todo-barre .todo-progression-remplie { border-radius: 3px; background: linear-gradient(90deg, #8A5C14, #F6D77A 60%, #D9A93A); }
+:root[data-theme="flibuste"] .todo-barre .todo-progression-remplie { border-radius: 2px; background: linear-gradient(90deg, #8A5C14, #F6D77A 60%, #D9A93A); }
 
-/* les trois alvéoles : vides mais réservées (cerclage doré, empreinte pointillée à la couleur du joyau) */
+/* les trois alvéoles, à droite comme d'habitude */
 :root[data-theme="flibuste"] .todo-barre .todo-icones {
-  position: absolute; left: 0; right: 0; top: 60px;
-  justify-content: center;
+  position: absolute; right: 18px; top: 17px;
   z-index: 2;
 }
-:root[data-theme="flibuste"] .todo-barre .todo-bouton { width: 56px; height: 56px; margin: 0 8px; }
+:root[data-theme="flibuste"] .todo-barre .todo-bouton { width: 46px; height: 46px; margin: 0 4px; }
 :root[data-theme="flibuste"] .todo-barre .todo-rond {
   position: relative;
-  width: 56px; height: 56px;
+  width: 46px; height: 46px;
   border: 0;
   border-radius: 50%;
   background-color: transparent;
@@ -7319,25 +7316,26 @@ body { background: transparent; }
   -webkit-animation: none;
   animation: none;
 }
-:root[data-theme="flibuste"] .todo-barre .todo-emoji { font-size: 23px; opacity: 0; -webkit-filter: none; filter: none; }
+/* l'émoji : mêmes réglages que dans les autres thèmes (grisé quand c'est vide, teinté à la couleur du fond quand c'est fait) */
+:root[data-theme="flibuste"] .todo-barre .todo-emoji { font-size: 19px; opacity: .5; -webkit-filter: grayscale(100%); filter: grayscale(100%); }
+:root[data-theme="flibuste"] .todo-barre .todo-fait .todo-emoji { opacity: .8; -webkit-filter: none; filter: none; color: transparent; text-shadow: 0 0 0 var(--couleur-fond); }
 :root[data-theme="flibuste"] .todo-barre .todo-bouton[data-tache="eau"] .todo-rond { background-image: var(--pr-alv-eau); }
 :root[data-theme="flibuste"] .todo-barre .todo-bouton[data-tache="etirements"] .todo-rond { background-image: var(--pr-alv-etir); }
 :root[data-theme="flibuste"] .todo-barre .todo-bouton[data-tache="pesee"] .todo-rond { background-image: var(--pr-alv-pes); }
 
-/* fait : le joyau apparaît, l'émoji est pris dans la pierre */
+/* fait : le joyau apparaît */
 :root[data-theme="flibuste"] .todo-barre .todo-fait .todo-rond {
   -webkit-animation: prJoyau .75s cubic-bezier(.2, .9, .3, 1.2);
   animation: prJoyau .75s cubic-bezier(.2, .9, .3, 1.2);
 }
-:root[data-theme="flibuste"] .todo-barre .todo-bouton[data-tache="eau"].todo-fait .todo-rond { background-image: var(--pr-gem-eau); box-shadow: 0 0 16px 2px rgba(70,135,255,.6); }
-:root[data-theme="flibuste"] .todo-barre .todo-bouton[data-tache="etirements"].todo-fait .todo-rond { background-image: var(--pr-gem-etir); box-shadow: 0 0 16px 2px rgba(255,70,100,.6); }
-:root[data-theme="flibuste"] .todo-barre .todo-bouton[data-tache="pesee"].todo-fait .todo-rond { background-image: var(--pr-gem-pes); box-shadow: 0 0 16px 2px rgba(50,220,150,.55); }
-:root[data-theme="flibuste"] .todo-barre .todo-fait .todo-emoji { opacity: .92; color: #fff; text-shadow: none; -webkit-filter: none; filter: none; }
+:root[data-theme="flibuste"] .todo-barre .todo-bouton[data-tache="eau"].todo-fait .todo-rond { background-image: var(--pr-gem-eau); box-shadow: 0 0 14px 2px rgba(70,135,255,.6); }
+:root[data-theme="flibuste"] .todo-barre .todo-bouton[data-tache="etirements"].todo-fait .todo-rond { background-image: var(--pr-gem-etir); box-shadow: 0 0 14px 2px rgba(255,70,100,.6); }
+:root[data-theme="flibuste"] .todo-barre .todo-bouton[data-tache="pesee"].todo-fait .todo-rond { background-image: var(--pr-gem-pes); box-shadow: 0 0 14px 2px rgba(50,220,150,.55); }
 /* reflet de verre par-dessus l'émoji + éclat qui passe de temps en temps */
 :root[data-theme="flibuste"] .todo-barre .todo-fait .todo-rond::after {
   content: '';
   position: absolute;
-  left: 7px; right: 7px; top: 7px; bottom: 7px;
+  left: 6px; right: 6px; top: 6px; bottom: 6px;
   border-radius: 50%;
   background-image:
     linear-gradient(105deg, rgba(255,255,255,0) 38%, rgba(255,255,255,.7) 50%, rgba(255,255,255,0) 62%),

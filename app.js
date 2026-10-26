@@ -9122,13 +9122,12 @@ function emeraude(c) {
   return defs + b;
 }
 
-/* alvéole vide : velours creusé + empreinte pointillée à la couleur du joyau qui lui est réservé */
+/* alvéole vide : velours creusé, avec une très légère teinte du joyau qui lui est réservé */
 function alveole(octogone, col) {
   var s = '<radialGradient id="w" cx=".5" cy=".64" r=".62"><stop offset="0" stop-color="#3B0710"/><stop offset=".7" stop-color="#1E0308"/><stop offset="1" stop-color="#0F0104"/></radialGradient><clipPath id="c"><circle cx="32" cy="32" r="27"/></clipPath>';
   var b = '<circle cx="32" cy="32" r="27" fill="url(#w)"/><g clip-path="url(#c)"><ellipse cx="32" cy="12" rx="26" ry="13" fill="#000" fill-opacity=".42"/></g>';
-  var trait = ' fill="' + col + '" fill-opacity=".1" stroke="' + col + '" stroke-opacity=".6" stroke-width="1.3" stroke-dasharray="3 2.6"';
-  b += octogone ? '<polygon points="' + pts(echelle(OCT, .82)) + '"' + trait + ' stroke-linejoin="round"/>' : '<circle cx="32" cy="32" r="20"' + trait + '/>';
-  return s + b + '<circle cx="32" cy="32" r="3" fill="' + col + '" fill-opacity=".28"/>';
+  b += octogone ? '<polygon points="' + pts(echelle(OCT, .82)) + '" fill="' + col + '" fill-opacity=".1"/>' : '<circle cx="32" cy="32" r="20" fill="' + col + '" fill-opacity=".1"/>';
+  return s + b;
 }
 
 function uri(corps) {
@@ -9151,7 +9150,7 @@ var vars = {
 for (var nom in vars) { if (vars.hasOwnProperty(nom)) { carte.style.setProperty(nom, vars[nom]); } }
 
 /* le décor du coffret : couvercle, écrin, face avant */
-var noms = ['couvercle', 'ecrin', 'face'];
+var noms = ['dessus', 'tiroir'];
 var frag = document.createDocumentFragment();
 for (var n = 0; n < noms.length; n++) {
   var d = document.createElement('div');
