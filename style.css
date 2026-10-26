@@ -7202,3 +7202,157 @@ body { background: transparent; }
 }
 :root.pr-calme[data-theme="flibuste"] .entete-marque { -webkit-animation: none; animation: none; }
 
+/* ===== THÈME FLIBUSTE : ROUTINE = COFFRET OUVERT, ÉCRIN ROUGE ET 3 JOYAUX ===== */
+.pr-cf { display: none; }
+:root[data-theme="flibuste"] .todo-barre {
+  display: block;
+  height: 160px;
+  min-height: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  box-shadow: none;
+  overflow: hidden;
+}
+:root[data-theme="flibuste"] .todo-barre .pr-cf { display: block; position: absolute; pointer-events: none; }
+
+/* couvercle relevé : bois sombre, deux sangles de fer, rivets */
+:root[data-theme="flibuste"] .todo-barre .pr-cf-couvercle {
+  left: 8px; right: 8px; top: 4px; height: 62px;
+  border-radius: 34px 34px 3px 3px / 26px 26px 3px 3px;
+  background-color: #20150C;
+  background-image:
+    radial-gradient(circle at 13.75% 15px, #AEB8C2 0, #AEB8C2 1.4px, #3A444E 2px, rgba(0,0,0,0) 2.7px),
+    radial-gradient(circle at 13.75% 45px, #AEB8C2 0, #AEB8C2 1.4px, #3A444E 2px, rgba(0,0,0,0) 2.7px),
+    radial-gradient(circle at 86.25% 15px, #AEB8C2 0, #AEB8C2 1.4px, #3A444E 2px, rgba(0,0,0,0) 2.7px),
+    radial-gradient(circle at 86.25% 45px, #AEB8C2 0, #AEB8C2 1.4px, #3A444E 2px, rgba(0,0,0,0) 2.7px),
+    linear-gradient(90deg, rgba(0,0,0,0) 0, rgba(0,0,0,0) 11%, #2A323B 11%, #1A2027 14%, #12171C 16.5%, rgba(0,0,0,0) 16.5%, rgba(0,0,0,0) 83.5%, #2A323B 83.5%, #1A2027 86%, #12171C 89%, rgba(0,0,0,0) 89%),
+    repeating-linear-gradient(90deg, rgba(0,0,0,.5) 0, rgba(0,0,0,.5) 2px, rgba(0,0,0,0) 2px, rgba(0,0,0,0) 54px),
+    var(--pr-bois);
+  background-size: auto, auto, auto, auto, 100% 100%, auto, 240px 240px;
+  box-shadow: inset 0 0 0 2px #0E0905, inset 0 -12px 16px rgba(0,0,0,.6), inset 0 6px 10px rgba(255,170,90,.07);
+}
+/* écrin de velours rouge : liseré doré, capitons, alvéoles à joyaux */
+:root[data-theme="flibuste"] .todo-barre .pr-cf-ecrin {
+  left: 18px; right: 18px; top: 50px; height: 76px;
+  border-radius: 13px;
+  background-image:
+    radial-gradient(circle at calc(50% - 108px) 50%, #EAC25A 0, #EAC25A 1.6px, #5A3A0C 2.4px, rgba(0,0,0,.4) 3.6px, rgba(0,0,0,0) 5.4px),
+    radial-gradient(circle at calc(50% - 36px) 50%, #EAC25A 0, #EAC25A 1.6px, #5A3A0C 2.4px, rgba(0,0,0,.4) 3.6px, rgba(0,0,0,0) 5.4px),
+    radial-gradient(circle at calc(50% + 36px) 50%, #EAC25A 0, #EAC25A 1.6px, #5A3A0C 2.4px, rgba(0,0,0,.4) 3.6px, rgba(0,0,0,0) 5.4px),
+    radial-gradient(circle at calc(50% + 108px) 50%, #EAC25A 0, #EAC25A 1.6px, #5A3A0C 2.4px, rgba(0,0,0,.4) 3.6px, rgba(0,0,0,0) 5.4px),
+    linear-gradient(180deg, rgba(0,0,0,.5) 0, rgba(0,0,0,0) 36%),
+    repeating-linear-gradient(45deg, rgba(0,0,0,.15) 0, rgba(0,0,0,.15) 1px, rgba(0,0,0,0) 1px, rgba(0,0,0,0) 15px),
+    repeating-linear-gradient(-45deg, rgba(0,0,0,.15) 0, rgba(0,0,0,.15) 1px, rgba(0,0,0,0) 1px, rgba(0,0,0,0) 15px),
+    radial-gradient(ellipse at 50% 0, #DB3C54 0, #A71B31 48%, #690C1B 100%);
+  box-shadow: inset 0 0 0 2px #D9A93A, inset 0 0 0 3.5px #5E3E0C, inset 0 0 16px rgba(0,0,0,.6), 0 3px 0 #2A1905, 0 8px 12px rgba(0,0,0,.55);
+}
+/* face avant du coffre : bande de fer rivetée, planches, serrure en laiton */
+:root[data-theme="flibuste"] .todo-barre .pr-cf-face {
+  left: 0; right: 0; top: 122px; bottom: 0;
+  border-radius: 3px 3px 12px 12px;
+  background-color: #2A1A0E;
+  background-image:
+    radial-gradient(circle at 50% 50%, #B2BCC6 0, #B2BCC6 1.3px, #38424C 1.9px, rgba(0,0,0,0) 2.6px),
+    linear-gradient(180deg, #505A66 0, #262D35 55%, #14181D 100%),
+    linear-gradient(90deg, rgba(0,0,0,0) 0, rgba(0,0,0,0) 11%, #2A323B 11%, #1A2027 14%, #12171C 16.5%, rgba(0,0,0,0) 16.5%, rgba(0,0,0,0) 83.5%, #2A323B 83.5%, #1A2027 86%, #12171C 89%, rgba(0,0,0,0) 89%),
+    repeating-linear-gradient(180deg, rgba(0,0,0,0) 0, rgba(0,0,0,0) 14px, rgba(0,0,0,.55) 14px, rgba(0,0,0,.55) 16px),
+    var(--pr-bois);
+  background-size: 26px 11px, 100% 11px, 100% 100%, auto, 240px 240px;
+  background-repeat: repeat-x, no-repeat, no-repeat, repeat, repeat;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.14), 0 8px 14px rgba(0,0,0,.6);
+}
+:root[data-theme="flibuste"] .todo-barre .pr-cf-face::after {
+  content: '';
+  position: absolute;
+  left: 50%; top: 5px;
+  width: 26px; height: 26px;
+  margin-left: -13px;
+  border-radius: 5px 5px 13px 13px;
+  border: 1.5px solid #5A3A0C;
+  background-image:
+    radial-gradient(circle at 50% 40%, #140B03 0, #140B03 3.1px, rgba(0,0,0,0) 3.7px),
+    linear-gradient(#140B03, #140B03),
+    linear-gradient(145deg, #F8DE86, #D9A93A 50%, #8A5C14);
+  background-size: 100% 100%, 3.4px 9px, 100% 100%;
+  background-position: 0 0, 50% 64%, 0 0;
+  background-repeat: no-repeat;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.55), 0 2px 4px rgba(0,0,0,.65);
+}
+
+/* titre gravé sur le couvercle */
+:root[data-theme="flibuste"] .todo-barre .todo-texte {
+  position: absolute; left: 0; right: 0; top: 17px;
+  justify-content: center;
+  z-index: 2;
+  pointer-events: none;
+}
+:root[data-theme="flibuste"] .todo-barre .todo-titre { font-size: 25px; letter-spacing: .1em; text-shadow: none; -webkit-filter: drop-shadow(0 2px 0 #000); filter: drop-shadow(0 2px 0 #000); }
+
+/* barre de progression : lingot d'or incrusté dans la face avant */
+:root[data-theme="flibuste"] .todo-barre .todo-progression {
+  left: 28px; right: 28px; bottom: 7px; height: 5px;
+  border-radius: 3px;
+  background: rgba(0,0,0,.62);
+  box-shadow: inset 0 1px 2px #000, 0 1px 0 rgba(255,225,150,.2);
+  z-index: 2;
+}
+:root[data-theme="flibuste"] .todo-barre .todo-progression-remplie { border-radius: 3px; background: linear-gradient(90deg, #8A5C14, #F6D77A 60%, #D9A93A); }
+
+/* les trois alvéoles : vides mais réservées (cerclage doré, empreinte pointillée à la couleur du joyau) */
+:root[data-theme="flibuste"] .todo-barre .todo-icones {
+  position: absolute; left: 0; right: 0; top: 60px;
+  justify-content: center;
+  z-index: 2;
+}
+:root[data-theme="flibuste"] .todo-barre .todo-bouton { width: 56px; height: 56px; margin: 0 8px; }
+:root[data-theme="flibuste"] .todo-barre .todo-rond {
+  position: relative;
+  width: 56px; height: 56px;
+  border: 0;
+  border-radius: 50%;
+  background-color: transparent;
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+  box-shadow: none;
+  -webkit-animation: none;
+  animation: none;
+}
+:root[data-theme="flibuste"] .todo-barre .todo-emoji { font-size: 23px; opacity: 0; -webkit-filter: none; filter: none; }
+:root[data-theme="flibuste"] .todo-barre .todo-bouton[data-tache="eau"] .todo-rond { background-image: var(--pr-alv-eau); }
+:root[data-theme="flibuste"] .todo-barre .todo-bouton[data-tache="etirements"] .todo-rond { background-image: var(--pr-alv-etir); }
+:root[data-theme="flibuste"] .todo-barre .todo-bouton[data-tache="pesee"] .todo-rond { background-image: var(--pr-alv-pes); }
+
+/* fait : le joyau apparaît, l'émoji est pris dans la pierre */
+:root[data-theme="flibuste"] .todo-barre .todo-fait .todo-rond {
+  -webkit-animation: prJoyau .75s cubic-bezier(.2, .9, .3, 1.2);
+  animation: prJoyau .75s cubic-bezier(.2, .9, .3, 1.2);
+}
+:root[data-theme="flibuste"] .todo-barre .todo-bouton[data-tache="eau"].todo-fait .todo-rond { background-image: var(--pr-gem-eau); box-shadow: 0 0 16px 2px rgba(70,135,255,.6); }
+:root[data-theme="flibuste"] .todo-barre .todo-bouton[data-tache="etirements"].todo-fait .todo-rond { background-image: var(--pr-gem-etir); box-shadow: 0 0 16px 2px rgba(255,70,100,.6); }
+:root[data-theme="flibuste"] .todo-barre .todo-bouton[data-tache="pesee"].todo-fait .todo-rond { background-image: var(--pr-gem-pes); box-shadow: 0 0 16px 2px rgba(50,220,150,.55); }
+:root[data-theme="flibuste"] .todo-barre .todo-fait .todo-emoji { opacity: .92; color: #fff; text-shadow: none; -webkit-filter: none; filter: none; }
+/* reflet de verre par-dessus l'émoji + éclat qui passe de temps en temps */
+:root[data-theme="flibuste"] .todo-barre .todo-fait .todo-rond::after {
+  content: '';
+  position: absolute;
+  left: 7px; right: 7px; top: 7px; bottom: 7px;
+  border-radius: 50%;
+  background-image:
+    linear-gradient(105deg, rgba(255,255,255,0) 38%, rgba(255,255,255,.7) 50%, rgba(255,255,255,0) 62%),
+    linear-gradient(135deg, rgba(255,255,255,.5) 0, rgba(255,255,255,.1) 24%, rgba(255,255,255,0) 42%),
+    linear-gradient(315deg, rgba(0,0,0,.22), rgba(0,0,0,0) 40%);
+  background-size: 260% 100%, 100% 100%, 100% 100%;
+  background-repeat: no-repeat;
+  background-position: -160% 0, 0 0, 0 0;
+  -webkit-animation: prBrillance 6s ease-in-out infinite;
+  animation: prBrillance 6s ease-in-out infinite;
+}
+:root[data-theme="flibuste"] .todo-barre .todo-bouton[data-tache="etirements"].todo-fait .todo-rond::after { -webkit-animation-delay: 2s; animation-delay: 2s; }
+:root[data-theme="flibuste"] .todo-barre .todo-bouton[data-tache="pesee"].todo-fait .todo-rond::after { -webkit-animation-delay: 4s; animation-delay: 4s; }
+@-webkit-keyframes prJoyau { 0% { -webkit-transform: scale(.2) rotate(-90deg); opacity: 0; } 55% { -webkit-transform: scale(1.18) rotate(8deg); opacity: 1; } 100% { -webkit-transform: scale(1) rotate(0); } }
+@keyframes prJoyau { 0% { transform: scale(.2) rotate(-90deg); opacity: 0; } 55% { transform: scale(1.18) rotate(8deg); opacity: 1; } 100% { transform: scale(1) rotate(0); } }
+@-webkit-keyframes prBrillance { 0%, 62% { background-position: -160% 0, 0 0, 0 0; } 100% { background-position: 160% 0, 0 0, 0 0; } }
+@keyframes prBrillance { 0%, 62% { background-position: -160% 0, 0 0, 0 0; } 100% { background-position: 160% 0, 0 0, 0 0; } }
+:root.pr-calme[data-theme="flibuste"] .todo-barre .todo-fait .todo-rond::after { -webkit-animation: none; animation: none; }

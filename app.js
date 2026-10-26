@@ -9058,3 +9058,105 @@ function poserEntete() {
 
 poserEntete();
 })();
+
+/* ===== THÈME FLIBUSTE : ROUTINE = COFFRET OUVERT (décor + joyaux dessinés par le code) ===== */
+(function () {
+'use strict';
+
+var carte = document.getElementById('carte-checklist-quotidienne');
+if (!carte || carte.querySelector('.pr-cf')) { return; }
+
+/* --- petits outils de dessin --- */
+function pol(r, deg) { var a = deg * Math.PI / 180; return [32 + r * Math.cos(a), 32 + r * Math.sin(a)]; }
+function pts(p) { return p.map(function (q) { return q[0].toFixed(1) + ',' + q[1].toFixed(1); }).join(' '); }
+function echelle(p, f) { return p.map(function (q) { return [32 + (q[0] - 32) * f, 32 + (q[1] - 32) * f]; }); }
+var OCT = [[21,8],[43,8],[54,19],[54,45],[43,56],[21,56],[10,45],[10,19]];
+var OR = '<linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FFEFB0"/><stop offset=".45" stop-color="#E0AE45"/><stop offset="1" stop-color="#7C5214"/></linearGradient>';
+
+/* cerclage doré + 6 griffes */
+function anneau() {
+  var s = '<circle cx="32" cy="32" r="31.2" fill="none" stroke="#3A2408" stroke-width="1.4"/>' +
+    '<circle cx="32" cy="32" r="29" fill="none" stroke="url(#g)" stroke-width="4.6"/>' +
+    '<circle cx="32" cy="32" r="26.5" fill="none" stroke="#000" stroke-opacity=".55" stroke-width="1.2"/>';
+  for (var k = 0; k < 6; k++) {
+    var a = 30 + 60 * k, p = pol(26.4, a), h = pol(27.6, a);
+    s += '<ellipse cx="' + p[0].toFixed(1) + '" cy="' + p[1].toFixed(1) + '" rx="3.7" ry="2.4" transform="rotate(' + a + ' ' + p[0].toFixed(1) + ' ' + p[1].toFixed(1) + ')" fill="url(#g)" stroke="#4A2F08" stroke-width=".7"/>' +
+         '<circle cx="' + h[0].toFixed(1) + '" cy="' + h[1].toFixed(1) + '" r=".7" fill="#fff" fill-opacity=".8"/>';
+  }
+  return s;
+}
+
+/* pierre ronde taillée en brillant */
+function brillant(c, rot) {
+  var R = 25, T = 11.5, k, a, g1, g2, t2, tv = [], b;
+  var defs = '<radialGradient id="b" cx=".36" cy=".3" r=".85"><stop offset="0" stop-color="' + c[2] + '"/><stop offset=".45" stop-color="' + c[1] + '"/><stop offset="1" stop-color="' + c[0] + '"/></radialGradient>';
+  b = '<circle cx="32" cy="32" r="' + R + '" fill="url(#b)"/>';
+  for (k = 0; k < 8; k++) { tv.push(pol(T, rot + 22.5 + 45 * k)); }
+  for (k = 0; k < 8; k++) {
+    a = rot + 22.5 + 45 * k; g1 = pol(R, a - 22.5); g2 = pol(R, a + 22.5); t2 = tv[(k + 1) % 8];
+    b += '<polygon points="' + pts([tv[k], g1, g2]) + '" fill="' + (k % 2 ? '#000' : '#fff') + '" fill-opacity="' + (k % 2 ? '.24' : '.2') + '"/>' +
+         '<polygon points="' + pts([tv[k], t2, g2]) + '" fill="' + (k % 2 ? '#fff' : '#000') + '" fill-opacity="' + (k % 2 ? '.13' : '.1') + '"/>' +
+         '<line x1="' + tv[k][0].toFixed(1) + '" y1="' + tv[k][1].toFixed(1) + '" x2="' + g1[0].toFixed(1) + '" y2="' + g1[1].toFixed(1) + '" stroke="#fff" stroke-opacity=".26" stroke-width=".6"/>' +
+         '<line x1="' + tv[k][0].toFixed(1) + '" y1="' + tv[k][1].toFixed(1) + '" x2="' + g2[0].toFixed(1) + '" y2="' + g2[1].toFixed(1) + '" stroke="#fff" stroke-opacity=".26" stroke-width=".6"/>';
+  }
+  b += '<polygon points="' + pts(tv) + '" fill="#fff" fill-opacity=".24" stroke="#fff" stroke-opacity=".5" stroke-width=".7"/>' +
+       '<ellipse cx="23.5" cy="20.5" rx="7.5" ry="3.4" transform="rotate(-38 23.5 20.5)" fill="#fff" fill-opacity=".5"/><circle cx="38" cy="43" r="1.6" fill="#fff" fill-opacity=".55"/>';
+  return defs + b;
+}
+
+/* émeraude : taille à gradins, octogonale */
+function emeraude(c) {
+  var defs = '<radialGradient id="b" cx=".36" cy=".3" r=".9"><stop offset="0" stop-color="' + c[2] + '"/><stop offset=".5" stop-color="' + c[1] + '"/><stop offset="1" stop-color="' + c[0] + '"/></radialGradient>';
+  var b = '<polygon points="' + pts(OCT) + '" fill="url(#b)"/>';
+  var an = [OCT, echelle(OCT, .8), echelle(OCT, .6), echelle(OCT, .4)];
+  var teinte = [['#fff', .24], ['#fff', .15], ['#000', .12], ['#000', .26], ['#000', .22], ['#000', .30], ['#fff', .08], ['#fff', .16]];
+  var coef = [1, .75, .55], r, j, o, i;
+  for (r = 0; r < 3; r++) {
+    o = an[r]; i = an[r + 1];
+    for (j = 0; j < 8; j++) {
+      b += '<polygon points="' + pts([o[j], o[(j + 1) % 8], i[(j + 1) % 8], i[j]]) + '" fill="' + teinte[j][0] + '" fill-opacity="' + (teinte[j][1] * coef[r]).toFixed(2) + '" stroke="#fff" stroke-opacity=".28" stroke-width=".6"/>';
+    }
+  }
+  b += '<polygon points="' + pts(an[3]) + '" fill="#fff" fill-opacity=".2" stroke="#fff" stroke-opacity=".5" stroke-width=".7"/>' +
+       '<polygon points="16,14 27,9 24,15 15,21" fill="#fff" fill-opacity=".42"/><circle cx="43" cy="47" r="1.5" fill="#fff" fill-opacity=".5"/>';
+  return defs + b;
+}
+
+/* alvéole vide : velours creusé + empreinte pointillée à la couleur du joyau qui lui est réservé */
+function alveole(octogone, col) {
+  var s = '<radialGradient id="w" cx=".5" cy=".64" r=".62"><stop offset="0" stop-color="#3B0710"/><stop offset=".7" stop-color="#1E0308"/><stop offset="1" stop-color="#0F0104"/></radialGradient><clipPath id="c"><circle cx="32" cy="32" r="27"/></clipPath>';
+  var b = '<circle cx="32" cy="32" r="27" fill="url(#w)"/><g clip-path="url(#c)"><ellipse cx="32" cy="12" rx="26" ry="13" fill="#000" fill-opacity=".42"/></g>';
+  var trait = ' fill="' + col + '" fill-opacity=".1" stroke="' + col + '" stroke-opacity=".6" stroke-width="1.3" stroke-dasharray="3 2.6"';
+  b += octogone ? '<polygon points="' + pts(echelle(OCT, .82)) + '"' + trait + ' stroke-linejoin="round"/>' : '<circle cx="32" cy="32" r="20"' + trait + '/>';
+  return s + b + '<circle cx="32" cy="32" r="3" fill="' + col + '" fill-opacity=".28"/>';
+}
+
+function uri(corps) {
+  var svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><defs>' + OR + '</defs>' + corps + anneau() + '</svg>';
+  return 'url("data:image/svg+xml,' + encodeURIComponent(svg) + '")';
+}
+
+/* les trois pierres : couleur sombre, moyenne, claire + couleur de l'empreinte */
+var SAPHIR   = ['#0A2A7A', '#2B6BE0', '#9CCBFF'];
+var RUBIS    = ['#6E0818', '#D42040', '#FF9AAB'];
+var EMERAUDE = ['#04472B', '#12A065', '#8DF5BE'];
+var vars = {
+  '--pr-gem-eau': uri(brillant(SAPHIR, 0)),
+  '--pr-gem-etir': uri(brillant(RUBIS, 11)),
+  '--pr-gem-pes': uri(emeraude(EMERAUDE)),
+  '--pr-alv-eau': uri(alveole(false, '#6FA8FF')),
+  '--pr-alv-etir': uri(alveole(false, '#FF5D78')),
+  '--pr-alv-pes': uri(alveole(true, '#3CDC9A'))
+};
+for (var nom in vars) { if (vars.hasOwnProperty(nom)) { carte.style.setProperty(nom, vars[nom]); } }
+
+/* le décor du coffret : couvercle, écrin, face avant */
+var noms = ['couvercle', 'ecrin', 'face'];
+var frag = document.createDocumentFragment();
+for (var n = 0; n < noms.length; n++) {
+  var d = document.createElement('div');
+  d.className = 'pr-cf pr-cf-' + noms[n];
+  frag.appendChild(d);
+}
+carte.insertBefore(frag, carte.firstChild);
+})();
