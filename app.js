@@ -9151,23 +9151,29 @@ function velours() {
   return 'url("data:image/svg+xml,' + encodeURIComponent(svg) + '")';
 }
 
-/* capitons : 3 boutons dorés qui tirent le tissu, avec leurs plis (calé sur le bord droit de l'écrin) */
+/* capitonnage : losanges de velours bombés, retenus par des boutons dorés (une tuile répétée, calée sur le bord droit de l'écrin) */
 function capiton() {
-  var xs = [23.5, 77.5, 131.5], s = '', i, k, d;
-  var dirs = [[-1, -1], [1, -1], [-1, 1], [1, 1]];
-  for (i = 0; i < xs.length; i++) {
-    for (k = 0; k < 4; k++) {
-      d = 'M' + xs[i] + ' 27L' + (xs[i] + dirs[k][0] * 26) + ' ' + (27 + dirs[k][1] * 27);
-      s += '<path d="' + d + '" stroke="#1E0006" stroke-opacity=".32" stroke-width="2.6" stroke-linecap="round" fill="none"/>' +
-           '<path d="' + d + '" transform="translate(' + (dirs[k][0] * 1.4) + ' 1.4)" stroke="#FF8C98" stroke-opacity=".17" stroke-width="1.3" stroke-linecap="round" fill="none"/>';
-    }
-    s += '<circle cx="' + xs[i] + '" cy="27" r="15" fill="url(#d)"/>' +
-         '<circle cx="' + xs[i] + '" cy="28" r="3.9" fill="#000" fill-opacity=".5"/>' +
-         '<circle cx="' + xs[i] + '" cy="27" r="3.2" fill="url(#o)" stroke="#4A2F08" stroke-width=".7"/>' +
-         '<circle cx="' + (xs[i] - 1) + '" cy="26" r=".9" fill="#fff" fill-opacity=".8"/>';
+  var s = '', k, i;
+  /* bombé des coussins (centre des losanges, y compris ceux coupés par les bords) */
+  /* (les cercles qui dépassent de la tuile sont recopiés de l'autre côté pour que le motif se raccorde sans coupure) */
+  s += '<circle cx="22" cy="27" r="24" fill="url(#p)"/><circle cx="76" cy="27" r="24" fill="url(#p)"/>' +
+       '<circle cx="49" cy="1" r="20" fill="url(#p)"/><circle cx="-5" cy="1" r="20" fill="url(#p)"/>' +
+       '<circle cx="49" cy="53" r="20" fill="url(#p)"/><circle cx="-5" cy="53" r="20" fill="url(#p)"/>';
+  /* plis : 4 diagonales, un trait sombre + un trait clair collé */
+  var plis = ['M22 0L76 54', 'M-32 0L22 54', 'M22 0L-32 54', 'M76 0L22 54'];
+  for (k = 0; k < plis.length; k++) {
+    s += '<path d="' + plis[k] + '" stroke="#1A0005" stroke-opacity=".42" stroke-width="3.4" stroke-linecap="round" fill="none"/>' +
+         '<path d="' + plis[k] + '" transform="translate(2 1)" stroke="#FF9AA6" stroke-opacity=".22" stroke-width="1.6" fill="none"/>';
   }
-  var svg = '<svg xmlns="http://www.w3.org/2000/svg" width="190" height="54" viewBox="0 0 190 54"><defs>' +
-    '<radialGradient id="d"><stop offset="0" stop-color="#000" stop-opacity=".55"/><stop offset=".5" stop-color="#000" stop-opacity=".2"/><stop offset="1" stop-color="#000" stop-opacity="0"/></radialGradient>' +
+  /* creux du tissu autour des boutons (au centre et sur les bords du losange) */
+  s += '<circle cx="49" cy="27" r="15" fill="url(#d)"/><circle cx="-5" cy="27" r="15" fill="url(#d)"/><circle cx="22" cy="0" r="13" fill="url(#d)"/><circle cx="22" cy="54" r="13" fill="url(#d)"/>';
+  /* le bouton doré du capiton */
+  s += '<circle cx="49" cy="28.2" r="4.6" fill="#000" fill-opacity=".55"/>' +
+       '<circle cx="49" cy="27" r="3.9" fill="url(#o)" stroke="#4A2F08" stroke-width=".8"/>' +
+       '<circle cx="47.8" cy="25.8" r="1.1" fill="#fff" fill-opacity=".85"/>';
+  var svg = '<svg xmlns="http://www.w3.org/2000/svg" width="54" height="54" viewBox="0 0 54 54"><defs>' +
+    '<radialGradient id="p"><stop offset="0" stop-color="#FF8A9A" stop-opacity=".34"/><stop offset=".6" stop-color="#FF8A9A" stop-opacity=".1"/><stop offset="1" stop-color="#FF8A9A" stop-opacity="0"/></radialGradient>' +
+    '<radialGradient id="d"><stop offset="0" stop-color="#000" stop-opacity=".62"/><stop offset=".5" stop-color="#000" stop-opacity=".22"/><stop offset="1" stop-color="#000" stop-opacity="0"/></radialGradient>' +
     '<radialGradient id="o" cx=".35" cy=".3" r=".8"><stop offset="0" stop-color="#FFF0A8"/><stop offset=".5" stop-color="#E0AE45"/><stop offset="1" stop-color="#8A5C14"/></radialGradient></defs>' + s + '</svg>';
   return 'url("data:image/svg+xml,' + encodeURIComponent(svg) + '")';
 }
