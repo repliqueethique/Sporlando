@@ -4819,6 +4819,7 @@ function rendreZoneSync() {
 function ouvrirNotice() {
   var html = '';
   html += '<div class="modal-entete"><h2>Notice complète</h2><button class="bouton-fermer" data-action="fermer-modal">&times;</button></div>';
+  html += '<button class="btn btn-contour btn-bloc" data-action="ouvrir-notes" style="margin-bottom:14px;">📝 Mes notes (' + listeNotes().length + ')</button>';
 
   html += '<div class="notice-section"><h3>Accueil</h3><p>Quatre raccourcis : Nouvelle séance, Nutrition, Bibliothèque, Historique. Deux bannières peuvent apparaître automatiquement : un rappel pour vérifier ton objectif de programme (toutes les 4 semaines), et une alerte météo si la température à ton lieu d\'entraînement dépasse les seuils que tu as réglés.</p></div>';
 
@@ -4872,6 +4873,77 @@ function ouvrirNotice() {
   html += '</ul></div>';
 
   ouvrirModal(html);
+}
+
+/* ============================================================
+   NOTES (ouvertes depuis la notice)
+   ============================================================ */
+
+function listeNotes() {
+  if (!etat.notes) { etat.notes = []; }
+  return etat.notes;
+}
+
+function ouvrirNotes() {
+  var notes = listeNotes().slice().sort(function (a, b) { return (b.modif || 0) - (a.modif || 0); });
+  var html = '';
+  html += '<div class="modal-entete"><h2>Mes notes</h2><button class="bouton-fermer" data-action="fermer-modal">&times;</button></div>';
+  html += '<button class="btn btn-plein btn-bloc" data-action="nouvelle-note" style="margin-bottom:12px;">+ Nouvelle note</button>';
+  if (notes.length === 0) {
+    html += '<div class="etat-vide">Aucune note pour l\'instant.</div>';
+  } else {
+    for (var i = 0; i < notes.length; i++) {
+      var n = notes[i];
+      html += '<div class="carte" data-action="editer-note" data-id="' + n.id + '" style="cursor:pointer;">';
+      html += '<div class="texte-att" style="margin-bottom:4px;">' + formaterDateLisible(n.date) + '</div>';
+      html += '<div style="white-space:pre-wrap; font-size:14px; line-height:1.35; max-height:4.1em; overflow:hidden; word-break:break-word;">' + echapperHtml(n.texte) + '</div>';
+      html += '</div>';
+    }
+  }
+  html += '<button class="btn btn-contour btn-bloc" data-action="ouvrir-notice" style="margin-top:6px;">Retour à la notice</button>';
+  ouvrirModal(html);
+}
+
+function ouvrirEditionNote(idNote) {
+  var note = idNote ? trouverParId(listeNotes(), idNote) : null;
+  var html = '';
+  html += '<div class="modal-entete"><h2>' + (note ? 'Modifier la note' : 'Nouvelle note') + '</h2><button class="bouton-fermer" data-action="fermer-modal">&times;</button></div>';
+  html += '<div class="champ"><textarea id="champ-note-texte" style="min-height:200px;" placeholder="Écris ta note ici...">' + echapperHtml(note ? note.texte : '') + '</textarea></div>';
+  html += '<button class="btn btn-plein btn-bloc" data-action="enregistrer-note" data-id="' + (note ? note.id : '') + '">Enregistrer</button>';
+  if (note) {
+    html += '<button class="btn btn-alerte btn-bloc" style="margin-top:8px;" data-action="supprimer-note" data-id="' + note.id + '">Supprimer cette note</button>';
+  }
+  html += '<button class="btn btn-contour btn-bloc" style="margin-top:8px;" data-action="ouvrir-notes">Retour aux notes</button>';
+  ouvrirModal(html);
+  var champ = document.getElementById('champ-note-texte');
+  if (champ && !note) { champ.focus(); }
+}
+
+function enregistrerNote(idNote) {
+  var champ = document.getElementById('champ-note-texte');
+  var texte = champ ? champ.value.replace(/\s+$/, '') : '';
+  if (!texte) { afficherToast('La note est vide.'); return; }
+  var notes = listeNotes();
+  var note = idNote ? trouverParId(notes, idNote) : null;
+  if (note) {
+    note.texte = texte;
+    note.modif = Date.now();
+  } else {
+    notes.push({ id: genererId(), texte: texte, date: formaterDateISO(new Date()), modif: Date.now() });
+  }
+  sauvegarderEtat();
+  afficherToast('Note enregistrée.');
+  ouvrirNotes();
+}
+
+function supprimerNote(idNote) {
+  demanderConfirmation('Supprimer définitivement cette note ?', function () {
+    etat.notes = retirerParId(listeNotes(), idNote);
+    sauvegarderEtat();
+    ouvrirNotes();
+  }, function () {
+    ouvrirEditionNote(idNote);
+  });
 }
 
 function obtenirProgrammeActif() {
@@ -6879,6 +6951,11 @@ ajouterEcouteurClicDelegue(document.body, function (cible) {
   if (action === 'ouvrir-import-donnees') { ouvrirImportDonnees(); return; }
   if (action === 'lancer-import-json') { lancerImportJson(); return; }
   if (action === 'ouvrir-notice') { ouvrirNotice(); return; }
+  if (action === 'ouvrir-notes') { ouvrirNotes(); return; }
+  if (action === 'nouvelle-note') { ouvrirEditionNote(null); return; }
+  if (action === 'editer-note') { ouvrirEditionNote(id); return; }
+  if (action === 'enregistrer-note') { enregistrerNote(id || null); return; }
+  if (action === 'supprimer-note') { supprimerNote(id); return; }
   if (action === 'ouvrir-verif-objectif') { ouvrirVerificationObjectif(); return; }
   if (action === 'confirmer-objectif') { confirmerObjectif(); return; }
   if (action === 'enregistrer-profil') { enregistrerProfil(); return; }
