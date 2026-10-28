@@ -7357,3 +7357,163 @@ body { background: transparent; }
 @-webkit-keyframes prBrillance { 0%, 62% { background-position: -160% 0, 0 0, 0 0; } 100% { background-position: 160% 0, 0 0, 0 0; } }
 @keyframes prBrillance { 0%, 62% { background-position: -160% 0, 0 0, 0 0; } 100% { background-position: 160% 0, 0 0, 0 0; } }
 :root.pr-calme[data-theme="flibuste"] .todo-barre .todo-fait .todo-rond::after { -webkit-animation: none; animation: none; }
+
+/* ============================================================
+   MODERNISATION : ergonomie + style (à garder en dernier)
+   ============================================================ */
+:root {
+  --couleur-fond: #0E1116;
+  --couleur-carte: #171B22;
+  --couleur-carte-creux: #0F1318;
+  --couleur-bordure: #262D37;
+  --couleur-texte-att: #8B97A5;
+  --rayon: 16px;
+  --ombre: 0 4px 14px rgba(0,0,0,0.28);
+  --hauteur-nav: 64px;
+}
+body { padding-bottom: calc(var(--hauteur-nav) + 28px); }
+
+/* En-tête */
+.entete { padding: 10px 16px; padding-top: calc(10px + env(safe-area-inset-top, 0px)); background: rgba(15,19,24,0.97); }
+.entete h1 { font-size: 16px; letter-spacing: 0.12em; }
+.app-logo { width: 40px; }
+.bouton-entete { min-height: 36px; padding: 6px 14px; background: var(--couleur-carte); }
+
+/* Cartes */
+.carte, .accueil-carte { border-radius: var(--rayon); transition: transform 0.12s ease, border-color 0.2s ease; }
+.carte { padding: 16px; }
+.carte-titre { font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.08em; color: var(--couleur-texte-att); margin-bottom: 12px; }
+li.carte[data-action]:active, .accueil-carte:active { transform: scale(0.985); }
+.accueil-carte { padding: 16px 18px; }
+.accueil-carte[data-action="aller-page"]::after { content: "\203A"; margin-left: auto; font-size: 28px; color: var(--couleur-texte-att); }
+.groupe-entete { padding: 12px 4px; cursor: pointer; }
+
+/* Boutons (zone tactile mini 44 px) */
+.btn { display: inline-flex; align-items: center; justify-content: center; min-height: 44px; padding: 11px 18px; border-radius: 12px; font-size: 15px; transition: transform 0.12s ease, opacity 0.12s ease; }
+.btn:active { transform: scale(0.96); }
+.btn-petit { min-height: 36px; padding: 6px 14px; font-size: 13px; }
+.checklist-bouton { width: 40px; height: 40px; min-width: 40px; font-size: 18px; }
+.checklist-ligne { padding: 10px 0; }
+
+/* Champs */
+.champ input, .champ select, .champ textarea { min-height: 44px; padding: 10px 12px; border-radius: 10px; transition: border-color 0.2s ease, box-shadow 0.2s ease; }
+.champ textarea { min-height: 72px; }
+.champ input:focus, .champ select:focus, .champ textarea:focus,
+.serie-champ input:focus, .note-serie-zone input:focus {
+  outline: none;
+  border-color: var(--couleur-turquoise);
+  box-shadow: 0 0 0 3px rgba(31,217,196,0.18);
+}
+
+/* Sous-onglets : pilules défilantes (6 onglets dans Historique) */
+.sous-onglets { overflow-x: auto; -webkit-overflow-scrolling: touch; border: none; border-radius: 0; background: transparent; padding-bottom: 2px; }
+.sous-onglets::-webkit-scrollbar { display: none; }
+.sous-onglets .sous-onglet, .sous-onglets .sous-onglet:last-child {
+  flex: 0 0 auto;
+  min-height: 40px;
+  padding: 8px 16px;
+  margin-right: 8px;
+  border: 1px solid var(--couleur-bordure);
+  border-radius: 20px;
+  background: var(--couleur-carte);
+}
+.sous-onglets .sous-onglet.sous-onglet-actif {
+  background: var(--couleur-degrade);
+  border-color: transparent;
+  color: #0B1114;
+}
+
+/* Barre de navigation */
+.nav-bas {
+  height: var(--hauteur-nav);
+  height: calc(var(--hauteur-nav) + env(safe-area-inset-bottom, 0px));
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  background: rgba(15,19,24,0.97);
+}
+.nav-onglet {
+  position: relative;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  padding: 6px 2px;
+  font-size: 11px; font-weight: 600; text-transform: none; letter-spacing: 0;
+  transition: color 0.2s ease;
+}
+.nav-onglet svg { width: 24px; height: 24px; margin-bottom: 3px; transition: transform 0.2s ease; }
+.nav-onglet::before {
+  content: ""; position: absolute; top: 0; left: 50%;
+  width: 28px; height: 3px; margin-left: -14px;
+  border-radius: 0 0 3px 3px;
+  background: var(--couleur-degrade);
+  opacity: 0; transform: scaleX(0.3);
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+.nav-onglet-actif::before { opacity: 1; transform: scaleX(1); }
+.nav-onglet-actif svg { transform: translateY(-1px) scale(1.08); }
+
+/* Fenêtres modales : feuille qui monte du bas (et corrige le doublon .modal-overlay) */
+.modal-overlay { align-items: flex-end; z-index: 1000; background: rgba(6,8,11,0.72); animation: fondApparait 0.2s ease; }
+.modal-contenu {
+  max-width: 560px; margin: 0 auto;
+  max-height: 90%;
+  border-radius: 22px 22px 0 0;
+  padding: 22px 18px 28px;
+  padding-bottom: calc(28px + env(safe-area-inset-bottom, 0px));
+  -webkit-overflow-scrolling: touch;
+  animation: feuilleMonte 0.28s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.modal-contenu::before { content: ""; display: block; width: 40px; height: 4px; border-radius: 2px; background: var(--couleur-bordure); margin: -10px auto 16px; }
+.modal-contenu h2 { font-size: 18px; font-weight: 800; margin-bottom: 8px; }
+.modal-entete h2 { font-size: 17px; margin-bottom: 0; }
+.bouton-fermer { min-width: 44px; min-height: 44px; }
+@keyframes fondApparait { from { opacity: 0; } to { opacity: 1; } }
+@keyframes feuilleMonte { from { transform: translateY(40px); opacity: 0; } to { transform: none; opacity: 1; } }
+
+/* Les messages (toast) passent au-dessus des modales */
+.toast-conteneur { z-index: 1100; top: 64px; }
+.toast { border-radius: 14px; border-left: 3px solid var(--couleur-turquoise); }
+
+/* Modale d'échauffement : thème sombre cohérent (elle était en blanc) */
+.subtitle { color: var(--couleur-texte-att); font-size: 14px; margin: 0 0 16px; }
+.btn-echauffement, .btn-echauffement:hover {
+  width: 100%; min-height: 64px; padding: 16px;
+  background: var(--couleur-carte-creux);
+  border: 1px solid var(--couleur-bordure);
+  border-radius: 14px;
+  color: var(--couleur-texte);
+}
+.btn-echauffement:active { border-color: var(--couleur-turquoise); transform: scale(0.98); }
+.btn-echauffement span { color: var(--couleur-texte-att); }
+.item-echauffement { border-bottom: 1px solid var(--couleur-bordure); }
+.exo-info .duree { color: var(--couleur-turquoise); }
+.exo-info small { color: var(--couleur-texte-att); }
+.checkbox-container input[type="checkbox"] { width: 22px; height: 22px; }
+.btn-primary { min-height: 48px; background: var(--couleur-degrade); color: #0B1114; border-radius: 12px; font-size: 15px; }
+.btn-secondary { min-height: 44px; margin-top: 6px; color: var(--couleur-texte-att); }
+
+/* Séance : exercice terminé plus lisible (vert doux au lieu de vert vif) */
+.bloc-exercice-termine {
+  background-color: rgba(76,217,123,0.12) !important;
+  border: 1px solid var(--couleur-succes) !important;
+  border-radius: var(--rayon) !important;
+}
+.bloc-exercice-termine::after { background: var(--couleur-succes); color: #0B1114; }
+
+/* Calendrier, barres de macros, curseurs */
+.cal-jour-bouton { min-height: 40px; font-size: 14px; border-radius: 10px; }
+.macro-barre-fond { height: 12px; border-radius: 6px; }
+.macro-barre-remplie { border-radius: 6px; }
+.ressenti-slider-zone input[type="range"]::-webkit-slider-thumb { width: 26px; height: 26px; }
+
+/* RPE de fin de séance */
+.rpe-grille { display: flex; flex-wrap: wrap; justify-content: center; }
+.rpe-bouton {
+  width: 17%; margin: 1.4%; min-height: 52px;
+  border: 1px solid var(--couleur-bordure);
+  border-radius: 14px;
+  background: var(--couleur-carte-creux);
+  color: var(--couleur-texte);
+  font-family: var(--police-donnees); font-size: 20px; font-weight: 800;
+  transition: transform 0.12s ease, background 0.2s ease, border-color 0.2s ease;
+}
+.rpe-bouton:active { transform: scale(0.94); }
+.rpe-bouton-actif { background: var(--couleur-degrade); border-color: transparent; color: #0B1114; transform: scale(1.06); }
+.rpe-libelle { text-align: center; min-height: 22px; margin: 4px 0 18px; font-size: 14px; font-weight: 700; color: var(--couleur-turquoise); }

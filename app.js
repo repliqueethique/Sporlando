@@ -479,6 +479,20 @@ function etatParDefaut() {
   };
 }
 
+function migrerRpeVersRer(liste) {
+  for (var i = 0; i < liste.length; i++) {
+    var res = liste[i].resultat;
+    if (!res) { continue; }
+    for (var j = 0; j < res.exercices.length; j++) {
+      var ex = res.exercices[j];
+      if (ex.rpe !== undefined) {
+        if (ex.rer === undefined || ex.rer === null) { ex.rer = ex.rpe; }
+        delete ex.rpe;
+      }
+    }
+  }
+}
+
 function completerChampsEtat(donnees) {
   if (!donnees.profil) { donnees.profil = {}; }
   if (!donnees.profil.poidsCorporel) { donnees.profil.poidsCorporel = 75; }
@@ -526,6 +540,13 @@ function completerChampsEtat(donnees) {
   if (donnees.checklistQuotidienne.eau === undefined) { donnees.checklistQuotidienne.eau = false; }
   if (donnees.checklistQuotidienne.etirements === undefined) { donnees.checklistQuotidienne.etirements = false; }
   if (donnees.checklistQuotidienne.pesee === undefined) { donnees.checklistQuotidienne.pesee = false; }
+  migrerRpeVersRer(donnees.agenda);
+  if (donnees.seanceActive) {
+    for (var k = 0; k < donnees.seanceActive.exercices.length; k++) {
+      var exA = donnees.seanceActive.exercices[k];
+      if (exA.rpe !== undefined) { exA.rer = exA.rpe; delete exA.rpe; }
+    }
+  }
   return donnees;
 }
 
@@ -635,7 +656,7 @@ function allerVersPage(nomPage) {
     rendreProgrammeActif();
     rendreCalendrier(); rendreJourSelectionne(); rendreAVenir();
     rendreGraphiquePoidsCorporel();
-    rendreSelectProgression(); rendreGraphiqueProgression(); rendreGraphiqueVolume(); rendreGraphiqueCalories();
+    rendreSelectProgression(); rendreGraphiqueProgression(); rendreGraphiqueVolume(); rendreGraphiqueCalories(); rendreGraphiqueRpe();
     rendreGraphiquesNutrition();
     rendreEquilibre();
     rendreSuggestions();
@@ -970,8 +991,8 @@ function optionsExercicesGroupees(idSelectionne) {
 function statistiquesExercice(exerciceId) {
   var statsParStructure = {};
   var nombreDeFois = 0;
-  var sommeRpe = 0;
-  var nombreRpe = 0;
+  var sommeRer = 0;
+  var nombreRer = 0;
   var entreesTerminees = etat.agenda.filter(function (a) { return a.statut === 'termine' && a.resultat; });
   for (var i = 0; i < entreesTerminees.length; i++) {
     var resultat = entreesTerminees[i].resultat;
@@ -979,7 +1000,7 @@ function statistiquesExercice(exerciceId) {
       var ligneEx = resultat.exercices[j];
       if (ligneEx.exerciceId !== exerciceId) { continue; }
       nombreDeFois++;
-      if (ligneEx.rpe !== undefined && ligneEx.rpe !== null) { sommeRpe += ligneEx.rpe; nombreRpe++; }
+      if (ligneEx.rer !== undefined && ligneEx.rer !== null) { sommeRer += ligneEx.rer; nombreRer++; }
       var structure = ligneEx.structure || 'lineaire';
       var maxPoidsCetteSeance = null;
       for (var s = 0; s < ligneEx.series.length; s++) {
@@ -998,7 +1019,7 @@ function statistiquesExercice(exerciceId) {
   return {
     nombreDeFois: nombreDeFois,
     statsParStructure: statsParStructure,
-    rpeMoyen: nombreRpe > 0 ? (sommeRpe / nombreRpe) : null
+    rerMoyen: nombreRer > 0 ? (sommeRer / nombreRer) : null
   };
 }
 
@@ -1119,8 +1140,8 @@ function ouvrirFormulaireExercice(idExercice) {
         if (stats.statsParStructure[valeurMode] === undefined) { continue; }
         html += '<div class="ligne" style="padding:3px 0;"><span class="texte-att">' + echapperHtml(STRUCTURES_SERIES[m].libelle) + '</span><span class="donnee-num">' + stats.statsParStructure[valeurMode] + ' kg</span></div>';
       }
-      if (stats.rpeMoyen !== null) {
-        html += '<div class="ligne" style="padding:3px 0;"><span class="texte-att">RPE moyen ressenti</span><span class="donnee-num">' + stats.rpeMoyen.toFixed(1) + '/10</span></div>';
+      if (stats.rerMoyen !== null) {
+        html += '<div class="ligne" style="padding:3px 0;"><span class="texte-att">RER moyen ressenti</span><span class="donnee-num">' + stats.rerMoyen.toFixed(1) + ' rep(s)</span></div>';
       }
     }
     html += '</div>';
@@ -2999,7 +3020,7 @@ function demarrerSeanceDepuisModele(seanceModeleId, agendaEntryId) {
         structure: structure,
         technique: e.technique || 'aucune',
         tempo: e.tempo || '',
-        rpe: 3,
+        rer: 3,
         series: seriesTab
       };
     });
@@ -3514,12 +3535,12 @@ function rendreExercicesActifs() {
         html += htmlNoteSerie(e, s, serie);
       }
 
-      /* RPE + boutons d'ajout */
-      var rpeValeur = (ligneEx.rpe !== null && ligneEx.rpe !== undefined) ? ligneEx.rpe : 3;
+      /* RER + boutons d'ajout */
+      var rerValeur = (ligneEx.rer !== null && ligneEx.rer !== undefined) ? ligneEx.rer : 3;
       html += '<div class="ligne-actions-exercice">';
-      html += '<div class="rpe-ligne rpe-glissable" data-role="rpe-ligne" data-ex="' + e + '" title="RPE ressenti — glisser pour ajuster (0 à 10)">';
-      html += '<input type="number" class="rpe-input" min="0" max="10" step="1" data-role="live-rpe" data-ex="' + e + '" value="' + rpeValeur + '">';
-      html += '<span class="rpe-suffixe">RPE</span></div>';
+      html += '<div class="rer-ligne rer-glissable" data-role="rer-ligne" data-ex="' + e + '" title="RER : reps en réserve (0 = échec, optionnel)">';
+      html += '<input type="number" class="rer-input" min="0" max="10" step="1" data-role="live-rer" data-ex="' + e + '" value="' + rerValeur + '">';
+      html += '<span class="rer-suffixe">RER</span></div>';
       html += '<button class="btn btn-contour btn-action-serie" data-action="ajouter-serie" data-ex="' + e + '">+ Série</button>';
       html += '<button class="btn-action-echauffement" data-action="ajouter-serie-echauffement" data-ex="' + e + '" title="Ajouter une série d\'échauffement"><span class="icone-echauffement" aria-hidden="true"><svg viewBox="0 0 24 24" width="20" height="20"><path d="M12 2c.9 2.1 2.2 3.6 3.6 5.1 1.8 1.9 3.4 3.9 3.4 6.9 0 4.4-3.1 8-7 8s-7-3.6-7-8c0-2.1.7-3.7 1.6-5.1.3 1.5 1.1 2.4 2.1 2.4 1 0 1.3-.8 1-1.9-.5-1.8-.4-4 .6-5.9C10.9 2.9 11.4 2.4 12 2z"/></svg></span></button>';
       html += '</div>';
@@ -3541,8 +3562,8 @@ function rendreExercicesActifs() {
   dernierAjoutSerie = null;
   mettreAJourProgressionSeance(seriesFaites, totalSeries);
 
-  var lignesRpe = document.querySelectorAll('#seance-liste-exercices .rpe-ligne');
-  for (var r = 0; r < lignesRpe.length; r++) { configurerGlisseRpe(lignesRpe[r]); }
+  var lignesRer = document.querySelectorAll('#seance-liste-exercices .rer-ligne');
+  for (var r = 0; r < lignesRer.length; r++) { configurerGlisseRer(lignesRer[r]); }
 }
 
 function mettreAJourChrono() {
@@ -3555,22 +3576,22 @@ function mettreAJourChrono() {
   if (affichage) { affichage.innerHTML = completerZero(minutes) + ':' + completerZero(secondes); }
 }
 
-function modifierRpeExercice(exIndex, valeur) {
+function modifierRerExercice(exIndex, valeur) {
   var val = parseInt(valeur, 10);
   if (isNaN(val)) { val = 3; }
   if (val < 0) { val = 0; }
   if (val > 10) { val = 10; }
-  etat.seanceActive.exercices[exIndex].rpe = val;
+  etat.seanceActive.exercices[exIndex].rer = val;
   sauvegarderEtat();
 }
 
-/* Rend la ligne RPE d'un exercice glissable au doigt/à la souris (même principe que le glissé
+/* Rend la ligne RER d'un exercice glissable au doigt/à la souris (même principe que le glissé
    des heures de sommeil) : on glisse horizontalement sur le chiffre lui-même pour le faire
    monter/descendre de 0 à 10, sans passer par le clavier. Les écouteurs de déplacement ne sont
    posés sur document que pendant le geste, puis retirés à son relâchement, pour ne rien laisser
    traîner d'un rendu à l'autre. */
-function configurerGlisseRpe(ligneElement) {
-  var champ = ligneElement.querySelector('.rpe-input');
+function configurerGlisseRer(ligneElement) {
+  var champ = ligneElement.querySelector('.rer-input');
   if (!champ) { return; }
   var exIndex = parseInt(ligneElement.getAttribute('data-ex'), 10);
   var xDepart = 0;
@@ -3587,7 +3608,7 @@ function configurerGlisseRpe(ligneElement) {
     if (v < 0) { v = 0; }
     if (v > 10) { v = 10; }
     champ.value = v;
-    modifierRpeExercice(exIndex, v);
+    modifierRerExercice(exIndex, v);
   }
 
   function deplacerSouris(e) {
@@ -3719,47 +3740,75 @@ function calculerCaloriesSeance(seanceActive, dureeMinutes, poidsCorporel) {
   return (metMoyen * 3.5 * poidsCorporel / 200) * dureeMinutes;
 }
 
+var rpeSeanceChoisi = null;
+var RPE_LIBELLES = ['', 'Très facile', 'Facile', 'Léger', 'Modéré', 'Soutenu', 'Dur', 'Très dur', 'Intense', 'Très intense', 'Maximal'];
+
 function terminerSeance() {
   if (!etat.seanceActive) { return; }
-  demanderConfirmation('Terminer la séance et l\'enregistrer dans l\'historique ?', function () {
-    var finMs = Date.now();
-    var dureeMinutes = Math.max(1, Math.round((finMs - etat.seanceActive.debut) / 60000));
-    var calories = calculerCaloriesSeance(etat.seanceActive, dureeMinutes, etat.profil.poidsCorporel || 75);
+  rpeSeanceChoisi = null;
+  rendreModalFinSeance();
+}
 
-    var resultat = {
-      date: formaterDateISO(new Date()),
-      exercices: etat.seanceActive.exercices
-    };
+function rendreModalFinSeance() {
+  var html = '';
+  html += '<div class="modal-entete"><h2>Terminer la séance</h2><button class="bouton-fermer" data-action="fermer-modal">&times;</button></div>';
+  html += '<div class="texte-att" style="margin-bottom:14px;">RPE : quel effort global as-tu ressenti ? (1 = très facile, 10 = maximal)</div>';
+  html += '<div class="rpe-grille">';
+  for (var n = 1; n <= 10; n++) {
+    html += '<button class="rpe-bouton' + (rpeSeanceChoisi === n ? ' rpe-bouton-actif' : '') + '" data-action="choisir-rpe-seance" data-valeur="' + n + '">' + n + '</button>';
+  }
+  html += '</div>';
+  html += '<div class="rpe-libelle">' + (rpeSeanceChoisi ? RPE_LIBELLES[rpeSeanceChoisi] : 'Optionnel') + '</div>';
+  html += '<button class="btn btn-plein btn-bloc" data-action="valider-fin-seance">Enregistrer la séance</button>';
+  html += '<button class="btn btn-contour btn-bloc" style="margin-top:8px;" data-action="fermer-modal">Continuer la séance</button>';
+  ouvrirModal(html);
+}
 
-    if (etat.seanceActive.agendaEntryId) {
-      var entree = trouverParId(etat.agenda, etat.seanceActive.agendaEntryId);
-      if (entree) {
-        entree.statut = 'termine';
-        entree.dureeMinutes = dureeMinutes;
-        entree.caloriesEstimees = calories;
-        entree.resultat = resultat;
-      }
-    } else {
-      etat.agenda.push({
-        id: genererId(),
-        date: resultat.date,
-        seanceId: etat.seanceActive.seanceModeleId,
-        statut: 'termine',
-        dureeMinutes: dureeMinutes,
-        caloriesEstimees: calories,
-        resultat: resultat
-      });
+function validerFinSeance() {
+  if (!etat.seanceActive) { fermerModal(); return; }
+  var finMs = Date.now();
+  var dureeMinutes = Math.max(1, Math.round((finMs - etat.seanceActive.debut) / 60000));
+  var calories = calculerCaloriesSeance(etat.seanceActive, dureeMinutes, etat.profil.poidsCorporel || 75);
+  var resultat = { date: formaterDateISO(new Date()), exercices: etat.seanceActive.exercices };
+
+  if (etat.seanceActive.agendaEntryId) {
+    var entree = trouverParId(etat.agenda, etat.seanceActive.agendaEntryId);
+    if (entree) {
+      entree.statut = 'termine';
+      entree.dureeMinutes = dureeMinutes;
+      entree.caloriesEstimees = calories;
+      entree.rpeSeance = rpeSeanceChoisi;
+      entree.resultat = resultat;
     }
+  } else {
+    etat.agenda.push({
+      id: genererId(),
+      date: resultat.date,
+      seanceId: etat.seanceActive.seanceModeleId,
+      statut: 'termine',
+      dureeMinutes: dureeMinutes,
+      caloriesEstimees: calories,
+      rpeSeance: rpeSeanceChoisi,
+      resultat: resultat
+    });
+  }
 
-    etat.seanceActive = null;
-    desactiverCommandeVocale(true);
-    arreterCompteARebours();
-    if (chronoIntervalle) { window.clearInterval(chronoIntervalle); chronoIntervalle = null; }
-    sauvegarderEtat();
-    fermerModal();
-    afficherToast(messageTheme('seanceEnregistree', 'Séance enregistrée') + ' : ' + dureeMinutes + ' min · ' + Math.round(calories) + ' kcal estimées.');
-    allerVersPage('accueil');
-  });
+  etat.seanceActive = null;
+  arreterCompteARebours();
+  if (chronoIntervalle) { window.clearInterval(chronoIntervalle); chronoIntervalle = null; }
+  sauvegarderEtat();
+  fermerModal();
+  afficherToast('Séance enregistrée : ' + dureeMinutes + ' min · ' + Math.round(calories) + ' kcal estimées.');
+  allerVersPage('accueil');
+}
+
+function rendreGraphiqueRpe() {
+  var zone = document.getElementById('progression-zone-rpe');
+  if (!zone) { return; }
+  var entrees = etat.agenda.filter(function (a) { return a.statut === 'termine' && a.rpeSeance; });
+  entrees.sort(function (a, b) { return a.date < b.date ? -1 : 1; });
+  var points = entrees.map(function (e) { return { date: e.date, valeur: e.rpeSeance }; });
+  zone.innerHTML = construireSvgCourbe(points, '/10', '#E0A73D');
 }
 
 function annulerSeance() {
@@ -4828,14 +4877,15 @@ function ouvrirNotice() {
   html += '<li>Une fois lancée : chrono en haut, et un <strong>minuteur de repos</strong> réglable en minutes/secondes, toujours accessible, qui sonne une seule fois (bip généré, pas de fichier audio).</li>';
   html += '<li>Pour chaque exercice : la <strong>barre de charge</strong> (un bloc par série, se remplit au fur et à mesure), la <strong>bulle ✓</strong> pour valider poids/reps d\'une série, le <strong>crayon ✎</strong> pour noter un changement ou une douleur sur une série précise.</li>';
   html += '<li>Le bouton <strong>+ Échauffement</strong> ajoute une série d\'échauffement, placée avant les séries de travail (après les échauffements déjà ajoutés). Elle est numérotée « É1, É2... », ne compte jamais dans les records, l\'historique, le volume ou la progression, et peut être validée/supprimée comme une série normale.</li>';
-  html += '<li>Un champ <strong>RPE</strong> (0 à 10, préremplit à 3) par exercice pour ton ressenti d\'effort, réglable en glissant directement sur le chiffre.</li>';
+  html += '<li>Un champ <strong>RER</strong> (reps en réserve : 0 = échec, optionnel) par exercice.</li>';
+  html += '<li>À la fin de la séance, tu indiques ton <strong>RPE</strong> (1 à 10) : l\'effort global ressenti. Il alimente une courbe dans Progression et les suggestions de fatigue.</li>';
   html += '<li>La <strong>référence "dernière fois"</strong> (ce que tu avais fait la séance précédente) et un badge <strong>★ Nouveau record</strong> si tu dépasses ton meilleur poids.</li>';
   html += '<li>Des badges rappellent la structure de séries, la technique d\'intensification et le tempo si tu les as définis pour cet exercice dans la séance.</li>';
   html += '<li>Le bouton <strong>Fin</strong> enregistre tout dans l\'historique, calcule la durée et les calories dépensées (formule MET × poids corporel × durée).</li>';
   html += '</ul></div>';
 
   html += '<div class="notice-section"><h3>Bibliothèque</h3><ul>';
-  html += '<li><strong>Exercices</strong> : recherche par nom ou groupe musculaire avec ET/OU (ex. "dos ET poulie"), groupes musculaires repliables. Le bouton "Charger les exercices de base" ajoute 45 exercices adaptés à ton matériel (rack ATX, banc, barre, haltères, élastiques...). En modifiant un exercice : historique (nombre de fois, poids max par mode, RPE moyen), schéma des muscles ciblés, et un champ Variantes (prise, position) pré-rempli pour les exercices qui en ont.</li>';
+  html += '<li><strong>Exercices</strong> : recherche par nom ou groupe musculaire avec ET/OU (ex. "dos ET poulie"), groupes musculaires repliables. Le bouton "Charger les exercices de base" ajoute 45 exercices adaptés à ton matériel (rack ATX, banc, barre, haltères, élastiques...). En modifiant un exercice : historique (nombre de fois, poids max par mode, RER moyen), schéma des muscles ciblés, et un champ Variantes (prise, position) pré-rempli pour les exercices qui en ont.</li>';
   html += '<li><strong>Séances</strong> : assembler des exercices avec poids/reps/séries, et pour chacun une structure de séries (linéaire, pyramide montante/descendante, échelle, cluster), une technique d\'intensification (drop set, rest-pause...) et un tempo.</li>';
   html += '<li><strong>Programmes</strong> : regrouper des séances, définir un objectif texte libre, un type de mésocycle (Hypertrophie/Force/Décharge/Personnalisé) et une durée en semaines. Un seul programme actif à la fois ("Démarrer ce programme"). Ce type de mésocycle est aussi utilisé pour ajuster automatiquement tes objectifs nutrition (voir section Nutrition).</li>';
   html += '<li><strong>Aliments</strong> : bibliothèque 100% végétalienne. Le bouton "Charger les aliments de base" ajoute 32 aliments (tofu, tempeh, seitan, légumineuses, céréales, laits et fromages végétaux...).</li>';
@@ -6449,29 +6499,24 @@ function calculerIndiceFatigueManuel() {
   };
 }
 
-/* Compare le RPE moyen des 2 dernières semaines à celui des 2 semaines precedentes */
+/* Compare le RER moyen des 2 dernières semaines à celui des 2 semaines precedentes */
 function tendanceRpeGlobale() {
   var maintenant = new Date();
   var isoMaintenant = formaterDateISO(maintenant);
   var iso2Semaines = formaterDateISO(new Date(maintenant.getFullYear(), maintenant.getMonth(), maintenant.getDate() - 14));
   var iso4Semaines = formaterDateISO(new Date(maintenant.getFullYear(), maintenant.getMonth(), maintenant.getDate() - 28));
-
   var sommeRecent = 0, nbRecent = 0, sommeAncien = 0, nbAncien = 0;
-  var entreesTerminees = etat.agenda.filter(function (a) { return a.statut === 'termine' && a.resultat; });
-  for (var i = 0; i < entreesTerminees.length; i++) {
-    var e = entreesTerminees[i];
-    for (var j = 0; j < e.resultat.exercices.length; j++) {
-      var rpe = e.resultat.exercices[j].rpe;
-      if (rpe === undefined || rpe === null) { continue; }
-      if (e.date >= iso2Semaines && e.date <= isoMaintenant) { sommeRecent += rpe; nbRecent++; }
-      else if (e.date >= iso4Semaines && e.date < iso2Semaines) { sommeAncien += rpe; nbAncien++; }
-    }
+  for (var i = 0; i < etat.agenda.length; i++) {
+    var e = etat.agenda[i];
+    if (e.statut !== 'termine' || e.rpeSeance === undefined || e.rpeSeance === null) { continue; }
+    if (e.date >= iso2Semaines && e.date <= isoMaintenant) { sommeRecent += e.rpeSeance; nbRecent++; }
+    else if (e.date >= iso4Semaines && e.date < iso2Semaines) { sommeAncien += e.rpeSeance; nbAncien++; }
   }
   if (nbRecent === 0 || nbAncien === 0) { return null; }
   return { recent: sommeRecent / nbRecent, ancien: sommeAncien / nbAncien };
 }
 
-/* Combine les signaux automatiques (RPE, semaines sans decharge) et manuels (ressenti) : au moins 2 signaux concordants avant de suggerer */
+/* Combine les signaux automatiques (RER, semaines sans decharge) et manuels (ressenti) : au moins 2 signaux concordants avant de suggerer */
 function suggestionFatigue() {
   var indiceManuel = calculerIndiceFatigueManuel();
   var tendance = tendanceRpeGlobale();
@@ -6482,7 +6527,7 @@ function suggestionFatigue() {
     signaux.push('ton ressenti quotidien moyen des ' + indiceManuel.nbJours + ' derniers jours renseignés indique une fatigue plutôt élevée (sommeil/fatigue/stress)');
   }
   if (tendance !== null && (tendance.recent - tendance.ancien) >= 1) {
-    signaux.push('ton RPE moyen a augmenté de ' + (tendance.recent - tendance.ancien).toFixed(1) + ' point(s) sur les 2 dernières semaines');
+    signaux.push('ton RPE moyen de séance a augmenté de ' + (tendance.recent - tendance.ancien).toFixed(1) + ' point(s) sur les 2 dernières semaines');
   }
   if (semaines !== null && semaines >= 6) {
     signaux.push('ça fait ' + semaines + ' semaines sans décharge enregistrée');
@@ -6569,7 +6614,7 @@ function rendreHistoriqueSeances() {
     var infos = [nbEx + ' exercice' + (nbEx > 1 ? 's' : '')];
     if (entree.dureeMinutes) { infos.push(entree.dureeMinutes + ' min'); }
     if (entree.caloriesEstimees) { infos.push(Math.round(entree.caloriesEstimees) + ' kcal'); }
-
+    if (entree.rpeSeance) { html += ' · RPE ' + entree.rpeSeance; }
     html += '<li class="hist-ligne ' + (complete ? 'hist-fait' : 'hist-incomplet') + '" data-action="voir-detail-historique" data-id="' + entree.id + '">';
     html += '<span class="hist-date"><span class="hist-date-j donnee-num">' + d.getDate() + '</span><span class="hist-date-m">' + MOIS_COURTS[d.getMonth()] + '</span></span>';
     html += '<div class="hist-ligne-corps"><strong class="hist-ligne-titre">' + echapperHtml(nomSeance) + '</strong><span class="hist-ligne-sous donnee-num">' + infos.join(' · ') + '</span></div>';
@@ -6592,6 +6637,7 @@ function ouvrirDetailHistorique(idEntree) {
   html += '<div class="texte-att" style="margin-bottom:12px;">' + formaterDateLisible(entree.date);
   if (entree.dureeMinutes) { html += ' · ' + entree.dureeMinutes + ' min'; }
   if (entree.caloriesEstimees) { html += ' · ' + Math.round(entree.caloriesEstimees) + ' kcal'; }
+  if (entree.rpeSeance) { html += ' · RPE ' + entree.rpeSeance; }
   html += '</div>';
   html += '<div class="badge-technique' + (complete ? ' badge-record' : '') + '" style="display:inline-block; margin-bottom:12px;">' + (complete ? 'Complète' : 'Incomplète') + '</div>';
 
@@ -6800,13 +6846,13 @@ function voixAjusterSerie(champ, delta) {
   rendreExercicesActifs();
 }
 
-function voixDefinirRpe(valeur) {
+function voixDefinirRer(valeur) {
   var pos = voixPositionEnCours();
   var exIndex = pos ? pos.ex : (etat.seanceActive.exercices.length - 1);
-  if (valeur < 0 || valeur > 10) { afficherToast('RPE : un chiffre entre 0 et 10.'); return; }
-  modifierRpeExercice(exIndex, valeur);
+  if (valeur < 0 || valeur > 10) { afficherToast('RER : un chiffre entre 0 et 10.'); return; }
+  modifierRerExercice(exIndex, valeur);
   rendreExercicesActifs();
-  afficherToast('🎤 RPE ' + valeur);
+  afficherToast('🎤 RER ' + valeur);
 }
 
 /* Clique sur le bouton d'échauffement de l'exercice en cours (repéré par "chauff" dans son data-action) */
@@ -6859,10 +6905,10 @@ function traiterCommandeVocale(texte) {
   var t = normaliserTexteRecherche(texte).replace(/[^a-z0-9 ]/g, ' ').replace(/ +/g, ' ');
   t = voixNombresEnChiffres(t);
   var action = null;
-  var mRpe = t.match(/\br ?p ?e\b ?(\d+)/);
+  var mRer = t.match(/\br ?p ?e\b ?(\d+)/);
 
   if (t.indexOf('desactiv') !== -1) { action = 'desactive'; }
-  else if (mRpe) { action = 'rpe'; }
+  else if (mRer) { action = 'rer'; }
   else if (t.indexOf('minuteur') !== -1 || t.indexOf('minuterie') !== -1) { action = 'minuteur'; }
   else if (/\bstop\b/.test(t) || t.indexOf('annul') !== -1) { action = 'stop'; }
   else if (t.indexOf('echauff') !== -1) { action = 'echauffement'; }
@@ -6884,7 +6930,7 @@ function traiterCommandeVocale(texte) {
 
   var confirmationFinOuverte = voixFinDemandeeMs && (maintenant - voixFinDemandeeMs) < 15000 && document.querySelector('[data-action="confirmation-valider"]');
 
-  if (action === 'rpe') { voixDefinirRpe(parseInt(mRpe[1], 10)); return; }
+  if (action === 'rer') { voixDefinirRer(parseInt(mRer[1], 10)); return; }
 
   if (action === 'minuteur') {
     var duree = voixExtraireDuree(t);
@@ -7091,6 +7137,8 @@ ajouterEcouteurClicDelegue(document.body, function (cible) {
 
   if (action === 'demarrer-seance-libre') { demarrerSeanceLibre(id); return; }
   if (action === 'terminer-seance') { terminerSeance(); return; }
+  if (action === 'choisir-rpe-seance') { rpeSeanceChoisi = parseInt(cible.getAttribute('data-valeur'), 10); rendreModalFinSeance(); return; }
+  if (action === 'valider-fin-seance') { validerFinSeance(); return; }
   if (action === 'basculer-voix') { if (voixActive) { desactiverCommandeVocale(); } else { activerCommandeVocale(); } return; }
   if (action === 'annuler-seance') { annulerSeance(); }
   if (action === 'ajouter-serie') { ajouterSerieLive(parseInt(cible.getAttribute('data-ex'), 10)); return; }
@@ -7129,8 +7177,8 @@ document.body.addEventListener('change', function (evt) {
     var serieIndex = parseInt(evt.target.getAttribute('data-serie'), 10);
     modifierValeurSerieLive(role, exIndex, serieIndex, evt.target.value);
   }
-  if (role === 'live-rpe') {
-    modifierRpeExercice(parseInt(evt.target.getAttribute('data-ex'), 10), evt.target.value);
+  if (role === 'live-rer') {
+    modifierRerExercice(parseInt(evt.target.getAttribute('data-ex'), 10), evt.target.value);
   }
   if (evt.target.id === 'champ-ex-groupe') { rafraichirDiagrammeMuscles(); }
   if (evt.target.id === 'champ-import-fichier') { chargerFichierImport(); }
