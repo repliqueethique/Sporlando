@@ -6065,7 +6065,7 @@ function verifierMeteoGym(callback) {
   }
   var xhr = new XMLHttpRequest();
   try {
-    xhr.open('GET', 'https://api.open-meteo.com/v1/forecast?latitude=' + lat + '&longitude=' + lon + '&current_weather=true&hourly=temperature_2m&forecast_days=1&timezone=Europe%2FParis', true);
+    xhr.open('GET', 'https://api.open-meteo.com/v1/forecast?latitude=' + lat + '&longitude=' + lon + '&hourly=temperature_2m,relative_humidity_2m,precipitation_probability,precipitation&forecast_days=1&timezone=Europe%2FParis', true);
   } catch (erreurOuverture) {
     if (callback) { callback(null); }
     return;
@@ -6077,11 +6077,16 @@ function verifierMeteoGym(callback) {
       if (xhr.status >= 200 && xhr.status < 300) {
         try {
           var donnees = JSON.parse(xhr.responseText);
-          if (donnees.current_weather && typeof donnees.current_weather.temperature === 'number' && donnees.hourly) {
+          if (donnees.hourly && donnees.hourly.temperature_2m && donnees.hourly.relative_humidity_2m) {
+            var air = donnees.hourly.temperature_2m, hum = donnees.hourly.relative_humidity_2m, ressenti = [], j;
+            for (j = 0; j < air.length; j++) { ressenti.push(ressentiSansVent(air[j], hum[j])); }
+            var ressentiNow = ressenti[new Date().getHours()];
             meteoDernierResultat = {
-              actuelle: donnees.current_weather.temperature,
+              actuelle: (typeof ressentiNow === 'number') ? ressentiNow : ressenti[0],
               heures: donnees.hourly.time,
-              temperatures: donnees.hourly.temperature_2m
+              temperatures: ressenti,
+              probaPluie: donnees.hourly.precipitation_probability || [],
+              mmPluie: donnees.hourly.precipitation || []
             };
           }
         } catch (erreurParse) { meteoDernierResultat = null; }
@@ -6134,43 +6139,94 @@ function trouverTrancheIdeale(heures, temps) {
   return { heure: heures[meilleurIndex].substring(11, 16), temperature: temps[meilleurIndex] };
 }
 
+/* ============================================================
+   CRÉNEAU IDÉAL : ressenti + pluie + ta journée (lever, repas, digestion)
+   ============================================================ */
+
+/* ---- Ta journée : à modifier si tes horaires changent ---- */
+var METEO_LEVER = 8 * 60;                    /* heure de lever */
+var METEO_REPAS = [12 * 60 + 30, 20 * 60];   /* heures des repas */
+var METEO_APRES_LEVER = 60;                  /* minutes à attendre après le lever */
+var METEO_APRES_REPAS = 120;                 /* minutes de digestion après un repas */
+var METEO_DUREE_SEANCE = 75;                 /* durée d'une séance : elle doit finir avant le repas suivant */
+var METEO_DERNIER_DEPART = 21 * 60;          /* pas de départ après cette heure */
+var METEO_PLUIE_PROBA = 50;                  /* % de risque à partir duquel on considère qu'il pleut */
+var METEO_PLUIE_MM = 0.3;                    /* mm de pluie par heure à partir desquels on considère qu'il pleut */
+
+/* ressenti SANS le vent (la cabane est à l'abri) : température + humidité (formule de l'apparent temperature, vent = 0) */
+function ressentiSansVent(temperature, humidite) {
+  var vapeur = (humidite / 100) * 6.105 * Math.exp(17.27 * temperature / (237.7 + temperature));
+  return temperature + 0.33 * vapeur - 4.0;
+}
+
+/* peut-on partir à cette minute de la journée (ex. 9 h = 540) ? */
+function departPossible(minute) {
+  if (minute < METEO_LEVER + METEO_APRES_LEVER) { return false; }
+  if (minute > METEO_DERNIER_DEPART) { return false; }
+  var fin = minute + METEO_DUREE_SEANCE;
+  for (var i = 0; i < METEO_REPAS.length; i++) {
+    var repas = METEO_REPAS[i];
+    if (minute >= repas && minute < repas + METEO_APRES_REPAS) { return false; }  /* digestion */
+    if (minute < repas && fin > repas) { return false; }                          /* la séance déborderait sur le repas */
+  }
+  return true;
+}
+
+function pleutALHeure(r, h) {
+  var proba = r.probaPluie ? r.probaPluie[h] : 0;
+  var mm = r.mmPluie ? r.mmPluie[h] : 0;
+  return (proba >= METEO_PLUIE_PROBA) || (mm >= METEO_PLUIE_MM);
+}
+
+/* départs possibles aujourd'hui, regroupés : "9h–11h · 15h–18h" */
+function plagesPossibles() {
+  var plages = [], debut = null, h;
+  for (h = 0; h <= 24; h++) {
+    var ok = h < 24 && departPossible(h * 60);
+    if (ok && debut === null) { debut = h; }
+    if (!ok && debut !== null) { plages.push(debut + 'h–' + (h - 1) + 'h'); debut = null; }
+  }
+  return plages.join(' · ');
+}
+
+/* "Pluie probable : 15h–17h" (à partir de maintenant) */
+function resumePluie(r) {
+  var heureNow = new Date().getHours(), plages = [], debut = null, h;
+  for (h = heureNow; h <= 24; h++) {
+    var pluie = h < 24 && pleutALHeure(r, h);
+    if (pluie && debut === null) { debut = h; }
+    if (!pluie && debut !== null) { plages.push(debut + 'h–' + h + 'h'); debut = null; }
+  }
+  return plages.length ? 'Pluie probable : ' + plages.join(' · ') : 'Pas de pluie prévue d\'ici ce soir.';
+}
+
+/* prochain meilleur départ : ressenti moyen pendant la séance, et pluie à l'aller ou au retour (le trajet à pied) */
 function trouverProchainCreneauIdealBanniere(heures, temps) {
+  var r = meteoDernierResultat || {};
   var maintenant = new Date();
   var minuteActuelle = maintenant.getHours() * 60 + maintenant.getMinutes();
-  var minuteMin = 8 * 60;
-  var seuilMinute = Math.max(minuteActuelle, minuteMin);
+  var meilleur = null, meilleurScore = Infinity;
 
-  function chercherEtat(etatCible) {
-    for (var i = 0; i < heures.length; i++) {
-      var hMin = parseInt(heures[i].substring(11, 13), 10) * 60 + parseInt(heures[i].substring(14, 16), 10);
-      if (hMin < seuilMinute) { continue; }
-      if (evaluerTemperature(temps[i]) === etatCible) {
-        return { heure: heures[i].substring(11, 16), temperature: temps[i] };
-      }
-    }
-    return null;
-  }
-
-  // 1. priorité : un créneau idéal
-  var resultat = chercherEtat('ideal');
-  if (resultat) { return resultat; }
-
-  // 2. sinon : un créneau moyen
-  resultat = chercherEtat('moyen');
-  if (resultat) { return resultat; }
-
-  // 3. sinon : le meilleur moment restant de la journée (température la plus basse à venir)
-  var meilleurIndex = -1, meilleureTemp = Infinity;
   for (var i = 0; i < heures.length; i++) {
-    var hMin = parseInt(heures[i].substring(11, 13), 10) * 60 + parseInt(heures[i].substring(14, 16), 10);
-    if (hMin < seuilMinute) { continue; }
-    if (temps[i] < meilleureTemp) { meilleureTemp = temps[i]; meilleurIndex = i; }
-  }
-  if (meilleurIndex !== -1) {
-    return { heure: heures[meilleurIndex].substring(11, 16), temperature: temps[meilleurIndex] };
-  }
+    var h = parseInt(heures[i].substring(11, 13), 10);
+    var minute = h * 60;
+    if (minute < minuteActuelle) { continue; }
+    if (!departPossible(minute)) { continue; }
 
-  return null;
+    var hFin = Math.min(23, Math.floor((minute + METEO_DUREE_SEANCE) / 60));
+    var somme = 0, nb = 0;
+    for (var k = h; k <= hFin; k++) { somme += temps[k]; nb++; }
+    var moyenne = somme / nb;
+    var pluie = pleutALHeure(r, h) || pleutALHeure(r, hFin);
+
+    var etatTemp = evaluerTemperature(moyenne);
+    var score = (etatTemp === 'ideal' ? 0 : etatTemp === 'moyen' ? 1 : 2) + (pluie ? 1.5 : 0);
+    if (score < meilleurScore) {
+      meilleurScore = score;
+      meilleur = { heure: heures[i].substring(11, 16), temperature: moyenne, pluie: pluie };
+    }
+  }
+  return meilleur;
 }
 
 function libelleCreneauMeteo(etatTemp) {
@@ -6220,9 +6276,9 @@ function rendreBanniereMeteo() {
     html += '<span class="meteo-icone"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M14 14.76V3.5a2.5 2.5 0 0 0-5 0v11.26a4.5 4.5 0 1 0 5 0z"/></svg></span>';
     html += '<span class="meteo-textes"><span class="meteo-temp donnee-num">' + resultat.actuelle.toFixed(1) + '°C</span>';
     if (tranche) {
-      html += '<span class="meteo-sous">' + libelleCreneauMeteo(evaluerTemperature(tranche.temperature)) + ' ' + heureCourte(tranche.heure) + ' · ' + Math.round(tranche.temperature) + '°</span>';
+      html += '<span class="meteo-sous">' + libelleCreneauMeteo(evaluerTemperature(tranche.temperature)) + ' ' + heureCourte(tranche.heure) + ' · ' + Math.round(tranche.temperature) + '°' + (tranche.pluie ? ' · pluie' : '') + '</span>';
     } else {
-      html += '<span class="meteo-sous">actuellement</span>';
+      html += '<span class="meteo-sous">plus de créneau aujourd\'hui</span>';
     }
     html += '</span>';
     html += '<span class="meteo-spark">' + construireSparkMeteo(resultat) + '</span>';
@@ -6245,7 +6301,7 @@ function ouvrirModaleMeteo() {
   html += '<div class="modal-entete"><h2>Météo du jour</h2><button class="bouton-fermer" data-action="fermer-modal">&times;</button></div>';
 
   html += '<div class="meteo-tuiles">';
-  html += '<div class="meteo-tuile meteo-tuile-now meteo-' + etatNow + '"><span class="meteo-tuile-label">Maintenant</span><span class="meteo-tuile-valeur donnee-num">' + r.actuelle.toFixed(1) + '°</span></div>';
+  html += '<div class="meteo-tuile meteo-tuile-now meteo-' + etatNow + '"><span class="meteo-tuile-label">Ressenti</span><span class="meteo-tuile-valeur donnee-num">' + r.actuelle.toFixed(1) + '°</span></div>';
   html += '<div class="meteo-tuile"><span class="meteo-tuile-label">Min</span><span class="meteo-tuile-valeur donnee-num">' + Math.round(tmin) + '°</span></div>';
   html += '<div class="meteo-tuile"><span class="meteo-tuile-label">Max</span><span class="meteo-tuile-valeur donnee-num">' + Math.round(tmax) + '°</span></div>';
   html += '</div>';
@@ -6253,14 +6309,16 @@ function ouvrirModaleMeteo() {
   html += '<div class="meteo-graphe svg-conteneur">' + construireSvgMeteo(r, tranche) + '</div>';
 
   html += '<div class="meteo-legende">';
-  html += '<span><i class="meteo-pastille fr-ideal"></i>Idéal 12–20°</span>';
+  html += '<span><i class="meteo-pastille fr-ideal"></i>Idéal 12–20° (ressenti)</span>';
   html += '<span><i class="meteo-pastille fr-moyen"></i>Correct</span>';
   html += '<span><i class="meteo-pastille fr-mauvais"></i>À éviter</span>';
   html += '</div>';
 
   if (tranche) {
-    html += '<p class="reglages-note">Prochain meilleur créneau : ' + libelleCreneauMeteo(evaluerTemperature(tranche.temperature)) + ' ' + heureCourte(tranche.heure) + ' (' + Math.round(tranche.temperature) + '°)</p>';
+    html += '<p class="reglages-note">Prochain meilleur créneau : ' + libelleCreneauMeteo(evaluerTemperature(tranche.temperature)) + ' ' + heureCourte(tranche.heure) + ' (' + Math.round(tranche.temperature) + '°' + (tranche.pluie ? ', pluie' : '') + ')</p>';
   }
+  html += '<p class="reglages-note">' + resumePluie(r) + '</p>';
+  html += '<p class="reglages-note">Départs possibles (lever, repas) : ' + plagesPossibles() + '</p>';
   ouvrirModal(html);
 }
 
