@@ -7372,67 +7372,7 @@ body { background: transparent; }
   --hauteur-nav: 64px;
 }
 
-/* Cartes */
-.carte, .accueil-carte { border-radius: var(--rayon); transition: transform 0.12s ease, border-color 0.2s ease; }
-.carte { padding: 16px; }
-.carte-titre { font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.08em; color: var(--couleur-texte-att); margin-bottom: 12px; }
-li.carte[data-action]:active, .accueil-carte:active { transform: scale(0.985); }
-.accueil-carte { padding: 16px 18px; }
-.accueil-carte[data-action="aller-page"]::after { content: "\203A"; margin-left: auto; font-size: 28px; color: var(--couleur-texte-att); }
-.groupe-entete { padding: 12px 4px; cursor: pointer; }
 
-/* Boutons (zone tactile mini 44 px) */
-.btn { display: inline-flex; align-items: center; justify-content: center; min-height: 44px; padding: 11px 18px; border-radius: 12px; font-size: 15px; transition: transform 0.12s ease, opacity 0.12s ease; }
-.btn:active { transform: scale(0.96); }
-.btn-petit { min-height: 36px; padding: 6px 14px; font-size: 13px; }
-.checklist-bouton { width: 40px; height: 40px; min-width: 40px; font-size: 18px; }
-.checklist-ligne { padding: 10px 0; }
-
-/* Champs */
-.champ input, .champ select, .champ textarea { min-height: 44px; padding: 10px 12px; border-radius: 10px; transition: border-color 0.2s ease, box-shadow 0.2s ease; }
-.champ textarea { min-height: 72px; }
-.champ input:focus, .champ select:focus, .champ textarea:focus,
-.serie-champ input:focus, .note-serie-zone input:focus {
-  outline: none;
-  border-color: var(--couleur-turquoise);
-  box-shadow: 0 0 0 3px rgba(31,217,196,0.18);
-}
-
-/* Sous-onglets : pilules défilantes (6 onglets dans Historique) */
-.sous-onglets { overflow-x: auto; -webkit-overflow-scrolling: touch; border: none; border-radius: 0; background: transparent; padding-bottom: 2px; }
-.sous-onglets::-webkit-scrollbar { display: none; }
-.sous-onglets .sous-onglet, .sous-onglets .sous-onglet:last-child {
-  flex: 0 0 auto;
-  min-height: 40px;
-  padding: 8px 16px;
-  margin-right: 8px;
-  border: 1px solid var(--couleur-bordure);
-  border-radius: 20px;
-  background: var(--couleur-carte);
-}
-.sous-onglets .sous-onglet.sous-onglet-actif {
-  background: var(--couleur-degrade);
-  border-color: transparent;
-  color: #0B1114;
-}
-
-/* Les messages (toast) passent au-dessus des modales */
-.toast-conteneur { z-index: 1100; top: 64px; }
-.toast { border-radius: 14px; border-left: 3px solid var(--couleur-turquoise); }
-
-/* Séance : exercice terminé plus lisible (vert doux au lieu de vert vif) */
-.bloc-exercice-termine {
-  background-color: rgba(76,217,123,0.12) !important;
-  border: 1px solid var(--couleur-succes) !important;
-  border-radius: var(--rayon) !important;
-}
-.bloc-exercice-termine::after { background: var(--couleur-succes); color: #0B1114; }
-
-/* Calendrier, barres de macros, curseurs */
-.cal-jour-bouton { min-height: 40px; font-size: 14px; border-radius: 10px; }
-.macro-barre-fond { height: 12px; border-radius: 6px; }
-.macro-barre-remplie { border-radius: 6px; }
-.ressenti-slider-zone input[type="range"]::-webkit-slider-thumb { width: 26px; height: 26px; }
 
 /* RPE de fin de séance */
 .rpe-grille { display: flex; flex-wrap: wrap; justify-content: center; }
