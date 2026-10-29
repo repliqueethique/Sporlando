@@ -7389,17 +7389,18 @@ body { background: transparent; }
 .rpe-bouton-actif { background: var(--couleur-degrade); border-color: transparent; color: #0B1114; transform: scale(1.06); }
 .rpe-libelle { text-align: center; min-height: 22px; margin: 4px 0 18px; font-size: 14px; font-weight: 700; color: var(--couleur-turquoise); }
 
-/* Correctif hauteur des modales : conserver la feuille basse,
-   mais borner sa hauteur au viewport visible et laisser tout le contenu defiler. */
+/* Correctif modales : affichage géré uniquement par ouvrirModal/fermerModal */
 .modal-overlay {
-  height: 100vh; /* repli pour les navigateurs sans dvh */
-  height: 100dvh;
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
 }
 .modal-contenu {
   height: auto;
-  min-height: 120px;
-  max-height: 90vh; /* repli */
+  max-height: 90vh;
   max-height: 90dvh;
+  flex-shrink: 0;
   overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
   overscroll-behavior-y: contain;
 }
