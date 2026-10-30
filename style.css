@@ -7404,3 +7404,244 @@ body { background: transparent; }
   -webkit-overflow-scrolling: touch;
   overscroll-behavior-y: contain;
 }
+
+/* CYBERPUNK V2 — proposition à placer en fin de style.css
+   Thème actif : :root[data-theme="cyberpunk"] ; zéro nouvelle classe applicative requise.
+   CRT=cartes génériques, hologramme=météo, panneaux=accueil/tuiles. */
+:root[data-theme="cyberpunk"] {
+  --cp-cyan: #00f0ff;
+  --cp-pink: #ff2bd6;
+  --cp-violet: #9b54ff;
+  --cp-metal-hi: #536078;
+  --cp-metal: #202938;
+  --cp-metal-low: #0b101b;
+  --cp-scan: rgba(0, 240, 255, .075);
+  --cp-rivet: radial-gradient(circle at 34% 30%, #e6faff 0 1px, #8295a8 1.5px 2.5px, #182332 3px 4px, transparent 4.5px);
+}
+
+/* Plaque métal brossée + rivets d'angle. On garde le padding et le layout source. */
+:root[data-theme="cyberpunk"] .carte,
+:root[data-theme="cyberpunk"] .carte-checklist,
+:root[data-theme="cyberpunk"] .sx-exo,
+:root[data-theme="cyberpunk"] .reglages-section,
+:root[data-theme="cyberpunk"] .modal-contenu,
+:root[data-theme="cyberpunk"] .carte:not(li) {
+  position: relative;
+  isolation: isolate;
+  border: 1px solid rgba(0, 240, 255, .58);
+  border-radius: 6px;
+  background-color: #111827;
+  background-image:
+    var(--cp-rivet), var(--cp-rivet), var(--cp-rivet), var(--cp-rivet),
+    repeating-linear-gradient(102deg, transparent 0 3px, rgba(255,255,255,.018) 3px 4px),
+    linear-gradient(155deg, rgba(76,95,121,.42), transparent 32%, rgba(0,0,0,.28) 68%, rgba(34,14,58,.72)),
+    linear-gradient(180deg, #253044 0%, #131c2b 17%, #101522 100%);
+  background-size: 10px 10px, 10px 10px, 10px 10px, 10px 10px, 8px 100%, 100% 100%, 100% 100%;
+  background-position: 7px 7px, calc(100% - 7px) 7px, 7px calc(100% - 7px), calc(100% - 7px) calc(100% - 7px), 0 0, 0 0, 0 0;
+  background-repeat: no-repeat, no-repeat, no-repeat, no-repeat, repeat, no-repeat, no-repeat;
+  box-shadow: inset 0 1px rgba(255,255,255,.16), inset 0 0 0 2px rgba(4,8,17,.72), 0 0 0 1px rgba(255,43,214,.15), 0 8px 22px rgba(0,0,0,.42);
+}
+/* Lignes de tube intégrées à la surface, sans voler les interactions.
+   ::before est déjà occupé sur météo/accueil; ce ::after fournit la trame. */
+:root[data-theme="cyberpunk"] .carte:not(.meteo-carte):not(.accueil-carte)::after,
+:root[data-theme="cyberpunk"] .carte-checklist::after,
+:root[data-theme="cyberpunk"] .sx-exo::after,
+:root[data-theme="cyberpunk"] .reglages-section::after,
+:root[data-theme="cyberpunk"] .modal-contenu::after {
+  content: "";
+  position: absolute;
+  z-index: 0;
+  inset: 0;
+  pointer-events: none;
+  background: repeating-linear-gradient(to bottom, transparent 0 3px, var(--cp-scan) 3px 4px);
+  opacity: .62;
+}
+:root[data-theme="cyberpunk"] .carte:hover,
+:root[data-theme="cyberpunk"] .sx-exo:hover {
+  border-color: var(--cp-cyan);
+  box-shadow: inset 0 1px rgba(255,255,255,.18), inset 0 0 0 2px rgba(4,8,17,.72), 0 0 10px rgba(0,240,255,.22), 0 8px 22px rgba(0,0,0,.42);
+}
+/* Tube de panneau : scintillement lent réservé aux titres de tuile/réglages. */
+:root[data-theme="cyberpunk"] .accueil-tuile h2,
+:root[data-theme="cyberpunk"] .reglages-section-titre {
+  animation: cp-neon-buzz 7.2s steps(1, end) infinite;
+}
+@keyframes cp-neon-buzz {
+  0%, 8%, 10%, 48%, 52%, 100% { opacity: 1; }
+  9%, 50% { opacity: .78; text-shadow: 0 0 2px #fff, 0 0 5px var(--cp-cyan), 0 0 11px var(--cp-pink); }
+}
+/* Garde le contenu au-dessus de la trame sans changer le modèle de boîte. */
+:root[data-theme="cyberpunk"] .carte:not(.meteo-carte):not(.accueil-carte) > *,
+:root[data-theme="cyberpunk"] .carte-checklist > *,
+:root[data-theme="cyberpunk"] .sx-exo > *,
+:root[data-theme="cyberpunk"] .reglages-section > *,
+:root[data-theme="cyberpunk"] .modal-contenu > * { position: relative; z-index: 1; }
+:root[data-theme="cyberpunk"] .carte:not(.meteo-carte):not(.accueil-carte)::after,
+:root[data-theme="cyberpunk"] .carte-checklist::after,
+:root[data-theme="cyberpunk"] .sx-exo::after,
+:root[data-theme="cyberpunk"] .reglages-section::after,
+:root[data-theme="cyberpunk"] .modal-contenu::after { z-index: 0; }
+/* Déplacement chromatique ponctuel au survol/focus uniquement, jamais sur tout le flux. */
+:root[data-theme="cyberpunk"] .carte:hover .carte-titre,
+:root[data-theme="cyberpunk"] .carte:focus-within .carte-titre {
+  animation: cp-rgb-glitch .42s steps(2, end) 1;
+}
+@keyframes cp-rgb-glitch {
+  0%, 100% { text-shadow: 0 0 5px var(--cp-cyan), 0 0 13px rgba(255,43,214,.6); }
+  25% { text-shadow: -2px 0 var(--cp-cyan), 2px 0 var(--cp-pink), 0 0 12px var(--cp-cyan); }
+  50% { text-shadow: 2px 0 var(--cp-cyan), -2px 0 var(--cp-pink); }
+  75% { text-shadow: 0 0 4px var(--cp-cyan), 1px 0 var(--cp-pink); }
+}
+/* Câble de liaison dessiné sur le titre, sans remplacer le ::before fonctionnel des cartes. */
+:root[data-theme="cyberpunk"] .carte + .carte .carte-titre { position: relative; }
+:root[data-theme="cyberpunk"] .carte + .carte .carte-titre::before {
+  content: "";
+  position: absolute;
+  bottom: calc(100% + 4px);
+  left: 5px;
+  width: 34px;
+  height: 12px;
+  border-left: 2px solid rgba(0,240,255,.58);
+  border-bottom: 2px solid rgba(255,43,214,.55);
+  border-radius: 0 0 0 7px;
+  background: linear-gradient(90deg, transparent, rgba(0,240,255,.13), transparent);
+  pointer-events: none;
+}
+
+/* Écrans translucides : cartes météo réelles, effets de balayage/flicker subtils. */
+:root[data-theme="cyberpunk"] .meteo-carte {
+  border: 1px solid rgba(0,240,255,.78);
+  border-left-width: 4px;
+  border-radius: 5px;
+  background-color: rgba(8,21,38,.70);
+  background-image: linear-gradient(115deg, rgba(0,240,255,.15), transparent 42%, rgba(255,43,214,.09));
+  -webkit-backdrop-filter: blur(8px) saturate(145%);
+  backdrop-filter: blur(8px) saturate(145%);
+  box-shadow: inset 0 0 22px rgba(0,240,255,.08), 0 0 14px rgba(0,240,255,.2), 0 0 28px rgba(255,43,214,.12);
+}
+:root[data-theme="cyberpunk"] .meteo-carte::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background: linear-gradient(180deg, transparent 0%, rgba(0,240,255,.15) 48%, transparent 54%);
+  background-size: 100% 240%;
+  opacity: .55;
+  animation: cp-scan-sweep 8s linear infinite;
+}
+:root[data-theme="cyberpunk"] .meteo-carte > * { position: relative; z-index: 1; }
+@keyframes cp-scan-sweep { to { background-position: 0 240%; } }
+/* Panneaux de signalisation néon : accueil et tuiles (classes applicatives existantes). */
+:root[data-theme="cyberpunk"] .accueil-tuile,
+:root[data-theme="cyberpunk"] .accueil-carte:not(.seance-a-faire) {
+  border: 1px solid rgba(255,43,214,.64);
+  border-radius: 5px;
+  background-color: #171027;
+  background-image:
+    linear-gradient(135deg, rgba(0,240,255,.11), transparent 38%, rgba(255,43,214,.11)),
+    repeating-linear-gradient(135deg, transparent 0 9px, rgba(255,255,255,.022) 9px 10px);
+  box-shadow: inset 0 0 0 2px rgba(5,9,20,.72), inset 0 0 18px rgba(255,43,214,.09), 0 0 12px rgba(255,43,214,.13);
+}
+:root[data-theme="cyberpunk"] .accueil-tuile h2,
+:root[data-theme="cyberpunk"] .accueil-tuile .tuile-objectif,
+:root[data-theme="cyberpunk"] .groupe-entete,
+:root[data-theme="cyberpunk"] .reglages-section-titre {
+  color: #fff;
+  text-shadow: 0 0 2px #fff, 0 0 7px var(--cp-cyan), 0 0 16px var(--cp-cyan), 0 0 25px var(--cp-pink);
+}
+/* Titre d'affichage : dédoublement RGB contenu dans l'ombre. */
+:root[data-theme="cyberpunk"] .titre-affichage:not(.texte-degrade),
+:root[data-theme="cyberpunk"] .carte-titre,
+:root[data-theme="cyberpunk"] .sx-exo-nom {
+  text-shadow: 1px 0 rgba(0,240,255,.75), -1px 0 rgba(255,43,214,.72), 0 0 10px rgba(0,240,255,.52);
+}
+/* Interrupteurs et commandes : capot métallique, rivet lumineux à l'état actif. */
+:root[data-theme="cyberpunk"] .btn,
+:root[data-theme="cyberpunk"] .sx-btn-fin,
+:root[data-theme="cyberpunk"] .checklist-bouton,
+:root[data-theme="cyberpunk"] .bouton-reglages {
+  border: 1px solid rgba(0,240,255,.55);
+  border-radius: 4px;
+  background-image: linear-gradient(180deg, rgba(210,240,255,.15), transparent 45%), repeating-linear-gradient(100deg, transparent 0 3px, rgba(255,255,255,.035) 3px 4px), linear-gradient(145deg,#364254,#131b29 65%,#0b101a);
+  color: #e9fbff;
+  box-shadow: inset 0 1px rgba(255,255,255,.2), 0 2px 0 #05080e, 0 0 8px rgba(0,240,255,.12);
+  text-shadow: 0 0 7px rgba(0,240,255,.55);
+}
+:root[data-theme="cyberpunk"] .btn-plein,
+:root[data-theme="cyberpunk"] .sx-btn-fin {
+  background-image: linear-gradient(145deg, rgba(255,255,255,.18), transparent 42%), linear-gradient(110deg, #00aabe, #682e91 56%, #d3239f);
+  color: white;
+  box-shadow: inset 0 1px rgba(255,255,255,.35), 0 0 12px rgba(0,240,255,.32), 0 0 18px rgba(255,43,214,.18);
+}
+:root[data-theme="cyberpunk"] .btn:active,
+:root[data-theme="cyberpunk"] .sx-btn-fin:active,
+:root[data-theme="cyberpunk"] .checklist-bouton:active { filter: brightness(1.3); }
+:root[data-theme="cyberpunk"] .reglages-interrupteur input[type="checkbox"],
+:root[data-theme="cyberpunk"] .reglages-rappel input[type="checkbox"] {
+  border: 2px solid #74859a;
+  border-radius: 5px;
+  background: linear-gradient(180deg,#303a4b,#111824);
+  box-shadow: inset 0 2px 4px rgba(0,0,0,.6), 0 0 0 1px #070a11;
+}
+:root[data-theme="cyberpunk"] .reglages-interrupteur input[type="checkbox"]::after,
+:root[data-theme="cyberpunk"] .reglages-rappel input[type="checkbox"]::after {
+  border-radius: 3px;
+  background: linear-gradient(145deg,#eefaff,#778ca3);
+  box-shadow: 0 1px 3px #05080e;
+}
+:root[data-theme="cyberpunk"] .reglages-interrupteur input[type="checkbox"]:checked,
+:root[data-theme="cyberpunk"] .reglages-rappel input[type="checkbox"]:checked {
+  border-color: var(--cp-cyan);
+  background: linear-gradient(180deg,#154b5b,#101b2a);
+  box-shadow: 0 0 9px rgba(0,240,255,.45), inset 0 0 7px rgba(0,240,255,.2);
+}
+/* Barres de progression = tubes lumineux sous verre. */
+:root[data-theme="cyberpunk"] .todo-progression,
+:root[data-theme="cyberpunk"] .sx-progression,
+:root[data-theme="cyberpunk"] .etirement-barre-progression {
+  border: 1px solid rgba(0,240,255,.42);
+  border-radius: 99px;
+  background: linear-gradient(180deg,#060a13,#172034);
+  box-shadow: inset 0 1px 4px #000, 0 0 7px rgba(0,240,255,.12);
+}
+:root[data-theme="cyberpunk"] .todo-progression-remplie,
+:root[data-theme="cyberpunk"] .sx-progression-remplie,
+:root[data-theme="cyberpunk"] .etirement-barre-remplissage {
+  border-radius: inherit;
+  background: linear-gradient(90deg,#00a8bc 0%,var(--cp-cyan) 52%,#fff 57%,var(--cp-pink) 100%);
+  box-shadow: 0 0 6px var(--cp-cyan), 0 0 14px rgba(255,43,214,.62);
+}
+/* Champs = petits terminaux. */
+:root[data-theme="cyberpunk"] .champ input,
+:root[data-theme="cyberpunk"] .champ select,
+:root[data-theme="cyberpunk"] .champ textarea {
+  border-color: rgba(0,240,255,.44);
+  border-radius: 3px;
+  background: linear-gradient(145deg,#080d18,#11172a);
+  box-shadow: inset 0 2px 6px rgba(0,0,0,.55);
+}
+:root[data-theme="cyberpunk"] .champ input:focus,
+:root[data-theme="cyberpunk"] .champ select:focus,
+:root[data-theme="cyberpunk"] .champ textarea:focus {
+  outline: 1px solid var(--cp-cyan);
+  box-shadow: inset 0 2px 6px rgba(0,0,0,.55), 0 0 10px rgba(0,240,255,.27);
+}
+:root[data-theme="cyberpunk"] .entete-carte,
+:root[data-theme="cyberpunk"] .nav-bas,
+:root[data-theme="cyberpunk"] .sx-entete {
+  border: 1px solid rgba(0,240,255,.5);
+  border-radius: 5px;
+  box-shadow: inset 0 0 0 2px rgba(8,14,24,.8), 0 0 12px rgba(0,240,255,.14);
+}
+@media (prefers-reduced-motion: reduce) {
+ :root[data-theme="cyberpunk"] .meteo-carte::after,
+  :root[data-theme="cyberpunk"] .titre-affichage,
+  :root[data-theme="cyberpunk"] .accueil-tuile h2,
+  :root[data-theme="cyberpunk"] .reglages-section-titre,
+  :root[data-theme="cyberpunk"] .carte:hover .carte-titre,
+  :root[data-theme="cyberpunk"] .carte:focus-within .carte-titre {
+    animation: none !important;
+  }
+ :root[data-theme="cyberpunk"] .meteo-carte::after { display: none; }
+}
