@@ -6272,7 +6272,9 @@ function rendreBanniereMeteo() {
     var etatTemp = evaluerTemperature(resultat.actuelle);
     var tranche = trouverProchainCreneauIdealBanniere(resultat.heures, resultat.temperatures);
 
-    var html = '<div class="meteo-carte meteo-' + etatTemp + '" data-action="ouvrir-modale-meteo">';
+    var smin = (etat.profil.seuilTempMin !== null && etat.profil.seuilTempMin !== undefined) ? etat.profil.seuilTempMin : 5;
+    var smax = (etat.profil.seuilTempMax !== null && etat.profil.seuilTempMax !== undefined) ? etat.profil.seuilTempMax : 28;
+    var html = '<div class="meteo-carte meteo-' + etatTemp + '" data-action="ouvrir-modale-meteo" data-ressenti="' + resultat.actuelle.toFixed(1) + '" data-smin="' + smin + '" data-smax="' + smax + '" data-pluie="' + (tranche && tranche.pluie ? 1 : 0) + '">';
     html += '<span class="meteo-icone"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M14 14.76V3.5a2.5 2.5 0 0 0-5 0v11.26a4.5 4.5 0 1 0 5 0z"/></svg></span>';
     html += '<span class="meteo-textes"><span class="meteo-temp donnee-num">' + resultat.actuelle.toFixed(1) + '°C</span>';
     if (tranche) {
@@ -6289,9 +6291,25 @@ function rendreBanniereMeteo() {
 
 function fermerModaleMeteo() { fermerModal(); }
 
+/* "Journal de bord" (thème pirate) : la phrase écrite à la plume */
+function phraseJournalDeBord(r, tranche) {
+  var h0 = new Date().getHours(), debut = null, fin = null, h, s;
+  for (h = h0; h < 24; h++) {
+    if (pleutALHeure(r, h)) { if (debut === null) { debut = h; } fin = h + 1; }
+    else if (debut !== null) { break; }
+  }
+  if (debut === null) { s = 'Ciel dégagé, mer d\'huile jusqu\'au soir.'; }
+  else if (debut <= h0) { s = 'Grain en cours, il se calme vers ' + fin + 'h.'; }
+  else { s = 'Grain en vue de ' + debut + 'h à ' + fin + 'h.'; }
+  if (tranche) { s += ' Appareillage conseillé à ' + heureCourte(tranche.heure) + (tranche.pluie ? ', sous la pluie faute de mieux.' : '.'); }
+  else { s += ' Plus de départ possible aujourd\'hui : on reste au port.'; }
+  return s;
+}
+
 function ouvrirModaleMeteo() {
   if (!meteoDernierResultat) { return; }
   var r = meteoDernierResultat;
+  var pirate = document.documentElement.getAttribute('data-theme') === 'flibuste';
   var etatNow = evaluerTemperature(r.actuelle);
   var tranche = trouverProchainCreneauIdealBanniere(r.heures, r.temperatures);
   var tmin = Math.min.apply(null, r.temperatures);
@@ -6299,6 +6317,9 @@ function ouvrirModaleMeteo() {
 
   var html = '';
   html += '<div class="modal-entete"><h2>Météo du jour</h2><button class="bouton-fermer" data-action="fermer-modal">&times;</button></div>';
+  if (pirate) {
+    html += '<div class="pr-journal"><div class="pr-journal-titre">Journal de bord</div><div class="pr-journal-date">' + formaterDateLisible(formaterDateISO(new Date())) + '</div>';
+  }
 
   html += '<div class="meteo-tuiles">';
   html += '<div class="meteo-tuile meteo-tuile-now meteo-' + etatNow + '"><span class="meteo-tuile-label">Ressenti</span><span class="meteo-tuile-valeur donnee-num">' + r.actuelle.toFixed(1) + '°</span></div>';
@@ -6312,6 +6333,10 @@ function ouvrirModaleMeteo() {
   html += '<span><i class="meteo-pastille fr-ideal"></i>Idéal 12–20° (ressenti)</span>';
   html += '<span><i class="meteo-pastille fr-moyen"></i>Correct</span>';
   html += '<span><i class="meteo-pastille fr-mauvais"></i>À éviter</span>';
+  if (pirate) {
+    html += '<span><i class="meteo-pastille pr-plage"></i>Départ possible</span>';
+    html += '<span><i class="meteo-pastille pr-goutte"></i>Pluie</span>';
+  }
   html += '</div>';
 
   if (tranche) {
@@ -6319,6 +6344,9 @@ function ouvrirModaleMeteo() {
   }
   html += '<p class="reglages-note">' + resumePluie(r) + '</p>';
   html += '<p class="reglages-note">Départs possibles (lever, repas) : ' + plagesPossibles() + '</p>';
+  if (pirate) {
+    html += '<p class="pr-plume">' + phraseJournalDeBord(r, tranche) + '</p></div>';
+  }
   ouvrirModal(html);
 }
 
@@ -6351,6 +6379,21 @@ function construireSvgMeteo(r, tranche) {
   /* Heures, toutes les 3 h */
   for (var j = 0; j < n; j += 3) {
     svg += '<text class="axe-label" x="' + x(j).toFixed(1) + '" y="' + (H - 6) + '" text-anchor="middle">' + parseInt(heures[j].substring(11, 13), 10) + 'h</text>';
+  }
+
+  /* Journal de bord (thème pirate) : plages de départ possibles surlignées + gouttes aux heures de pluie */
+  if (document.documentElement.getAttribute('data-theme') === 'flibuste') {
+    var pas = zw / (n - 1);
+    svg += '<defs><filter id="pr-encre" x="-2%" y="-6%" width="104%" height="112%"><feTurbulence type="fractalNoise" baseFrequency=".04" numOctaves="2" seed="3" result="b"/><feDisplacementMap in="SourceGraphic" in2="b" scale="1.5"/></filter></defs>';
+    for (var hp = 0; hp < n; hp++) {
+      var hh = parseInt(heures[hp].substring(11, 13), 10);
+      if (departPossible(hh * 60)) {
+        svg += '<rect class="meteo-plage" x="' + (x(hp) - pas / 2).toFixed(1) + '" y="' + mh + '" width="' + pas.toFixed(1) + '" height="' + zh + '"/>';
+      }
+      if (pleutALHeure(r, hh)) {
+        svg += '<path class="meteo-goutte" transform="translate(' + x(hp).toFixed(1) + ' ' + (mh + 9) + ')" d="M0 -4.5C-2.6 -.6 -3.2 1 -3.2 2.2a3.2 3.2 0 0 0 6.4 0C3.2 1 2.6 -.6 0 -4.5z"/>';
+      }
+    }
   }
 
   /* Courbe lissée, colorée par tranche */
@@ -9386,4 +9429,99 @@ for (var n = 0; n < noms.length; n++) {
   frag.appendChild(d);
 }
 carte.insertBefore(frag, carte.firstChild);
+})();
+
+/* ===== THÈME FLIBUSTE : CARTE MÉTÉO = BAROMÈTRE DE BORD ===== */
+(function () {
+'use strict';
+
+var zone = document.getElementById('zone-banniere-meteo');
+if (!zone) { return; }
+
+/* échelle du cadran : de -5° à 35° de ressenti, sur 250° de rotation */
+var VMIN = -5, VMAX = 35, A0 = -125, A1 = 125;
+function angle(v) { v = Math.max(VMIN, Math.min(VMAX, v)); return A0 + (v - VMIN) / (VMAX - VMIN) * (A1 - A0); }
+function pt(r, a) { var t = a * Math.PI / 180; return [50 + r * Math.sin(t), 50 - r * Math.cos(t)]; }
+function f(n) { return n.toFixed(1); }
+function arc(r, a0, a1) {
+  var p0 = pt(r, a0), p1 = pt(r, a1);
+  return 'M' + f(p0[0]) + ' ' + f(p0[1]) + 'A' + r + ' ' + r + ' 0 ' + ((a1 - a0) > 180 ? 1 : 0) + ' 1 ' + f(p1[0]) + ' ' + f(p1[1]);
+}
+
+/* le cadran : lunette de laiton, face en papier patiné, zones colorées, graduations */
+function svgCadran(smin, smax) {
+  var s = '<svg class="pr-baro-cadran" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><defs>' +
+    '<linearGradient id="prbOr" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FFEFB0"/><stop offset=".45" stop-color="#E0AE45"/><stop offset="1" stop-color="#6E4710"/></linearGradient>' +
+    '<radialGradient id="prbFace" cx=".42" cy=".36" r=".75"><stop offset="0" stop-color="#F6ECCB"/><stop offset=".7" stop-color="#E2D0A0"/><stop offset="1" stop-color="#BFA46C"/></radialGradient>' +
+    '<radialGradient id="prbBord" cx=".5" cy=".5" r=".5"><stop offset=".6" stop-color="#46280A" stop-opacity="0"/><stop offset="1" stop-color="#46280A" stop-opacity=".42"/></radialGradient>' +
+    '<filter id="prbPatine" x="0" y="0" width="100%" height="100%" color-interpolation-filters="sRGB"><feTurbulence type="fractalNoise" baseFrequency=".6" numOctaves="2" seed="5"/><feColorMatrix values="0 0 0 0 .45 0 0 0 0 .3 0 0 0 0 .12 1.4 0 0 0 -.55"/></filter>' +
+    '<clipPath id="prbCoupe"><circle cx="50" cy="50" r="41.2"/></clipPath></defs>';
+  /* lunette */
+  s += '<circle cx="50" cy="50" r="49.4" fill="#2A1804"/><circle cx="50" cy="50" r="48.6" fill="url(#prbOr)"/>' +
+       '<circle cx="50" cy="50" r="46" fill="none" stroke="#5A3A0C" stroke-opacity=".5" stroke-width="2.4" stroke-dasharray="1 1.6"/>' +
+       '<path d="' + arc(47.6, -125, -45) + '" fill="none" stroke="#fff" stroke-opacity=".55" stroke-width="1.2" stroke-linecap="round"/>' +
+       '<circle cx="50" cy="50" r="43.6" fill="none" stroke="#2A1804" stroke-width="2.2"/><circle cx="50" cy="50" r="42.3" fill="none" stroke="#FFE9A0" stroke-opacity=".5" stroke-width=".6"/>';
+  /* face patinée */
+  s += '<circle cx="50" cy="50" r="41.2" fill="url(#prbFace)"/><rect x="8" y="8" width="84" height="84" filter="url(#prbPatine)" opacity=".5" clip-path="url(#prbCoupe)"/>' +
+       '<circle cx="50" cy="50" r="41.2" fill="url(#prbBord)"/>';
+  /* zones : rouge (à éviter), ambre (correct), vert (idéal) */
+  var zones = [[VMIN, smin, '#A3261C'], [smin, 12, '#C48A1E'], [12, 20, '#2E7D4B'], [20, smax, '#C48A1E'], [smax, VMAX, '#A3261C']], i, z;
+  for (i = 0; i < zones.length; i++) {
+    z = zones[i];
+    if (z[1] > z[0]) { s += '<path d="' + arc(31, angle(z[0]), angle(z[1])) + '" fill="none" stroke="' + z[2] + '" stroke-width="5.2" stroke-opacity=".92"/>'; }
+  }
+  s += '<path d="' + arc(33.7, A0, A1) + '" fill="none" stroke="#3A2408" stroke-width=".55" stroke-opacity=".75"/><path d="' + arc(28.3, A0, A1) + '" fill="none" stroke="#3A2408" stroke-width=".55" stroke-opacity=".75"/>';
+  /* graduations et chiffres */
+  var v, a, major, p, q;
+  for (v = VMIN; v <= VMAX; v++) {
+    a = angle(v); major = (v % 5 === 0);
+    p = pt(39.6, a); q = pt(major ? 35 : 37.3, a);
+    s += '<line x1="' + f(p[0]) + '" y1="' + f(p[1]) + '" x2="' + f(q[0]) + '" y2="' + f(q[1]) + '" stroke="#3A2408" stroke-width="' + (major ? 1.1 : .55) + '" stroke-linecap="round"/>';
+    if (v % 10 === 0) {
+      p = pt(22.6, a);
+      s += '<text x="' + f(p[0]) + '" y="' + f(p[1]) + '" dy=".35em" text-anchor="middle" font-family="Georgia,serif" font-weight="bold" font-size="6.4" fill="#3A2408">' + v + '</text>';
+    }
+  }
+  s += '<text x="50" y="73" text-anchor="middle" font-family="Georgia,serif" font-size="4.3" letter-spacing=".7" fill="#5A3A16">RESSENTI</text>';
+  return s + '</svg>';
+}
+
+/* l'aiguille : acier bruni rouge, contrepoids, moyeu de laiton (pointe vers le haut ; la rotation est faite en CSS) */
+function svgAiguille() {
+  return '<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><defs>' +
+    '<radialGradient id="prbMoyeu" cx=".35" cy=".3" r=".8"><stop offset="0" stop-color="#FFF0A8"/><stop offset=".5" stop-color="#E0AE45"/><stop offset="1" stop-color="#7A4F10"/></radialGradient></defs>' +
+    '<g transform="translate(1.6 2.6)" fill="#000" fill-opacity=".3"><path d="M50 12L53 52H47Z"/><path d="M47 52H53L52 60H48Z"/><circle cx="50" cy="62.5" r="3.4"/></g>' +
+    '<path d="M50 12L53 52H47Z" fill="#8E1220"/><path d="M50 12L47 52H50Z" fill="#B3293A"/><path d="M47 52H53L52 60H48Z" fill="#5E0D16"/><circle cx="50" cy="62.5" r="3.4" fill="#6B0F1A" stroke="#2A0508" stroke-width=".6"/>' +
+    '<circle cx="50" cy="50" r="5.6" fill="url(#prbMoyeu)" stroke="#3A2408" stroke-width=".8"/><path d="M47.3 47.3L52.7 52.7" stroke="#3A2408" stroke-width="1" stroke-linecap="round"/>' +
+    '</svg>';
+}
+
+function equiper() {
+  var carte = zone.querySelector('.meteo-carte');
+  if (!carte || carte.querySelector('.pr-baro')) { return; }
+  var temp = carte.querySelector('.meteo-temp'), sous = carte.querySelector('.meteo-sous');
+  var v = parseFloat(carte.getAttribute('data-ressenti'));
+  if (isNaN(v) && temp) { v = parseFloat(temp.textContent); }
+  if (isNaN(v)) { return; }
+  var smin = parseFloat(carte.getAttribute('data-smin')); if (isNaN(smin)) { smin = 5; }
+  var smax = parseFloat(carte.getAttribute('data-smax')); if (isNaN(smax)) { smax = 28; }
+  smin = Math.min(smin, 12); smax = Math.max(smax, 20);
+  var pluie = carte.getAttribute('data-pluie') === '1' || !!(sous && /pluie/.test(sous.textContent));
+
+  var cadre = document.createElement('div');
+  cadre.className = 'pr-baro';
+  cadre.innerHTML = svgCadran(smin, smax) + '<div class="pr-baro-aig">' + svgAiguille() + '</div>' + (pluie ? '<i class="pr-baro-goutte"></i>' : '');
+  carte.insertBefore(cadre, carte.firstChild);
+
+  /* l'aiguille part du minimum puis se cale sur le ressenti (rebond en CSS) */
+  var aig = cadre.querySelector('.pr-baro-aig');
+  aig.style.webkitTransform = 'rotate(' + A0 + 'deg)'; aig.style.transform = 'rotate(' + A0 + 'deg)';
+  window.setTimeout(function () {
+    var a = 'rotate(' + angle(v) + 'deg)';
+    aig.style.webkitTransform = a; aig.style.transform = a;
+  }, 140);
+}
+
+new MutationObserver(equiper).observe(zone, { childList: true });
+equiper();
 })();

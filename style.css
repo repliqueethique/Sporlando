@@ -7646,3 +7646,259 @@ body { background: transparent; }
  :root[data-theme="cyberpunk"] .meteo-carte::after { display: none; }
 }
 
+/* ===== THÈME FLIBUSTE : MÉTÉO = BAROMÈTRE DE BORD + JOURNAL DE BORD ===== */
+
+/* encres : couleurs de pigment sur papier (graphique de la carte et du journal) */
+:root[data-theme="flibuste"] .segment-ideal { stroke: #2E7D4B; }
+:root[data-theme="flibuste"] .segment-moyen { stroke: #C48A1E; }
+:root[data-theme="flibuste"] .segment-mauvais { stroke: #A3261C; }
+:root[data-theme="flibuste"] .point-ideal { fill: #2E7D4B; stroke: #F2E3B8; }
+:root[data-theme="flibuste"] .meteo-bande { fill: #2E7D4B; fill-opacity: .14; }
+:root[data-theme="flibuste"] .meteo-grille { stroke: rgba(70,45,15,.28); stroke-dasharray: 2 3; }
+:root[data-theme="flibuste"] .axe-label { fill: #4A2F0F; font-family: Georgia, serif; font-style: italic; }
+:root[data-theme="flibuste"] .meteo-now-ligne { stroke: #5A3A16; }
+:root[data-theme="flibuste"] .meteo-now-point { fill: #8E1220; stroke: #F2E3B8; }
+:root[data-theme="flibuste"] .meteo-now-label { fill: #8E1220; font-family: Georgia, serif; }
+:root[data-theme="flibuste"] .meteo-plage { fill: #B8862E; fill-opacity: .2; }
+:root[data-theme="flibuste"] .meteo-goutte { fill: #2F6FB0; fill-opacity: .85; }
+
+/* ---------- la carte : tableau de bord en bois, vis de laiton ---------- */
+:root[data-theme="flibuste"] .meteo-carte {
+  display: -webkit-box; display: flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  min-height: 96px;
+  padding: 9px 12px;
+  margin-bottom: 14px;
+  border: 0;
+  border-radius: 12px;
+  background-color: #1B1209;
+  background-image: var(--pr-eclaire), var(--pr-bois);
+  background-size: 100% 100%, 240px 240px;
+  background-repeat: no-repeat, repeat;
+  background-origin: padding-box;
+  background-clip: border-box;
+  box-shadow: inset 0 0 0 2px #B8862E, inset 0 0 0 3.5px #2E1C07, inset 0 0 16px rgba(0,0,0,.6), 0 7px 14px rgba(0,0,0,.55);
+  overflow: hidden;
+}
+:root[data-theme="flibuste"] .meteo-carte::before {
+  background: radial-gradient(ellipse at 0 100%, rgba(255,150,60,.2) 0, rgba(255,150,60,0) 64%);
+  opacity: 1;
+}
+:root[data-theme="flibuste"] .meteo-carte::after {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  pointer-events: none;
+  background-image:
+    radial-gradient(circle at 9px 9px, #FFF1B0 0, #E0AE45 1.4px, #7A4F10 2.5px, rgba(0,0,0,0) 3.2px),
+    radial-gradient(circle at calc(100% - 9px) 9px, #FFF1B0 0, #E0AE45 1.4px, #7A4F10 2.5px, rgba(0,0,0,0) 3.2px),
+    radial-gradient(circle at 9px calc(100% - 9px), #FFF1B0 0, #E0AE45 1.4px, #7A4F10 2.5px, rgba(0,0,0,0) 3.2px),
+    radial-gradient(circle at calc(100% - 9px) calc(100% - 9px), #FFF1B0 0, #E0AE45 1.4px, #7A4F10 2.5px, rgba(0,0,0,0) 3.2px);
+}
+:root[data-theme="flibuste"] .meteo-icone { display: none; }
+
+/* le baromètre : lunette de laiton, cadran patiné, aiguille qui rebondit, verre qui reflète */
+.pr-baro { display: none; }
+:root[data-theme="flibuste"] .pr-baro {
+  display: block;
+  position: relative;
+  flex: 0 0 78px;
+  width: 78px; height: 78px;
+  margin-right: 11px;
+  border-radius: 50%;
+  box-shadow: 0 5px 9px rgba(0,0,0,.6), 0 0 0 1px rgba(0,0,0,.55);
+}
+:root[data-theme="flibuste"] .pr-baro-cadran { display: block; position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
+:root[data-theme="flibuste"] .pr-baro-aig {
+  position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+  -webkit-transform-origin: 50% 50%; transform-origin: 50% 50%;
+  -webkit-transition: -webkit-transform 1.7s cubic-bezier(.3, 1.55, .45, 1);
+  transition: transform 1.7s cubic-bezier(.3, 1.55, .45, 1);
+}
+:root[data-theme="flibuste"] .pr-baro-aig svg {
+  display: block; width: 100%; height: 100%;
+  -webkit-transform-origin: 50% 50%; transform-origin: 50% 50%;
+  -webkit-animation: prTremble 3.4s ease-in-out infinite; animation: prTremble 3.4s ease-in-out infinite;
+}
+@-webkit-keyframes prTremble { 0%, 100% { -webkit-transform: rotate(-.9deg); } 35% { -webkit-transform: rotate(.7deg); } 70% { -webkit-transform: rotate(-.4deg); } }
+@keyframes prTremble { 0%, 100% { transform: rotate(-.9deg); } 35% { transform: rotate(.7deg); } 70% { transform: rotate(-.4deg); } }
+/* verre bombé : reflet fixe + éclat qui passe de temps en temps */
+:root[data-theme="flibuste"] .pr-baro::after {
+  content: '';
+  position: absolute;
+  top: 6%; left: 6%; right: 6%; bottom: 6%;
+  border-radius: 50%;
+  pointer-events: none;
+  background-image:
+    linear-gradient(105deg, rgba(255,255,255,0) 40%, rgba(255,255,255,.55) 50%, rgba(255,255,255,0) 60%),
+    radial-gradient(ellipse at 30% 20%, rgba(255,255,255,.36) 0, rgba(255,255,255,.08) 30%, rgba(255,255,255,0) 54%),
+    linear-gradient(315deg, rgba(0,0,0,.16), rgba(0,0,0,0) 42%);
+  background-size: 260% 100%, 100% 100%, 100% 100%;
+  background-position: -160% 0, 0 0, 0 0;
+  background-repeat: no-repeat;
+  -webkit-animation: prReflet 7s ease-in-out infinite; animation: prReflet 7s ease-in-out infinite;
+}
+@-webkit-keyframes prReflet { 0%, 66% { background-position: -160% 0, 0 0, 0 0; } 100% { background-position: 160% 0, 0 0, 0 0; } }
+@keyframes prReflet { 0%, 66% { background-position: -160% 0, 0 0, 0 0; } 100% { background-position: 160% 0, 0 0, 0 0; } }
+/* petite goutte bleue sur le cadran quand le trajet est sous la pluie */
+:root[data-theme="flibuste"] .pr-baro-goutte {
+  position: absolute;
+  left: 50%; top: 80%;
+  width: 8px; height: 8px;
+  margin-left: -4px;
+  border-radius: 0 50% 50% 50%;
+  background: radial-gradient(circle at 35% 30%, #CFEAFF, #3C86D6 55%, #1D4E8F);
+  box-shadow: 0 1px 1px rgba(0,0,0,.4);
+  -webkit-transform: rotate(45deg); transform: rotate(45deg);
+  -webkit-animation: prGoutte 2.6s ease-in-out infinite; animation: prGoutte 2.6s ease-in-out infinite;
+}
+@-webkit-keyframes prGoutte { 0%, 100% { -webkit-transform: rotate(45deg) scale(1); } 50% { -webkit-transform: rotate(45deg) scale(1.2); } }
+@keyframes prGoutte { 0%, 100% { transform: rotate(45deg) scale(1); } 50% { transform: rotate(45deg) scale(1.2); } }
+
+/* la plaque de laiton gravée (ressenti + créneau conseillé) avec sa veilleuse d'état */
+:root[data-theme="flibuste"] .meteo-textes {
+  position: relative;
+  flex: 1; min-width: 0;
+  padding: 8px 8px 8px 22px;
+  border-radius: 6px;
+  background-image:
+    repeating-linear-gradient(90deg, rgba(255,255,255,.06) 0, rgba(255,255,255,.06) 1px, rgba(0,0,0,0) 1px, rgba(0,0,0,0) 3px),
+    linear-gradient(145deg, #F4D880, #D3A53A 42%, #8F6218);
+  box-shadow: inset 0 1px 0 rgba(255,246,205,.75), inset 0 -2px 3px rgba(90,55,10,.5), inset 0 0 0 1px rgba(60,36,6,.55), 0 3px 5px rgba(0,0,0,.6);
+}
+:root[data-theme="flibuste"] .meteo-textes::before {
+  content: '';
+  position: absolute;
+  left: 8px; top: 50%;
+  width: 8px; height: 8px;
+  margin-top: -4px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #fff, var(--meteo-couleur) 58%);
+  box-shadow: 0 0 0 1.5px #3A2408, 0 0 7px 2px var(--meteo-couleur);
+  -webkit-animation: prVeilleuse 2.8s ease-in-out infinite; animation: prVeilleuse 2.8s ease-in-out infinite;
+}
+@-webkit-keyframes prVeilleuse { 0%, 100% { opacity: .75; } 50% { opacity: 1; } }
+@keyframes prVeilleuse { 0%, 100% { opacity: .75; } 50% { opacity: 1; } }
+:root[data-theme="flibuste"] .meteo-temp { color: #2F1D07; font-size: 23px; text-shadow: 0 1px 0 rgba(255,238,170,.7); }
+:root[data-theme="flibuste"] .meteo-sous { margin-top: 2px; font-size: 12px; font-weight: 600; color: #4A2F0F; text-shadow: 0 1px 0 rgba(255,238,170,.5); }
+
+/* le petit bout de parchemin épinglé avec la courbe de la journée */
+:root[data-theme="flibuste"] .meteo-spark {
+  position: relative;
+  flex: 0 0 auto;
+  width: 94px;
+  margin-left: 10px;
+  padding: 6px 5px 3px;
+  border-radius: 3px 7px 4px 8px / 7px 3px 8px 4px;
+  background-color: #DCC590;
+  background-image: var(--pr-taches), var(--pr-papier);
+  background-size: 240px 240px, 100% 100%;
+  box-shadow: inset 0 0 14px rgba(110,62,18,.6), 0 3px 5px rgba(0,0,0,.55);
+  -webkit-transform: rotate(1.2deg); transform: rotate(1.2deg);
+}
+:root[data-theme="flibuste"] .meteo-spark::before {
+  content: '';
+  position: absolute;
+  top: -3px; left: 50%;
+  width: 7px; height: 7px;
+  margin-left: -3.5px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #FFF1B0, #D9A93A 55%, #6E4710);
+  box-shadow: 0 1px 2px rgba(0,0,0,.6);
+}
+
+/* ---------- la fenêtre : page de journal de bord sur parchemin ---------- */
+:root[data-theme="flibuste"] .pr-journal {
+  position: relative;
+  margin-top: 4px;
+  padding: 14px 14px 14px;
+  color: #2B1A0C;
+  --couleur-texte: #2B1A0C;
+  --couleur-texte-att: #6A4E33;
+  --couleur-bordure: rgba(70,42,18,.45);
+  background-color: #DCC590;
+  background-image: var(--pr-taches), var(--pr-papier);
+  background-size: 240px 240px, 100% 100%;
+  border-radius: 4px 10px 5px 11px / 10px 4px 11px 5px;
+  box-shadow: inset 0 0 34px rgba(110,62,18,.65), inset 0 0 0 1px rgba(60,32,10,.3), 0 4px 10px rgba(0,0,0,.5);
+  -webkit-animation: prDeroule .55s cubic-bezier(.2, .8, .3, 1); animation: prDeroule .55s cubic-bezier(.2, .8, .3, 1);
+}
+@-webkit-keyframes prDeroule { from { opacity: 0; -webkit-transform: translateY(10px) scaleY(.96); } to { opacity: 1; -webkit-transform: none; } }
+@keyframes prDeroule { from { opacity: 0; transform: translateY(10px) scaleY(.96); } to { opacity: 1; transform: none; } }
+/* cachet de cire dans le coin */
+:root[data-theme="flibuste"] .pr-journal::after {
+  content: '';
+  position: absolute;
+  right: 12px; bottom: 10px;
+  width: 28px; height: 28px;
+  border-radius: 48% 52% 50% 50% / 52% 46% 54% 48%;
+  background: radial-gradient(circle at 35% 30%, #E0504A 0, #B3231F 45%, #6E1010 100%);
+  box-shadow: inset 0 0 0 2px rgba(255,120,110,.2), inset 0 -2px 3px rgba(0,0,0,.35), 0 2px 4px rgba(0,0,0,.5);
+  -webkit-transform: rotate(-12deg); transform: rotate(-12deg);
+}
+:root[data-theme="flibuste"] .pr-journal-titre {
+  text-align: center;
+  font-family: var(--police-titre);
+  font-size: 25px; line-height: 1.1; letter-spacing: .06em;
+  color: #5E1A12;
+  text-shadow: 0 1px 0 rgba(255,240,200,.6);
+}
+:root[data-theme="flibuste"] .pr-journal-date { margin: 3px 0 10px; text-align: center; font-size: 12px; font-style: italic; color: #6A4E33; }
+:root[data-theme="flibuste"] .pr-journal-date::before,
+:root[data-theme="flibuste"] .pr-journal-date::after {
+  content: '';
+  display: inline-block;
+  width: 36px; height: 1px;
+  margin: 0 9px;
+  vertical-align: middle;
+  background: linear-gradient(90deg, rgba(106,78,51,0), #6A4E33);
+}
+:root[data-theme="flibuste"] .pr-journal-date::after { background: linear-gradient(90deg, #6A4E33, rgba(106,78,51,0)); }
+:root[data-theme="flibuste"] .pr-journal .meteo-ideal { --meteo-couleur: #2E7D4B; }
+:root[data-theme="flibuste"] .pr-journal .meteo-moyen { --meteo-couleur: #B9791A; }
+:root[data-theme="flibuste"] .pr-journal .meteo-mauvais { --meteo-couleur: #A3261C; }
+:root[data-theme="flibuste"] .pr-journal .meteo-tuile {
+  background: none;
+  border: 1.5px solid rgba(70,42,18,.55);
+  border-radius: 4px;
+  box-shadow: inset 0 0 0 3px rgba(220,197,144,0), inset 0 0 0 4px rgba(70,42,18,.22);
+}
+:root[data-theme="flibuste"] .pr-journal .meteo-tuile-label { color: #6A4E33; font-family: Georgia, serif; font-style: italic; text-transform: none; letter-spacing: .02em; font-size: 12px; }
+:root[data-theme="flibuste"] .pr-journal .meteo-tuile-valeur { color: #2B1A0C; font-family: var(--police-titre); }
+:root[data-theme="flibuste"] .pr-journal .meteo-tuile-now .meteo-tuile-valeur { color: var(--meteo-couleur); }
+:root[data-theme="flibuste"] .pr-journal .meteo-graphe {
+  padding: 8px 0 4px;
+  background: none;
+  border: 0;
+  border-top: 1px solid rgba(70,42,18,.35);
+  border-bottom: 1px solid rgba(70,42,18,.35);
+  border-radius: 0;
+}
+/* la courbe est tracée à l'encre (légère irrégularité) et se révèle de gauche à droite */
+:root[data-theme="flibuste"] .pr-journal .meteo-graphe svg path { filter: url(#pr-encre); }
+:root[data-theme="flibuste"] .pr-journal .meteo-graphe svg {
+  -webkit-animation: prEncre 1.5s .35s ease-out both; animation: prEncre 1.5s .35s ease-out both;
+}
+@-webkit-keyframes prEncre { from { -webkit-clip-path: inset(0 100% 0 0); } to { -webkit-clip-path: inset(0 0 0 0); } }
+@keyframes prEncre { from { clip-path: inset(0 100% 0 0); } to { clip-path: inset(0 0 0 0); } }
+:root[data-theme="flibuste"] .pr-journal .meteo-legende { color: #4A2F0F; font-style: italic; }
+:root[data-theme="flibuste"] .pr-journal .fr-ideal { background: #2E7D4B; }
+:root[data-theme="flibuste"] .pr-journal .fr-moyen { background: #C48A1E; }
+:root[data-theme="flibuste"] .pr-journal .fr-mauvais { background: #A3261C; }
+:root[data-theme="flibuste"] .pr-journal .pr-plage { background: rgba(184,134,46,.55); border-radius: 2px; }
+:root[data-theme="flibuste"] .pr-journal .pr-goutte { background: #2F6FB0; border-radius: 0 50% 50% 50%; -webkit-transform: rotate(45deg); transform: rotate(45deg); width: 8px; height: 8px; }
+:root[data-theme="flibuste"] .pr-journal .reglages-note { color: #4A2F0F; font-style: italic; }
+:root[data-theme="flibuste"] .pr-plume {
+  margin: 12px 0 0;
+  padding: 9px 40px 0 0;
+  border-top: 1px dashed rgba(70,42,18,.4);
+  font-family: Georgia, 'Palatino Linotype', serif;
+  font-size: 15px; font-style: italic; line-height: 1.45;
+  color: #3A2410;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root[data-theme="flibuste"] .pr-baro-aig svg, :root[data-theme="flibuste"] .pr-baro::after, :root[data-theme="flibuste"] .pr-baro-goutte, :root[data-theme="flibuste"] .meteo-textes::before, :root[data-theme="flibuste"] .pr-journal, :root[data-theme="flibuste"] .pr-journal .meteo-graphe svg { -webkit-animation: none; animation: none; }
+}
+:root.pr-calme[data-theme="flibuste"] .pr-journal, :root.pr-calme[data-theme="flibuste"] .pr-journal .meteo-graphe svg, :root.pr-calme[data-theme="flibuste"] .pr-baro-aig svg, :root.pr-calme[data-theme="flibuste"] .pr-baro::after, :root.pr-calme[data-theme="flibuste"] .pr-baro-goutte, :root.pr-calme[data-theme="flibuste"] .meteo-textes::before { -webkit-animation: none; animation: none; }
