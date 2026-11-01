@@ -6274,7 +6274,15 @@ function rendreBanniereMeteo() {
 
     var smin = (etat.profil.seuilTempMin !== null && etat.profil.seuilTempMin !== undefined) ? etat.profil.seuilTempMin : 5;
     var smax = (etat.profil.seuilTempMax !== null && etat.profil.seuilTempMax !== undefined) ? etat.profil.seuilTempMax : 28;
-    var html = '<div class="meteo-carte meteo-' + etatTemp + '" data-action="ouvrir-modale-meteo" data-ressenti="' + resultat.actuelle.toFixed(1) + '" data-smin="' + smin + '" data-smax="' + smax + '" data-pluie="' + (tranche && tranche.pluie ? 1 : 0) + '">';
+    var jour = '';
+    for (var hj = 8; hj <= 21; hj++) {
+      var ej = evaluerTemperature(resultat.temperatures[hj]);
+      var cj = (ej === 'ideal') ? 'i' : (ej === 'moyen') ? 'm' : 'x';
+      if (departPossible(hj * 60)) { cj = cj.toUpperCase(); }
+      if (pleutALHeure(resultat, hj)) { cj += '*'; }
+      jour += cj + ',';
+    }
+    var html = '<div class="meteo-carte meteo-' + etatTemp + '" data-action="ouvrir-modale-meteo" data-ressenti="' + resultat.actuelle.toFixed(1) + '" data-smin="' + smin + '" data-smax="' + smax + '" data-pluie="' + (tranche && tranche.pluie ? 1 : 0) + '" data-jour="' + jour + '">';
     html += '<span class="meteo-icone"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M14 14.76V3.5a2.5 2.5 0 0 0-5 0v11.26a4.5 4.5 0 1 0 5 0z"/></svg></span>';
     html += '<span class="meteo-textes"><span class="meteo-temp donnee-num">' + resultat.actuelle.toFixed(1) + '°C</span>';
     if (tranche) {
@@ -6322,7 +6330,7 @@ function ouvrirModaleMeteo() {
   }
 
   html += '<div class="meteo-tuiles">';
-  html += '<div class="meteo-tuile meteo-tuile-now meteo-' + etatNow + '"><span class="meteo-tuile-label">Ressenti</span><span class="meteo-tuile-valeur donnee-num">' + r.actuelle.toFixed(1) + '°</span></div>';
+  html += '<div class="meteo-tuile meteo-tuile-now meteo-' + etatNow + '"><span class="meteo-tuile-label">Ressenti</span><span class="meteo-tuile-valeur donnee-num">' + Math.round(r.actuelle) + '°</span></div>';
   html += '<div class="meteo-tuile"><span class="meteo-tuile-label">Min</span><span class="meteo-tuile-valeur donnee-num">' + Math.round(tmin) + '°</span></div>';
   html += '<div class="meteo-tuile"><span class="meteo-tuile-label">Max</span><span class="meteo-tuile-valeur donnee-num">' + Math.round(tmax) + '°</span></div>';
   html += '</div>';
@@ -9431,74 +9439,104 @@ for (var n = 0; n < noms.length; n++) {
 carte.insertBefore(frag, carte.firstChild);
 })();
 
-/* ===== THÈME FLIBUSTE : CARTE MÉTÉO = BAROMÈTRE DE BORD ===== */
+/* ===== THÈME FLIBUSTE : CARTE MÉTÉO = THERMOMÈTRE À ESPRIT-DE-VIN, PARCHEMIN ET LIGNE DE LOCH ===== */
 (function () {
 'use strict';
 
 var zone = document.getElementById('zone-banniere-meteo');
 if (!zone) { return; }
 
-/* échelle du cadran : de -5° à 35° de ressenti, sur 250° de rotation */
-var VMIN = -5, VMAX = 35, A0 = -125, A1 = 125;
-function angle(v) { v = Math.max(VMIN, Math.min(VMAX, v)); return A0 + (v - VMIN) / (VMAX - VMIN) * (A1 - A0); }
-function pt(r, a) { var t = a * Math.PI / 180; return [50 + r * Math.sin(t), 50 - r * Math.cos(t)]; }
-function f(n) { return n.toFixed(1); }
-function arc(r, a0, a1) {
-  var p0 = pt(r, a0), p1 = pt(r, a1);
-  return 'M' + f(p0[0]) + ' ' + f(p0[1]) + 'A' + r + ' ' + r + ' 0 ' + ((a1 - a0) > 180 ? 1 : 0) + ' 1 ' + f(p1[0]) + ' ' + f(p1[1]);
-}
+var VMIN = -5, VMAX = 35;            /* échelle gravée : de -5° à 35° de ressenti */
+var PX_PAR_DEGRE = 1.15;             /* hauteur d'un degré sur la plaque d'os, en pixels */
+var PIGMENT = { ideal: '#3E7F5B', moyen: '#C48A1E', mauvais: '#A3261C' };  /* vert-de-gris, ocre, vermillon */
 
-/* le cadran : lunette de laiton, face en papier patiné, zones colorées, graduations */
-function svgCadran(smin, smax) {
-  var s = '<svg class="pr-baro-cadran" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><defs>' +
-    '<linearGradient id="prbOr" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FFEFB0"/><stop offset=".45" stop-color="#E0AE45"/><stop offset="1" stop-color="#6E4710"/></linearGradient>' +
-    '<radialGradient id="prbFace" cx=".42" cy=".36" r=".75"><stop offset="0" stop-color="#F6ECCB"/><stop offset=".7" stop-color="#E2D0A0"/><stop offset="1" stop-color="#BFA46C"/></radialGradient>' +
-    '<radialGradient id="prbBord" cx=".5" cy=".5" r=".5"><stop offset=".6" stop-color="#46280A" stop-opacity="0"/><stop offset="1" stop-color="#46280A" stop-opacity=".42"/></radialGradient>' +
-    '<filter id="prbPatine" x="0" y="0" width="100%" height="100%" color-interpolation-filters="sRGB"><feTurbulence type="fractalNoise" baseFrequency=".6" numOctaves="2" seed="5"/><feColorMatrix values="0 0 0 0 .45 0 0 0 0 .3 0 0 0 0 .12 1.4 0 0 0 -.55"/></filter>' +
-    '<clipPath id="prbCoupe"><circle cx="50" cy="50" r="41.2"/></clipPath></defs>';
-  /* lunette */
-  s += '<circle cx="50" cy="50" r="49.4" fill="#2A1804"/><circle cx="50" cy="50" r="48.6" fill="url(#prbOr)"/>' +
-       '<circle cx="50" cy="50" r="46" fill="none" stroke="#5A3A0C" stroke-opacity=".5" stroke-width="2.4" stroke-dasharray="1 1.6"/>' +
-       '<path d="' + arc(47.6, -125, -45) + '" fill="none" stroke="#fff" stroke-opacity=".55" stroke-width="1.2" stroke-linecap="round"/>' +
-       '<circle cx="50" cy="50" r="43.6" fill="none" stroke="#2A1804" stroke-width="2.2"/><circle cx="50" cy="50" r="42.3" fill="none" stroke="#FFE9A0" stroke-opacity=".5" stroke-width=".6"/>';
-  /* face patinée */
-  s += '<circle cx="50" cy="50" r="41.2" fill="url(#prbFace)"/><rect x="8" y="8" width="84" height="84" filter="url(#prbPatine)" opacity=".5" clip-path="url(#prbCoupe)"/>' +
-       '<circle cx="50" cy="50" r="41.2" fill="url(#prbBord)"/>';
-  /* zones : rouge (à éviter), ambre (correct), vert (idéal) */
-  var zones = [[VMIN, smin, '#A3261C'], [smin, 12, '#C48A1E'], [12, 20, '#2E7D4B'], [20, smax, '#C48A1E'], [smax, VMAX, '#A3261C']], i, z;
+function bornes(v) { return Math.max(VMIN, Math.min(VMAX, v)); }
+function yDe(v) { return 64 - (bornes(v) - VMIN) * PX_PAR_DEGRE; }
+
+/* le thermomètre : monture de chêne, plaque d'os gravée, tube de verre, bulbe */
+function svgThermo(smin, smax) {
+  var s = '<svg class="pr-thermo-svg" viewBox="0 0 46 88" xmlns="http://www.w3.org/2000/svg"><defs>' +
+    '<linearGradient id="ptOs" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#F0E6C8"/><stop offset="1" stop-color="#CDBA88"/></linearGradient>' +
+    '<radialGradient id="ptBulbe" cx=".35" cy=".3" r=".85"><stop offset="0" stop-color="#FF8A9A"/><stop offset=".45" stop-color="#C21F3A"/><stop offset="1" stop-color="#6A0C1E"/></radialGradient>' +
+    '<filter id="ptPatine" x="0" y="0" width="100%" height="100%" color-interpolation-filters="sRGB"><feTurbulence type="fractalNoise" baseFrequency=".55" numOctaves="2" seed="9"/><feColorMatrix values="0 0 0 0 .45 0 0 0 0 .3 0 0 0 0 .12 1.4 0 0 0 -.55"/></filter>' +
+    '<clipPath id="ptCoupe"><rect x="6" y="10" width="34" height="70" rx="5"/></clipPath></defs>';
+  /* plaque d'os */
+  s += '<rect x="6" y="10" width="34" height="70" rx="5" fill="url(#ptOs)" stroke="#4A2E10" stroke-width=".9"/>' +
+       '<rect x="4" y="8" width="38" height="74" filter="url(#ptPatine)" opacity=".55" clip-path="url(#ptCoupe)"/>';
+  /* bandes peintes à côté du tube : rouge (rude), ocre (passable), vert-de-gris (tempéré) */
+  var zones = [[VMIN, smin, PIGMENT.mauvais], [smin, 12, PIGMENT.moyen], [12, 20, PIGMENT.ideal], [20, smax, PIGMENT.moyen], [smax, VMAX, PIGMENT.mauvais]], i, z;
   for (i = 0; i < zones.length; i++) {
     z = zones[i];
-    if (z[1] > z[0]) { s += '<path d="' + arc(31, angle(z[0]), angle(z[1])) + '" fill="none" stroke="' + z[2] + '" stroke-width="5.2" stroke-opacity=".92"/>'; }
+    if (z[1] > z[0]) { s += '<rect x="34" y="' + yDe(z[1]).toFixed(1) + '" width="4" height="' + ((z[1] - z[0]) * PX_PAR_DEGRE).toFixed(1) + '" fill="' + z[2] + '" fill-opacity=".9"/>'; }
   }
-  s += '<path d="' + arc(33.7, A0, A1) + '" fill="none" stroke="#3A2408" stroke-width=".55" stroke-opacity=".75"/><path d="' + arc(28.3, A0, A1) + '" fill="none" stroke="#3A2408" stroke-width=".55" stroke-opacity=".75"/>';
-  /* graduations et chiffres */
-  var v, a, major, p, q;
+  s += '<rect x="34" y="' + yDe(VMAX).toFixed(1) + '" width="4" height="' + ((VMAX - VMIN) * PX_PAR_DEGRE).toFixed(1) + '" fill="none" stroke="#3A2408" stroke-width=".5"/>';
+  /* graduations gravées + chiffres romains */
+  var v, y, major, rom = { 10: 'X', 20: 'XX', 30: 'XXX' };
   for (v = VMIN; v <= VMAX; v++) {
-    a = angle(v); major = (v % 5 === 0);
-    p = pt(39.6, a); q = pt(major ? 35 : 37.3, a);
-    s += '<line x1="' + f(p[0]) + '" y1="' + f(p[1]) + '" x2="' + f(q[0]) + '" y2="' + f(q[1]) + '" stroke="#3A2408" stroke-width="' + (major ? 1.1 : .55) + '" stroke-linecap="round"/>';
-    if (v % 10 === 0) {
-      p = pt(22.6, a);
-      s += '<text x="' + f(p[0]) + '" y="' + f(p[1]) + '" dy=".35em" text-anchor="middle" font-family="Georgia,serif" font-weight="bold" font-size="6.4" fill="#3A2408">' + v + '</text>';
-    }
+    y = yDe(v).toFixed(1); major = (v % 5 === 0);
+    s += '<line x1="' + (major ? 16.5 : 19.2) + '" y1="' + y + '" x2="22" y2="' + y + '" stroke="#3A2408" stroke-width="' + (major ? .8 : .4) + '"/>';
+    if (rom[v]) { s += '<text x="15.2" y="' + (yDe(v) + 1.7).toFixed(1) + '" text-anchor="end" font-family="Georgia,serif" font-weight="bold" font-size="4.2" fill="#3A2408">' + rom[v] + '</text>'; }
   }
-  s += '<text x="50" y="73" text-anchor="middle" font-family="Georgia,serif" font-size="4.3" letter-spacing=".7" fill="#5A3A16">RESSENTI</text>';
+  /* tube de verre et bulbe */
+  s += '<rect x="24.8" y="14" width="6.4" height="56" rx="3.2" fill="#fff" fill-opacity=".35" stroke="#5A3A16" stroke-width=".7"/>' +
+       '<circle cx="28" cy="72" r="6.6" fill="url(#ptBulbe)" stroke="#3A0A12" stroke-width=".8"/>' +
+       '<ellipse cx="25.8" cy="69.8" rx="2" ry="1.3" fill="#fff" fill-opacity=".6"/>' +
+       '<line x1="26.4" y1="17" x2="26.4" y2="60" stroke="#fff" stroke-opacity=".75" stroke-width=".8" stroke-linecap="round"/>';
   return s + '</svg>';
 }
 
-/* l'aiguille : acier bruni rouge, contrepoids, moyeu de laiton (pointe vers le haut ; la rotation est faite en CSS) */
-function svgAiguille() {
-  return '<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><defs>' +
-    '<radialGradient id="prbMoyeu" cx=".35" cy=".3" r=".8"><stop offset="0" stop-color="#FFF0A8"/><stop offset=".5" stop-color="#E0AE45"/><stop offset="1" stop-color="#7A4F10"/></radialGradient></defs>' +
-    '<g transform="translate(1.6 2.6)" fill="#000" fill-opacity=".3"><path d="M50 12L53 52H47Z"/><path d="M47 52H53L52 60H48Z"/><circle cx="50" cy="62.5" r="3.4"/></g>' +
-    '<path d="M50 12L53 52H47Z" fill="#8E1220"/><path d="M50 12L47 52H50Z" fill="#B3293A"/><path d="M47 52H53L52 60H48Z" fill="#5E0D16"/><circle cx="50" cy="62.5" r="3.4" fill="#6B0F1A" stroke="#2A0508" stroke-width=".6"/>' +
-    '<circle cx="50" cy="50" r="5.6" fill="url(#prbMoyeu)" stroke="#3A2408" stroke-width=".8"/><path d="M47.3 47.3L52.7 52.7" stroke="#3A2408" stroke-width="1" stroke-linecap="round"/>' +
-    '</svg>';
+/* le cachet de cire de l'état : vert (tempéré), ocre (passable), rouge (rude), avec une ancre en relief */
+function svgCachet(etat) {
+  var c = { ideal: ['#6DB38B', '#3E7F5B', '#1E4A32'], moyen: ['#E8BC55', '#B98A22', '#6B4A10'], mauvais: ['#E8564F', '#B3231F', '#6E1010'] }[etat] || ['#E8BC55', '#B98A22', '#6B4A10'];
+  var blob = 'M20 2C27 1 31 4 35 8C39 12 39 20 38 25C37 32 32 37 25 38C18 40 10 38 6 32C2 27 2 19 4 14C6 7 12 3 20 2Z';
+  var ancre = 'M20 11V29M15 15H25M12 23C13 28 16 30 20 30C24 30 27 28 28 23M12 23L10.5 25M28 23L29.5 25';
+  return '<svg viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg"><defs><radialGradient id="pcCire" cx=".35" cy=".3" r=".85"><stop offset="0" stop-color="' + c[0] + '"/><stop offset=".55" stop-color="' + c[1] + '"/><stop offset="1" stop-color="' + c[2] + '"/></radialGradient></defs>' +
+    '<path d="' + blob + '" fill="#000" fill-opacity=".35" transform="translate(1 2)"/><path d="' + blob + '" fill="url(#pcCire)"/>' +
+    '<circle cx="20" cy="20" r="14" fill="none" stroke="' + c[2] + '" stroke-opacity=".55" stroke-width="1.3"/>' +
+    '<path d="' + ancre + '" transform="translate(.7 .8)" fill="none" stroke="' + c[2] + '" stroke-opacity=".7" stroke-width="2" stroke-linecap="round"/>' +
+    '<path d="' + ancre + '" fill="none" stroke="' + c[0] + '" stroke-opacity=".6" stroke-width="1.3" stroke-linecap="round"/></svg>';
+}
+
+/* la ligne de loch : une corde qui pend entre deux clous, un nœud par heure (8 h à 21 h) */
+function svgLoch(jour, heureNow, conseil) {
+  var W = 210, n = jour.length, x0 = 12, x1 = W - 12, i, s;
+  function xi(k) { return x0 + k * (x1 - x0) / (n - 1); }
+  function yi(x) { return 11 + 3.4 * Math.sin(Math.PI * x / W); }
+  var d = 'M3 ' + yi(3).toFixed(1);
+  for (i = 1; i <= 40; i++) { var xx = 3 + i * (W - 6) / 40; d += 'L' + xx.toFixed(1) + ' ' + yi(xx).toFixed(1); }
+  s = '<svg class="pr-loch" viewBox="0 0 ' + W + ' 38" xmlns="http://www.w3.org/2000/svg"><defs>' +
+    '<radialGradient id="plNoeud" cx=".35" cy=".3" r=".8"><stop offset="0" stop-color="#fff" stop-opacity=".7"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient></defs>' +
+    '<path d="' + d + '" fill="none" stroke="#000" stroke-opacity=".35" stroke-width="3.2" stroke-linecap="round" transform="translate(0 1.6)"/>' +
+    '<path d="' + d + '" fill="none" stroke="#5E4A2A" stroke-width="2.6" stroke-linecap="round"/>' +
+    '<path d="' + d + '" fill="none" stroke="#BFA26C" stroke-width="1.6" stroke-dasharray="2.2 2.4"/>';
+  var nails = [3, W - 3], k;
+  for (k = 0; k < 2; k++) { s += '<circle cx="' + nails[k] + '" cy="' + yi(nails[k]).toFixed(1) + '" r="2.6" fill="#2A3038" stroke="#0E1115" stroke-width=".6"/><circle cx="' + (nails[k] - .7) + '" cy="' + (yi(nails[k]) - .7).toFixed(1) + '" r=".8" fill="#9AA4AE"/>'; }
+  for (i = 0; i < n; i++) {
+    var t = jour[i], x = xi(i), y = yi(x), perm = (t.charAt(0) === t.charAt(0).toUpperCase()), st = t.charAt(0).toLowerCase(), pluie = t.indexOf('*') !== -1;
+    var heure = 8 + i, col = PIGMENT[st === 'i' ? 'ideal' : st === 'm' ? 'moyen' : 'mauvais'];
+    if (perm) {
+      s += '<circle cx="' + x.toFixed(1) + '" cy="' + y.toFixed(1) + '" r="3.7" fill="' + col + '" stroke="#2A1804" stroke-width=".7"/><circle cx="' + x.toFixed(1) + '" cy="' + y.toFixed(1) + '" r="3.7" fill="url(#plNoeud)"/>';
+    } else {
+      s += '<circle cx="' + x.toFixed(1) + '" cy="' + y.toFixed(1) + '" r="2.5" fill="#CDBA88" stroke="#8A7A58" stroke-width="1"/>';
+    }
+    if (pluie) { s += '<path d="M' + x.toFixed(1) + ' ' + (y - 11).toFixed(1) + 'c-1.5 2.2-2.2 3.4-2.2 4.4a2.2 2.2 0 0 0 4.4 0c0-1-.7-2.2-2.2-4.4z" fill="#2F6FB0" fill-opacity=".9"/>'; }
+    if (heure === conseil) { s += '<path d="M' + (x - 5.6).toFixed(1) + ' ' + (y - 2.2).toFixed(1) + 'A6.2 5.8 0 1 1 ' + (x - 6).toFixed(1) + ' ' + (y + .8).toFixed(1) + '" fill="none" stroke="#8E1220" stroke-width="1.3" stroke-linecap="round"/>'; }
+    if (heure === heureNow) { s += '<path d="M' + x.toFixed(1) + ' ' + (y + 6.2).toFixed(1) + 'L' + (x - 2.7).toFixed(1) + ' ' + (y + 10.8).toFixed(1) + 'H' + (x + 2.7).toFixed(1) + 'Z" fill="#B8862E" stroke="#4A2F08" stroke-width=".6"/>'; }
+    if (i % 3 === 0) { s += '<text x="' + x.toFixed(1) + '" y="34" text-anchor="middle" font-family="Georgia,serif" font-style="italic" font-size="6" fill="#5A3A16">' + heure + 'h</text>'; }
+  }
+  return s + '</svg>';
+}
+
+function motEtat(etat, v) {
+  if (etat === 'ideal') { return 'Tempéré'; }
+  if (etat === 'moyen') { return v < 12 ? 'Frais' : 'Chaud'; }
+  return v < 12 ? 'Glacial' : 'Étouffant';
 }
 
 function equiper() {
   var carte = zone.querySelector('.meteo-carte');
-  if (!carte || carte.querySelector('.pr-baro')) { return; }
+  if (!carte || carte.querySelector('.pr-thermo')) { return; }
+  var m = /meteo-(ideal|moyen|mauvais)/.exec(carte.className), etat = m ? m[1] : 'moyen';
   var temp = carte.querySelector('.meteo-temp'), sous = carte.querySelector('.meteo-sous');
   var v = parseFloat(carte.getAttribute('data-ressenti'));
   if (isNaN(v) && temp) { v = parseFloat(temp.textContent); }
@@ -9506,20 +9544,31 @@ function equiper() {
   var smin = parseFloat(carte.getAttribute('data-smin')); if (isNaN(smin)) { smin = 5; }
   var smax = parseFloat(carte.getAttribute('data-smax')); if (isNaN(smax)) { smax = 28; }
   smin = Math.min(smin, 12); smax = Math.max(smax, 20);
-  var pluie = carte.getAttribute('data-pluie') === '1' || !!(sous && /pluie/.test(sous.textContent));
+  var pluie = carte.getAttribute('data-pluie') === '1';
+  var mh = /(\d{1,2})h/.exec(sous ? sous.textContent : ''), conseil = mh ? parseInt(mh[1], 10) : null;
+  var brut = carte.getAttribute('data-jour') || '', jour = brut ? brut.split(',').filter(function (t) { return t !== ''; }) : [];
 
-  var cadre = document.createElement('div');
-  cadre.className = 'pr-baro';
-  cadre.innerHTML = svgCadran(smin, smax) + '<div class="pr-baro-aig">' + svgAiguille() + '</div>' + (pluie ? '<i class="pr-baro-goutte"></i>' : '');
-  carte.insertBefore(cadre, carte.firstChild);
+  /* thermomètre */
+  var th = document.createElement('div');
+  th.className = 'pr-thermo';
+  th.innerHTML = svgThermo(smin, smax) + '<div class="pr-thermo-liq"><i></i></div>';
+  carte.insertBefore(th, carte.firstChild);
 
-  /* l'aiguille part du minimum puis se cale sur le ressenti (rebond en CSS) */
-  var aig = cadre.querySelector('.pr-baro-aig');
-  aig.style.webkitTransform = 'rotate(' + A0 + 'deg)'; aig.style.transform = 'rotate(' + A0 + 'deg)';
-  window.setTimeout(function () {
-    var a = 'rotate(' + angle(v) + 'deg)';
-    aig.style.webkitTransform = a; aig.style.transform = a;
-  }, 140);
+  /* parchemin écrit à l'encre */
+  var textes = carte.querySelector('.meteo-textes');
+  if (textes) {
+    var ligne = (conseil !== null) ? 'Appareiller à ' + conseil + 'h' + (pluie ? ', sous la pluie' : '') : 'Plus de départ aujourd\'hui : on mouille l\'ancre.';
+    var p = document.createElement('div');
+    p.className = 'pr-parch';
+    p.innerHTML = '<div class="pr-parch-titre">' + Math.round(v) + '° · ' + motEtat(etat, v) + '</div><div class="pr-parch-ligne">' + ligne + '</div>' +
+      (jour.length ? svgLoch(jour, new Date().getHours(), conseil) : '') + '<span class="pr-cachet">' + svgCachet(etat) + '</span>';
+    textes.appendChild(p);
+  }
+
+  /* l'esprit-de-vin monte dans le tube (rebond en CSS) */
+  var liq = th.querySelector('.pr-thermo-liq');
+  liq.style.height = '0px';
+  window.setTimeout(function () { liq.style.height = (6 + (bornes(v) - VMIN) * PX_PAR_DEGRE).toFixed(1) + 'px'; }, 160);
 }
 
 new MutationObserver(equiper).observe(zone, { childList: true });
