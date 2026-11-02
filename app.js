@@ -3876,10 +3876,10 @@ function couleurCompteARebours(fractionRestante) {
 var SONS_PAR_THEME = {
   sombre:     [],
   clair:      [],
-  automnal:   [],
+  automnal:   ['automnal1', 'automnal2', 'automnal3', 'automnal4', 'automnal5', 'automnal6', 'automnal7'],
   effroi:     ['effroi1', 'effroi2', 'effroi3', 'effroi4', 'effroi5', 'effroi6', 'effroi7', 'effroi8'],
   hivernal:   [],
-  paindepice: ['paindepice1', 'paindepice2', 'paindepice3', 'paindepice4', 'paindepice5', 'paindepice6'],
+  paindepice: ['paindepice1', 'paindepice2', 'paindepice3', 'paindepice4', 'paindepice5', 'paindepice6', 'paindepice7', 'paindepice8', 'paindepice9'],
   printanier: [],
   pastel:     [],
   estival:    ['estival1', 'estival2'],
@@ -3887,7 +3887,7 @@ var SONS_PAR_THEME = {
   steampunk:  [],
   flibuste:   ['pirate1', 'pirate2', 'pirate3'],
   ruedor:     ['western1', 'western2', "western3"],
-  wasteland:  ['wasteland1', 'wasteland2', 'wasteland3', 'wasteland4', 'wasteland5', 'wasteland6', 'wasteland7', 'wasteland8', 'wasteland9', 'wasteland10']
+  wasteland:  ['wasteland1', 'wasteland2', 'wasteland3', 'wasteland4', 'wasteland5', 'wasteland6', 'wasteland7', 'wasteland8', 'wasteland9', 'wasteland10', 'wasteland11']
 };
 
 var dernierSonParTheme = {};

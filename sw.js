@@ -11,6 +11,13 @@ const urlsToCache = [
   './fonts/metrim.woff2',
 
   /* Sons */
+  './sons/automnal1.mp3',
+  './sons/automnal2.mp3',
+  './sons/automnal3.mp3',
+  './sons/automnal4.mp3',
+  './sons/automnal5.mp3',
+  './sons/automnal6.mp3',
+  './sons/automnal7.mp3',
   './sons/effroi1.mp3',
   './sons/effroi2.mp3',
   './sons/effroi3.mp3',
@@ -25,6 +32,9 @@ const urlsToCache = [
   './sons/paindepice4.mp3',
   './sons/paindepice5.mp3',
   './sons/paindepice6.mp3',
+  './sons/paindepice7.mp3',
+  './sons/paindepice8.mp3',
+  './sons/paindepice9.mp3',
   './sons/estival1.mp3',
   './sons/estival2.mp3',
   './sons/cyberpunk1.mp3',
@@ -53,6 +63,7 @@ const urlsToCache = [
   './sons/wasteland8.mp3',
   './sons/wasteland9.mp3',
   './sons/wasteland10.mp3',
+  './sons/wasteland11.mp3',
 ];
 self.addEventListener('install', (event) => {
   event.waitUntil(
