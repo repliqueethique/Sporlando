@@ -7130,7 +7130,7 @@ body { background: transparent; }
   top: 0; bottom: 0;
   left: -5px;
   width: 16px;
-  z-index: 19;
+  z-index: 18;
   pointer-events: none;
   background:
     repeating-linear-gradient(180deg, rgba(255,255,255,0) 0, rgba(255,255,255,0) 88px, rgba(255,255,255,.14) 88px, rgba(255,255,255,.14) 89.4px, rgba(0,0,0,0) 89.4px, rgba(0,0,0,0) 140px),
@@ -7662,13 +7662,17 @@ body { background: transparent; }
 :root[data-theme="flibuste"] .meteo-plage { fill: #B8862E; fill-opacity: .2; }
 :root[data-theme="flibuste"] .meteo-goutte { fill: #2F6FB0; fill-opacity: .85; }
 
-/* ---------- la carte : planche de chêne cloutée, thermomètre à esprit-de-vin, parchemin et ligne de loch ---------- */
+/* ---------- la carte : planche de chêne cloutée, thermomètre de cuivre, papier à la plume, ligne de loch ---------- */
+:root[data-theme="flibuste"] { --pr-ecriture: 'La Belle Aurore', 'Segoe Script', 'Brush Script MT', cursive; }
+:root[data-theme="flibuste"] .meteo-ideal { --pr-teinte: 62,127,91; }
+:root[data-theme="flibuste"] .meteo-moyen { --pr-teinte: 196,138,30; }
+:root[data-theme="flibuste"] .meteo-mauvais { --pr-teinte: 163,38,28; }
+
 :root[data-theme="flibuste"] .meteo-carte {
   display: -webkit-box; display: flex;
   flex-wrap: nowrap;
   align-items: center;
-  min-height: 108px;
-  padding: 10px 14px;
+  padding: 6px 12px 6px 14px;
   margin-bottom: 14px;
   border: 0;
   border-radius: 10px;
@@ -7679,11 +7683,17 @@ body { background: transparent; }
   background-origin: padding-box;
   background-clip: border-box;
   box-shadow: inset 0 0 0 1px #0E0905, inset 0 1px 0 rgba(255,200,130,.22), inset 0 -3px 5px rgba(0,0,0,.45), 0 7px 14px rgba(0,0,0,.55);
-  overflow: hidden;
+  overflow: visible;
 }
+/* le bois prend à gauche la couleur du ressenti : vert-de-gris, ocre ou vermillon */
 :root[data-theme="flibuste"] .meteo-carte::before {
-  background: radial-gradient(ellipse at 0 100%, rgba(255,150,60,.2) 0, rgba(255,150,60,0) 64%);
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  border-radius: 10px;
+  pointer-events: none;
   opacity: 1;
+  background: radial-gradient(ellipse 75% 130% at 0 55%, rgba(var(--pr-teinte), .5) 0, rgba(var(--pr-teinte), .2) 42%, rgba(var(--pr-teinte), 0) 78%);
 }
 /* quatre gros clous de forge aux coins */
 :root[data-theme="flibuste"] .meteo-carte::after {
@@ -7702,26 +7712,32 @@ body { background: transparent; }
 :root[data-theme="flibuste"] .meteo-temp,
 :root[data-theme="flibuste"] .meteo-sous { display: none; }
 
-/* le thermomètre à esprit-de-vin : monture de chêne, plaque d'os gravée, tube de verre */
-.pr-thermo, .pr-parch { display: none; }
+/* le thermomètre : plaque de cuivre martelé à sommet arrondi, plus haute que la planche */
+.pr-thermo, .pr-parch, .pr-attache { display: none; }
 :root[data-theme="flibuste"] .pr-thermo {
   display: block;
   position: relative;
-  flex: 0 0 46px;
-  width: 46px; height: 88px;
-  margin-right: 13px;
-  border-radius: 23px 23px 7px 7px;
-  background-color: #4A3118;
-  background-image: linear-gradient(180deg, rgba(255,200,130,.18) 0, rgba(0,0,0,.25) 100%), var(--pr-bois);
-  background-size: 100% 100%, 240px 240px;
-  box-shadow: inset 0 0 0 1.5px #0E0905, inset 0 0 0 3px #7A5530, inset 0 0 0 4.5px #20130A, 0 5px 9px rgba(0,0,0,.6);
+  flex: 0 0 52px;
+  width: 52px; height: 98px;
+  margin: -9px 14px -9px 0;
+  border-radius: 26px 26px 6px 6px;
+  overflow: hidden;
+  box-shadow: 0 5px 10px rgba(0,0,0,.65), 0 0 0 1px rgba(30,12,4,.8);
+}
+:root[data-theme="flibuste"] .pr-thermo::after {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  box-shadow: inset 0 0 0 1.5px rgba(40,16,4,.8), inset 0 0 0 2.5px rgba(255,214,170,.3);
 }
 :root[data-theme="flibuste"] .pr-thermo-svg { display: block; position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
 /* la colonne d'esprit-de-vin monte avec un petit rebond ; une bulle remonte de temps en temps */
 :root[data-theme="flibuste"] .pr-thermo-liq {
   position: absolute;
-  left: 25px; bottom: 18px;
-  width: 6px; height: 0;
+  left: 25.8px; bottom: 14px;
+  width: 6.4px; height: 0;
   overflow: hidden;
   background: linear-gradient(90deg, #E0455A, #B01E36 45%, #6E0F20);
   -webkit-transition: height 2.6s cubic-bezier(.25, 1.4, .4, 1); transition: height 2.6s cubic-bezier(.25, 1.4, .4, 1);
@@ -7737,45 +7753,57 @@ body { background: transparent; }
 @-webkit-keyframes prBulleEsprit { 0% { bottom: 0; opacity: 0; } 15% { opacity: .8; } 100% { bottom: 100%; opacity: 0; } }
 @keyframes prBulleEsprit { 0% { bottom: 0; opacity: 0; } 15% { opacity: .8; } 100% { bottom: 100%; opacity: 0; } }
 
-/* le parchemin : titre à l'encre, créneau conseillé, ligne de loch, cachet de cire de l'état */
+/* le texte : un bout de papier (texte seulement), la corde est sur le bois */
 :root[data-theme="flibuste"] .meteo-textes {
   position: relative;
   flex: 1; min-width: 0;
-  align-self: stretch;
+  align-self: center;
   display: -webkit-box; display: flex;
-  align-items: center;
-  padding: 9px 12px 6px 14px;
-  border-radius: 4px 9px 5px 10px / 9px 4px 10px 5px;
-  background-color: #DCC590;
-  background-image: var(--pr-taches), var(--pr-papier);
-  background-size: 240px 240px, 100% 100%;
-  box-shadow: inset 0 0 22px rgba(110,62,18,.65), inset 0 0 0 1px rgba(60,32,10,.3), 0 4px 8px rgba(0,0,0,.55);
+  -webkit-box-orient: vertical; flex-direction: column;
+  justify-content: center;
+  padding: 0;
+  background: none;
+  box-shadow: none;
+  border-radius: 0;
 }
 :root[data-theme="flibuste"] .meteo-textes::before { display: none; }
 :root[data-theme="flibuste"] .pr-parch { display: block; width: 100%; }
-:root[data-theme="flibuste"] .pr-parch-titre {
-  padding-right: 30px;
-  font-family: var(--police-titre);
-  font-size: 22px; line-height: 1.1;
-  color: #4A1208;
-  text-shadow: 0 1px 0 rgba(255,240,200,.55);
+:root[data-theme="flibuste"] .pr-papier {
+  position: relative;
+  height: 39px;
+  box-sizing: border-box;
+  padding: 3px 18px 2px;
+  display: -webkit-box; display: flex;
+  -webkit-box-orient: vertical; flex-direction: column;
+  justify-content: center;
 }
-:root[data-theme="flibuste"] .pr-parch-ligne { margin: 1px 0 3px; font-family: Georgia, serif; font-style: italic; font-size: 13px; color: #3A2410; }
-:root[data-theme="flibuste"] .pr-loch {
+:root[data-theme="flibuste"] .pr-papier-fond {
+  position: absolute; left: 0; top: 0; width: 100%; height: 100%;
+  z-index: 0;
+  -webkit-filter: drop-shadow(0 2px 2.5px rgba(0,0,0,.6)); filter: drop-shadow(0 2px 2.5px rgba(0,0,0,.6));
+}
+:root[data-theme="flibuste"] .pr-papier-fond svg { display: block; }
+:root[data-theme="flibuste"] .pr-parch-titre { position: relative; z-index: 1; font-family: var(--pr-ecriture); font-size: 19px; line-height: 1; color: #2B1608; text-shadow: none; }
+:root[data-theme="flibuste"] .pr-parch-ligne { position: relative; z-index: 1; margin-top: 1px; font-family: var(--pr-ecriture); font-size: 13px; line-height: 1.05; font-style: normal; color: #3A1E0A; text-shadow: none; }
+:root[data-theme="flibuste"] .pr-loch { display: block; width: 100%; height: auto; margin-top: 1px; }
+
+/* deux cerclages de fer : la planche est attachée au mât (rien qui gêne le défilement) */
+:root[data-theme="flibuste"] .pr-attache {
   display: block;
-  width: 100%; height: auto;
-  -webkit-transform-origin: 4% 30%; transform-origin: 4% 30%;
-  -webkit-animation: prLoch 6s ease-in-out infinite; animation: prLoch 6s ease-in-out infinite;
-}
-@-webkit-keyframes prLoch { 0%, 100% { -webkit-transform: rotate(-.5deg); } 50% { -webkit-transform: rotate(.5deg); } }
-@keyframes prLoch { 0%, 100% { transform: rotate(-.5deg); } 50% { transform: rotate(.5deg); } }
-:root[data-theme="flibuste"] .pr-cachet {
   position: absolute;
-  top: -7px; right: 6px;
-  width: 30px; height: 30px;
-  -webkit-transform: rotate(-10deg); transform: rotate(-10deg);
+  z-index: 19;
+  height: 11px;
+  border-radius: 2px;
+  pointer-events: none;
+  background-color: #1A1E24;
+  background-image:
+    radial-gradient(circle at 4px 50%, #AEB8C2 0, #AEB8C2 .8px, #3A424C 1.6px, rgba(0,0,0,0) 2.4px),
+    radial-gradient(circle at calc(100% - 5px) 50%, #AEB8C2 0, #AEB8C2 .8px, #3A424C 1.6px, rgba(0,0,0,0) 2.4px),
+    linear-gradient(180deg, #666F7B 0, #333A43 24%, #1A1E24 78%, #0F1216 100%);
+  box-shadow: 0 2px 3px rgba(0,0,0,.7), inset 0 1px 0 rgba(255,255,255,.22), inset 0 -1px 0 rgba(0,0,0,.5);
 }
-:root[data-theme="flibuste"] .pr-cachet svg { display: block; width: 100%; height: 100%; }
+:root[data-theme="flibuste"] .pr-attache-haut { top: 17%; }
+:root[data-theme="flibuste"] .pr-attache-bas { top: 66%; }
 
 /* ---------- la fenêtre : page de journal de bord sur parchemin ---------- */
 :root[data-theme="flibuste"] .pr-journal {

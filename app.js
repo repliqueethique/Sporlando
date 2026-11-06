@@ -9439,90 +9439,171 @@ for (var n = 0; n < noms.length; n++) {
 carte.insertBefore(frag, carte.firstChild);
 })();
 
-/* ===== THÈME FLIBUSTE : CARTE MÉTÉO = THERMOMÈTRE À ESPRIT-DE-VIN, PARCHEMIN ET LIGNE DE LOCH ===== */
+/* ===== THÈME FLIBUSTE : CARTE MÉTÉO = THERMOMÈTRE DE CUIVRE, PAPIER À LA PLUME ET LIGNE DE LOCH ===== */
 (function () {
 'use strict';
 
 var zone = document.getElementById('zone-banniere-meteo');
 if (!zone) { return; }
 
+var racine = document.documentElement;
+var calme = racine.className.indexOf('pr-calme') !== -1;
+var ECRITURE = "'La Belle Aurore', 'Segoe Script', 'Brush Script MT', cursive";
+
 var VMIN = -5, VMAX = 35;            /* échelle gravée : de -5° à 35° de ressenti */
-var PX_PAR_DEGRE = 1.15;             /* hauteur d'un degré sur la plaque d'os, en pixels */
+var PX_PAR_DEGRE = 1.2;              /* hauteur d'un degré sur le cuivre, en pixels */
+var Y_VMIN = 72, Y_BASE_TUBE = 84;   /* position (en pixels) du -5° et du pied de la colonne */
 var PIGMENT = { ideal: '#3E7F5B', moyen: '#C48A1E', mauvais: '#A3261C' };  /* vert-de-gris, ocre, vermillon */
 
 function bornes(v) { return Math.max(VMIN, Math.min(VMAX, v)); }
-function yDe(v) { return 64 - (bornes(v) - VMIN) * PX_PAR_DEGRE; }
+function yDe(v) { return Y_VMIN - (bornes(v) - VMIN) * PX_PAR_DEGRE; }
 
-/* le thermomètre : monture de chêne, plaque d'os gravée, tube de verre, bulbe */
+/* ---------- le thermomètre : plaque de cuivre martelé à sommet arrondi, échelle gravée, tube de verre ---------- */
 function svgThermo(smin, smax) {
-  var s = '<svg class="pr-thermo-svg" viewBox="0 0 46 88" xmlns="http://www.w3.org/2000/svg"><defs>' +
-    '<linearGradient id="ptOs" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#F0E6C8"/><stop offset="1" stop-color="#CDBA88"/></linearGradient>' +
+  var s = '<svg class="pr-thermo-svg" viewBox="0 0 52 98" xmlns="http://www.w3.org/2000/svg"><defs>' +
+    '<linearGradient id="ptCu" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#E3955A"/><stop offset=".4" stop-color="#C06A33"/><stop offset=".75" stop-color="#93481D"/><stop offset="1" stop-color="#5E2C0E"/></linearGradient>' +
     '<radialGradient id="ptBulbe" cx=".35" cy=".3" r=".85"><stop offset="0" stop-color="#FF8A9A"/><stop offset=".45" stop-color="#C21F3A"/><stop offset="1" stop-color="#6A0C1E"/></radialGradient>' +
-    '<filter id="ptPatine" x="0" y="0" width="100%" height="100%" color-interpolation-filters="sRGB"><feTurbulence type="fractalNoise" baseFrequency=".55" numOctaves="2" seed="9"/><feColorMatrix values="0 0 0 0 .45 0 0 0 0 .3 0 0 0 0 .12 1.4 0 0 0 -.55"/></filter>' +
-    '<clipPath id="ptCoupe"><rect x="6" y="10" width="34" height="70" rx="5"/></clipPath></defs>';
-  /* plaque d'os */
-  s += '<rect x="6" y="10" width="34" height="70" rx="5" fill="url(#ptOs)" stroke="#4A2E10" stroke-width=".9"/>' +
-       '<rect x="4" y="8" width="38" height="74" filter="url(#ptPatine)" opacity=".55" clip-path="url(#ptCoupe)"/>';
+    '<radialGradient id="ptPatine" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#58AA8C" stop-opacity=".5"/><stop offset="1" stop-color="#58AA8C" stop-opacity="0"/></radialGradient>' +
+    '<radialGradient id="ptBord" cx=".5" cy=".5" r=".75"><stop offset=".55" stop-color="#3A1A08" stop-opacity="0"/><stop offset="1" stop-color="#3A1A08" stop-opacity=".5"/></radialGradient>' +
+    '<filter id="ptMarteau" x="0" y="0" width="100%" height="100%" color-interpolation-filters="sRGB"><feTurbulence type="fractalNoise" baseFrequency=".11" numOctaves="3" seed="4" result="b"/><feDiffuseLighting in="b" lighting-color="#FFD3A8" surfaceScale="1.8" diffuseConstant="1"><feDistantLight azimuth="225" elevation="52"/></feDiffuseLighting></filter></defs>';
+  /* cuivre : dégradé, martelage, patine verte, ombrage des bords, reflet */
+  s += '<rect width="52" height="98" fill="url(#ptCu)"/>' +
+       '<rect width="52" height="98" filter="url(#ptMarteau)" opacity=".2"/>' +
+       '<circle cx="5" cy="95" r="16" fill="url(#ptPatine)"/><circle cx="48" cy="92" r="13" fill="url(#ptPatine)"/><circle cx="50" cy="36" r="9" fill="url(#ptPatine)" opacity=".6"/>' +
+       '<rect width="52" height="98" fill="url(#ptBord)"/>' +
+       '<path d="M0 0H30L0 52Z" fill="#fff" fill-opacity=".08"/>';
+  /* filet gravé suivant le contour arrondi */
+  s += '<path d="M4 98V26.5A22 22 0 0 1 48 26.5V98" fill="none" stroke="#4A2410" stroke-opacity=".75" stroke-width=".9"/>' +
+       '<path d="M5.2 98V26.5A20.8 20.8 0 0 1 46.8 26.5V98" fill="none" stroke="#F4C99A" stroke-opacity=".5" stroke-width=".6"/>';
   /* bandes peintes à côté du tube : rouge (rude), ocre (passable), vert-de-gris (tempéré) */
-  var zones = [[VMIN, smin, PIGMENT.mauvais], [smin, 12, PIGMENT.moyen], [12, 20, PIGMENT.ideal], [20, smax, PIGMENT.moyen], [smax, VMAX, PIGMENT.mauvais]], i, z;
+  var zones = [[VMIN, smin, PIGMENT.mauvais], [smin, 12, '#E0AE45'], [12, 20, PIGMENT.ideal], [20, smax, '#E0AE45'], [smax, VMAX, PIGMENT.mauvais]], i, z;
   for (i = 0; i < zones.length; i++) {
     z = zones[i];
-    if (z[1] > z[0]) { s += '<rect x="34" y="' + yDe(z[1]).toFixed(1) + '" width="4" height="' + ((z[1] - z[0]) * PX_PAR_DEGRE).toFixed(1) + '" fill="' + z[2] + '" fill-opacity=".9"/>'; }
+    if (z[1] > z[0]) { s += '<rect x="36.5" y="' + yDe(z[1]).toFixed(1) + '" width="4.2" height="' + ((z[1] - z[0]) * PX_PAR_DEGRE).toFixed(1) + '" fill="' + z[2] + '"/>'; }
   }
-  s += '<rect x="34" y="' + yDe(VMAX).toFixed(1) + '" width="4" height="' + ((VMAX - VMIN) * PX_PAR_DEGRE).toFixed(1) + '" fill="none" stroke="#3A2408" stroke-width=".5"/>';
-  /* graduations gravées + chiffres romains */
+  s += '<rect x="36.5" y="' + yDe(VMAX).toFixed(1) + '" width="4.2" height="' + ((VMAX - VMIN) * PX_PAR_DEGRE).toFixed(1) + '" fill="none" stroke="#3A1A08" stroke-width=".6"/>';
+  /* graduations gravées + chiffres romains écrits à la main */
   var v, y, major, rom = { 10: 'X', 20: 'XX', 30: 'XXX' };
   for (v = VMIN; v <= VMAX; v++) {
     y = yDe(v).toFixed(1); major = (v % 5 === 0);
-    s += '<line x1="' + (major ? 16.5 : 19.2) + '" y1="' + y + '" x2="22" y2="' + y + '" stroke="#3A2408" stroke-width="' + (major ? .8 : .4) + '"/>';
-    if (rom[v]) { s += '<text x="15.2" y="' + (yDe(v) + 1.7).toFixed(1) + '" text-anchor="end" font-family="Georgia,serif" font-weight="bold" font-size="4.2" fill="#3A2408">' + rom[v] + '</text>'; }
+    s += '<line x1="' + (major ? 19.5 : 22) + '" y1="' + y + '" x2="25.2" y2="' + y + '" stroke="#3A1A08" stroke-width="' + (major ? .8 : .4) + '"/>';
+    if (rom[v]) { s += '<text x="18.2" y="' + (yDe(v) + 2.3).toFixed(1) + '" text-anchor="end" font-family="' + ECRITURE + '" font-size="7.2" fill="#2A1204">' + rom[v] + '</text>'; }
   }
   /* tube de verre et bulbe */
-  s += '<rect x="24.8" y="14" width="6.4" height="56" rx="3.2" fill="#fff" fill-opacity=".35" stroke="#5A3A16" stroke-width=".7"/>' +
-       '<circle cx="28" cy="72" r="6.6" fill="url(#ptBulbe)" stroke="#3A0A12" stroke-width=".8"/>' +
-       '<ellipse cx="25.8" cy="69.8" rx="2" ry="1.3" fill="#fff" fill-opacity=".6"/>' +
-       '<line x1="26.4" y1="17" x2="26.4" y2="60" stroke="#fff" stroke-opacity=".75" stroke-width=".8" stroke-linecap="round"/>';
+  s += '<rect x="25.8" y="17" width="6.4" height="66" rx="3.2" fill="#fff" fill-opacity=".34" stroke="#4A2410" stroke-width=".7"/>' +
+       '<circle cx="29" cy="88.5" r="7.2" fill="url(#ptBulbe)" stroke="#3A0A12" stroke-width=".8"/>' +
+       '<ellipse cx="26.6" cy="86" rx="2.2" ry="1.4" fill="#fff" fill-opacity=".6"/>' +
+       '<line x1="27.4" y1="21" x2="27.4" y2="72" stroke="#fff" stroke-opacity=".8" stroke-width=".8" stroke-linecap="round"/>';
   return s + '</svg>';
 }
 
-/* le cachet de cire de l'état : vert (tempéré), ocre (passable), rouge (rude), avec une ancre en relief */
-function svgCachet(etat) {
-  var c = { ideal: ['#6DB38B', '#3E7F5B', '#1E4A32'], moyen: ['#E8BC55', '#B98A22', '#6B4A10'], mauvais: ['#E8564F', '#B3231F', '#6E1010'] }[etat] || ['#E8BC55', '#B98A22', '#6B4A10'];
-  var blob = 'M20 2C27 1 31 4 35 8C39 12 39 20 38 25C37 32 32 37 25 38C18 40 10 38 6 32C2 27 2 19 4 14C6 7 12 3 20 2Z';
-  var ancre = 'M20 11V29M15 15H25M12 23C13 28 16 30 20 30C24 30 27 28 28 23M12 23L10.5 25M28 23L29.5 25';
-  return '<svg viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg"><defs><radialGradient id="pcCire" cx=".35" cy=".3" r=".85"><stop offset="0" stop-color="' + c[0] + '"/><stop offset=".55" stop-color="' + c[1] + '"/><stop offset="1" stop-color="' + c[2] + '"/></radialGradient></defs>' +
-    '<path d="' + blob + '" fill="#000" fill-opacity=".35" transform="translate(1 2)"/><path d="' + blob + '" fill="url(#pcCire)"/>' +
-    '<circle cx="20" cy="20" r="14" fill="none" stroke="' + c[2] + '" stroke-opacity=".55" stroke-width="1.3"/>' +
-    '<path d="' + ancre + '" transform="translate(.7 .8)" fill="none" stroke="' + c[2] + '" stroke-opacity=".7" stroke-width="2" stroke-linecap="round"/>' +
-    '<path d="' + ancre + '" fill="none" stroke="' + c[0] + '" stroke-opacity=".6" stroke-width="1.3" stroke-linecap="round"/></svg>';
+/* ---------- le papier : contour brut, déchirures, bords brûlés, taches, pli ---------- */
+function graine(n) {
+  var s = n % 2147483646; if (s <= 0) { s += 2147483646; }
+  return function () { s = s * 16807 % 2147483647; return (s - 1) / 2147483646; };
 }
 
-/* la ligne de loch : une corde qui pend entre deux clous, un nœud par heure (8 h à 21 h) */
+function papierSvg(w, h) {
+  var r = graine(Math.round(w * 7 + h * 13)), m = 4, k, t, a, j, q, d;
+  var coins = [[m, m], [w - m, m], [w - m, h - m], [m, h - m]];
+  var normales = [[0, -1], [1, 0], [0, 1], [-1, 0]];
+  var coinCoupe = Math.floor(r() * 4), morsure = 9;
+  /* déchirures : arête, position (0 à 1), profondeur, demi-largeur */
+  var dechirures = [], aretesDech = [0, 2, 1, 3, 0], nbDech = 4 + Math.floor(r() * 2);
+  for (k = 0; k < nbDech; k++) { dechirures.push({ ar: aretesDech[k], t: .14 + r() * .72, prof: 4 + r() * 6, lar: (k % 2) ? 1.3 : 3 + r() * 3 }); }
+  var pts = [];
+  for (a = 0; a < 4; a++) {
+    var ax = coins[a][0], ay = coins[a][1], bx = coins[(a + 1) % 4][0], by = coins[(a + 1) % 4][1];
+    var nx = normales[a][0], ny = normales[a][1];
+    var L = Math.sqrt((bx - ax) * (bx - ax) + (by - ay) * (by - ay)), ex = (bx - ax) / L, ey = (by - ay) / L;
+    var t0 = (a === coinCoupe) ? morsure / L : 0;
+    var t1 = (((a + 1) % 4) === coinCoupe) ? 1 - morsure / L : 1;
+    var n = Math.max(4, Math.round(L / 6)), items = [], off, dansDech;
+    for (j = 0; j <= n; j++) {
+      if (j === n && t1 === 1) { continue; }               /* le coin est déjà donné par l'arête suivante */
+      t = t0 + (t1 - t0) * j / n;
+      dansDech = false;
+      for (q = 0; q < dechirures.length; q++) { d = dechirures[q]; if (d.ar === a && Math.abs(t - d.t) < (d.lar + 2) / L) { dansDech = true; } }
+      if (dansDech) { continue; }
+      off = (r() - .5) * 2.6 + 1.1 * Math.sin(t * 9 + a * 2);
+      items.push({ t: t, p: [ax + (bx - ax) * t + nx * off, ay + (by - ay) * t + ny * off] });
+    }
+    for (q = 0; q < dechirures.length; q++) {
+      d = dechirures[q];
+      if (d.ar !== a) { continue; }
+      var cx = ax + ex * L * d.t, cy = ay + ey * L * d.t;
+      d.p0 = [cx - ex * d.lar + nx * .6, cy - ey * d.lar + ny * .6];
+      d.p1 = [cx + (r() - .5) * 3 - nx * d.prof, cy + (r() - .5) * 3 - ny * d.prof];
+      d.p2 = [cx + ex * d.lar + nx * .6, cy + ey * d.lar + ny * .6];
+      items.push({ t: d.t - d.lar / L, p: d.p0 }, { t: d.t, p: d.p1 }, { t: d.t + d.lar / L, p: d.p2 });
+    }
+    items.sort(function (u, v) { return u.t - v.t; });
+    for (j = 0; j < items.length; j++) { pts.push(items[j].p); }
+  }
+  var chemin = 'M' + pts.map(function (p) { return p[0].toFixed(1) + ' ' + p[1].toFixed(1); }).join('L') + 'Z';
+  var s = '<svg width="' + w + '" height="' + h + '" viewBox="0 0 ' + w + ' ' + h + '" xmlns="http://www.w3.org/2000/svg"><defs>' +
+    '<linearGradient id="ppPap" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#EEDDAA"/><stop offset=".55" stop-color="#DCC48A"/><stop offset="1" stop-color="#C9AC72"/></linearGradient>' +
+    '<radialGradient id="ppTache"><stop offset="0" stop-color="#6E4413" stop-opacity=".36"/><stop offset=".6" stop-color="#6E4413" stop-opacity=".14"/><stop offset="1" stop-color="#6E4413" stop-opacity="0"/></radialGradient>' +
+    '<filter id="ppFlou" x="-20%" y="-60%" width="140%" height="220%"><feGaussianBlur stdDeviation="3.2"/></filter>' +
+    '<filter id="ppGrain" x="0" y="0" width="100%" height="100%" color-interpolation-filters="sRGB"><feTurbulence type="fractalNoise" baseFrequency=".05" numOctaves="3" seed="6"/><feColorMatrix values="0 0 0 0 .45 0 0 0 0 .29 0 0 0 0 .1 1.5 0 0 0 -.62"/></filter>' +
+    '<filter id="ppFibre" x="0" y="0" width="100%" height="100%" color-interpolation-filters="sRGB"><feTurbulence type="fractalNoise" baseFrequency=".9 .6" numOctaves="2" seed="2"/><feColorMatrix values="0 0 0 0 .3 0 0 0 0 .2 0 0 0 0 .08 1.4 0 0 0 -.62"/></filter>' +
+    '<clipPath id="ppCoupe"><path d="' + chemin + '"/></clipPath></defs>';
+  s += '<path d="' + chemin + '" fill="url(#ppPap)"/>';
+  s += '<g clip-path="url(#ppCoupe)">' +
+       '<rect width="' + w + '" height="' + h + '" filter="url(#ppGrain)" opacity=".5"/>' +
+       '<rect width="' + w + '" height="' + h + '" filter="url(#ppFibre)" opacity=".3"/>';
+  /* taches de vieillissement */
+  var nbT = 6, tx, ty, tr;
+  for (k = 0; k < nbT; k++) { tx = r() * w; ty = r() * h; tr = 7 + r() * 13; s += '<circle cx="' + tx.toFixed(1) + '" cy="' + ty.toFixed(1) + '" r="' + tr.toFixed(1) + '" fill="url(#ppTache)"/>'; }
+  tx = w * (.55 + r() * .3); ty = h * (.3 + r() * .4);
+  s += '<circle cx="' + tx.toFixed(1) + '" cy="' + ty.toFixed(1) + '" r="8.5" fill="#6E4413" fill-opacity=".05" stroke="#6E4413" stroke-opacity=".34" stroke-width="1.5"/>';
+  for (k = 0; k < 9; k++) { s += '<circle cx="' + (r() * w).toFixed(1) + '" cy="' + (r() * h).toFixed(1) + '" r="' + (.5 + r() * 1.1).toFixed(1) + '" fill="#3A2410" fill-opacity="' + (.3 + r() * .3).toFixed(2) + '"/>'; }
+  /* pli vertical */
+  var xp = (w * (.38 + r() * .24)).toFixed(1);
+  s += '<line x1="' + xp + '" y1="0" x2="' + (xp - 0 + 2) + '" y2="' + h + '" stroke="#4A2A0E" stroke-opacity=".22" stroke-width="1.2"/><line x1="' + (xp - 0 + 1.4) + '" y1="0" x2="' + (xp - 0 + 3.4) + '" y2="' + h + '" stroke="#FFF3CC" stroke-opacity=".3" stroke-width="1"/>';
+  /* bords brûlés */
+  s += '<path d="' + chemin + '" fill="none" stroke="#3A1E08" stroke-opacity=".62" stroke-width="9" filter="url(#ppFlou)"/></g>';
+  /* contour brut + fibres claires aux déchirures */
+  s += '<path d="' + chemin + '" fill="none" stroke="#3A1E08" stroke-opacity=".85" stroke-width="1" stroke-linejoin="round"/>';
+  for (k = 0; k < dechirures.length; k++) {
+    d = dechirures[k];
+    if (d.p0) { s += '<polyline points="' + pts_([d.p0, d.p1, d.p2]) + '" fill="none" stroke="#EBDDB0" stroke-opacity=".55" stroke-width=".9" stroke-linejoin="round"/>'; }
+  }
+  return s + '</svg>';
+}
+function pts_(l) { return l.map(function (p) { return p[0].toFixed(1) + ',' + p[1].toFixed(1); }).join(' '); }
+
+/* ---------- la ligne de loch, sur le bois : les deux clous sont fixes, seul le milieu de la corde se balance ---------- */
 function svgLoch(jour, heureNow, conseil) {
-  var W = 210, n = jour.length, x0 = 12, x1 = W - 12, i, s;
+  var W = 210, n = jour.length, x0 = 12, x1 = W - 12, A = 1.6, DUREE = '5.5s', i, s;
   function xi(k) { return x0 + k * (x1 - x0) / (n - 1); }
-  function yi(x) { return 11 + 3.4 * Math.sin(Math.PI * x / W); }
-  var d = 'M3 ' + yi(3).toFixed(1);
-  for (i = 1; i <= 40; i++) { var xx = 3 + i * (W - 6) / 40; d += 'L' + xx.toFixed(1) + ' ' + yi(xx).toFixed(1); }
-  s = '<svg class="pr-loch" viewBox="0 0 ' + W + ' 38" xmlns="http://www.w3.org/2000/svg"><defs>' +
-    '<radialGradient id="plNoeud" cx=".35" cy=".3" r=".8"><stop offset="0" stop-color="#fff" stop-opacity=".7"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient></defs>' +
-    '<path d="' + d + '" fill="none" stroke="#000" stroke-opacity=".35" stroke-width="3.2" stroke-linecap="round" transform="translate(0 1.6)"/>' +
-    '<path d="' + d + '" fill="none" stroke="#5E4A2A" stroke-width="2.6" stroke-linecap="round"/>' +
-    '<path d="' + d + '" fill="none" stroke="#BFA26C" stroke-width="1.6" stroke-dasharray="2.2 2.4"/>';
+  function yi(x, f) { return 11 + 3.2 * Math.sin(Math.PI * x / W) + (f || 0) * A * Math.sin(Math.PI * x / W); }
+  function trace(f) { var d = 'M3 ' + yi(3, f).toFixed(2), q, xx; for (q = 1; q <= 40; q++) { xx = 3 + q * (W - 6) / 40; d += 'L' + xx.toFixed(1) + ' ' + yi(xx, f).toFixed(2); } return d; }
+  var splines = 'calcMode="spline" keyTimes="0;.25;.5;.75;1" keySplines=".45 0 .55 1;.45 0 .55 1;.45 0 .55 1;.45 0 .55 1" dur="' + DUREE + '" repeatCount="indefinite"';
+  s = '<svg class="pr-loch" viewBox="0 0 ' + W + ' 29" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"><defs>' +
+    '<radialGradient id="plNoeud" cx=".35" cy=".3" r=".8"><stop offset="0" stop-color="#fff" stop-opacity=".7"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient>' +
+    '<path id="plCorde" d="' + trace(0) + '" fill="none" stroke-linecap="round">' +
+    (calme ? '' : '<animate attributeName="d" ' + splines + ' values="' + trace(0) + ';' + trace(1) + ';' + trace(0) + ';' + trace(-1) + ';' + trace(0) + '"/>') + '</path></defs>';
+  var lien = 'href="#plCorde" xlink:href="#plCorde"';
+  s += '<use ' + lien + ' stroke="#000" stroke-opacity=".45" stroke-width="3.4" transform="translate(0 1.6)"/>' +
+       '<use ' + lien + ' stroke="#5E4A2A" stroke-width="2.7"/>' +
+       '<use ' + lien + ' stroke="#D2B77E" stroke-width="1.6" stroke-dasharray="2.2 2.4"/>';
   var nails = [3, W - 3], k;
-  for (k = 0; k < 2; k++) { s += '<circle cx="' + nails[k] + '" cy="' + yi(nails[k]).toFixed(1) + '" r="2.6" fill="#2A3038" stroke="#0E1115" stroke-width=".6"/><circle cx="' + (nails[k] - .7) + '" cy="' + (yi(nails[k]) - .7).toFixed(1) + '" r=".8" fill="#9AA4AE"/>'; }
+  for (k = 0; k < 2; k++) { s += '<circle cx="' + nails[k] + '" cy="' + yi(nails[k]).toFixed(1) + '" r="2.7" fill="#2A3038" stroke="#0E1115" stroke-width=".6"/><circle cx="' + (nails[k] - .7) + '" cy="' + (yi(nails[k]) - .7).toFixed(1) + '" r=".8" fill="#AAB4BE"/>'; }
   for (i = 0; i < n; i++) {
-    var t = jour[i], x = xi(i), y = yi(x), perm = (t.charAt(0) === t.charAt(0).toUpperCase()), st = t.charAt(0).toLowerCase(), pluie = t.indexOf('*') !== -1;
+    var t = jour[i], x = xi(i), y = yi(x), amp = A * Math.sin(Math.PI * x / W), perm = (t.charAt(0) === t.charAt(0).toUpperCase()), st = t.charAt(0).toLowerCase(), pluie = t.indexOf('*') !== -1;
     var heure = 8 + i, col = PIGMENT[st === 'i' ? 'ideal' : st === 'm' ? 'moyen' : 'mauvais'];
+    s += '<g>' + (calme ? '' : '<animateTransform attributeName="transform" type="translate" ' + splines + ' values="0 0;0 ' + amp.toFixed(2) + ';0 0;0 ' + (-amp).toFixed(2) + ';0 0"/>');
     if (perm) {
-      s += '<circle cx="' + x.toFixed(1) + '" cy="' + y.toFixed(1) + '" r="3.7" fill="' + col + '" stroke="#2A1804" stroke-width=".7"/><circle cx="' + x.toFixed(1) + '" cy="' + y.toFixed(1) + '" r="3.7" fill="url(#plNoeud)"/>';
+      s += '<circle cx="' + x.toFixed(1) + '" cy="' + y.toFixed(1) + '" r="3.7" fill="' + col + '" stroke="#1A0E04" stroke-width=".7"/><circle cx="' + x.toFixed(1) + '" cy="' + y.toFixed(1) + '" r="3.7" fill="url(#plNoeud)"/>';
     } else {
       s += '<circle cx="' + x.toFixed(1) + '" cy="' + y.toFixed(1) + '" r="2.5" fill="#CDBA88" stroke="#8A7A58" stroke-width="1"/>';
     }
-    if (pluie) { s += '<path d="M' + x.toFixed(1) + ' ' + (y - 11).toFixed(1) + 'c-1.5 2.2-2.2 3.4-2.2 4.4a2.2 2.2 0 0 0 4.4 0c0-1-.7-2.2-2.2-4.4z" fill="#2F6FB0" fill-opacity=".9"/>'; }
-    if (heure === conseil) { s += '<path d="M' + (x - 5.6).toFixed(1) + ' ' + (y - 2.2).toFixed(1) + 'A6.2 5.8 0 1 1 ' + (x - 6).toFixed(1) + ' ' + (y + .8).toFixed(1) + '" fill="none" stroke="#8E1220" stroke-width="1.3" stroke-linecap="round"/>'; }
-    if (heure === heureNow) { s += '<path d="M' + x.toFixed(1) + ' ' + (y + 6.2).toFixed(1) + 'L' + (x - 2.7).toFixed(1) + ' ' + (y + 10.8).toFixed(1) + 'H' + (x + 2.7).toFixed(1) + 'Z" fill="#B8862E" stroke="#4A2F08" stroke-width=".6"/>'; }
-    if (i % 3 === 0) { s += '<text x="' + x.toFixed(1) + '" y="34" text-anchor="middle" font-family="Georgia,serif" font-style="italic" font-size="6" fill="#5A3A16">' + heure + 'h</text>'; }
+    if (pluie) { s += '<path d="M' + x.toFixed(1) + ' ' + (y - 10.5).toFixed(1) + 'c-1.5 2.2-2.2 3.4-2.2 4.4a2.2 2.2 0 0 0 4.4 0c0-1-.7-2.2-2.2-4.4z" fill="#6FB0F0"/>'; }
+    if (heure === conseil) { s += '<path d="M' + (x - 5.6).toFixed(1) + ' ' + (y - 2.2).toFixed(1) + 'A6.2 5.8 0 1 1 ' + (x - 6).toFixed(1) + ' ' + (y + .8).toFixed(1) + '" fill="none" stroke="#FF6A55" stroke-width="1.3" stroke-linecap="round"/>'; }
+    if (heure === heureNow) { s += '<path d="M' + x.toFixed(1) + ' ' + (y + 5.8).toFixed(1) + 'L' + (x - 2.6).toFixed(1) + ' ' + (y + 10).toFixed(1) + 'H' + (x + 2.6).toFixed(1) + 'Z" fill="#E0AE45" stroke="#4A2F08" stroke-width=".5"/>'; }
+    s += '</g>';
+    if (i % 3 === 0) { s += '<text x="' + x.toFixed(1) + '" y="27.2" text-anchor="middle" font-family="' + ECRITURE + '" font-size="7.2" fill="#EADDB6">' + heure + 'h</text>'; }
   }
   return s + '</svg>';
 }
@@ -9531,6 +9612,35 @@ function motEtat(etat, v) {
   if (etat === 'ideal') { return 'Tempéré'; }
   if (etat === 'moyen') { return v < 12 ? 'Frais' : 'Chaud'; }
   return v < 12 ? 'Glacial' : 'Étouffant';
+}
+
+/* ---------- le papier est (re)dessiné à la taille réelle ; les attaches se calent sur le mât ---------- */
+function dessinerPapier(carte) {
+  var papier = carte.querySelector('.pr-papier');
+  if (!papier) { return false; }
+  var w = papier.offsetWidth, h = papier.offsetHeight;
+  if (!w || !h) { return false; }
+  var fond = papier.querySelector('.pr-papier-fond');
+  if (fond && fond.getAttribute('data-taille') !== w + 'x' + h) {
+    fond.innerHTML = papierSvg(w, h);
+    fond.setAttribute('data-taille', w + 'x' + h);
+  }
+  return true;
+}
+
+function placerAttaches(carte) {
+  var mat = document.querySelector('.pr-mat-fixe');
+  var ecart = 19;
+  if (mat) { ecart = Math.round(carte.getBoundingClientRect().left - mat.getBoundingClientRect().left); }
+  var att = carte.querySelectorAll('.pr-attache'), i;
+  for (i = 0; i < att.length; i++) { att[i].style.left = (-ecart - 1) + 'px'; att[i].style.width = (ecart + 7) + 'px'; }
+}
+
+function redessiner() {
+  var carte = zone.querySelector('.meteo-carte');
+  if (!carte) { return; }
+  dessinerPapier(carte);
+  placerAttaches(carte);
 }
 
 function equiper() {
@@ -9548,29 +9658,43 @@ function equiper() {
   var mh = /(\d{1,2})h/.exec(sous ? sous.textContent : ''), conseil = mh ? parseInt(mh[1], 10) : null;
   var brut = carte.getAttribute('data-jour') || '', jour = brut ? brut.split(',').filter(function (t) { return t !== ''; }) : [];
 
-  /* thermomètre */
+  /* thermomètre de cuivre */
   var th = document.createElement('div');
   th.className = 'pr-thermo';
   th.innerHTML = svgThermo(smin, smax) + '<div class="pr-thermo-liq"><i></i></div>';
   carte.insertBefore(th, carte.firstChild);
 
-  /* parchemin écrit à l'encre */
+  /* papier (texte seulement) + ligne de loch sur le bois */
   var textes = carte.querySelector('.meteo-textes');
   if (textes) {
     var ligne = (conseil !== null) ? 'Appareiller à ' + conseil + 'h' + (pluie ? ', sous la pluie' : '') : 'Plus de départ aujourd\'hui : on mouille l\'ancre.';
     var p = document.createElement('div');
     p.className = 'pr-parch';
-    p.innerHTML = '<div class="pr-parch-titre">' + Math.round(v) + '° · ' + motEtat(etat, v) + '</div><div class="pr-parch-ligne">' + ligne + '</div>' +
-      (jour.length ? svgLoch(jour, new Date().getHours(), conseil) : '') + '<span class="pr-cachet">' + svgCachet(etat) + '</span>';
+    p.innerHTML = '<div class="pr-papier"><div class="pr-papier-fond"></div><div class="pr-parch-titre">' + Math.round(v) + '° · ' + motEtat(etat, v) + '</div><div class="pr-parch-ligne">' + ligne + '</div></div>' +
+      (jour.length ? svgLoch(jour, new Date().getHours(), conseil) : '');
     textes.appendChild(p);
   }
+
+  /* deux cerclages de fer qui attachent la planche au mât */
+  var a1 = document.createElement('i'), a2 = document.createElement('i');
+  a1.className = 'pr-attache pr-attache-haut'; a2.className = 'pr-attache pr-attache-bas';
+  carte.appendChild(a1); carte.appendChild(a2);
+
+  if (!dessinerPapier(carte)) {            /* la carte n'est pas encore visible : on réessaie un peu plus tard */
+    var essais = 0, minuteur = window.setInterval(function () { essais++; if (dessinerPapier(carte) || essais > 12) { window.clearInterval(minuteur); } }, 400);
+  }
+  placerAttaches(carte);
 
   /* l'esprit-de-vin monte dans le tube (rebond en CSS) */
   var liq = th.querySelector('.pr-thermo-liq');
   liq.style.height = '0px';
-  window.setTimeout(function () { liq.style.height = (6 + (bornes(v) - VMIN) * PX_PAR_DEGRE).toFixed(1) + 'px'; }, 160);
+  window.setTimeout(function () { liq.style.height = (Y_BASE_TUBE - yDe(v)).toFixed(1) + 'px'; }, 160);
 }
 
 new MutationObserver(equiper).observe(zone, { childList: true });
+var main = document.querySelector('main');
+if (main) { new MutationObserver(redessiner).observe(main, { attributes: true, attributeFilter: ['class'], subtree: true }); }
+var minuteurTaille = null;
+window.addEventListener('resize', function () { window.clearTimeout(minuteurTaille); minuteurTaille = window.setTimeout(redessiner, 200); }, false);
 equiper();
 })();
