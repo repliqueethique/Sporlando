@@ -7904,3 +7904,33 @@ body { background: transparent; }
   :root[data-theme="flibuste"] .pr-thermo-liq i, :root[data-theme="flibuste"] .pr-loch { -webkit-animation: none; animation: none; }
 }
 :root.pr-calme[data-theme="flibuste"] .pr-thermo-liq i, :root.pr-calme[data-theme="flibuste"] .pr-loch { -webkit-animation: none; animation: none; }
+
+/* RER dans les cartes d'exercice */
+.rer-zone { margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--couleur-bordure); }
+.rer-entete { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 8px; }
+.rer-titre { font-size: 12px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; color: var(--couleur-texte-att); }
+.rer-aide { font-size: 12px; color: var(--couleur-texte-att); }
+.rer-aide-active { color: var(--couleur-texte); font-weight: 700; }
+.rer-choix {
+  display: flex;
+  background: var(--couleur-carte-creux);
+  border: 1px solid var(--couleur-bordure);
+  border-radius: 12px;
+  padding: 3px;
+}
+.rer-bouton {
+  flex: 1;
+  min-height: 40px;
+  margin: 0 2px;
+  border-radius: 9px;
+  font-family: var(--police-donnees);
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--couleur-texte-att);
+  transition: background 0.15s ease, color 0.15s ease, transform 0.1s ease;
+}
+.rer-bouton:active { transform: scale(0.94); }
+.rer-bouton-actif { color: #0B1114; }
+.rer-bouton-actif.rer-niveau-0, .rer-bouton-actif.rer-niveau-1 { background: var(--couleur-alerte); }
+.rer-bouton-actif.rer-niveau-2, .rer-bouton-actif.rer-niveau-3 { background: var(--couleur-avertissement); }
+.rer-bouton-actif.rer-niveau-4, .rer-bouton-actif.rer-niveau-5 { background: var(--couleur-succes); }

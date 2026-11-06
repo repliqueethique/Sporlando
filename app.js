@@ -3536,11 +3536,18 @@ function rendreExercicesActifs() {
       }
 
       /* RER + boutons d'ajout */
-      var rerValeur = (ligneEx.rer !== null && ligneEx.rer !== undefined) ? ligneEx.rer : 3;
+      /* RER : sélecteur 0 → 5+ */
+      var rerDefini = (ligneEx.rer !== null && ligneEx.rer !== undefined && ligneEx.rer >= 0);
+      html += '<div class="rer-zone" data-ex="' + e + '">';
+      html += '<div class="rer-entete"><span class="rer-titre">RER</span>';
+      html += '<span class="rer-aide' + (rerDefini ? ' rer-aide-active' : '') + '">' + (rerDefini ? RER_LIBELLES[Math.min(5, ligneEx.rer)] : 'Reps en réserve · optionnel') + '</span></div>';
+      html += '<div class="rer-choix">';
+      for (var r = 0; r <= 5; r++) {
+        var rerActif = rerDefini && (r === 5 ? ligneEx.rer >= 5 : ligneEx.rer === r);
+        html += '<button class="rer-bouton rer-niveau-' + r + (rerActif ? ' rer-bouton-actif' : '') + '" data-action="choisir-rer" data-ex="' + e + '" data-valeur="' + r + '">' + (r === 5 ? '5+' : r) + '</button>';
+      }
+      html += '</div></div>';
       html += '<div class="ligne-actions-exercice">';
-      html += '<div class="rer-ligne rer-glissable" data-role="rer-ligne" data-ex="' + e + '" title="RER : reps en réserve (0 = échec, optionnel)">';
-      html += '<input type="number" class="rer-input" min="0" max="10" step="1" data-role="live-rer" data-ex="' + e + '" value="' + rerValeur + '">';
-      html += '<span class="rer-suffixe">RER</span></div>';
       html += '<button class="btn btn-contour btn-action-serie" data-action="ajouter-serie" data-ex="' + e + '">+ Série</button>';
       html += '<button class="btn-action-echauffement" data-action="ajouter-serie-echauffement" data-ex="' + e + '" title="Ajouter une série d\'échauffement"><span class="icone-echauffement" aria-hidden="true"><svg viewBox="0 0 24 24" width="20" height="20"><path d="M12 2c.9 2.1 2.2 3.6 3.6 5.1 1.8 1.9 3.4 3.9 3.4 6.9 0 4.4-3.1 8-7 8s-7-3.6-7-8c0-2.1.7-3.7 1.6-5.1.3 1.5 1.1 2.4 2.1 2.4 1 0 1.3-.8 1-1.9-.5-1.8-.4-4 .6-5.9C10.9 2.9 11.4 2.4 12 2z"/></svg></span></button>';
       html += '</div>';
@@ -3583,6 +3590,30 @@ function modifierRerExercice(exIndex, valeur) {
   if (val > 10) { val = 10; }
   etat.seanceActive.exercices[exIndex].rer = val;
   sauvegarderEtat();
+}
+
+var RER_LIBELLES = ['Échec : 0 rep en réserve', '1 rep en réserve', '2 reps en réserve', '3 reps en réserve', '4 reps en réserve', '5 reps ou plus en réserve'];
+
+function choisirRer(exIndex, valeur) {
+  var ligne = etat.seanceActive.exercices[exIndex];
+  ligne.rer = (ligne.rer === valeur) ? null : valeur;
+  sauvegarderEtat();
+
+  /* Mise à jour sur place : pas de rechargement de toute la séance */
+  var zone = document.querySelector('.rer-zone[data-ex="' + exIndex + '"]');
+  if (!zone) { return; }
+  var defini = (ligne.rer !== null && ligne.rer !== undefined);
+  var boutons = zone.querySelectorAll('.rer-bouton');
+  for (var i = 0; i < boutons.length; i++) {
+    var r = parseInt(boutons[i].getAttribute('data-valeur'), 10);
+    var actif = defini && (r === 5 ? ligne.rer >= 5 : ligne.rer === r);
+    if (actif) { boutons[i].classList.add('rer-bouton-actif'); } else { boutons[i].classList.remove('rer-bouton-actif'); }
+  }
+  var aide = zone.querySelector('.rer-aide');
+  if (aide) {
+    aide.textContent = defini ? RER_LIBELLES[Math.min(5, ligne.rer)] : 'Reps en réserve · optionnel';
+    if (defini) { aide.classList.add('rer-aide-active'); } else { aide.classList.remove('rer-aide-active'); }
+  }
 }
 
 /* Rend la ligne RER d'un exercice glissable au doigt/à la souris (même principe que le glissé
@@ -7251,6 +7282,7 @@ ajouterEcouteurClicDelegue(document.body, function (cible) {
   if (action === 'basculer-voix') { if (voixActive) { desactiverCommandeVocale(); } else { activerCommandeVocale(); } return; }
   if (action === 'annuler-seance') { annulerSeance(); }
   if (action === 'ajouter-serie') { ajouterSerieLive(parseInt(cible.getAttribute('data-ex'), 10)); return; }
+  if (action === 'choisir-rer') { choisirRer(parseInt(cible.getAttribute('data-ex'), 10), parseInt(cible.getAttribute('data-valeur'), 10)); return; }
   if (action === 'ajouter-serie-echauffement') { ajouterSerieEchauffementLive(parseInt(cible.getAttribute('data-ex'), 10)); return; }
   if (action === 'ajouter-serie-degressive') { ajouterSerieDegressive(parseInt(cible.getAttribute('data-ex'), 10)); return; }
   if (action === 'supprimer-serie') { supprimerSerieLive(parseInt(cible.getAttribute('data-ex'), 10), parseInt(cible.getAttribute('data-serie'), 10)); return; }
