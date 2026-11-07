@@ -7936,18 +7936,11 @@ body { background: transparent; }
 .rer-bouton-actif.rer-niveau-4, .rer-bouton-actif.rer-niveau-5 { background: var(--couleur-succes); }
 
 /* ============================================================
-   THÈME AUTOMNAL : tronc, feuilles mortes, osier tressé
-   (à garder tout en bas de style.css)
+   THÈME AUTOMNAL : tronc
    ============================================================ */
 :root[data-theme="automnal"] {
   /* écorce : stries verticales, se répète sans raccord (240 px) */
   --au-ecorce: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='a' x='0' y='0' width='100%25' height='100%25' color-interpolation-filters='sRGB'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.05 .004' numOctaves='4' seed='5' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .03 0 0 0 0 .018 0 0 0 0 .008 2.8 0 0 0 -1'/%3E%3C/filter%3E%3Cfilter id='b' x='0' y='0' width='100%25' height='100%25' color-interpolation-filters='sRGB'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.022 .003' numOctaves='3' seed='11' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .6 0 0 0 0 .4 0 0 0 0 .24 2.2 0 0 0 -1.1'/%3E%3C/filter%3E%3Crect width='240' height='240' fill='%232C1B10'/%3E%3Crect width='240' height='240' filter='url(%23b)' opacity='.6'/%3E%3Crect width='240' height='240' filter='url(%23a)' opacity='.9'/%3E%3C/svg%3E");
-
-  /* feuilles mortes (6 feuilles, couleurs d'automne) */
-  --au-feuilles: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cg transform='translate(50 60) rotate(25) scale(2)' fill='%23B5651D' fill-opacity='.6'%3E%3Cpath d='M0,-14C9,-10 11,6 0,16C-11,6 -9,-10 0,-14Z'/%3E%3Cpath d='M0,-12L0,15' fill='none' stroke='%23000' stroke-opacity='.4' stroke-width='.8'/%3E%3C/g%3E%3Cg transform='translate(205 45) rotate(-40) scale(1.7)' fill='%238C3B1E' fill-opacity='.6'%3E%3Cpath d='M0,-16L4,-8L12,-10L8,-2L16,2L7,5L9,14L0,9L-9,14L-7,5L-16,2L-8,-2L-12,-10L-4,-8Z'/%3E%3Cpath d='M0,-12L0,11' fill='none' stroke='%23000' stroke-opacity='.4' stroke-width='.8'/%3E%3C/g%3E%3Cg transform='translate(135 145) rotate(70) scale(2.2)' fill='%23C98A2B' fill-opacity='.6'%3E%3Cpath d='M0,-14C9,-10 11,6 0,16C-11,6 -9,-10 0,-14Z'/%3E%3Cpath d='M0,-12L0,15' fill='none' stroke='%23000' stroke-opacity='.4' stroke-width='.8'/%3E%3C/g%3E%3Cg transform='translate(250 175) rotate(-15) scale(1.8)' fill='%23A33A22' fill-opacity='.6'%3E%3Cpath d='M0,-16L4,-8L12,-10L8,-2L16,2L7,5L9,14L0,9L-9,14L-7,5L-16,2L-8,-2L-12,-10L-4,-8Z'/%3E%3Cpath d='M0,-12L0,11' fill='none' stroke='%23000' stroke-opacity='.4' stroke-width='.8'/%3E%3C/g%3E%3Cg transform='translate(60 235) rotate(110) scale(1.9)' fill='%236B4423' fill-opacity='.6'%3E%3Cpath d='M0,-16L4,-8L12,-10L8,-2L16,2L7,5L9,14L0,9L-9,14L-7,5L-16,2L-8,-2L-12,-10L-4,-8Z'/%3E%3Cpath d='M0,-12L0,11' fill='none' stroke='%23000' stroke-opacity='.4' stroke-width='.8'/%3E%3C/g%3E%3Cg transform='translate(185 255) rotate(200) scale(2)' fill='%23B5651D' fill-opacity='.6'%3E%3Cpath d='M0,-14C9,-10 11,6 0,16C-11,6 -9,-10 0,-14Z'/%3E%3Cpath d='M0,-12L0,15' fill='none' stroke='%23000' stroke-opacity='.4' stroke-width='.8'/%3E%3C/g%3E%3C/svg%3E");
-
-  /* osier tressé : cadre 36x36, 4 bandes de cordon torsadé */
-  --au-osier: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' width='36' height='36' viewBox='0 0 36 36'%3E%3Cdefs%3E%3CclipPath id='c'%3E%3Crect width='36' height='12'/%3E%3C/clipPath%3E%3Cg id='b' clip-path='url(%23c)'%3E%3Crect width='36' height='12' fill='%232A170B'/%3E%3Cpath d='M-6,12L6,0M6,12L18,0M18,12L30,0M30,12L42,0' fill='none' stroke='%233B2210' stroke-width='7.4' stroke-linecap='round'/%3E%3Cpath d='M-6,12L6,0M6,12L18,0M18,12L30,0M30,12L42,0' fill='none' stroke='%23B5702F' stroke-width='5' stroke-linecap='round'/%3E%3Cpath d='M-6,12L6,0M6,12L18,0M18,12L30,0M30,12L42,0' transform='translate(-1.1 0)' fill='none' stroke='%23E7BB82' stroke-width='1.2' stroke-linecap='round' stroke-opacity='.8'/%3E%3C/g%3E%3C/defs%3E%3Cuse xlink:href='%23b' transform='translate(0 36) rotate(-90)'/%3E%3Cuse xlink:href='%23b' transform='translate(36 0) rotate(90)'/%3E%3Cuse xlink:href='%23b'/%3E%3Cuse xlink:href='%23b' transform='translate(0 24)'/%3E%3C/svg%3E");
 }
 
 /* --- 1. Fond : tronc d'arbre (parallaxe déjà gérée par app.js) --- */
@@ -7957,37 +7950,7 @@ body { background: transparent; }
   background-image: var(--au-ecorce);
 }
 
-/* --- 2. Feuilles mortes en arrière-plan : 2 couches qui dérivent à des vitesses différentes --- */
-:root[data-theme="automnal"] .fond-theme::after,
-:root[data-theme="automnal"] .fond-motif::after {
-  content: '';
-  position: absolute;
-  pointer-events: none;
-  background-image: var(--au-feuilles);
-  background-repeat: repeat;
-  will-change: transform;
-}
-:root[data-theme="automnal"] .fond-theme::after {
-  top: -300px; bottom: 0; left: 0; right: -300px;
-  background-size: 300px 300px;
-  opacity: .55;
-  animation: auChute1 70s linear infinite;
-}
-:root[data-theme="automnal"] .fond-motif::after {
-  top: -420px; bottom: 0; left: -420px; right: 0;
-  background-size: 420px 420px;
-  background-position: 140px 90px;
-  opacity: .35;
-  animation: auChute2 110s linear infinite;
-}
-@keyframes auChute1 { from { transform: translate3d(0,0,0); } to { transform: translate3d(-300px,300px,0); } }
-@keyframes auChute2 { from { transform: translate3d(0,0,0); } to { transform: translate3d(420px,420px,0); } }
-@media (prefers-reduced-motion: reduce) {
-  :root[data-theme="automnal"] .fond-theme::after,
-  :root[data-theme="automnal"] .fond-motif::after { animation: none; }
-}
-
-/* --- 3. Cartes importantes : texture écorce (voilée pour garder le texte lisible) --- */
+/* --- 2. Cartes importantes : texture écorce (voilée pour garder le texte lisible) --- */
 :root[data-theme="automnal"] .accueil-tuile,
 :root[data-theme="automnal"] .carte-checklist,
 :root[data-theme="automnal"] .meteo-carte,
@@ -8000,26 +7963,3 @@ body { background: transparent; }
   background-position: 0 0, 0 0;
 }
 
-/* --- 4. Toutes les cartes : contour en osier tressé --- */
-:root[data-theme="automnal"] .carte,
-:root[data-theme="automnal"] .carte-checklist,
-:root[data-theme="automnal"] .meteo-carte,
-:root[data-theme="automnal"] .reglages-section,
-:root[data-theme="automnal"] .sx-exo,
-:root[data-theme="automnal"] .sx-entete,
-:root[data-theme="automnal"] .accueil-tuile,
-:root[data-theme="automnal"] .accueil-carte {
-  border: 8px solid transparent;
-  border-image: var(--au-osier) 12 / 8px round;
-  border-radius: 4px;
-}
-/* version plus fine pour les lignes de liste et les blocs dans les fenêtres */
-:root[data-theme="automnal"] li.carte,
-:root[data-theme="automnal"] .modal-contenu .carte,
-:root[data-theme="automnal"] .modal-contenu .reglages-section {
-  border-width: 5px;
-  border-image: var(--au-osier) 12 / 5px round;
-}
-/* l'osier remplace les liserés de couleur : on les remet en ombre intérieure */
-:root[data-theme="automnal"] .agenda-entree { box-shadow: inset 4px 0 0 var(--couleur-cyan), var(--ombre); }
-:root[data-theme="automnal"] .agenda-entree-fait { box-shadow: inset 4px 0 0 var(--couleur-succes), var(--ombre); }
