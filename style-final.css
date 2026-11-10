@@ -1,0 +1,577 @@
+/* ============================================================
+   MODERNISATION : ergonomie + style (à garder en dernier)
+   ============================================================ */
+:root {
+  --couleur-fond: #0E1116;
+  --couleur-carte: #171B22;
+  --couleur-carte-creux: #0F1318;
+  --couleur-bordure: #262D37;
+  --couleur-texte-att: #8B97A5;
+  --rayon: 16px;
+  --ombre: 0 4px 14px rgba(0,0,0,0.28);
+  --hauteur-nav: 64px;
+}
+
+
+
+/* RPE de fin de séance */
+.rpe-grille { display: flex; flex-wrap: wrap; justify-content: center; }
+.rpe-bouton {
+  width: 17%; margin: 1.4%; min-height: 52px;
+  border: 1px solid var(--couleur-bordure);
+  border-radius: 14px;
+  background: var(--couleur-carte-creux);
+  color: var(--couleur-texte);
+  font-family: var(--police-donnees); font-size: 20px; font-weight: 800;
+  transition: transform 0.12s ease, background 0.2s ease, border-color 0.2s ease;
+}
+.rpe-bouton:active { transform: scale(0.94); }
+.rpe-bouton-actif { background: var(--couleur-degrade); border-color: transparent; color: #0B1114; transform: scale(1.06); }
+.rpe-libelle { text-align: center; min-height: 22px; margin: 4px 0 18px; font-size: 14px; font-weight: 700; color: var(--couleur-turquoise); }
+
+/* Correctif modales : affichage géré uniquement par ouvrirModal/fermerModal */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+}
+.modal-contenu {
+  height: auto;
+  max-height: 90vh;
+  max-height: 90dvh;
+  flex-shrink: 0;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-y: contain;
+}
+
+/* CYBERPUNK V2 — proposition à placer en fin de style.css
+   Thème actif : :root[data-theme="cyberpunk"] ; zéro nouvelle classe applicative requise.
+   CRT=cartes génériques, hologramme=météo, panneaux=accueil/tuiles. */
+:root[data-theme="cyberpunk"] {
+  --cp-cyan: #00f0ff;
+  --cp-pink: #ff2bd6;
+  --cp-violet: #9b54ff;
+  --cp-metal-hi: #536078;
+  --cp-metal: #202938;
+  --cp-metal-low: #0b101b;
+  --cp-scan: rgba(0, 240, 255, .075);
+  --cp-rivet: radial-gradient(circle at 34% 30%, #e6faff 0 1px, #8295a8 1.5px 2.5px, #182332 3px 4px, transparent 4.5px);
+}
+
+/* Plaque métal brossée + rivets d'angle. On garde le padding et le layout source. */
+:root[data-theme="cyberpunk"] .carte,
+:root[data-theme="cyberpunk"] .carte-checklist,
+:root[data-theme="cyberpunk"] .sx-exo,
+:root[data-theme="cyberpunk"] .reglages-section,
+:root[data-theme="cyberpunk"] .modal-contenu,
+:root[data-theme="cyberpunk"] .carte:not(li) {
+  position: relative;
+  isolation: isolate;
+  border: 1px solid rgba(0, 240, 255, .58);
+  border-radius: 6px;
+  background-color: #111827;
+  background-image:
+    var(--cp-rivet), var(--cp-rivet), var(--cp-rivet), var(--cp-rivet),
+    repeating-linear-gradient(102deg, transparent 0 3px, rgba(255,255,255,.018) 3px 4px),
+    linear-gradient(155deg, rgba(76,95,121,.42), transparent 32%, rgba(0,0,0,.28) 68%, rgba(34,14,58,.72)),
+    linear-gradient(180deg, #253044 0%, #131c2b 17%, #101522 100%);
+  background-size: 10px 10px, 10px 10px, 10px 10px, 10px 10px, 8px 100%, 100% 100%, 100% 100%;
+  background-position: 7px 7px, calc(100% - 7px) 7px, 7px calc(100% - 7px), calc(100% - 7px) calc(100% - 7px), 0 0, 0 0, 0 0;
+  background-repeat: no-repeat, no-repeat, no-repeat, no-repeat, repeat, no-repeat, no-repeat;
+  box-shadow: inset 0 1px rgba(255,255,255,.16), inset 0 0 0 2px rgba(4,8,17,.72), 0 0 0 1px rgba(255,43,214,.15), 0 8px 22px rgba(0,0,0,.42);
+}
+/* Lignes de tube intégrées à la surface, sans voler les interactions.
+   ::before est déjà occupé sur météo/accueil; ce ::after fournit la trame. */
+:root[data-theme="cyberpunk"] .carte:not(.meteo-carte):not(.accueil-carte)::after,
+:root[data-theme="cyberpunk"] .carte-checklist::after,
+:root[data-theme="cyberpunk"] .sx-exo::after,
+:root[data-theme="cyberpunk"] .reglages-section::after,
+:root[data-theme="cyberpunk"] .modal-contenu::after {
+  content: "";
+  position: absolute;
+  z-index: 0;
+  inset: 0;
+  pointer-events: none;
+  background: repeating-linear-gradient(to bottom, transparent 0 3px, var(--cp-scan) 3px 4px);
+  opacity: .62;
+}
+:root[data-theme="cyberpunk"] .carte:hover,
+:root[data-theme="cyberpunk"] .sx-exo:hover {
+  border-color: var(--cp-cyan);
+  box-shadow: inset 0 1px rgba(255,255,255,.18), inset 0 0 0 2px rgba(4,8,17,.72), 0 0 10px rgba(0,240,255,.22), 0 8px 22px rgba(0,0,0,.42);
+}
+/* Tube de panneau : scintillement lent réservé aux titres de tuile/réglages. */
+:root[data-theme="cyberpunk"] .accueil-tuile h2,
+:root[data-theme="cyberpunk"] .reglages-section-titre {
+  animation: cp-neon-buzz 7.2s steps(1, end) infinite;
+}
+@keyframes cp-neon-buzz {
+  0%, 8%, 10%, 48%, 52%, 100% { opacity: 1; }
+  9%, 50% { opacity: .78; text-shadow: 0 0 2px #fff, 0 0 5px var(--cp-cyan), 0 0 11px var(--cp-pink); }
+}
+/* Garde le contenu au-dessus de la trame sans changer le modèle de boîte. */
+:root[data-theme="cyberpunk"] .carte:not(.meteo-carte):not(.accueil-carte) > *,
+:root[data-theme="cyberpunk"] .carte-checklist > *,
+:root[data-theme="cyberpunk"] .sx-exo > *,
+:root[data-theme="cyberpunk"] .reglages-section > *,
+:root[data-theme="cyberpunk"] .modal-contenu > * { position: relative; z-index: 1; }
+:root[data-theme="cyberpunk"] .carte:not(.meteo-carte):not(.accueil-carte)::after,
+:root[data-theme="cyberpunk"] .carte-checklist::after,
+:root[data-theme="cyberpunk"] .sx-exo::after,
+:root[data-theme="cyberpunk"] .reglages-section::after,
+:root[data-theme="cyberpunk"] .modal-contenu::after { z-index: 0; }
+/* Déplacement chromatique ponctuel au survol/focus uniquement, jamais sur tout le flux. */
+:root[data-theme="cyberpunk"] .carte:hover .carte-titre,
+:root[data-theme="cyberpunk"] .carte:focus-within .carte-titre {
+  animation: cp-rgb-glitch .42s steps(2, end) 1;
+}
+@keyframes cp-rgb-glitch {
+  0%, 100% { text-shadow: 0 0 5px var(--cp-cyan), 0 0 13px rgba(255,43,214,.6); }
+  25% { text-shadow: -2px 0 var(--cp-cyan), 2px 0 var(--cp-pink), 0 0 12px var(--cp-cyan); }
+  50% { text-shadow: 2px 0 var(--cp-cyan), -2px 0 var(--cp-pink); }
+  75% { text-shadow: 0 0 4px var(--cp-cyan), 1px 0 var(--cp-pink); }
+}
+/* Câble de liaison dessiné sur le titre, sans remplacer le ::before fonctionnel des cartes. */
+:root[data-theme="cyberpunk"] .carte + .carte .carte-titre { position: relative; }
+:root[data-theme="cyberpunk"] .carte + .carte .carte-titre::before {
+  content: "";
+  position: absolute;
+  bottom: calc(100% + 4px);
+  left: 5px;
+  width: 34px;
+  height: 12px;
+  border-left: 2px solid rgba(0,240,255,.58);
+  border-bottom: 2px solid rgba(255,43,214,.55);
+  border-radius: 0 0 0 7px;
+  background: linear-gradient(90deg, transparent, rgba(0,240,255,.13), transparent);
+  pointer-events: none;
+}
+
+/* Écrans translucides : cartes météo réelles, effets de balayage/flicker subtils. */
+:root[data-theme="cyberpunk"] .meteo-carte {
+  border: 1px solid rgba(0,240,255,.78);
+  border-left-width: 4px;
+  border-radius: 5px;
+  background-color: rgba(8,21,38,.70);
+  background-image: linear-gradient(115deg, rgba(0,240,255,.15), transparent 42%, rgba(255,43,214,.09));
+  -webkit-backdrop-filter: blur(8px) saturate(145%);
+  backdrop-filter: blur(8px) saturate(145%);
+  box-shadow: inset 0 0 22px rgba(0,240,255,.08), 0 0 14px rgba(0,240,255,.2), 0 0 28px rgba(255,43,214,.12);
+}
+:root[data-theme="cyberpunk"] .meteo-carte::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background: linear-gradient(180deg, transparent 0%, rgba(0,240,255,.15) 48%, transparent 54%);
+  background-size: 100% 240%;
+  opacity: .55;
+  animation: cp-scan-sweep 8s linear infinite;
+}
+:root[data-theme="cyberpunk"] .meteo-carte > * { position: relative; z-index: 1; }
+@keyframes cp-scan-sweep { to { background-position: 0 240%; } }
+/* Panneaux de signalisation néon : accueil et tuiles (classes applicatives existantes). */
+:root[data-theme="cyberpunk"] .accueil-tuile,
+:root[data-theme="cyberpunk"] .accueil-carte:not(.seance-a-faire) {
+  border: 1px solid rgba(255,43,214,.64);
+  border-radius: 5px;
+  background-color: #171027;
+  background-image:
+    linear-gradient(135deg, rgba(0,240,255,.11), transparent 38%, rgba(255,43,214,.11)),
+    repeating-linear-gradient(135deg, transparent 0 9px, rgba(255,255,255,.022) 9px 10px);
+  box-shadow: inset 0 0 0 2px rgba(5,9,20,.72), inset 0 0 18px rgba(255,43,214,.09), 0 0 12px rgba(255,43,214,.13);
+}
+:root[data-theme="cyberpunk"] .accueil-tuile h2,
+:root[data-theme="cyberpunk"] .accueil-tuile .tuile-objectif,
+:root[data-theme="cyberpunk"] .groupe-entete,
+:root[data-theme="cyberpunk"] .reglages-section-titre {
+  color: #fff;
+  text-shadow: 0 0 2px #fff, 0 0 7px var(--cp-cyan), 0 0 16px var(--cp-cyan), 0 0 25px var(--cp-pink);
+}
+/* Titre d'affichage : dédoublement RGB contenu dans l'ombre. */
+:root[data-theme="cyberpunk"] .titre-affichage:not(.texte-degrade),
+:root[data-theme="cyberpunk"] .carte-titre,
+:root[data-theme="cyberpunk"] .sx-exo-nom {
+  text-shadow: 1px 0 rgba(0,240,255,.75), -1px 0 rgba(255,43,214,.72), 0 0 10px rgba(0,240,255,.52);
+}
+/* Interrupteurs et commandes : capot métallique, rivet lumineux à l'état actif. */
+:root[data-theme="cyberpunk"] .btn,
+:root[data-theme="cyberpunk"] .sx-btn-fin,
+:root[data-theme="cyberpunk"] .checklist-bouton,
+:root[data-theme="cyberpunk"] .bouton-reglages {
+  border: 1px solid rgba(0,240,255,.55);
+  border-radius: 4px;
+  background-image: linear-gradient(180deg, rgba(210,240,255,.15), transparent 45%), repeating-linear-gradient(100deg, transparent 0 3px, rgba(255,255,255,.035) 3px 4px), linear-gradient(145deg,#364254,#131b29 65%,#0b101a);
+  color: #e9fbff;
+  box-shadow: inset 0 1px rgba(255,255,255,.2), 0 2px 0 #05080e, 0 0 8px rgba(0,240,255,.12);
+  text-shadow: 0 0 7px rgba(0,240,255,.55);
+}
+:root[data-theme="cyberpunk"] .btn-plein,
+:root[data-theme="cyberpunk"] .sx-btn-fin {
+  background-image: linear-gradient(145deg, rgba(255,255,255,.18), transparent 42%), linear-gradient(110deg, #00aabe, #682e91 56%, #d3239f);
+  color: white;
+  box-shadow: inset 0 1px rgba(255,255,255,.35), 0 0 12px rgba(0,240,255,.32), 0 0 18px rgba(255,43,214,.18);
+}
+:root[data-theme="cyberpunk"] .btn:active,
+:root[data-theme="cyberpunk"] .sx-btn-fin:active,
+:root[data-theme="cyberpunk"] .checklist-bouton:active { filter: brightness(1.3); }
+:root[data-theme="cyberpunk"] .reglages-interrupteur input[type="checkbox"],
+:root[data-theme="cyberpunk"] .reglages-rappel input[type="checkbox"] {
+  border: 2px solid #74859a;
+  border-radius: 5px;
+  background: linear-gradient(180deg,#303a4b,#111824);
+  box-shadow: inset 0 2px 4px rgba(0,0,0,.6), 0 0 0 1px #070a11;
+}
+:root[data-theme="cyberpunk"] .reglages-interrupteur input[type="checkbox"]::after,
+:root[data-theme="cyberpunk"] .reglages-rappel input[type="checkbox"]::after {
+  border-radius: 3px;
+  background: linear-gradient(145deg,#eefaff,#778ca3);
+  box-shadow: 0 1px 3px #05080e;
+}
+:root[data-theme="cyberpunk"] .reglages-interrupteur input[type="checkbox"]:checked,
+:root[data-theme="cyberpunk"] .reglages-rappel input[type="checkbox"]:checked {
+  border-color: var(--cp-cyan);
+  background: linear-gradient(180deg,#154b5b,#101b2a);
+  box-shadow: 0 0 9px rgba(0,240,255,.45), inset 0 0 7px rgba(0,240,255,.2);
+}
+/* Barres de progression = tubes lumineux sous verre. */
+:root[data-theme="cyberpunk"] .todo-progression,
+:root[data-theme="cyberpunk"] .sx-progression,
+:root[data-theme="cyberpunk"] .etirement-barre-progression {
+  border: 1px solid rgba(0,240,255,.42);
+  border-radius: 99px;
+  background: linear-gradient(180deg,#060a13,#172034);
+  box-shadow: inset 0 1px 4px #000, 0 0 7px rgba(0,240,255,.12);
+}
+:root[data-theme="cyberpunk"] .todo-progression-remplie,
+:root[data-theme="cyberpunk"] .sx-progression-remplie,
+:root[data-theme="cyberpunk"] .etirement-barre-remplissage {
+  border-radius: inherit;
+  background: linear-gradient(90deg,#00a8bc 0%,var(--cp-cyan) 52%,#fff 57%,var(--cp-pink) 100%);
+  box-shadow: 0 0 6px var(--cp-cyan), 0 0 14px rgba(255,43,214,.62);
+}
+/* Champs = petits terminaux. */
+:root[data-theme="cyberpunk"] .champ input,
+:root[data-theme="cyberpunk"] .champ select,
+:root[data-theme="cyberpunk"] .champ textarea {
+  border-color: rgba(0,240,255,.44);
+  border-radius: 3px;
+  background: linear-gradient(145deg,#080d18,#11172a);
+  box-shadow: inset 0 2px 6px rgba(0,0,0,.55);
+}
+:root[data-theme="cyberpunk"] .champ input:focus,
+:root[data-theme="cyberpunk"] .champ select:focus,
+:root[data-theme="cyberpunk"] .champ textarea:focus {
+  outline: 1px solid var(--cp-cyan);
+  box-shadow: inset 0 2px 6px rgba(0,0,0,.55), 0 0 10px rgba(0,240,255,.27);
+}
+:root[data-theme="cyberpunk"] .entete-carte,
+:root[data-theme="cyberpunk"] .nav-bas,
+:root[data-theme="cyberpunk"] .sx-entete {
+  border: 1px solid rgba(0,240,255,.5);
+  border-radius: 5px;
+  box-shadow: inset 0 0 0 2px rgba(8,14,24,.8), 0 0 12px rgba(0,240,255,.14);
+}
+@media (prefers-reduced-motion: reduce) {
+ :root[data-theme="cyberpunk"] .meteo-carte::after,
+  :root[data-theme="cyberpunk"] .titre-affichage,
+  :root[data-theme="cyberpunk"] .accueil-tuile h2,
+  :root[data-theme="cyberpunk"] .reglages-section-titre,
+  :root[data-theme="cyberpunk"] .carte:hover .carte-titre,
+  :root[data-theme="cyberpunk"] .carte:focus-within .carte-titre {
+    animation: none !important;
+  }
+ :root[data-theme="cyberpunk"] .meteo-carte::after { display: none; }
+}
+
+/* ===== THÈME FLIBUSTE : MÉTÉO = BAROMÈTRE DE BORD + JOURNAL DE BORD ===== */
+
+/* encres : couleurs de pigment sur papier (graphique de la carte et du journal) */
+:root[data-theme="flibuste"] .segment-ideal { stroke: #3E7F5B; }
+:root[data-theme="flibuste"] .segment-moyen { stroke: #C48A1E; }
+:root[data-theme="flibuste"] .segment-mauvais { stroke: #A3261C; }
+:root[data-theme="flibuste"] .point-ideal { fill: #3E7F5B; stroke: #F2E3B8; }
+:root[data-theme="flibuste"] .meteo-bande { fill: #3E7F5B; fill-opacity: .14; }
+:root[data-theme="flibuste"] .meteo-grille { stroke: rgba(70,45,15,.28); stroke-dasharray: 2 3; }
+:root[data-theme="flibuste"] .axe-label { fill: #4A2F0F; font-family: Georgia, serif; font-style: italic; }
+:root[data-theme="flibuste"] .meteo-now-ligne { stroke: #5A3A16; }
+:root[data-theme="flibuste"] .meteo-now-point { fill: #8E1220; stroke: #F2E3B8; }
+:root[data-theme="flibuste"] .meteo-now-label { fill: #8E1220; font-family: Georgia, serif; }
+:root[data-theme="flibuste"] .meteo-plage { fill: #B8862E; fill-opacity: .2; }
+:root[data-theme="flibuste"] .meteo-goutte { fill: #2F6FB0; fill-opacity: .85; }
+
+/* ---------- la carte : planche de chêne cloutée, thermomètre de cuivre, papier à la plume, ligne de loch ---------- */
+:root[data-theme="flibuste"] { --pr-ecriture: 'La Belle Aurore', 'Segoe Script', 'Brush Script MT', cursive; }
+:root[data-theme="flibuste"] .meteo-ideal { --pr-teinte: 62,127,91; }
+:root[data-theme="flibuste"] .meteo-moyen { --pr-teinte: 196,138,30; }
+:root[data-theme="flibuste"] .meteo-mauvais { --pr-teinte: 163,38,28; }
+
+:root[data-theme="flibuste"] .meteo-carte {
+  display: -webkit-box; display: flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  padding: 6px 12px 6px 14px;
+  margin-bottom: 14px;
+  border: 0;
+  border-radius: 10px;
+  background-color: #1B1209;
+  background-image: var(--pr-eclaire), var(--pr-bois);
+  background-size: 100% 100%, 240px 240px;
+  background-repeat: no-repeat, repeat;
+  background-origin: padding-box;
+  background-clip: border-box;
+  box-shadow: inset 0 0 0 1px #0E0905, inset 0 1px 0 rgba(255,200,130,.22), inset 0 -3px 5px rgba(0,0,0,.45), 0 7px 14px rgba(0,0,0,.55);
+  overflow: visible;
+}
+/* le bois prend à gauche la couleur du ressenti : vert-de-gris, ocre ou vermillon */
+:root[data-theme="flibuste"] .meteo-carte::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  border-radius: 10px;
+  pointer-events: none;
+  opacity: 1;
+  background: radial-gradient(ellipse 75% 130% at 0 55%, rgba(var(--pr-teinte), .5) 0, rgba(var(--pr-teinte), .2) 42%, rgba(var(--pr-teinte), 0) 78%);
+}
+/* quatre gros clous de forge aux coins */
+:root[data-theme="flibuste"] .meteo-carte::after {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  pointer-events: none;
+  background-image:
+    radial-gradient(circle at 9px 9px, #8A949E 0, #8A949E .8px, #343B44 1.7px, #12161B 3.2px, rgba(0,0,0,0) 3.8px),
+    radial-gradient(circle at calc(100% - 9px) 9px, #8A949E 0, #8A949E .8px, #343B44 1.7px, #12161B 3.2px, rgba(0,0,0,0) 3.8px),
+    radial-gradient(circle at 9px calc(100% - 9px), #8A949E 0, #8A949E .8px, #343B44 1.7px, #12161B 3.2px, rgba(0,0,0,0) 3.8px),
+    radial-gradient(circle at calc(100% - 9px) calc(100% - 9px), #8A949E 0, #8A949E .8px, #343B44 1.7px, #12161B 3.2px, rgba(0,0,0,0) 3.8px);
+}
+:root[data-theme="flibuste"] .meteo-icone,
+:root[data-theme="flibuste"] .meteo-spark,
+:root[data-theme="flibuste"] .meteo-temp,
+:root[data-theme="flibuste"] .meteo-sous { display: none; }
+
+/* le thermomètre : plaque de cuivre martelé à sommet arrondi, plus haute que la planche */
+.pr-thermo, .pr-parch, .pr-attache { display: none; }
+:root[data-theme="flibuste"] .pr-thermo {
+  display: block;
+  position: relative;
+  flex: 0 0 52px;
+  width: 52px; height: 98px;
+  margin: -9px 14px -9px 0;
+  border-radius: 26px 26px 6px 6px;
+  overflow: hidden;
+  box-shadow: 0 5px 10px rgba(0,0,0,.65), 0 0 0 1px rgba(30,12,4,.8);
+}
+:root[data-theme="flibuste"] .pr-thermo::after {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  box-shadow: inset 0 0 0 1.5px rgba(40,16,4,.8), inset 0 0 0 2.5px rgba(255,214,170,.3);
+}
+:root[data-theme="flibuste"] .pr-thermo-svg { display: block; position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
+/* la colonne d'esprit-de-vin monte avec un petit rebond ; une bulle remonte de temps en temps */
+:root[data-theme="flibuste"] .pr-thermo-liq {
+  position: absolute;
+  left: 25.8px; bottom: 14px;
+  width: 6.4px; height: 0;
+  overflow: hidden;
+  background: linear-gradient(90deg, #E0455A, #B01E36 45%, #6E0F20);
+  -webkit-transition: height 2.6s cubic-bezier(.25, 1.4, .4, 1); transition: height 2.6s cubic-bezier(.25, 1.4, .4, 1);
+}
+:root[data-theme="flibuste"] .pr-thermo-liq::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: rgba(255,255,255,.4); border-radius: 50% 50% 0 0; }
+:root[data-theme="flibuste"] .pr-thermo-liq i {
+  position: absolute; left: 2px; bottom: 0;
+  width: 2px; height: 2px;
+  border-radius: 50%;
+  background: rgba(255,255,255,.75);
+  -webkit-animation: prBulleEsprit 5s ease-in infinite; animation: prBulleEsprit 5s ease-in infinite;
+}
+@-webkit-keyframes prBulleEsprit { 0% { bottom: 0; opacity: 0; } 15% { opacity: .8; } 100% { bottom: 100%; opacity: 0; } }
+@keyframes prBulleEsprit { 0% { bottom: 0; opacity: 0; } 15% { opacity: .8; } 100% { bottom: 100%; opacity: 0; } }
+
+/* le texte : un bout de papier (texte seulement), la corde est sur le bois */
+:root[data-theme="flibuste"] .meteo-textes {
+  position: relative;
+  flex: 1; min-width: 0;
+  align-self: center;
+  display: -webkit-box; display: flex;
+  -webkit-box-orient: vertical; flex-direction: column;
+  justify-content: center;
+  padding: 0;
+  background: none;
+  box-shadow: none;
+  border-radius: 0;
+}
+:root[data-theme="flibuste"] .meteo-textes::before { display: none; }
+:root[data-theme="flibuste"] .pr-parch { display: block; width: 100%; }
+:root[data-theme="flibuste"] .pr-papier {
+  position: relative;
+  height: 39px;
+  box-sizing: border-box;
+  padding: 3px 18px 2px;
+  display: -webkit-box; display: flex;
+  -webkit-box-orient: vertical; flex-direction: column;
+  justify-content: center;
+}
+:root[data-theme="flibuste"] .pr-papier-fond {
+  position: absolute; left: 0; top: 0; width: 100%; height: 100%;
+  z-index: 0;
+  -webkit-filter: drop-shadow(0 2px 2.5px rgba(0,0,0,.6)); filter: drop-shadow(0 2px 2.5px rgba(0,0,0,.6));
+}
+:root[data-theme="flibuste"] .pr-papier-fond svg { display: block; }
+:root[data-theme="flibuste"] .pr-parch-titre { position: relative; z-index: 1; font-family: var(--pr-ecriture); font-size: 19px; line-height: 1; color: #2B1608; text-shadow: none; }
+:root[data-theme="flibuste"] .pr-parch-ligne { position: relative; z-index: 1; margin-top: 1px; font-family: var(--pr-ecriture); font-size: 13px; line-height: 1.05; font-style: normal; color: #3A1E0A; text-shadow: none; }
+:root[data-theme="flibuste"] .pr-loch { display: block; width: 100%; height: auto; margin-top: 1px; }
+
+/* deux cerclages de fer : la planche est attachée au mât (rien qui gêne le défilement) */
+:root[data-theme="flibuste"] .pr-attache {
+  display: block;
+  position: absolute;
+  z-index: 19;
+  height: 11px;
+  border-radius: 2px;
+  pointer-events: none;
+  background-color: #1A1E24;
+  background-image:
+    radial-gradient(circle at 4px 50%, #AEB8C2 0, #AEB8C2 .8px, #3A424C 1.6px, rgba(0,0,0,0) 2.4px),
+    radial-gradient(circle at calc(100% - 5px) 50%, #AEB8C2 0, #AEB8C2 .8px, #3A424C 1.6px, rgba(0,0,0,0) 2.4px),
+    linear-gradient(180deg, #666F7B 0, #333A43 24%, #1A1E24 78%, #0F1216 100%);
+  box-shadow: 0 2px 3px rgba(0,0,0,.7), inset 0 1px 0 rgba(255,255,255,.22), inset 0 -1px 0 rgba(0,0,0,.5);
+}
+:root[data-theme="flibuste"] .pr-attache-haut { top: 17%; }
+:root[data-theme="flibuste"] .pr-attache-bas { top: 66%; }
+
+/* ---------- la fenêtre : page de journal de bord sur parchemin ---------- */
+:root[data-theme="flibuste"] .pr-journal {
+  position: relative;
+  margin-top: 4px;
+  padding: 14px 14px 14px;
+  color: #2B1A0C;
+  --couleur-texte: #2B1A0C;
+  --couleur-texte-att: #6A4E33;
+  --couleur-bordure: rgba(70,42,18,.45);
+  background-color: #DCC590;
+  background-image: var(--pr-taches), var(--pr-papier);
+  background-size: 240px 240px, 100% 100%;
+  border-radius: 4px 10px 5px 11px / 10px 4px 11px 5px;
+  box-shadow: inset 0 0 34px rgba(110,62,18,.65), inset 0 0 0 1px rgba(60,32,10,.3), 0 4px 10px rgba(0,0,0,.5);
+  -webkit-animation: prDeroule .55s cubic-bezier(.2, .8, .3, 1); animation: prDeroule .55s cubic-bezier(.2, .8, .3, 1);
+}
+@-webkit-keyframes prDeroule { from { opacity: 0; -webkit-transform: translateY(10px) scaleY(.96); } to { opacity: 1; -webkit-transform: none; } }
+@keyframes prDeroule { from { opacity: 0; transform: translateY(10px) scaleY(.96); } to { opacity: 1; transform: none; } }
+/* cachet de cire dans le coin */
+:root[data-theme="flibuste"] .pr-journal::after {
+  content: '';
+  position: absolute;
+  right: 12px; bottom: 10px;
+  width: 28px; height: 28px;
+  border-radius: 48% 52% 50% 50% / 52% 46% 54% 48%;
+  background: radial-gradient(circle at 35% 30%, #E0504A 0, #B3231F 45%, #6E1010 100%);
+  box-shadow: inset 0 0 0 2px rgba(255,120,110,.2), inset 0 -2px 3px rgba(0,0,0,.35), 0 2px 4px rgba(0,0,0,.5);
+  -webkit-transform: rotate(-12deg); transform: rotate(-12deg);
+}
+:root[data-theme="flibuste"] .pr-journal-titre {
+  text-align: center;
+  font-family: var(--police-titre);
+  font-size: 25px; line-height: 1.1; letter-spacing: .06em;
+  color: #5E1A12;
+  text-shadow: 0 1px 0 rgba(255,240,200,.6);
+}
+:root[data-theme="flibuste"] .pr-journal-date { margin: 3px 0 10px; text-align: center; font-size: 12px; font-style: italic; color: #6A4E33; }
+:root[data-theme="flibuste"] .pr-journal-date::before,
+:root[data-theme="flibuste"] .pr-journal-date::after {
+  content: '';
+  display: inline-block;
+  width: 36px; height: 1px;
+  margin: 0 9px;
+  vertical-align: middle;
+  background: linear-gradient(90deg, rgba(106,78,51,0), #6A4E33);
+}
+:root[data-theme="flibuste"] .pr-journal-date::after { background: linear-gradient(90deg, #6A4E33, rgba(106,78,51,0)); }
+:root[data-theme="flibuste"] .pr-journal .meteo-ideal { --meteo-couleur: #3E7F5B; }
+:root[data-theme="flibuste"] .pr-journal .meteo-moyen { --meteo-couleur: #B9791A; }
+:root[data-theme="flibuste"] .pr-journal .meteo-mauvais { --meteo-couleur: #A3261C; }
+:root[data-theme="flibuste"] .pr-journal .meteo-tuile {
+  background: none;
+  border: 1.5px solid rgba(70,42,18,.55);
+  border-radius: 4px;
+  box-shadow: inset 0 0 0 3px rgba(220,197,144,0), inset 0 0 0 4px rgba(70,42,18,.22);
+}
+:root[data-theme="flibuste"] .pr-journal .meteo-tuile-label { color: #6A4E33; font-family: Georgia, serif; font-style: italic; text-transform: none; letter-spacing: .02em; font-size: 12px; }
+:root[data-theme="flibuste"] .pr-journal .meteo-tuile-valeur { color: #2B1A0C; font-family: var(--police-titre); }
+:root[data-theme="flibuste"] .pr-journal .meteo-tuile-now .meteo-tuile-valeur { color: var(--meteo-couleur); }
+:root[data-theme="flibuste"] .pr-journal .meteo-graphe {
+  padding: 8px 0 4px;
+  background: none;
+  border: 0;
+  border-top: 1px solid rgba(70,42,18,.35);
+  border-bottom: 1px solid rgba(70,42,18,.35);
+  border-radius: 0;
+}
+/* la courbe est tracée à l'encre (légère irrégularité) et se révèle de gauche à droite */
+:root[data-theme="flibuste"] .pr-journal .meteo-graphe svg path { filter: url(#pr-encre); }
+:root[data-theme="flibuste"] .pr-journal .meteo-graphe svg {
+  -webkit-animation: prEncre 1.5s .35s ease-out both; animation: prEncre 1.5s .35s ease-out both;
+}
+@-webkit-keyframes prEncre { from { -webkit-clip-path: inset(0 100% 0 0); } to { -webkit-clip-path: inset(0 0 0 0); } }
+@keyframes prEncre { from { clip-path: inset(0 100% 0 0); } to { clip-path: inset(0 0 0 0); } }
+:root[data-theme="flibuste"] .pr-journal .meteo-legende { color: #4A2F0F; font-style: italic; }
+:root[data-theme="flibuste"] .pr-journal .fr-ideal { background: #3E7F5B; }
+:root[data-theme="flibuste"] .pr-journal .fr-moyen { background: #C48A1E; }
+:root[data-theme="flibuste"] .pr-journal .fr-mauvais { background: #A3261C; }
+:root[data-theme="flibuste"] .pr-journal .pr-plage { background: rgba(184,134,46,.55); border-radius: 2px; }
+:root[data-theme="flibuste"] .pr-journal .pr-goutte { background: #2F6FB0; border-radius: 0 50% 50% 50%; -webkit-transform: rotate(45deg); transform: rotate(45deg); width: 8px; height: 8px; }
+:root[data-theme="flibuste"] .pr-journal .reglages-note { color: #4A2F0F; font-style: italic; }
+:root[data-theme="flibuste"] .pr-plume {
+  margin: 12px 0 0;
+  padding: 9px 40px 0 0;
+  border-top: 1px dashed rgba(70,42,18,.4);
+  font-family: Georgia, 'Palatino Linotype', serif;
+  font-size: 15px; font-style: italic; line-height: 1.45;
+  color: #3A2410;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root[data-theme="flibuste"] .pr-baro-aig svg, :root[data-theme="flibuste"] .pr-baro::after, :root[data-theme="flibuste"] .pr-baro-goutte, :root[data-theme="flibuste"] .meteo-textes::before, :root[data-theme="flibuste"] .pr-journal, :root[data-theme="flibuste"] .pr-journal .meteo-graphe svg { -webkit-animation: none; animation: none; }
+}
+:root.pr-calme[data-theme="flibuste"] .pr-journal, :root.pr-calme[data-theme="flibuste"] .pr-journal .meteo-graphe svg, :root.pr-calme[data-theme="flibuste"] .pr-baro-aig svg, :root.pr-calme[data-theme="flibuste"] .pr-baro::after, :root.pr-calme[data-theme="flibuste"] .pr-baro-goutte, :root.pr-calme[data-theme="flibuste"] .meteo-textes::before { -webkit-animation: none; animation: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  :root[data-theme="flibuste"] .pr-thermo-liq i, :root[data-theme="flibuste"] .pr-loch { -webkit-animation: none; animation: none; }
+}
+:root.pr-calme[data-theme="flibuste"] .pr-thermo-liq i, :root.pr-calme[data-theme="flibuste"] .pr-loch { -webkit-animation: none; animation: none; }
+
+/* RER dans les cartes d'exercice */
+.rer-zone { margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--couleur-bordure); }
+.rer-entete { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 8px; }
+.rer-titre { font-size: 12px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; color: var(--couleur-texte-att); }
+.rer-aide { font-size: 12px; color: var(--couleur-texte-att); }
+.rer-aide-active { color: var(--couleur-texte); font-weight: 700; }
+.rer-choix {
+  display: flex;
+  background: var(--couleur-carte-creux);
+  border: 1px solid var(--couleur-bordure);
+  border-radius: 12px;
+  padding: 3px;
+}
+.rer-bouton {
+  flex: 1;
+  min-height: 40px;
+  margin: 0 2px;
+  border-radius: 9px;
+  font-family: var(--police-donnees);
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--couleur-texte-att);
+  transition: background 0.15s ease, color 0.15s ease, transform 0.1s ease;
+}
+.rer-bouton:active { transform: scale(0.94); }
+.rer-bouton-actif { color: #0B1114; }
+.rer-bouton-actif.rer-niveau-0, .rer-bouton-actif.rer-niveau-1 { background: var(--couleur-alerte); }
+.rer-bouton-actif.rer-niveau-2, .rer-bouton-actif.rer-niveau-3 { background: var(--couleur-avertissement); }
+.rer-bouton-actif.rer-niveau-4, .rer-bouton-actif.rer-niveau-5 { background: var(--couleur-succes); }
+

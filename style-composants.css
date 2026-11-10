@@ -1,0 +1,959 @@
+/* ============================================================
+   COULEURS DE TEXTE ET EFFETS PAR THÈME
+   ============================================================ */
+:root {
+  --couleur-texte-titre: var(--couleur-texte);
+  --effet-texte: none;
+  --effet-halo: none;
+}
+
+:root[data-theme="automnal"] {
+  --couleur-texte: #F2E1CC; --couleur-texte-titre: #FFD9A0;
+  --effet-texte: 0 0 8px rgba(224,141,60,.45);
+  --effet-halo: drop-shadow(0 0 6px rgba(224,141,60,.6));
+}
+:root[data-theme="effroi"] {
+  --couleur-texte: #E4DAF0; --couleur-texte-titre: #C8FFD8;
+  --effet-texte: 0 0 8px rgba(160,255,190,.5), 0 -6px 18px rgba(123,47,247,.45);
+  --effet-halo: drop-shadow(0 0 6px rgba(123,47,247,.8));
+}
+:root[data-theme="hivernal"] {
+  --couleur-texte: #E2F4FC; --couleur-texte-titre: #FFFFFF;
+  --effet-texte: 0 0 6px rgba(207,239,255,.9), 0 0 18px rgba(127,216,242,.6);
+  --effet-halo: drop-shadow(0 0 5px rgba(127,216,242,.8));
+}
+:root[data-theme="paindepice"] {
+  --couleur-texte: #F5E6C0; --couleur-texte-titre: #F7D774;
+  --effet-texte: 0 1px 0 #8a6a12, 0 0 10px rgba(212,175,55,.6);
+  --effet-halo: drop-shadow(0 0 5px rgba(212,175,55,.7));
+}
+:root[data-theme="printanier"] {
+  --couleur-texte: #EEF7E6; --couleur-texte-titre: #FFD6E8;
+  --effet-texte: 0 0 8px rgba(242,166,199,.5);
+  --effet-halo: drop-shadow(0 0 5px rgba(242,166,199,.6));
+}
+:root[data-theme="pastel"] {
+  --couleur-texte: #F1E9F7; --couleur-texte-titre: #FFE3EE;
+  --effet-texte: 0 0 8px rgba(247,198,217,.55);
+  --effet-halo: drop-shadow(0 0 5px rgba(184,163,224,.6));
+}
+:root[data-theme="estival"] {
+  --couleur-texte: #EAFBF7; --couleur-texte-titre: #FFE9A8;
+  --effet-texte: 0 0 8px rgba(255,200,87,.55);
+  --effet-halo: drop-shadow(0 0 5px rgba(255,200,87,.6));
+}
+:root[data-theme="cyberpunk"] {
+  --couleur-texte: #DDF9FF; --couleur-texte-titre: #FFFFFF;
+  --effet-texte: 0 0 4px #fff, 0 0 10px #00F0FF, 0 0 22px #00F0FF, 0 0 40px #FF2BD6;
+  --effet-halo: drop-shadow(0 0 4px #00F0FF) drop-shadow(0 0 10px #FF2BD6);
+}
+:root[data-theme="steampunk"] {
+  --couleur-texte: #EADCC0; --couleur-texte-titre: #E8B46A;
+  --effet-texte: 0 1px 0 #3d2e17, 0 0 6px rgba(198,138,61,.4);
+  --effet-halo: drop-shadow(0 0 4px rgba(198,138,61,.6));
+}
+:root[data-theme="flibuste"] {
+  --couleur-texte: #F2E6C8; --couleur-texte-titre: #F3C969;
+  --effet-texte: 0 2px 0 #08111A, 0 0 8px rgba(224,174,69,.4);
+  --effet-halo: drop-shadow(0 0 4px rgba(224,174,69,.6));
+}
+:root[data-theme="ruedor"] {
+  --couleur-texte: #F5E3BC; --couleur-texte-titre: #F2C14E;
+  --effet-texte: 0 2px 0 #4A2F22, 0 0 8px rgba(242,193,78,.35);
+  --effet-halo: drop-shadow(0 0 4px rgba(242,193,78,.6));
+}
+
+/* Application : titres simples = couleur + lueur ; titres en dégradé = halo */
+.titre-affichage:not(.texte-degrade),
+.modal-entete h2,
+.carte-titre,
+.selecteur-exercice-nom,
+.sx-exo-nom {
+  color: var(--couleur-texte-titre);
+  text-shadow: var(--effet-texte);
+}
+.texte-degrade {
+  -webkit-filter: var(--effet-halo);
+  filter: var(--effet-halo);
+}
+
+/* Cyberpunk : léger scintillement néon */
+@keyframes neonScintille {
+  0%, 18%, 22%, 62%, 64%, 100% { opacity: 1; }
+  20%, 63% { opacity: .55; }
+}
+:root[data-theme="cyberpunk"] .titre-affichage:not(.texte-degrade) {
+  animation: neonScintille 6s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root[data-theme="effroi"] .titre-affichage,
+  :root[data-theme="effroi"] .modal-entete h2,
+  :root[data-theme="cyberpunk"] .titre-affichage { animation: none; }
+}
+
+/* ============================================================
+   THÈME WASTELAND (rouille, sable, nitro)
+   ============================================================ */
+:root[data-theme="wasteland"] {
+  --couleur-fond: #17100B; --couleur-carte: #231710; --couleur-carte-creux: #120B07; --couleur-bordure: #4A2E1C;
+  --couleur-turquoise: #FF6A1F; --couleur-cyan: #F5C518;
+  --couleur-degrade: linear-gradient(135deg, #FF6A1F 0%, #F5C518 100%);
+  --degrade-seance: linear-gradient(135deg, #FF6A1F, #F5C518, #8A2A0E);
+  --police-titre: 'Black Ops One', cursive;
+  --couleur-nutrition: #9BE000;
+  --couleur-nutrition-fond: #1B2008;
+  --couleur-nutrition-fond-actif: #2B3510;
+  --couleur-nutrition-clair: #C6F55C;
+  --couleur-texte: #F0DFC4; --couleur-texte-att: #A8927A;
+  --couleur-texte-titre: #FFB347;
+  --effet-texte: 0 2px 0 #3A1A08, 0 0 10px rgba(255,106,31,.55);
+  --effet-halo: drop-shadow(0 0 5px rgba(255,106,31,.75));
+}
+
+/* Police à une seule graisse : pas de faux gras */
+:root[data-theme="wasteland"] .titre-affichage,
+:root[data-theme="wasteland"] .modal-entete h2 { font-weight: 400; }
+
+/* Chaleur : la lueur des titres vacille comme une flamme */
+@keyframes chaleurWasteland {
+  0%, 100% { text-shadow: 0 2px 0 #3A1A08, 0 0 8px rgba(255,106,31,.5), 0 -4px 14px rgba(245,197,24,.25); }
+  35%      { text-shadow: 0 2px 0 #3A1A08, 0 0 12px rgba(255,106,31,.8), 0 -7px 20px rgba(245,197,24,.4); }
+  60%      { text-shadow: 0 2px 0 #3A1A08, 0 0 9px rgba(255,106,31,.6), 0 -5px 16px rgba(245,197,24,.3); }
+}
+:root[data-theme="wasteland"] .titre-affichage:not(.texte-degrade),
+:root[data-theme="wasteland"] .modal-entete h2 {
+  animation: chaleurWasteland 2.5s ease-in-out infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  :root[data-theme="wasteland"] .titre-affichage,
+  :root[data-theme="wasteland"] .modal-entete h2 { animation: none; }
+}
+
+@keyframes respirationEffroi {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: .7; }
+}
+:root[data-theme="effroi"] .titre-affichage:not(.texte-degrade),
+:root[data-theme="effroi"] .modal-entete h2 {
+  animation: respirationEffroi 4s ease-in-out infinite;
+}
+
+/* ============================================================
+   FOND À MOTIF + PARALLAXE
+   ============================================================ */
+body { background: transparent; }
+
+.fond-theme {
+  position: fixed;
+  top: -240px; bottom: -240px; left: -160px; right: -160px;
+  z-index: -1;
+  pointer-events: none;
+  overflow: hidden;
+  -webkit-transition: -webkit-transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+  transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.fond-motif {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+}
+
+/* Effroi : fragments de toile d'araignée */
+:root[data-theme="effroi"] .fond-motif {
+  background-size: 120px 120px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cg fill='none' stroke='%23A0FFBE' stroke-opacity='.10'%3E%3Cpath d='M0 0L120 120M0 0L120 60M0 0L60 120'/%3E%3Cpath d='M30 0A30 30 0 0 1 0 30M60 0A60 60 0 0 1 0 60M90 0A90 90 0 0 1 0 90'/%3E%3C/g%3E%3C/svg%3E");
+}
+/* Hivernal : flocons */
+:root[data-theme="hivernal"] .fond-motif {
+  background-size: 120px 120px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cg fill='%23CFEFFF' fill-opacity='.14'%3E%3Ccircle cx='20' cy='25' r='2'/%3E%3Ccircle cx='80' cy='15' r='1.5'/%3E%3Ccircle cx='55' cy='70' r='2.5'/%3E%3Ccircle cx='105' cy='95' r='1.5'/%3E%3Ccircle cx='15' cy='105' r='1.5'/%3E%3C/g%3E%3Cpath d='M60 20v14M53 27h14M55 22l10 10M65 22l-10 10' stroke='%23CFEFFF' stroke-opacity='.12' fill='none'/%3E%3C/svg%3E");
+}
+/* Cyberpunk : grille néon */
+:root[data-theme="cyberpunk"] .fond-motif {
+  background-size: 48px 48px;
+  background-image:
+    linear-gradient(rgba(0,240,255,.07) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,43,214,.06) 1px, transparent 1px);
+}
+/* Steampunk : rivets */
+:root[data-theme="steampunk"] .fond-motif {
+  background-size: 40px 40px;
+  background-image: radial-gradient(circle, rgba(198,138,61,.14) 2px, transparent 3px);
+}
+/* Wasteland : bandes de danger en diagonale */
+:root[data-theme="wasteland"] .fond-motif {
+  background-size: 40px 40px;
+  background-image: linear-gradient(135deg, rgba(255,106,31,.07) 25%, transparent 25%, transparent 50%, rgba(255,106,31,.07) 50%, rgba(255,106,31,.07) 75%, transparent 75%);
+}
+/* Automnal : feuilles */
+:root[data-theme="automnal"] .fond-motif {
+  background-size: 120px 120px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cg fill='%23E08D3C' fill-opacity='.13'%3E%3Cellipse cx='30' cy='30' rx='7' ry='3.5' transform='rotate(35 30 30)'/%3E%3Cellipse cx='90' cy='55' rx='6' ry='3' transform='rotate(-30 90 55)'/%3E%3Cellipse cx='50' cy='95' rx='7' ry='3.5' transform='rotate(70 50 95)'/%3E%3C/g%3E%3C/svg%3E");
+}
+/* Pain d'épice : étoiles dorées */
+:root[data-theme="paindepice"] .fond-motif {
+  background-size: 120px 120px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cg fill='%23D4AF37' fill-opacity='.14'%3E%3Cpath d='M30 22l2 6 6 2-6 2-2 6-2-6-6-2 6-2z'/%3E%3Cpath d='M90 70l2 6 6 2-6 2-2 6-2-6-6-2 6-2z'/%3E%3Ccircle cx='85' cy='20' r='1.5'/%3E%3Ccircle cx='25' cy='90' r='1.5'/%3E%3C/g%3E%3C/svg%3E");
+}
+/* Printanier : pétales */
+:root[data-theme="printanier"] .fond-motif {
+  background-size: 120px 120px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cg fill='%23F2A6C7' fill-opacity='.14'%3E%3Cellipse cx='30' cy='30' rx='5' ry='2.5' transform='rotate(40 30 30)'/%3E%3Cellipse cx='85' cy='80' rx='5' ry='2.5' transform='rotate(-40 85 80)'/%3E%3C/g%3E%3Cg fill='%238FD694' fill-opacity='.12'%3E%3Ccircle cx='90' cy='25' r='2'/%3E%3Ccircle cx='30' cy='95' r='2'/%3E%3C/g%3E%3C/svg%3E");
+}
+/* Pastel : pois */
+:root[data-theme="pastel"] .fond-motif {
+  background-size: 80px 80px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80'%3E%3Ccircle cx='20' cy='20' r='3' fill='%23B8A3E0' fill-opacity='.14'/%3E%3Ccircle cx='60' cy='60' r='3' fill='%23F7C6D9' fill-opacity='.14'/%3E%3C/svg%3E");
+}
+/* Estival : reflets de piscine (caustiques en bruit fractal) */
+:root[data-theme="estival"] {
+  --caustique: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='c' x='0' y='0' width='100%25' height='100%25' color-interpolation-filters='sRGB'%3E%3CfeTurbulence type='turbulence' baseFrequency='.016' numOctaves='2' seed='7' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .62 0 0 0 0 1 0 0 0 0 .95 1 0 0 0 0'/%3E%3CfeComponentTransfer%3E%3CfeFuncA type='table' tableValues='0 0 0 0 0 1 0 0 0 0 0 0'/%3E%3C/feComponentTransfer%3E%3C/filter%3E%3Crect width='240' height='240' filter='url(%23c)' opacity='.55'/%3E%3C/svg%3E");
+}
+:root[data-theme="estival"] .fond-motif::before,
+:root[data-theme="estival"] .fond-motif::after {
+  content: '';
+  position: absolute;
+  top: -240px; left: -240px; right: -240px; bottom: -240px;
+  background-image: var(--caustique);
+  will-change: transform;
+}
+:root[data-theme="estival"] .fond-motif::before {
+  background-size: 240px 240px;
+  animation: causticDeriveA 60s linear infinite;
+}
+:root[data-theme="estival"] .fond-motif::after {
+  background-size: 120px 120px;
+  opacity: .8;
+  animation: causticDeriveB 40s linear infinite;
+}
+@keyframes causticDeriveA { from { transform: translate3d(0,0,0); } to { transform: translate3d(-240px,240px,0); } }
+@keyframes causticDeriveB { from { transform: translate3d(0,0,0); } to { transform: translate3d(240px,240px,0); } }
+/* Flibuste : pont en planches calfatées + cordage */
+:root[data-theme="flibuste"] .fond-motif {
+  background-size: 240px 240px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Crect width='240' height='48' fill='%23B08A55' fill-opacity='.08'/%3E%3Crect y='48' width='240' height='48' fill='%23B08A55' fill-opacity='.03'/%3E%3Crect y='96' width='240' height='48' fill='%23B08A55' fill-opacity='.10'/%3E%3Crect y='144' width='240' height='48' fill='%23B08A55' fill-opacity='.04'/%3E%3Crect y='192' width='240' height='48' fill='%23B08A55' fill-opacity='.09'/%3E%3Cpath d='M0 0H240M0 48H240M0 96H240M0 144H240M0 192H240M0 240H240' stroke='%23050B10' stroke-opacity='.5' stroke-width='2' fill='none'/%3E%3Cpath d='M100 0V48M200 48V96M50 96V144M150 144V192M110 192V240' stroke='%23050B10' stroke-opacity='.4' stroke-width='1.5' fill='none'/%3E%3Cg fill='none' stroke='%23050B10' stroke-opacity='.12'%3E%3Cpath d='M0 14q30 -4 60 0t60 0t60 0t60 0'/%3E%3Cpath d='M0 36q30 -4 60 0t60 0t60 0t60 0'/%3E%3Cpath d='M0 62q30 -4 60 0t60 0t60 0t60 0'/%3E%3Cpath d='M0 84q30 -4 60 0t60 0t60 0t60 0'/%3E%3Cpath d='M0 110q30 -4 60 0t60 0t60 0t60 0'/%3E%3Cpath d='M0 132q30 -4 60 0t60 0t60 0t60 0'/%3E%3Cpath d='M0 158q30 -4 60 0t60 0t60 0t60 0'/%3E%3Cpath d='M0 180q30 -4 60 0t60 0t60 0t60 0'/%3E%3Cpath d='M0 206q30 -4 60 0t60 0t60 0t60 0'/%3E%3Cpath d='M0 228q30 -4 60 0t60 0t60 0t60 0'/%3E%3C/g%3E%3Cpath d='M120 0q14 60 0 120t0 120' stroke='%23C9A66B' stroke-opacity='.32' stroke-width='7' fill='none'/%3E%3Cpath d='M120 0q14 60 0 120t0 120' stroke='%232A1A0A' stroke-opacity='.35' stroke-width='7' stroke-dasharray='2 4' fill='none'/%3E%3C/svg%3E");
+}
+/* Western : mur en planches + taches de vieux papier */
+:root[data-theme="ruedor"] .fond-motif {
+  background-size: 240px 240px, 240px 240px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='p' x='0' y='0' width='100%25' height='100%25'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.012 .02' numOctaves='3' seed='4' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .78 0 0 0 0 .6 0 0 0 0 .35 0 0 0 .9 -.25'/%3E%3C/filter%3E%3Crect width='240' height='240' filter='url(%23p)' opacity='.2'/%3E%3C/svg%3E"),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Crect width='80' height='240' fill='%236B4423' fill-opacity='.10'/%3E%3Crect x='80' width='80' height='240' fill='%236B4423' fill-opacity='.04'/%3E%3Crect x='160' width='80' height='240' fill='%236B4423' fill-opacity='.14'/%3E%3Cpath d='M0 0V240M80 0V240M160 0V240M240 0V240' stroke='%232A1608' stroke-opacity='.4' stroke-width='2' fill='none'/%3E%3Cg fill='none' stroke='%232A1608' stroke-opacity='.14'%3E%3Cpath d='M22 0q6 30 0 60t0 60t0 60t0 60'/%3E%3Cpath d='M55 0q-6 30 0 60t0 60t0 60t0 60'/%3E%3Cpath d='M102 0q6 30 0 60t0 60t0 60t0 60'/%3E%3Cpath d='M135 0q-6 30 0 60t0 60t0 60t0 60'/%3E%3Cpath d='M182 0q6 30 0 60t0 60t0 60t0 60'/%3E%3Cpath d='M215 0q-6 30 0 60t0 60t0 60t0 60'/%3E%3C/g%3E%3Cg fill='%232A1608' fill-opacity='.45'%3E%3Ccircle cx='40' cy='20' r='2.2'/%3E%3Ccircle cx='120' cy='20' r='2.2'/%3E%3Ccircle cx='200' cy='20' r='2.2'/%3E%3Ccircle cx='40' cy='220' r='2.2'/%3E%3Ccircle cx='120' cy='220' r='2.2'/%3E%3Ccircle cx='200' cy='220' r='2.2'/%3E%3C/g%3E%3C/svg%3E");
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fond-theme { -webkit-transition: none; transition: none; }
+}
+
+/* ============================================================
+   AMBIANCE PAR THÈME (particules plein écran)
+   ============================================================ */
+.ambiance-theme {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  z-index: 5;
+  pointer-events: none;
+  overflow: hidden;
+}
+.amb {
+  position: absolute;
+  top: 0; left: 0;
+  line-height: 1;
+  opacity: 0;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
+
+/* --- Mouvements --- */
+@keyframes ambChute {
+  0%   { transform: translate3d(0,-8vh,0) rotate(0deg); opacity: 0; }
+  10%  { opacity: var(--op, .6); }
+  90%  { opacity: var(--op, .6); }
+  100% { transform: translate3d(var(--dx, 0px),108vh,0) rotate(var(--rot, 0deg)); opacity: 0; }
+}
+@keyframes ambMonte {
+  0%   { transform: translate3d(0,108vh,0) scale(var(--sc0, 1)); opacity: 0; }
+  15%  { opacity: var(--op, .3); }
+  85%  { opacity: var(--op, .3); }
+  100% { transform: translate3d(var(--dx, 0px),-35vh,0) scale(var(--sc, 1)); opacity: 0; }
+}
+@keyframes ambDerive {
+  0%   { transform: translate3d(-40vw,0,0); opacity: 0; }
+  15%  { opacity: var(--op, .2); }
+  85%  { opacity: var(--op, .2); }
+  100% { transform: translate3d(130vw,var(--dy, 0px),0); opacity: 0; }
+}
+@keyframes ambNeon {
+  0%, 100% { opacity: .03; transform: translate3d(0,0,0) scale(1); }
+  50%      { opacity: var(--op, .2); transform: translate3d(var(--dx, 0px),var(--dy, 0px),0) scale(1.25); }
+}
+@keyframes ambScintille {
+  0%, 100% { opacity: 0; transform: scale(.3); }
+  50%      { opacity: var(--op, .85); transform: scale(1) rotate(20deg); }
+}
+
+.amb-flocon, .amb-petale, .amb-feuille, .amb-erable { animation-name: ambChute; }
+.amb-rayon  { animation-name: ambRayon; animation-timing-function: ease-in-out; }
+.amb-reflet { animation-name: ambReflet; animation-timing-function: ease-in-out; }
+.amb-nuage, .amb-braise, .amb-bulle    { animation-name: ambMonte; }
+.amb-brume, .amb-poussiere             { animation-name: ambDerive; }
+.amb-neon      { animation-name: ambNeon; animation-timing-function: ease-in-out; }
+.amb-etincelle { animation-name: ambScintille; animation-timing-function: ease-in-out; }
+
+.amb-nuage, .amb-brume, .amb-neon { border-radius: 50%; }
+
+/* --- Wasteland : fumée de raffinerie + braises --- */
+.amb-nuage-pollution {
+  background: radial-gradient(circle, rgba(125,98,72,.9) 0%, rgba(125,98,72,0) 70%);
+  --op: .28; --sc0: .5; --sc: 2;
+}
+.amb-braise { border-radius: 50%; background: #FF8A2A; --op: .8; --sc0: 1; --sc: .4; }
+
+/* --- Steampunk : vapeur --- */
+.amb-nuage-vapeur {
+  background: radial-gradient(circle, rgba(215,200,175,.9) 0%, rgba(215,200,175,0) 70%);
+  --op: .16; --sc0: .5; --sc: 1.8;
+}
+
+/* --- Western : brume de poussière + grains --- */
+.amb-brume-poussiere {
+  background: radial-gradient(circle, rgba(222,184,120,.75) 0%, rgba(222,184,120,0) 70%);
+  --op: .2;
+}
+.amb-poussiere { border-radius: 50%; background: rgba(235,205,150,.9); --op: .55; }
+
+/* --- Effroi : brume spectrale --- */
+.amb-brume-effroi {
+  background: radial-gradient(circle, rgba(170,255,200,.5) 0%, rgba(123,47,247,.25) 45%, rgba(123,47,247,0) 70%);
+  --op: .35;
+}
+
+/* --- Cyberpunk : variations de néons --- */
+.amb-neon-cyan   { background: radial-gradient(circle, rgba(0,240,255,.9) 0%, rgba(0,240,255,0) 70%); --op: .2; }
+.amb-neon-rose   { background: radial-gradient(circle, rgba(255,43,214,.9) 0%, rgba(255,43,214,0) 70%); --op: .2; }
+.amb-neon-violet { background: radial-gradient(circle, rgba(123,47,247,.9) 0%, rgba(123,47,247,0) 70%); --op: .25; }
+
+/* --- Hivernal : flocons --- */
+.amb-flocon { color: rgba(225,245,255,.95); --op: .7; }
+.amb-flocon-a::before { content: '\2744'; }
+.amb-flocon-b::before { content: '\2745'; }
+
+/* --- Pétales (printanier, estival) --- */
+.amb-petale { border-radius: 100% 0 100% 0; --op: .55; }
+.amb-petale-rose  { background: #F7B6D2; }
+.amb-petale-chaud { background: #FF9A5C; }
+.amb-petale-jaune { background: #FFD66B; }
+
+/* --- Automnal : feuilles --- */
+.amb-feuille { border-radius: 0 100% 0 100%; --op: .6; }
+.amb-feuille-orange { background: #E08D3C; }
+.amb-feuille-rouge  { background: #B23A2E; }
+
+/* --- Pain d'épice : scintillements --- */
+.amb-etincelle { color: #F7D774; --op: .85; }
+.amb-etincelle::before { content: '\2726'; }
+
+/* --- Pastel / Flibuste : bulles --- */
+.amb-bulle { border-radius: 50%; --op: .6; --sc0: 1; --sc: 1; }
+.amb-bulle-pastel {
+  border: 1.5px solid rgba(184,163,224,.8);
+  background: radial-gradient(circle at 30% 30%, rgba(247,198,217,.35), transparent 60%);
+}
+.amb-bulle-mer {
+  border: 1.5px solid rgba(42,157,143,.8);
+  background: radial-gradient(circle at 30% 30%, rgba(160,240,230,.3), transparent 60%);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ambiance-theme { display: none; }
+}
+
+/* Automnal : feuille d'érable */
+.amb-erable { --op: .8; }
+.amb-erable::before { content: '\1F341'; }
+
+/* Estival : rayons de soleil (même source hors champ, en haut à droite) */
+@keyframes ambRayon {
+  0%, 100% { opacity: .06; transform: rotate(var(--a, 22deg)); }
+  50%      { opacity: var(--op, .4); transform: rotate(calc(var(--a, 22deg) + 4deg)); }
+}
+.amb-rayon {
+  height: 150vh !important;
+  transform-origin: 50% 0;
+  background: linear-gradient(to right, rgba(255,238,170,0), rgba(255,238,170,1) 50%, rgba(255,238,170,0));
+  -webkit-mask-image: linear-gradient(to bottom, #000, rgba(0,0,0,0) 90%);
+  mask-image: linear-gradient(to bottom, #000, rgba(0,0,0,0) 90%);
+  --op: .4;
+}
+
+/* Zone très lumineuse en haut à droite */
+@keyframes ambSoleil {
+  0%, 100% { opacity: .75; }
+  50%      { opacity: 1; }
+}
+:root[data-theme="estival"] .ambiance-theme::before {
+  content: '';
+  position: absolute;
+  top: -35vw; right: -35vw;
+  width: 100vw; height: 100vw;
+  background: radial-gradient(circle, rgba(255,243,190,.5) 0%, rgba(255,226,140,.24) 35%, rgba(255,210,120,0) 68%);
+  animation: ambSoleil 9s ease-in-out infinite;
+}
+
+/* ============================================================
+   EFFROI : ÉCLAIR (flash + foudre)
+   ============================================================ */
+.eclair-flash, .eclair-bolt {
+  position: fixed;
+  pointer-events: none;
+  opacity: 0;
+  z-index: -1;
+}
+.eclair-flash {
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: radial-gradient(ellipse at var(--ex, 50%) 0%, rgba(240,232,255,.95) 0%, rgba(170,130,255,.4) 45%, rgba(123,47,247,0) 80%);
+}
+.eclair-bolt {
+  top: 0;
+  width: 26vw; min-width: 110px; max-width: 260px;
+  height: 75vh;
+  margin-left: -13vw;
+}
+.eclair-bolt svg { width: 100%; height: 100%; display: block; }
+
+/* Flash : double éclat puis extinction */
+@keyframes eclairFlash {
+  0%   { opacity: 0; }
+  4%   { opacity: 1; }
+  10%  { opacity: .2; }
+  16%  { opacity: .85; }
+  24%  { opacity: .1; }
+  32%  { opacity: .45; }
+  100% { opacity: 0; }
+}
+/* Foudre : visible uniquement pendant les éclats, synchronisée avec le flash */
+@keyframes eclairBolt {
+  0%   { opacity: 0; }
+  4%   { opacity: 1; }
+  11%  { opacity: 1; }
+  12%  { opacity: 0; }
+  16%  { opacity: 1; }
+  23%  { opacity: .8; }
+  26%  { opacity: 0; }
+  100% { opacity: 0; }
+}
+.eclair-flash.actif { animation: eclairFlash 1.1s linear forwards; }
+.eclair-bolt.actif  { animation: eclairBolt 1.1s linear forwards; }
+
+@media (prefers-reduced-motion: reduce) {
+  .eclair-flash, .eclair-bolt { display: none; }
+}
+
+:root[data-theme="effroi"] .carte { background-color: rgba(23, 10, 31, 0.82); }
+
+/* ============================================================
+   STEAMPUNK : ROUAGES (arrière-plan)
+   ============================================================ */
+.rouages-theme {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  z-index: -1;
+  pointer-events: none;
+  overflow: hidden;
+}
+.rouage {
+  position: absolute;
+  will-change: transform;
+  animation-iteration-count: infinite;
+}
+@keyframes rouageTourne {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(var(--tour, 360deg)); }
+}
+@keyframes rouageOscille {
+  from { transform: rotate(var(--a0, -30deg)); }
+  to   { transform: rotate(var(--a1, 30deg)); }
+}
+.rouage-continu { animation-name: rouageTourne; animation-timing-function: linear; }
+.rouage-coups   { animation-name: rouageTourne; }
+.rouage-oscille { animation-name: rouageOscille; animation-direction: alternate; animation-timing-function: ease-in-out; }
+
+@media (prefers-reduced-motion: reduce) {
+  .rouage { animation: none; }
+}
+
+/* Steampunk : plans de rouages (parallaxe). Le plan extérieur suit l'onglet, l'intérieur suit le scroll. */
+.rouage-plan, .rouage-plan-scroll {
+  position: absolute;
+  top: 0; left: 0;
+  width: 0; height: 0;
+  will-change: transform;
+}
+.rouage-plan {
+  -webkit-transition: -webkit-transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+  transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+}
+@media (prefers-reduced-motion: reduce) {
+  .rouage-plan { -webkit-transition: none; transition: none; }
+}
+
+/* ============================================================
+   MÉTÉO : barre + fenêtre (suivent le thème)
+   ============================================================ */
+.meteo-ideal   { --meteo-couleur: var(--couleur-succes); }
+.meteo-moyen   { --meteo-couleur: var(--couleur-avertissement); }
+.meteo-mauvais { --meteo-couleur: var(--couleur-alerte); }
+
+.meteo-carte {
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  padding: 12px 14px 14px 12px;
+  margin-bottom: 14px;
+  background-color: var(--couleur-carte-creux);
+  background-image: var(--meteo-decor, none);
+  border: 1px var(--meteo-trait, solid) var(--meteo-bord, var(--couleur-bordure));
+  border-radius: var(--meteo-rayon, 20px);
+  box-shadow: var(--meteo-lueur, var(--ombre));
+  overflow: hidden;
+  cursor: pointer;
+  -webkit-user-select: none; user-select: none;
+  -webkit-touch-callout: none;
+  transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.meteo-carte:active { transform: scale(0.98); }
+/* halo de l'état (idéal / correct / à éviter) */
+.meteo-carte::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: linear-gradient(90deg, var(--meteo-couleur), transparent 60%);
+  opacity: 0.13;
+  pointer-events: none;
+}
+.meteo-icone {
+  position: relative;
+  width: 40px; height: 40px; min-width: 40px;
+  margin-right: 12px;
+  display: flex; align-items: center; justify-content: center;
+  border: 1px solid var(--couleur-bordure);
+  border-radius: 14px;
+  color: var(--meteo-couleur);
+}
+.meteo-icone::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  border-radius: 13px;
+  background: var(--meteo-couleur);
+  opacity: 0.16;
+}
+.meteo-icone svg { position: relative; display: block; }
+.meteo-textes { position: relative; flex: 1; min-width: 0; }
+.meteo-temp { display: block; font-size: 22px; font-weight: 800; line-height: 1.1; }
+.meteo-sous { display: block; margin-top: 3px; font-size: 12.5px; color: var(--couleur-texte-att); }
+.meteo-chevron { position: relative; margin-left: 10px; font-size: 22px; color: var(--couleur-texte-att); }
+
+/* frise de la journée */
+.meteo-frise {
+  position: relative;
+  flex: 0 0 100%;
+  display: flex;
+  align-items: center;
+  height: 12px;
+  margin-top: 12px;
+}
+.meteo-frise span { flex: 1; height: 6px; margin: 0 1px; border-radius: 3px; }
+.meteo-frise .fr-passe { opacity: 0.3; }
+.meteo-frise .fr-now { height: 12px; }
+.fr-ideal   { background: var(--couleur-succes); }
+.fr-moyen   { background: var(--couleur-avertissement); }
+.fr-mauvais { background: var(--couleur-alerte); }
+
+/* fenêtre */
+.meteo-tuiles { display: flex; margin: 0 -4px 12px -4px; }
+.meteo-tuile {
+  flex: 1;
+  margin: 0 4px;
+  padding: 10px 6px;
+  text-align: center;
+  background: var(--couleur-carte-creux);
+  border: 1px solid var(--couleur-bordure);
+  border-radius: 16px;
+}
+.meteo-tuile-label {
+  display: block;
+  margin-bottom: 4px;
+  font-size: 11px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.05em;
+  color: var(--couleur-texte-att);
+}
+.meteo-tuile-valeur { display: block; font-size: 22px; font-weight: 800; }
+.meteo-tuile-now .meteo-tuile-valeur { color: var(--meteo-couleur); }
+.meteo-graphe {
+  padding: 10px 8px 6px 8px;
+  margin-bottom: 12px;
+  background: var(--couleur-carte-creux);
+  border: 1px solid var(--couleur-bordure);
+  border-radius: 20px;
+}
+.meteo-legende { display: flex; flex-wrap: wrap; font-size: 12px; color: var(--couleur-texte-att); }
+.meteo-legende span { display: inline-flex; align-items: center; margin-right: 14px; }
+.meteo-pastille { display: inline-block; width: 10px; height: 10px; margin-right: 6px; border-radius: 50%; }
+
+/* graphique */
+.axe-label { fill: var(--couleur-texte-att); font-size: 9px; }
+.segment-ideal   { stroke: var(--couleur-succes); }
+.segment-moyen   { stroke: var(--couleur-avertissement); }
+.segment-mauvais { stroke: var(--couleur-alerte); }
+.point-ideal { fill: var(--couleur-succes); stroke: var(--couleur-carte-creux); stroke-width: 2; }
+.meteo-grille { stroke: var(--couleur-bordure); stroke-width: 1; }
+.meteo-bande { fill: var(--couleur-succes); fill-opacity: 0.1; }
+.meteo-now-ligne { stroke: var(--couleur-texte-att); stroke-width: 1; stroke-dasharray: 3, 3; }
+.meteo-now-point { fill: var(--couleur-turquoise); stroke: var(--couleur-carte-creux); stroke-width: 2; }
+.meteo-now-label { fill: var(--couleur-turquoise); font-size: 10px; font-weight: 700; }
+
+/* --- Déclinaison par thème (bord, décor, forme) --- */
+:root[data-theme="automnal"]   { --meteo-decor: linear-gradient(135deg, rgba(224,141,60,.16), transparent 55%); --meteo-bord: rgba(224,141,60,.5); }
+:root[data-theme="effroi"]     { --meteo-decor: radial-gradient(ellipse at 10% 130%, rgba(123,47,247,.4), transparent 65%); --meteo-bord: rgba(123,47,247,.6); }
+:root[data-theme="hivernal"]   { --meteo-decor: linear-gradient(135deg, rgba(207,239,255,.14), transparent 55%); --meteo-bord: rgba(127,216,242,.55); --meteo-lueur: 0 0 14px rgba(127,216,242,.22); }
+:root[data-theme="paindepice"] { --meteo-decor: linear-gradient(135deg, rgba(212,175,55,.18), transparent 50%); --meteo-bord: rgba(212,175,55,.7); --meteo-lueur: 0 0 14px rgba(212,175,55,.25); }
+:root[data-theme="printanier"] { --meteo-decor: radial-gradient(circle at 100% 0%, rgba(242,166,199,.2), transparent 55%); --meteo-bord: rgba(242,166,199,.5); }
+:root[data-theme="pastel"]     { --meteo-decor: radial-gradient(circle at 100% 0%, rgba(247,198,217,.2), transparent 55%); --meteo-bord: rgba(184,163,224,.55); --meteo-rayon: 26px; }
+:root[data-theme="estival"]    { --meteo-decor: radial-gradient(circle at 100% 0%, rgba(255,232,150,.3), transparent 60%); --meteo-bord: rgba(255,200,87,.55); }
+:root[data-theme="cyberpunk"]  { --meteo-bord: rgba(0,240,255,.75); --meteo-lueur: 0 0 14px rgba(0,240,255,.3), 0 0 28px rgba(255,43,214,.15); --meteo-rayon: 6px; }
+:root[data-theme="steampunk"]  { --meteo-bord: rgba(198,138,61,.7); --meteo-lueur: inset 0 0 0 3px rgba(20,16,10,.85), inset 0 0 0 4px rgba(198,138,61,.35); --meteo-rayon: 10px; }
+:root[data-theme="flibuste"]   { --meteo-decor: linear-gradient(180deg, rgba(42,157,143,.16), transparent 65%); --meteo-bord: rgba(224,174,69,.5); }
+:root[data-theme="ruedor"]     { --meteo-bord: rgba(242,193,78,.6); --meteo-trait: dashed; --meteo-rayon: 6px; }
+:root[data-theme="wasteland"]  { --meteo-decor: repeating-linear-gradient(135deg, rgba(255,106,31,.1) 0 10px, transparent 10px 20px); --meteo-bord: rgba(255,106,31,.6); --meteo-rayon: 6px; }
+
+/* Météo : barre compacte sur une ligne */
+.meteo-carte {
+  flex-wrap: nowrap;
+  padding: 8px 12px 8px 10px;
+  margin-bottom: 10px;
+}
+.meteo-temp { font-size: 20px; }
+.meteo-sous { margin-top: 2px; font-size: 12px; }
+.meteo-spark {
+  position: relative;
+  flex: 0 0 auto;
+  width: 110px;
+  margin-left: 10px;
+}
+.meteo-spark svg { display: block; width: 100%; height: auto; }
+
+/* Météo : dégradé d'état à gauche (comme l'ancienne barre) */
+.meteo-carte {
+  border-left: 4px solid var(--meteo-couleur);
+}
+.meteo-carte::before {
+  background: linear-gradient(90deg, var(--meteo-couleur) 0%, var(--meteo-couleur) 28%, transparent 68%);
+  opacity: 0.26;
+}
+.meteo-temp { color: var(--meteo-couleur); }
+
+/* Météo : la température utilise la police des titres du thème */
+.meteo-temp,
+.meteo-tuile-valeur {
+  font-family: var(--police-titre, var(--police-donnees));
+}
+
+/* ============================================================
+   ACCUEIL : carte séance + tuiles (même langage que l'en-tête et la navigation)
+   ============================================================ */
+.accueil-carte {
+  padding: 14px 16px;
+  margin-bottom: 12px;
+  border-radius: 20px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+  cursor: pointer;
+  -webkit-user-select: none; user-select: none;
+  -webkit-touch-callout: none;
+  -webkit-transition: -webkit-transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), border-color 0.2s ease;
+  transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), border-color 0.2s ease;
+}
+.accueil-carte:active { -webkit-transform: scale(0.98); transform: scale(0.98); }
+
+/* Carte séance non planifiée : voile aux couleurs du thème */
+.accueil-carte:not(.seance-a-faire)::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  z-index: 0;
+  background: radial-gradient(circle at 0% 50%, var(--couleur-turquoise), transparent 65%);
+  opacity: 0.14;
+  pointer-events: none;
+}
+.accueil-carte:not(.seance-a-faire) > div { position: relative; z-index: 1; }
+
+/* Les 3 tuiles */
+.accueil-tuiles {
+  display: -webkit-box; display: -webkit-flex; display: flex;
+  margin: 0 -5px 14px -5px;
+}
+.accueil-tuile {
+  position: relative;
+  -webkit-box-flex: 1; -webkit-flex: 1 1 0; flex: 1 1 0;
+  min-width: 0;
+  margin: 0 5px;
+  padding: 14px 6px 12px 6px;
+  text-align: center;
+  overflow: hidden;
+  background: var(--couleur-carte);
+  border: 1px solid var(--couleur-bordure);
+  border-radius: 20px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+  cursor: pointer;
+  -webkit-user-select: none; user-select: none;
+  -webkit-touch-callout: none;
+  -webkit-transition: -webkit-transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), border-color 0.2s ease;
+  transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), border-color 0.2s ease;
+}
+.accueil-tuile::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  z-index: 0;
+  background: radial-gradient(circle at 50% 0%, var(--couleur-turquoise), transparent 70%);
+  opacity: 0.16;
+  pointer-events: none;
+}
+.accueil-tuile > * { position: relative; z-index: 1; }
+.accueil-tuile:active {
+  -webkit-transform: scale(0.95); transform: scale(0.95);
+  border-color: var(--couleur-turquoise);
+}
+.accueil-tuile-icone { width: 56px; height: 56px; margin: 0 auto 8px auto; }
+.accueil-tuile-icone img { width: 100%; height: 100%; object-fit: contain; display: block; }
+.accueil-tuile h2 {
+  font-size: 12px;
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.accueil-tuile p {
+  margin: 3px 0 0 0;
+  font-size: 11px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ============================================================
+   ACCUEIL : chiffres en direct + déclinaison par thème
+   ============================================================ */
+.accueil-tuile p { white-space: normal; line-height: 1.25; }
+.tuile-val {
+  font-family: var(--police-titre, var(--police-donnees));
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--couleur-turquoise);
+}
+
+.accueil-tuile, .accueil-carte {
+  border-radius: var(--tuile-rayon, 20px);
+  border-style: var(--tuile-trait, solid);
+  border-color: var(--tuile-bord, var(--couleur-bordure));
+  box-shadow: var(--tuile-lueur, 0 6px 20px rgba(0, 0, 0, 0.25));
+}
+.accueil-tuile { background-image: var(--tuile-decor, none); }
+.accueil-carte:not(.seance-a-faire) { background-image: var(--tuile-decor, none); }
+
+:root[data-theme="automnal"]   { --tuile-decor: linear-gradient(160deg, rgba(224,141,60,.16), transparent 55%); --tuile-bord: rgba(224,141,60,.5); }
+:root[data-theme="effroi"]     { --tuile-decor: radial-gradient(ellipse at 50% 125%, rgba(123,47,247,.4), transparent 65%); --tuile-bord: rgba(123,47,247,.6); }
+:root[data-theme="hivernal"]   { --tuile-decor: linear-gradient(160deg, rgba(207,239,255,.14), transparent 55%); --tuile-bord: rgba(127,216,242,.55); --tuile-lueur: 0 0 14px rgba(127,216,242,.22); }
+:root[data-theme="paindepice"] { --tuile-decor: linear-gradient(160deg, rgba(212,175,55,.18), transparent 50%); --tuile-bord: rgba(212,175,55,.7); --tuile-lueur: 0 0 14px rgba(212,175,55,.25); }
+:root[data-theme="printanier"] { --tuile-decor: radial-gradient(circle at 100% 0%, rgba(242,166,199,.22), transparent 55%); --tuile-bord: rgba(242,166,199,.5); }
+:root[data-theme="pastel"]     { --tuile-decor: radial-gradient(circle at 100% 0%, rgba(247,198,217,.22), transparent 55%); --tuile-bord: rgba(184,163,224,.55); --tuile-rayon: 26px; }
+:root[data-theme="estival"]    { --tuile-decor: radial-gradient(circle at 100% 0%, rgba(255,232,150,.32), transparent 60%); --tuile-bord: rgba(255,200,87,.55); }
+:root[data-theme="cyberpunk"]  { --tuile-bord: rgba(0,240,255,.75); --tuile-lueur: 0 0 14px rgba(0,240,255,.3), 0 0 28px rgba(255,43,214,.15); --tuile-rayon: 6px; }
+:root[data-theme="steampunk"]  { --tuile-bord: rgba(198,138,61,.7); --tuile-lueur: inset 0 0 0 3px rgba(20,16,10,.85), inset 0 0 0 4px rgba(198,138,61,.35); --tuile-rayon: 10px; }
+:root[data-theme="flibuste"]   { --tuile-decor: linear-gradient(0deg, rgba(42,157,143,.18), transparent 60%); --tuile-bord: rgba(224,174,69,.5); }
+:root[data-theme="ruedor"]     { --tuile-bord: rgba(242,193,78,.6); --tuile-trait: dashed; --tuile-rayon: 6px; }
+:root[data-theme="wasteland"]  { --tuile-decor: repeating-linear-gradient(135deg, rgba(255,106,31,.1) 0 10px, transparent 10px 20px); --tuile-bord: rgba(255,106,31,.6); --tuile-rayon: 6px; }
+
+/* ============================================================
+   RESSENTI DU JOUR : tuiles modernes + déclinaison par thème
+   (réutilise les variables --tuile-* de l'accueil ; valeurs par défaut sinon)
+   ============================================================ */
+:root { --ress-piste: var(--couleur-bordure); }
+
+.ressenti-carte .sommeil-ligne,
+.ressenti-carte .ressenti-ligne:not(.booleens-ligne),
+.ressenti-carte .booleen-emoji-btn {
+  background-color: var(--couleur-carte-creux);
+  background-image: var(--tuile-decor, none);
+  border: 1px var(--tuile-trait, solid) var(--tuile-bord, var(--couleur-bordure));
+  border-radius: var(--tuile-rayon, 20px);
+}
+
+/* --- Sommeil --- */
+.ressenti-carte .sommeil-ligne {
+  position: relative;
+  padding: 14px 12px;
+  margin-bottom: 10px;
+  font-size: 34px;
+  line-height: 1;
+  font-family: var(--police-titre, var(--police-donnees));
+  box-shadow: var(--tuile-lueur, none);
+  transition: color 0.2s ease, border-color 0.2s ease;
+}
+.ressenti-carte .sommeil-glissable.glisse-actif {
+  opacity: 1;
+  border-color: var(--couleur-turquoise);
+}
+.ressenti-carte .sommeil-suffixe {
+  margin-left: 8px;
+  font-family: var(--police-corps);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--couleur-texte-att);
+}
+/* chevrons : indiquent qu'on peut glisser */
+.ressenti-carte .sommeil-ligne::before,
+.ressenti-carte .sommeil-ligne::after {
+  position: absolute;
+  top: 50%;
+  margin-top: -15px;
+  font-family: var(--police-corps);
+  font-size: 26px;
+  line-height: 1;
+  color: var(--couleur-texte-att);
+  opacity: 0.45;
+}
+.ressenti-carte .sommeil-ligne::before { content: '\2039'; left: 16px; }
+.ressenti-carte .sommeil-ligne::after  { content: '\203A'; right: 16px; }
+
+/* --- Humeur / Fatigue / Stress --- */
+.ressenti-carte .ressenti-ligne:not(.booleens-ligne) {
+  padding: 10px 12px 12px 12px;
+  margin-bottom: 10px;
+  box-shadow: var(--tuile-lueur, none);
+}
+.ressenti-carte .ressenti-ligne label {
+  margin-bottom: 8px;
+  font-family: var(--police-titre, var(--police-corps));
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  color: var(--couleur-turquoise);
+}
+.ressenti-carte .ressenti-emoji-rond {
+  width: 46px; height: 46px;
+  border-width: 2px;
+  font-size: 26px;
+  background: var(--couleur-carte);
+  box-shadow: 0 0 14px -4px var(--couleur-progression, transparent);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+.ressenti-carte .ressenti-slider-zone input[type="range"] {
+  height: 10px;
+  border-radius: 5px;
+}
+.ressenti-carte .ressenti-slider-zone input[type="range"]::-webkit-slider-thumb {
+  width: 26px; height: 26px;
+  border-radius: 50%;
+  background: var(--couleur-texte);
+  border: 3px solid var(--couleur-progression, var(--couleur-turquoise));
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+}
+.ressenti-carte .ressenti-slider-zone input[type="range"]::-moz-range-thumb {
+  width: 20px; height: 20px;
+  border-radius: 50%;
+  background: var(--couleur-texte);
+  border: 3px solid var(--couleur-progression, var(--couleur-turquoise));
+}
+
+/* --- Colère / blessure / maladie / insomnie --- */
+.ressenti-carte .booleens-ligne {
+  display: flex;
+  justify-content: stretch;
+  margin: 12px -4px 0 -4px;
+}
+.ressenti-carte .booleen-emoji-btn {
+  position: relative;
+  flex: 1 1 0;
+  min-width: 0;
+  margin: 0 4px;
+  padding: 10px 2px 8px 2px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  filter: none;
+  transform: none;
+  transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), border-color 0.2s ease, box-shadow 0.2s ease;
+}
+.ressenti-carte .booleen-emoji {
+  font-size: 28px;
+  line-height: 1;
+  filter: grayscale(100%) opacity(0.45);
+  transition: filter 0.2s ease, transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.ressenti-carte .booleen-emoji-btn::after {
+  content: attr(data-label);
+  margin-top: 6px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--couleur-texte-att);
+}
+.ressenti-carte .booleen-emoji-btn:active { transform: scale(0.94); }
+.ressenti-carte .booleen-emoji-btn[data-actif="true"] {
+  filter: none;
+  transform: none;
+  border-color: var(--couleur-turquoise);
+  box-shadow: 0 0 16px -6px var(--couleur-turquoise);
+}
+.ressenti-carte .booleen-emoji-btn[data-actif="true"] .booleen-emoji {
+  filter: none;
+  transform: scale(1.15);
+}
+.ressenti-carte .booleen-emoji-btn[data-actif="true"]::after { color: var(--couleur-turquoise); }
+
+/* --- Touches par thème --- */
+:root[data-theme="effroi"] .ressenti-carte .ressenti-ligne label { text-transform: none; }
+:root[data-theme="cyberpunk"] .ressenti-carte .ressenti-slider-zone input[type="range"]::-webkit-slider-thumb {
+  border-radius: 4px;
+  box-shadow: 0 0 10px var(--couleur-progression, #00F0FF);
+}
+:root[data-theme="wasteland"] .ressenti-carte .ressenti-slider-zone input[type="range"]::-webkit-slider-thumb,
+:root[data-theme="ruedor"] .ressenti-carte .ressenti-slider-zone input[type="range"]::-webkit-slider-thumb {
+  border-radius: 3px;
+}
+:root[data-theme="steampunk"] .ressenti-carte .ressenti-slider-zone input[type="range"]::-webkit-slider-thumb {
+  background: radial-gradient(circle at 35% 35%, #E8B46A, #7A4E1E);
+}
+
+/* --- Sommeil : suffixe assorti, sans flèches --- */
+.ressenti-carte .sommeil-ligne::before,
+.ressenti-carte .sommeil-ligne::after { content: none; }
+
+.ressenti-carte .sommeil-suffixe {
+  color: inherit;                                   /* même couleur que les heures */
+  font-family: var(--police-titre, var(--police-corps));
+  font-size: 15px;
+  letter-spacing: 0.03em;
+}
+:root[data-theme="effroi"] .ressenti-carte .sommeil-suffixe { text-transform: none; }
+
+/* --- Colère / blessure / maladie / insomnie : tuiles plus larges --- */
+.ressenti-carte .booleens-ligne { margin: 12px -2px 0 -2px; }
+.ressenti-carte .booleen-emoji-btn {
+  margin: 0 2px;
+  padding-left: 0;
+  padding-right: 0;
+}
+.ressenti-carte .booleen-emoji-btn::after {
+  max-width: 100%;
+  font-size: 10.5px;
+  letter-spacing: 0;
+  text-transform: none;
+  white-space: nowrap;
+  overflow: hidden;
+}
+

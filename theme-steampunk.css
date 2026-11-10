@@ -1,0 +1,583 @@
+/* ============================================================
+   STEAMPUNK : machine en bois verni et laiton
+   ============================================================ */
+:root[data-theme="steampunk"] {
+  --couleur-fond: #0D0806;
+  --couleur-carte: #3B2315;
+  --couleur-carte-creux: #22130A;
+  --couleur-bordure: #7A5518;
+  --couleur-texte: #F3E3BE;
+  --couleur-texte-att: #BCA074;
+  --couleur-texte-titre: #F0CE80;
+  /* tout ce qui est lumineux est vert */
+  --couleur-turquoise: #4DE39A;
+  --couleur-cyan: #C9953A;
+  --couleur-degrade: linear-gradient(135deg, #8CF5C0 0%, #19A867 100%);
+  --couleur-succes: #4DE39A;
+  --couleur-avertissement: #E8B04A;
+  --couleur-alerte: #E2583E;
+  --couleur-pevue: #E0782A;
+  --couleur-nutrition: #A67FC4;
+  --couleur-nutrition-fond: #1E1428;
+  --couleur-nutrition-fond-actif: #2E1E40;
+  --couleur-nutrition-clair: #C9A8E0;
+  --nav-accent: #4DE39A;
+  --police-titre: 'Cinzel Decorative', 'Cinzel', serif;
+  --ress-piste: #1A0F07;
+  --effet-texte: 0 1px 0 #1A0F07, 0 0 8px rgba(232,176,74,.25);
+  --effet-halo: none;
+  /* contenants */
+  --tuile-decor: none; --tuile-bord: transparent; --tuile-trait: solid; --tuile-rayon: 4px;
+  --tuile-lueur: 0 7px 16px rgba(0,0,0,.6), inset 0 0 26px rgba(0,0,0,.5);
+  --meteo-decor: none; --meteo-bord: transparent; --meteo-trait: solid; --meteo-rayon: 4px;
+  --meteo-lueur: 0 6px 14px rgba(0,0,0,.55), inset 0 0 18px rgba(0,0,0,.35);
+  --sp-vernis: linear-gradient(180deg, rgba(255,222,170,.15) 0%, rgba(255,222,170,.03) 24%, rgba(0,0,0,0) 48%, rgba(0,0,0,.3) 100%);
+  --sp-verre: linear-gradient(118deg, rgba(255,255,255,.13) 0%, rgba(255,255,255,.03) 26%, rgba(255,255,255,0) 27%), linear-gradient(180deg, rgba(10,40,28,.42), rgba(5,22,15,.62));
+}
+
+/* --- Fond : papier peint de vignes dans l'ombre de la machine --- */
+:root[data-theme="steampunk"] .fond-motif {
+  background-size: 240px 240px;
+  background-image: var(--sp-liane);
+}
+
+/* --- Bois verni + cadre de laiton à coins ornés --- */
+:root[data-theme="steampunk"] .carte,
+:root[data-theme="steampunk"] .reglages-section,
+:root[data-theme="steampunk"] .accueil-tuile,
+:root[data-theme="steampunk"] .accueil-carte:not(.seance-a-faire),
+:root[data-theme="steampunk"] .sx-exo,
+:root[data-theme="steampunk"] .modal-contenu {
+  background-color: #432616;
+  background-image: var(--sp-vernis), var(--sp-bois);
+  background-repeat: no-repeat, repeat;
+  background-size: 100% 100%, 240px 240px;
+  border: 1px solid #2B1807;
+  border-image: var(--sp-cadre) 28 / 28px stretch;
+  border-radius: 4px;
+  box-shadow: var(--tuile-lueur);
+  outline: 1px solid rgba(232,192,106,.2);
+  outline-offset: -8px;
+}
+:root[data-theme="steampunk"] .sx-exo { border-image: var(--sp-cadre-s) 20 / 20px stretch; outline-offset: -6px; }
+:root[data-theme="steampunk"] .sx-exo-actif { box-shadow: 0 0 22px -6px var(--couleur-turquoise), var(--tuile-lueur); outline-color: rgba(77,227,154,.55); }
+
+/* --- Verrières : verre teinté vert, cadre de laiton, rouages visibles derrière (sans flou) --- */
+:root[data-theme="steampunk"] .carte-checklist,
+:root[data-theme="steampunk"] .meteo-carte,
+:root[data-theme="steampunk"] .accueil-carte.seance-a-faire {
+  background: var(--sp-verre);
+  border: 1px solid #2B1807;
+  border-image: var(--sp-cadre-s) 20 / 20px stretch;
+  border-radius: 4px;
+  box-shadow: var(--meteo-lueur);
+  animation: none;
+}
+:root[data-theme="steampunk"] .accueil-carte.seance-a-faire::before,
+:root[data-theme="steampunk"] .accueil-carte.seance-a-faire::after { display: none; }
+:root[data-theme="steampunk"] .accueil-carte.seance-a-faire .titre-affichage { color: #F0CE80; }
+:root[data-theme="steampunk"] .accueil-carte.seance-a-faire .texte-att { color: var(--couleur-texte); }
+
+/* --- Listes et blocs imbriqués : version légère (pas de cadre ornementé) --- */
+:root[data-theme="steampunk"] li.carte {
+  border-image: none; border: 1px solid #6B4A1A; outline: none; box-shadow: none;
+  background-image: var(--sp-vernis);
+  background-repeat: no-repeat; background-size: 100% 100%;
+}
+:root[data-theme="steampunk"] .modal-contenu .carte,
+:root[data-theme="steampunk"] .modal-contenu .reglages-section {
+  border-image: none; border: 1px solid #6B4A1A; outline: none; box-shadow: none;
+  background-image: none; background-color: #2A170C;
+}
+:root[data-theme="steampunk"] #liste-historique-seances .hist-ligne {
+  background-image: var(--sp-vernis), var(--sp-bois);
+  background-repeat: no-repeat, repeat; background-size: 100% 100%, 240px 240px;
+  border: 1px solid #8A5E1E; border-left: 4px solid var(--hist-etat, var(--couleur-cyan));
+  border-radius: 4px;
+}
+
+/* --- En-tête, navigation, onglets : laiton et verre --- */
+:root[data-theme="steampunk"] .entete-carte,
+:root[data-theme="steampunk"] .nav-bas {
+  border: 2px solid #8A5E1E;
+  border-radius: 10px;
+  box-shadow: inset 0 0 0 1px rgba(243,213,142,.55), inset 0 0 0 4px rgba(0,0,0,.28), 0 8px 18px rgba(0,0,0,.6);
+  -webkit-backdrop-filter: none; backdrop-filter: none;
+}
+:root[data-theme="steampunk"] .entete-carte::before,
+:root[data-theme="steampunk"] .nav-bas::before { border-radius: 8px; background: var(--sp-verre); opacity: 1; }
+:root[data-theme="steampunk"] .entete-logo,
+:root[data-theme="steampunk"] .bouton-reglages { border-radius: 9px; border-color: #8A5E1E; -webkit-backdrop-filter: none; backdrop-filter: none; }
+:root[data-theme="steampunk"] .entete-logo::before,
+:root[data-theme="steampunk"] .bouton-reglages::before,
+:root[data-theme="steampunk"] .bouton-reglages::after,
+:root[data-theme="steampunk"] .nav-indicateur,
+:root[data-theme="steampunk"] .nav-indicateur::before,
+:root[data-theme="steampunk"] .nav-indicateur::after { border-radius: 8px; }
+:root[data-theme="steampunk"] .entete h1.texte-degrade {
+  background: linear-gradient(180deg, #FFF0C4, #E8C06A 45%, #8A5E1E);
+  -webkit-background-clip: text; background-clip: text;
+  -webkit-filter: none; filter: none;
+}
+:root[data-theme="steampunk"] .sync-point-ok { box-shadow: 0 0 10px 2px rgba(77,227,154,.8); }
+:root[data-theme="steampunk"] .sous-onglets { border-radius: 8px; border: 1px solid #8A5E1E; background: #22130A; }
+:root[data-theme="steampunk"] .sous-indicateur,
+:root[data-theme="steampunk"] .sous-indicateur::before,
+:root[data-theme="steampunk"] .sous-indicateur::after,
+:root[data-theme="steampunk"] .sous-onglet { border-radius: 6px; }
+
+/* --- Boutons de laiton, champs gravés --- */
+:root[data-theme="steampunk"] .btn-plein,
+:root[data-theme="steampunk"] .sx-valider,
+:root[data-theme="steampunk"] .sx-btn-fin {
+  background: linear-gradient(180deg, #F3D58E 0%, #D3A24A 40%, #A8741F 100%);
+  color: #2A1706;
+  text-shadow: 0 1px 0 rgba(255,236,180,.6);
+  border: 1px solid #3A2208;
+  border-radius: 8px;
+  box-shadow: inset 0 1px 0 rgba(255,244,205,.7), inset 0 -2px 0 rgba(90,55,12,.5), 0 3px 0 #3A2208, 0 5px 8px rgba(0,0,0,.5);
+  transition: transform .12s ease, box-shadow .12s ease;
+}
+:root[data-theme="steampunk"] .btn-plein:active,
+:root[data-theme="steampunk"] .sx-valider:active,
+:root[data-theme="steampunk"] .sx-btn-fin:active {
+  transform: translateY(3px); opacity: 1;
+  box-shadow: inset 0 1px 0 rgba(255,244,205,.5), 0 0 0 #3A2208, 0 1px 3px rgba(0,0,0,.5);
+}
+:root[data-theme="steampunk"] .btn-contour { border: 1px solid #A8741F; color: #F0CE80; background: rgba(0,0,0,.22); border-radius: 8px; }
+:root[data-theme="steampunk"] .champ input,
+:root[data-theme="steampunk"] .champ select,
+:root[data-theme="steampunk"] .champ textarea,
+:root[data-theme="steampunk"] .serie-champ input,
+:root[data-theme="steampunk"] .plat-ing-qte {
+  background: #1B0F07; border: 1px solid #6B4A1A; box-shadow: inset 0 2px 4px rgba(0,0,0,.65); color: var(--couleur-texte);
+}
+
+/* --- Jauges : tubes de verre, liquide vert lumineux --- */
+:root[data-theme="steampunk"] .macro-barre-fond,
+:root[data-theme="steampunk"] .equilibre-barre-fond,
+:root[data-theme="steampunk"] .sx-progression,
+:root[data-theme="steampunk"] .tuile-jauge {
+  position: relative;
+  height: 12px;
+  border-radius: 6px;
+  background: #0A130E;
+  border: 1px solid #7A5518;
+  box-shadow: inset 0 2px 4px rgba(0,0,0,.75), 0 1px 0 rgba(243,213,142,.25);
+}
+:root[data-theme="steampunk"] .sx-progression { height: 10px; }
+:root[data-theme="steampunk"] .tuile-jauge { height: 8px; }
+:root[data-theme="steampunk"] .macro-barre-fond::after,
+:root[data-theme="steampunk"] .equilibre-barre-fond::after,
+:root[data-theme="steampunk"] .sx-progression::after,
+:root[data-theme="steampunk"] .tuile-jauge::after {
+  content: ''; position: absolute; top: 2px; left: 4px; right: 4px; height: 3px; border-radius: 2px;
+  background: linear-gradient(180deg, rgba(255,255,255,.42), rgba(255,255,255,0)); pointer-events: none;
+}
+:root[data-theme="steampunk"] .tuile-jauge::after { top: 1px; height: 2px; }
+:root[data-theme="steampunk"] .macro-barre-remplie,
+:root[data-theme="steampunk"] .equilibre-barre-remplie,
+:root[data-theme="steampunk"] .sx-progression-remplie,
+:root[data-theme="steampunk"] .tuile-jauge i { border-radius: 5px; box-shadow: inset 0 -2px 3px rgba(0,0,0,.25); }
+:root[data-theme="steampunk"] .macro-barre-proteines,
+:root[data-theme="steampunk"] .equilibre-barre-remplie,
+:root[data-theme="steampunk"] .sx-progression-remplie,
+:root[data-theme="steampunk"] .tuile-jauge i { box-shadow: 0 0 8px rgba(77,227,154,.5), inset 0 -2px 3px rgba(0,0,0,.25); }
+:root[data-theme="steampunk"] .todo-rond { border-color: #A8741F; }
+
+/* --- Titres : fleuron victorien --- */
+:root[data-theme="steampunk"] .carte > .carte-titre { text-align: center; }
+:root[data-theme="steampunk"] .carte > .carte-titre::after {
+  content: ''; display: block; width: 160px; max-width: 100%; height: 10px; margin: 7px auto 0;
+  background: var(--sp-fleuron) center / 160px 10px no-repeat;
+}
+
+/* --- Tuiles : tiroirs à poignée de laiton --- */
+:root[data-theme="steampunk"] .accueil-tuile { padding-bottom: 26px; }
+:root[data-theme="steampunk"] .accueil-tuile::before { display: none; }
+:root[data-theme="steampunk"] .accueil-tuile::after {
+  content: ''; position: absolute; left: 50%; bottom: 9px; width: 12px; height: 12px; margin-left: -6px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #FFF0C4 0, #D3A24A 40%, #6B4A1A 100%);
+  box-shadow: 0 1px 2px rgba(0,0,0,.7);
+}
+
+/* --- Tuyaux dans les gouttières (fixes, derrière tout) --- */
+.sp-tuyaux { position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: -1; pointer-events: none; overflow: hidden; }
+.sp-tuyau { position: absolute; top: 0; bottom: 0; width: 12px; background: var(--sp-tuyau) repeat-y 0 0 / 12px 240px; }
+.sp-tuyau-g { left: 1px; }
+.sp-tuyau-d { right: 1px; -webkit-transform: scaleX(-1); transform: scaleX(-1); }
+
+/* --- Soupapes et vapeur (au-dessus du contenu, sans bloquer les clics) --- */
+.sp-valves { position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 4; pointer-events: none; overflow: hidden; }
+.sp-soupape {
+  position: absolute; width: 16px; height: 20px; margin-top: -10px;
+  border: 1px solid #2B1807; border-radius: 3px;
+  background: linear-gradient(180deg, #F3D58E, #B7832F 52%, #6B4A1A);
+}
+.sp-soupape::after {
+  content: ''; position: absolute; top: 6px; left: 4px; width: 6px; height: 6px; border-radius: 50%;
+  background: radial-gradient(circle, #D8FFE8 0, #4DE39A 45%, #19A867 100%);
+  box-shadow: 0 0 5px #4DE39A;
+}
+.sp-soupape-g { left: 0; }
+.sp-soupape-d { right: 0; --dir: -1; }
+.sp-puff {
+  position: absolute; left: 14px; top: -14px; width: 44px; height: 44px; border-radius: 50%; opacity: 0;
+  background: radial-gradient(circle, rgba(240,234,215,.5) 0%, rgba(240,234,215,0) 70%);
+  will-change: transform, opacity;
+  animation: spPuff 7s ease-out infinite;
+}
+.sp-soupape-d .sp-puff { left: auto; right: 14px; }
+@keyframes spPuff {
+  0%   { transform: translate3d(0,0,0) scale(.3); opacity: 0; }
+  12%  { opacity: .4; }
+  100% { transform: translate3d(calc(var(--dir, 1) * 40px), -84px, 0) scale(1.7); opacity: 0; }
+}
+
+/* --- Séance prévue : orbe-générateur vert, anneaux à graduations, vapeur, étincelles --- */
+.sp-vapeur, .sp-etincelle { position: absolute; top: 0; left: 0; display: block; }
+.sp-orbe, .sp-anneau, .sp-anneau-b { position: absolute; top: 50%; left: 50%; display: block; z-index: -1; pointer-events: none; }
+:root[data-theme="steampunk"] .accueil-carte.seance-a-faire > .particules {
+  position: absolute; top: 0; left: 0; right: 0; bottom: 0; width: auto; height: auto; z-index: 0; overflow: hidden; pointer-events: none;
+}
+.sp-orbe {
+  width: 96px; height: 96px; margin: -48px 0 0 -48px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(200,255,225,.95) 0%, rgba(77,227,154,.72) 26%, rgba(25,168,103,.36) 54%, rgba(25,168,103,0) 74%);
+  animation: spOrbe 3.2s ease-in-out infinite alternate;
+}
+@keyframes spOrbe { from { transform: scale(.92); opacity: .72; } to { transform: scale(1.1); opacity: 1; } }
+.sp-anneau { width: 112px; height: 112px; margin: -56px 0 0 -56px; animation: spTourne 16s linear infinite; }
+.sp-anneau-b { width: 84px; height: 84px; margin: -42px 0 0 -42px; animation: spTourne 9s linear infinite reverse; }
+.sp-anneau svg, .sp-anneau-b svg { display: block; width: 100%; height: 100%; }
+@keyframes spTourne { to { transform: rotate(360deg); } }
+.sp-vapeur {
+  width: 56px; height: 56px; margin: -28px 0 0 -28px; border-radius: 50%; opacity: 0;
+  background: radial-gradient(circle, rgba(240,234,215,.45) 0%, rgba(240,234,215,0) 70%);
+  animation: spVapeur 8s ease-out infinite;
+}
+@keyframes spVapeur {
+  0%   { transform: translate3d(0,0,0) scale(.5); opacity: 0; }
+  20%  { opacity: .55; }
+  100% { transform: translate3d(14px,-68px,0) scale(1.7); opacity: 0; }
+}
+.sp-etincelle {
+  width: 4px; height: 4px; border-radius: 50%; opacity: 0;
+  background: radial-gradient(circle, #E8FFF2 0, #4DE39A 55%, rgba(77,227,154,0) 100%);
+  animation: spEtincelle 3.5s ease-out infinite;
+}
+@keyframes spEtincelle {
+  0%   { transform: translate3d(0,0,0); opacity: 0; }
+  20%  { opacity: 1; }
+  100% { transform: translate3d(8px,-46px,0); opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sp-valves, .sp-etincelle, .sp-vapeur { display: none; }
+}
+
+/* Commande vocale */
+.seance-boutons-haut { display: flex; align-items: center; }
+.btn-voix {
+  position: relative;
+  width: 34px; height: 34px; min-width: 34px;
+  margin-right: 10px;
+  border-radius: 50%;
+  border: 2px solid var(--couleur-bordure);
+  color: var(--couleur-texte-att);
+  display: flex; align-items: center; justify-content: center;
+  transition: color 0.2s ease, border-color 0.2s ease;
+}
+.btn-voix svg { width: 16px; height: 16px; fill: currentColor; }
+.btn-voix-actif { color: var(--couleur-turquoise); border-color: var(--couleur-turquoise); }
+.btn-voix-actif::after {
+  content: "";
+  position: absolute; top: -2px; left: -2px; right: -2px; bottom: -2px;
+  border-radius: 50%;
+  border: 2px solid var(--couleur-turquoise);
+  pointer-events: none;
+  animation: pulseVoix 1.6s ease-out infinite;
+}
+@keyframes pulseVoix {
+  0%   { transform: scale(1);   opacity: 0.7; }
+  100% { transform: scale(1.5); opacity: 0; }
+}
+
+/* Flèches de navigation : formes et couleurs par thème */
+.fleche-navigation {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 34px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: var(--couleur-turquoise);
+  cursor: pointer;
+  flex: 0 0 30px;
+}
+
+.fleche-navigation span {
+  display: block;
+  width: 22px;
+  height: 22px;
+  background-color: currentColor;
+  clip-path: polygon(
+    0 20%, 65% 20%, 65% 0,
+    100% 50%, 65% 100%, 65% 80%, 0 80%
+  );
+}
+
+.fleche-gauche span {
+  transform: scaleX(-1);
+}
+
+/* Style commun pour Printanier, Estival */
+:root[data-theme="printanier"] .fleche-navigation span,
+:root[data-theme="estival"] .fleche-navigation span {
+  width: 44px;
+  height: 33px;
+  
+  background: var(--couleur-degrade);
+  
+  -webkit-mask: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 92 69"><path d="M6,34C32.987,32.43,36.307,4.973,58,10c16.073,3.943,14.251,11.517,13,16-9.535.921-24.248,2.14-33,9a183.674,183.674,0,0,1,34-5c8.744-1.166,13.151,3.667,15,5a35.322,35.322,0,0,0-4,7s-4.644-5.669-12-5c2.263,5.209,7.763,19.874-9,25S27.907,59.253,6,34Z"/></svg>') center / contain no-repeat;
+          mask: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 92 69"><path d="M6,34C32.987,32.43,36.307,4.973,58,10c16.073,3.943,14.251,11.517,13,16-9.535.921-24.248,2.14-33,9a183.674,183.674,0,0,1,34-5c8.744-1.166,13.151,3.667,15,5a35.322,35.322,0,0,0-4,7s-4.644-5.669-12-5c2.263,5.209,7.763,19.874-9,25S27.907,59.253,6,34Z"/></svg>') center / contain no-repeat;
+  
+  clip-path: none;
+  
+  /* Pointe vers la DROITE par défaut */
+  transform: scaleX(-1);
+}
+
+/* Remise à l'endroit d'origine quand la flèche va vers la GAUCHE */
+:root[data-theme="printanier"] .fleche-gauche span,
+:root[data-theme="estival"] .fleche-gauche span {
+  transform: scaleX(1);
+}
+
+
+/* Automnal : flèche en feuille, couleur issue du thème */
+:root[data-theme="automnal"] .fleche-navigation span {
+  width: 46px;
+  height: 35px;
+  background: var(--couleur-degrade); /* ou var(--couleur-turquoise) */
+  
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 92 69'%3E%3Cpath d='M86 27c-8.914-7.516-24.089-9.367-27-9 2.981-4.32 2.389-6.5 5-8-3.705-.217-19.852-1.436-29 8 .97-6.41-10.711-8.245-13-8 1.98 2-8.985 7.419-9 20a39.335 39.335 0 0 0 1 7S30.78 25.557 56 26C37.344 26.447 5.181 39.456 3 54a46.854 46.854 0 0 0 8 5s1.2-8.19 7-14c1.828 13.545 20.526 13.5 26 20 5.063-4.525 4.126-15.58 1-18 7.469 8.287 16.854 1.4 31 4-4.1-6.519-4.4-9.953-12-12C74.118 33.971 76.607 26.856 86 27Z'/%3E%3C/svg%3E") center / contain no-repeat;
+          mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 92 69'%3E%3Cpath d='M86 27c-8.914-7.516-24.089-9.367-27-9 2.981-4.32 2.389-6.5 5-8-3.705-.217-19.852-1.436-29 8 .97-6.41-10.711-8.245-13-8 1.98 2-8.985 7.419-9 20a39.335 39.335 0 0 0 1 7S30.78 25.557 56 26C37.344 26.447 5.181 39.456 3 54a46.854 46.854 0 0 0 8 5s1.2-8.19 7-14c1.828 13.545 20.526 13.5 26 20 5.063-4.525 4.126-15.58 1-18 7.469 8.287 16.854 1.4 31 4-4.1-6.519-4.4-9.953-12-12C74.118 33.971 76.607 26.856 86 27Z'/%3E%3C/svg%3E") center / contain no-repeat;
+  
+  clip-path: none;
+}
+
+:root[data-theme="automnal"] .fleche-gauche span {
+  transform: scaleX(-1);
+}
+
+/* Hivernal : flèche anguleuse, colorée selon le thème */
+:root[data-theme="hivernal"] .fleche-navigation span {
+  display: block;
+  width: 46px;
+  height: 35px;
+  background-color: var(--couleur-turquoise);
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 92 69'%3E%3Cpath fill='black' d='M2 35 13 18 30 11 63 21 89 36 58 50 45 51 21 53Z'/%3E%3C/svg%3E") center / contain no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 92 69'%3E%3Cpath fill='black' d='M2 35 13 18 30 11 63 21 89 36 58 50 45 51 21 53Z'/%3E%3C/svg%3E") center / contain no-repeat;
+  clip-path: none;
+}
+
+/* Bouton précédent : miroir horizontal */
+:root[data-theme="hivernal"] .fleche-gauche span {
+  transform: scaleX(-1);
+}
+
+/* Flibuste : flèche harpon */
+:root[data-theme="flibuste"] .fleche-navigation span {
+  width: 44px;
+  height: 33px;
+  
+  /* Masque SVG réenvoûté avec les styles vectoriels intégrés */
+  -webkit-mask: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 92 69" fill="none" stroke="black"><path stroke-width="8" d="M16.052,46.068A11.068,11.068,0,1,1,27.112,35,11.064,11.064,0,0,1,16.052,46.068Z"/><path stroke-width="11" d="M25.046,35.5H81.007"/><path stroke-linecap="round" stroke-width="9" d="M42.034,32.5V49"/><path stroke-linecap="round" stroke-width="9" d="M42.034,22.5V39"/><path fill="black" stroke="none" d="M91,35c-8.676,0-20.088,32-37.974,32-7.918,0-16.988-4-16.988-4l10.992-6s2,1.559,2,3c10.6,0,19.986-14.025,19.986-25H91Z"/><path fill="black" stroke="none" d="M91,35C82.324,35,70.912,3,53.026,3,45.109,3,36.038,7,36.038,7l10.992,6s2-1.559,2-3c10.6,0,19.986,14.025,19.986,25H91Z"/></svg>') center / contain no-repeat;
+          mask: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 92 69" fill="none" stroke="black"><path stroke-width="8" d="M16.052,46.068A11.068,11.068,0,1,1,27.112,35,11.064,11.064,0,0,1,16.052,46.068Z"/><path stroke-width="11" d="M25.046,35.5H81.007"/><path stroke-linecap="round" stroke-width="9" d="M42.034,32.5V49"/><path stroke-linecap="round" stroke-width="9" d="M42.034,22.5V39"/><path fill="black" stroke="none" d="M91,35c-8.676,0-20.088,32-37.974,32-7.918,0-16.988-4-16.988-4l10.992-6s2,1.559,2,3c10.6,0,19.986-14.025,19.986-25H91Z"/><path fill="black" stroke="none" d="M91,35C82.324,35,70.912,3,53.026,3,45.109,3,36.038,7,36.038,7l10.992,6s2-1.559,2-3c10.6,0,19.986,14.025,19.986,25H91Z"/></svg>') center / contain no-repeat;
+
+  /* Couleur or/turquoise du thème Flibuste */
+  background: var(--couleur-degrade);
+  clip-path: none;
+}
+
+/* Navigation vers la gauche */
+:root[data-theme="flibuste"] .fleche-gauche span {
+  transform: scaleX(-1);
+}
+
+/* Western (thème interne : ruedor) : pointe de flèche */
+:root[data-theme="ruedor"] .fleche-navigation span {
+  clip-path: polygon(0 0, 100% 50%, 0 100%, 24% 50%);
+}
+
+
+/* Flèche Steampunk utilisant la variable du thème */
+:root[data-theme="steampunk"] .fleche-navigation span {
+  width: 44px;
+  height: 32px;
+  
+  /* Couleur de ton choix issue de ton CSS */
+  background-color: var(--couleur-turquoise); /* ou var(--couleur-texte), var(--couleur-cyan), etc. */
+  
+  /* Le SVG sert de masque */
+  -webkit-mask: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 106 82"><path d="M47.7 0c-4.4 3.9-6.3 7.8-5.3 11.2 1 3.5 4.8 6.4 10.7 8.3-9.5.4-16.7 3.5-21.7 9.2L20.2 40l11.2 11.3c5 5.7 12.2 8.8 21.7 9.2-5.9 1.9-9.7 4.8-10.7 8.3-1 3.4.9 7.3 5.3 11.2 6.5-1.1 11.5-4.4 15.2-9.8 4.2-6.2 5.5-13.8 3.8-22.9 6.4-1.2 12-4.1 16.7-8.7L106 40l-22.6-18.6c-4.7-4.6-10.3-7.5-16.7-8.7 1.7-9.1.4-16.7-3.8-22.9C59.2 4.4 54.2 1.1 47.7 0zM0 40l15.5-12.7 8.5 7.1c-3.1 1.7-5.2 3.6-6.4 5.6 1.2 2 3.3 3.9 6.4 5.6l-8.5 7.1L0 40z"/></svg>') center / contain no-repeat;
+          mask: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 106 82"><path d="M47.7 0c-4.4 3.9-6.3 7.8-5.3 11.2 1 3.5 4.8 6.4 10.7 8.3-9.5.4-16.7 3.5-21.7 9.2L20.2 40l11.2 11.3c5 5.7 12.2 8.8 21.7 9.2-5.9 1.9-9.7 4.8-10.7 8.3-1 3.4.9 7.3 5.3 11.2 6.5-1.1 11.5-4.4 15.2-9.8 4.2-6.2 5.5-13.8 3.8-22.9 6.4-1.2 12-4.1 16.7-8.7L106 40l-22.6-18.6c-4.7-4.6-10.3-7.5-16.7-8.7 1.7-9.1.4-16.7-3.8-22.9C59.2 4.4 54.2 1.1 47.7 0zM0 40l15.5-12.7 8.5 7.1c-3.1 1.7-5.2 3.6-6.4 5.6 1.2 2 3.3 3.9 6.4 5.6l-8.5 7.1L0 40z"/></svg>') center / contain no-repeat;
+  
+  clip-path: none;
+}
+
+
+/* Effroi : flèche organique, couleur issue du thème */
+:root[data-theme="effroi"] .fleche-navigation span {
+  width: 46px;
+  height: 35px;
+  background: var(--couleur-degrade); /* ou var(--couleur-turquoise) */
+  
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 92 69'%3E%3Cpath d='M89.281 36c-5.964-9.139-9.978-10.179-14-11-.449-1.893-.512-4.247-4-5s-4.907-4.4-8-6-5.995-1.027-8-2-4.1-5.828-10-6-4.016 2.423-9 5-8.073-.462-13 2-11.97 20.539-17 23-7.329 14.538-3 17 17.7 3.047 23 7 10.407 6.014 15 4 5.4-4.909 8-6 12.275-4.4 9.456-8.593c1.615-3.787 6.588-5.786.067-19.647-1.656 2.9 1.934 7.667-1.611 9.716C53.73 39.062 51.447 44.977 50 48a32.388 32.388 0 0 1-9 3c-4.142-1.425-9.671-1.046-11-5-.335-3.091-1.521-13.752 3.281-18s6.016-8 11-8c2.346 0 4.9-.244 8 1 1.924.771 3 2.659 5 4 1.63 1.09 4.32.7 5 1 2.864 1.26 2.991 4.354 4 5 4.449 2.846 7.913 4.5 11 1C80.608 32.9 83.884 32.94 89.281 36Z'/%3E%3Cpath d='M37.281 19c4.519 3 8.54 4.648 12 5s1.79.212 4 2a6.135 6.135 0 0 1-1 10c-4.81 2.954-8.889 5.029-10 8s-8.177.645-10-2-3.556-7.449-2-10 1-2 1-2 2.871 5.05 3 6c1.275-.081 1.918-1.232 3-1 3.946.461 3.881-2.2 6-3-3.265-.859-6.365-4.3-12-4S32.762 16 37.281 19Z'/%3E%3C/svg%3E") center / contain no-repeat;
+          mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 92 69'%3E%3Cpath d='M89.281 36c-5.964-9.139-9.978-10.179-14-11-.449-1.893-.512-4.247-4-5s-4.907-4.4-8-6-5.995-1.027-8-2-4.1-5.828-10-6-4.016 2.423-9 5-8.073-.462-13 2-11.97 20.539-17 23-7.329 14.538-3 17 17.7 3.047 23 7 10.407 6.014 15 4 5.4-4.909 8-6 12.275-4.4 9.456-8.593c1.615-3.787 6.588-5.786.067-19.647-1.656 2.9 1.934 7.667-1.611 9.716C53.73 39.062 51.447 44.977 50 48a32.388 32.388 0 0 1-9 3c-4.142-1.425-9.671-1.046-11-5-.335-3.091-1.521-13.752 3.281-18s6.016-8 11-8c2.346 0 4.9-.244 8 1 1.924.771 3 2.659 5 4 1.63 1.09 4.32.7 5 1 2.864 1.26 2.991 4.354 4 5 4.449 2.846 7.913 4.5 11 1C80.608 32.9 83.884 32.94 89.281 36Z'/%3E%3Cpath d='M37.281 19c4.519 3 8.54 4.648 12 5s1.79.212 4 2a6.135 6.135 0 0 1-1 10c-4.81 2.954-8.889 5.029-10 8s-8.177.645-10-2-3.556-7.449-2-10 1-2 1-2 2.871 5.05 3 6c1.275-.081 1.918-1.232 3-1 3.946.461 3.881-2.2 6-3-3.265-.859-6.365-4.3-12-4S32.762 16 37.281 19Z'/%3E%3C/svg%3E") center / contain no-repeat;
+  
+  clip-path: none;
+}
+
+:root[data-theme="effroi"] .fleche-gauche span {
+  transform: scaleX(-1);
+}
+
+/* Wasteland : double chevron mécanique */
+:root[data-theme="wasteland"] .fleche-navigation span {
+  width: 44px;
+  height: 33px;
+  
+  background: var(--couleur-degrade);
+  
+  -webkit-mask: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 92 69"><path d="M63.315,67H42.034L63.719,34.48,42.034,2H63.315L85,34.5Z"/><path d="M28.281,67H7L28.685,34.48,7,2H28.281L49.966,34.5Z"/></svg>') center / contain no-repeat;
+          mask: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 92 69"><path d="M63.315,67H42.034L63.719,34.48,42.034,2H63.315L85,34.5Z"/><path d="M28.281,67H7L28.685,34.48,7,2H28.281L49.966,34.5Z"/></svg>') center / contain no-repeat;
+  
+  clip-path: none;
+}
+
+/* Inversion pour la navigation vers la gauche */
+:root[data-theme="wasteland"] .fleche-gauche span {
+  transform: scaleX(-1);
+}
+
+/* ============================================================
+   STEAMPUNK : séance active, minuteur, hublots
+   ============================================================ */
+/* --- En-tête de séance : verrière, chrono en tube lumineux vert, manomètre --- */
+:root[data-theme="steampunk"] .sx-entete {
+  border: 2px solid #8A5E1E; border-radius: 10px;
+  box-shadow: inset 0 0 0 1px rgba(243,213,142,.55), inset 0 0 0 4px rgba(0,0,0,.28), 0 8px 18px rgba(0,0,0,.6);
+  -webkit-backdrop-filter: none; backdrop-filter: none;
+}
+:root[data-theme="steampunk"] .sx-entete::before { border-radius: 8px; background: var(--sp-verre); opacity: 1; }
+:root[data-theme="steampunk"] .sx-nom { color: #F0CE80; }
+:root[data-theme="steampunk"] .sx-chrono.texte-degrade {
+  background: none; -webkit-filter: none; filter: none;
+  color: #8CF5C0; -webkit-text-fill-color: #8CF5C0;
+  text-shadow: 0 0 6px rgba(77,227,154,.8), 0 0 16px rgba(25,168,103,.55);
+}
+:root[data-theme="steampunk"] .sx-btn-rond { background: #22130A; border-color: #8A5E1E; border-radius: 9px; }
+
+.sp-jauge { display: none; }
+:root[data-theme="steampunk"] .sp-jauge { display: block; position: relative; -webkit-flex: 0 0 56px; flex: 0 0 56px; width: 56px; height: 56px; margin: 0 6px 0 4px; }
+.sp-jauge svg { display: block; width: 100%; height: 100%; }
+.sp-jauge-aig {
+  position: absolute; left: 50%; top: 50%; width: 2px; height: 19px; margin: -19px 0 0 -1px; border-radius: 1px;
+  background: linear-gradient(180deg, #FF7A3A, #F0CE80);
+  -webkit-transform-origin: 50% 100%; transform-origin: 50% 100%;
+  -webkit-transform: rotate(-135deg); transform: rotate(-135deg);
+  -webkit-transition: -webkit-transform .9s cubic-bezier(.34,1.56,.64,1); transition: transform .9s cubic-bezier(.34,1.56,.64,1);
+}
+.sp-jauge-hub {
+  position: absolute; left: 50%; top: 50%; width: 8px; height: 8px; margin: -4px 0 0 -4px; border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #FFF0C4, #B7832F 60%, #3A2208);
+}
+.sp-jauge::after {
+  content: ''; position: absolute; top: 5px; left: 5px; right: 5px; bottom: 5px; border-radius: 50%; pointer-events: none;
+  background: linear-gradient(140deg, rgba(255,255,255,.22) 0%, rgba(255,255,255,0) 42%);
+}
+:root[data-theme="steampunk"] .sx-progression { display: none; }
+:root[data-theme="steampunk"] .sx-ligne-progression { -webkit-box-pack: center; -webkit-justify-content: center; justify-content: center; margin-top: 6px; }
+:root[data-theme="steampunk"] .sx-compteur { margin-left: 0; font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: #F0CE80; }
+:root[data-theme="steampunk"] .sx-compteur::before,
+:root[data-theme="steampunk"] .sx-compteur::after { content: ''; display: inline-block; width: 22px; height: 1px; margin: 0 8px; vertical-align: middle; background: #C9953A; opacity: .7; }
+
+/* --- Exercices : pastilles-rivets, voyants verts --- */
+:root[data-theme="steampunk"] .sx-exo-pastille {
+  background: radial-gradient(circle at 35% 30%, #F3D58E 0, #B7832F 55%, #6B4A1A 100%);
+  border: 1px solid #2B1807; color: #2A1706; font-family: var(--police-titre);
+}
+:root[data-theme="steampunk"] .sx-exo-actif .sx-exo-pastille {
+  background: radial-gradient(circle at 35% 30%, #E8FFF2 0, #4DE39A 50%, #19A867 100%); box-shadow: 0 0 10px rgba(77,227,154,.7);
+}
+:root[data-theme="steampunk"] .sx-exo-termine .sx-exo-pastille { background: radial-gradient(circle at 35% 30%, #E8FFF2 0, #3FBF80 55%, #127A47 100%); }
+
+/* --- Série en cours : compteurs à volets, boutons ronds de laiton --- */
+:root[data-theme="steampunk"] .sx-hero { background: rgba(8,5,3,.35); border: 1px solid #8A5E1E; border-radius: 6px; box-shadow: inset 0 0 18px rgba(0,0,0,.6); }
+:root[data-theme="steampunk"] .sx-hero-valeur {
+  background: linear-gradient(180deg, rgba(0,0,0,0) 49%, rgba(0,0,0,.75) 50%, rgba(255,255,255,.06) 51%, rgba(0,0,0,0) 52%), #0A0805;
+  border: 1px solid #2B1807; border-radius: 4px;
+  box-shadow: inset 0 0 0 2px #8A5E1E, inset 0 8px 12px rgba(0,0,0,.85);
+}
+:root[data-theme="steampunk"] .sx-hero-valeur input { color: #8CF5C0; text-shadow: 0 0 10px rgba(77,227,154,.6); }
+:root[data-theme="steampunk"] .sx-pas {
+  background: radial-gradient(circle at 35% 30%, #F3D58E, #B7832F 60%, #6B4A1A);
+  color: #2A1706; border: 1px solid #2B1807; border-radius: 50%; box-shadow: 0 3px 0 #3A2208;
+}
+:root[data-theme="steampunk"] .sx-pas:active { transform: translateY(3px) scale(.96); box-shadow: 0 0 0 #3A2208; }
+
+/* --- Minuteur de repos : cadran de montre à gousset, anneau vert --- */
+:root[data-theme="steampunk"] .cdr-verre-disque {
+  background: var(--sp-verre);
+  -webkit-backdrop-filter: none; backdrop-filter: none;
+  box-shadow: 0 0 0 4px #B7832F, 0 0 0 5px #2B1807, 0 0 0 7px #7A5518, inset 0 0 0 1px rgba(243,213,142,.5), 0 8px 18px rgba(0,0,0,.6);
+}
+:root[data-theme="steampunk"] #degradeMinuteur stop { stop-color: #4DE39A; }
+:root[data-theme="steampunk"] .cdr-chrono { background-image: linear-gradient(180deg, #FFF0C4, #E8C06A) !important; }
+:root[data-theme="steampunk"] .cdr-pill { border-color: #B7832F; background: #22130A; -webkit-backdrop-filter: none; backdrop-filter: none; }
+:root[data-theme="steampunk"] .cdr-bouton-lancer { background: radial-gradient(circle at 35% 30%, #F3D58E, #B7832F 60%, #6B4A1A); }
+:root[data-theme="steampunk"] .cdr-bouton-lancer svg { stroke: #2A1706; }
+
+/* --- Sifflet de vapeur à la fin du repos --- */
+.sp-valves.sp-sifflet .sp-puff { animation: spSifflet 1.2s ease-out 1 both; }
+@keyframes spSifflet {
+  0%   { transform: translate3d(0,0,0) scale(.4); opacity: 0; }
+  15%  { opacity: .75; }
+  100% { transform: translate3d(calc(var(--dir, 1) * 90px), -150px, 0) scale(3); opacity: 0; }
+}
+
+/* --- Hublots : chaque icône de l'accueil derrière une vitre, avec un rouage qui tourne --- */
+:root[data-theme="steampunk"] .accueil-tuile-icone { position: relative; width: 64px; height: 64px; margin-bottom: 6px; }
+:root[data-theme="steampunk"] .accueil-tuile-icone img { position: relative; z-index: 1; width: 78%; height: 78%; margin: 11% auto 0; }
+:root[data-theme="steampunk"] .accueil-tuile-icone::before {
+  content: ''; position: absolute; top: 50%; left: 50%; width: 64px; height: 64px; margin: -32px 0 0 -32px;
+  background: var(--sp-rouage-mini) center / 100% 100% no-repeat;
+  animation: spTourne 22s linear infinite;
+}
+:root[data-theme="steampunk"] .accueil-tuile:nth-child(2) .accueil-tuile-icone::before { animation-direction: reverse; }
+:root[data-theme="steampunk"] .accueil-tuile-icone::after {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; z-index: 2; border-radius: 50%; pointer-events: none;
+  border: 3px solid #B7832F;
+  background: linear-gradient(135deg, rgba(255,255,255,.18) 0%, rgba(255,255,255,0) 40%);
+  box-shadow: 0 0 0 1px #2B1807, inset 0 0 0 1px rgba(255,236,180,.5), inset 0 0 12px rgba(0,0,0,.65);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .accueil-tuile-icone::before { animation: none; }
+}
+
+/* Piston relié à un rouage : silhouettes sombres, sans contour (les keyframes spBielle / spPiston sont générés en JS) */
+.sp-piston-carter, .sp-bielle, .sp-tete { position: absolute; }
+.sp-piston-carter { border-radius: 4px; }
+.sp-piston-carter::before { content: ''; position: absolute; top: 5px; left: 5px; right: 5px; bottom: 5px; border-radius: 2px; background: rgba(4,2,1,.85); }
+.sp-bielle, .sp-tete { will-change: transform; animation-timing-function: linear; animation-iteration-count: infinite; }
+.sp-bielle { height: 7px; border-radius: 4px; -webkit-transform-origin: 0 50%; transform-origin: 0 50%; animation-name: spBielle; }
+.sp-bielle::before { content: ''; position: absolute; left: -5px; top: -2px; width: 11px; height: 11px; border-radius: 50%; background: inherit; }
+.sp-bielle::after { content: ''; position: absolute; left: -1px; top: 1.5px; width: 4px; height: 4px; border-radius: 50%; background: #4DE39A; box-shadow: 0 0 4px #4DE39A; opacity: .8; }
+.sp-tete { border-radius: 3px; animation-name: spPiston; background-image: repeating-linear-gradient(90deg, rgba(0,0,0,.4) 0 2px, rgba(0,0,0,0) 2px 6px); }
+@media (prefers-reduced-motion: reduce) { .sp-bielle, .sp-tete { animation: none; } }
+
