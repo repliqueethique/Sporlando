@@ -1,4 +1,4 @@
-const CACHE_NAME = 'carnet-v8';
+const CACHE_NAME = 'carnet-v9-ipad-sync';
 const urlsToCache = [
   './',
   './index.html',
@@ -27,6 +27,7 @@ const urlsToCache = [
   './themes.js',
   './main.js',
   './theme-pirate.js',
+  './sync-ipad.js',
   './nav.js',
   './manifest.json',
 

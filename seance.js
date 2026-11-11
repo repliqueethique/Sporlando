@@ -1573,6 +1573,10 @@ function demarrerCompteARebours(totalMs) {
 
   rendreZoneCompteARebours();
   animerZoomDepuisRect(document.getElementById('cdr-cercle-zone'), rectBouton);
+
+  if (typeof window.publierEtatVersIPad === 'function') {
+    window.publierEtatVersIPad();
+  }
 }
 
 function lancerCompteARebours() {
@@ -1596,6 +1600,10 @@ function arreterCompteARebours() {
   compteARebours.resteMsPause = null;
   if (intervalleCompteARebours) { window.clearInterval(intervalleCompteARebours); intervalleCompteARebours = null; }
   rendreZoneCompteARebours();
+
+  if (typeof window.publierEtatVersIPad === 'function') {
+    window.publierEtatVersIPad();
+  }
 }
 
 function basculerPauseCompteARebours() {
@@ -1612,6 +1620,9 @@ function basculerPauseCompteARebours() {
     compteARebours.resteMsPause = Math.max(0, compteARebours.finMs - Date.now());
     if (intervalleCompteARebours) { window.clearInterval(intervalleCompteARebours); intervalleCompteARebours = null; }
     afficherCompteARebours(compteARebours.resteMsPause);
+  }
+  if (typeof window.publierEtatVersIPad === 'function') {
+    window.publierEtatVersIPad();
   }
 }
 
@@ -1679,6 +1690,9 @@ function mettreAJourCompteARebours() {
     cdrCacherBouton = true;
     rendreZoneCompteARebours();
     jouerMotFinMinuteur();
+    if (typeof window.publierEtatVersIPad === 'function') {
+      window.publierEtatVersIPad();
+    }
     return;
   }
   afficherCompteARebours(resteMs);

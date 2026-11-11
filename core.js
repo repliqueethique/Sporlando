@@ -336,6 +336,10 @@ function sauvegarderEtat() {
     }
   }
   programmerEnvoiDiffere();
+
+  if (typeof window.publierEtatVersIPad === 'function') {
+    window.publierEtatVersIPad();
+  }
 }
 
 /* ============================================================

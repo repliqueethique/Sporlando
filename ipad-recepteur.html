@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>Sporlando — Écran d'entraînement</title>
+
+<style>
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  padding: 20px;
+  background: #242422;
+  color: #fff;
+  font-family: Arial, sans-serif;
+  text-align: center;
+}
+
+#connexion {
+  color: #f37321;
+  font-size: 18px;
+  margin: 8px 0 25px;
+}
+
+#seance {
+  color: #31bebd;
+  font-size: 25px;
+  margin-bottom: 25px;
+}
+
+#exercice {
+  font-size: 34px;
+  font-weight: bold;
+  margin: 20px 0;
+}
+
+#serie {
+  font-size: 22px;
+  color: #fce7ac;
+  margin: 15px 0;
+}
+
+#charge {
+  font-size: 65px;
+  font-weight: bold;
+  margin: 25px 0 5px;
+}
+
+#repetitions {
+  font-size: 28px;
+  margin-bottom: 30px;
+}
+
+#minuteur {
+  font-size: 90px;
+  font-weight: bold;
+  color: #31bebd;
+  margin: 25px 0;
+  font-variant-numeric: tabular-nums;
+}
+
+#etat-minuteur {
+  font-size: 20px;
+  color: #fce7ac;
+}
+
+#message {
+  margin-top: 40px;
+  font-size: 22px;
+  color: #aaa;
+}
+
+.invisible { display: none; }
+</style>
+</head>
+
+<body>
+
+<div id="connexion">Connexion au serveur…</div>
+
+<div id="contenu" class="invisible">
+  <div id="seance"></div>
+  <div id="exercice"></div>
+  <div id="serie"></div>
+  <div id="charge"></div>
+  <div id="repetitions"></div>
+  <div id="minuteur">--:--</div>
+  <div id="etat-minuteur"></div>
+  <div id="message"></div>
+</div>
+
+<script>
+(function () {
+  var adresse = window.location.protocol + "//" + window.location.host;
+  var derniereDonnee = null;
+
+  function element(id) {
+    return document.getElementById(id);
+  }
+
+  function texte(id, valeur) {
+    element(id).innerHTML = valeur;
+  }
+
+  function afficherMinuteur() {
+    if (!derniereDonnee || !derniereDonnee.minuteur) {
+      texte("minuteur", "--:--");
+      return;
+    }
+
+    var m = derniereDonnee.minuteur;
+    var secondes = 0;
+
+    if (m.actif && m.pause) {
+      secondes = Math.ceil((m.resteMsPause || 0) / 1000);
+    } else if (m.actif && m.finMs) {
+      secondes = Math.max(0, Math.ceil((m.finMs - new Date().getTime()) / 1000));
+    }
+
+    if (m.actif) {
+      var minutes = Math.floor(secondes / 60);
+      var reste = secondes % 60;
+      texte("minuteur",
+        (minutes < 10 ? "0" : "") + minutes + ":" +
+        (reste < 10 ? "0" : "") + reste
+      );
+      texte("etat-minuteur", m.pause ? "EN PAUSE" : "REPOS");
+    } else {
+      texte("minuteur", "--:--");
+      texte("etat-minuteur", "");
+    }
+  }
+
+  function afficher(d) {
+    derniereDonnee = d;
+    element("contenu").className = "";
+    texte("connexion", "Connecté au Galaxy");
+
+    if (!d.seance) {
+      texte("seance", "Aucune séance en cours");
+      texte("exercice", "");
+      texte("serie", "");
+      texte("charge", "");
+      texte("repetitions", "");
+      texte("message", "Lance une séance sur Sporlando.");
+    } else {
+      texte("seance", d.seance.nom || "Séance en cours");
+      texte("exercice", d.seance.exercice || "");
+      texte("serie", d.seance.terminee
+        ? "Séance terminée"
+        : "Série " + d.seance.numeroSerie
+      );
+
+      texte("charge", d.seance.poids === null ? "" : d.seance.poids + " kg");
+      texte("repetitions", d.seance.repetitions === null
+        ? ""
+        : d.seance.repetitions + " répétitions"
+      );
+
+      texte("message", d.seance.terminee ? "Bravo !" : "");
+    }
+
+    afficherMinuteur();
+  }
+
+  function actualiser() {
+    var xhr = new XMLHttpRequest();
+    xhr.open("GET", adresse + "/state?t=" + new Date().getTime(), true);
+    xhr.timeout = 2500;
+
+    xhr.onreadystatechange = function () {
+      if (xhr.readyState !== 4) { return; }
+
+      if (xhr.status === 200) {
+        try {
+          afficher(JSON.parse(xhr.responseText));
+        } catch (e) {
+          texte("connexion", "Données reçues illisibles");
+        }
+      } else {
+        texte("connexion", "Connexion au serveur perdue…");
+      }
+    };
+
+    xhr.onerror = function () {
+      texte("connexion", "Connexion au serveur perdue…");
+    };
+
+    xhr.send(null);
+  }
+
+  actualiser();
+  window.setInterval(actualiser, 1000);
+  window.setInterval(afficherMinuteur, 250);
+})();
+</script>
+
+</body>
+</html>
