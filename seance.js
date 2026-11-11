@@ -828,6 +828,7 @@ function validerFinSeance() {
   }
 
   etat.seanceActive = null;
+  desactiverCommandeVocale(true);
   arreterCompteARebours();
   if (chronoIntervalle) { window.clearInterval(chronoIntervalle); chronoIntervalle = null; }
   sauvegarderEtat();
@@ -1727,6 +1728,25 @@ var VOIX_PAS_POIDS = 2.5;            /* kg ajoutés/retirés par "plus/moins de 
 var VOIX_PAS_REPS = 1;
 var VOIX_LANCER_APRES_REGLAGE = false; /* true = "minuteur 90 secondes" règle ET lance le minuteur */
 
+var verrouEcran = null;
+
+function demanderVerrouEcran() {
+  if (!('wakeLock' in navigator)) { return; }
+  navigator.wakeLock.request('screen').then(function (v) {
+    verrouEcran = v;
+    v.addEventListener('release', function () { verrouEcran = null; });
+  }).catch(function () {});
+}
+
+function libererVerrouEcran() {
+  if (verrouEcran) { verrouEcran.release(); verrouEcran = null; }
+}
+
+/* Le verrou saute quand l'app passe en arrière-plan : on le reprend au retour */
+document.addEventListener('visibilitychange', function () {
+  if (!document.hidden && voixActive) { demanderVerrouEcran(); }
+});
+
 function voixEstSupportee() {
   return !!(window.SpeechRecognition || window.webkitSpeechRecognition);
 }
@@ -1748,6 +1768,7 @@ function activerCommandeVocale() {
   if (ctx && ctx.resume) { ctx.resume(); }
   voixActive = true;
   majBoutonVoix();
+  demanderVerrouEcran();
   demarrerEcouteVoix();
   afficherToast('Commande vocale activée');
 }
@@ -1760,6 +1781,7 @@ function desactiverCommandeVocale(silencieux) {
     voixReco = null;
   }
   majBoutonVoix();
+  libererVerrouEcran();
   if (etaitActive && !silencieux) { afficherToast('Commande vocale désactivée'); }
 }
 
