@@ -912,7 +912,7 @@ var SONS_PAR_THEME = {
   clair:      [],
   automnal:   ['automnal1', 'automnal2', 'automnal3', 'automnal4', 'automnal5', 'automnal6', 'automnal7'],
   effroi:     ['effroi1', 'effroi2', 'effroi3', 'effroi4', 'effroi5', 'effroi6', 'effroi7', 'effroi8'],
-  hivernal:   [],
+  hivernal:   ['hivernal1'],
   paindepice: ['paindepice1', 'paindepice2', 'paindepice3', 'paindepice4', 'paindepice5', 'paindepice6', 'paindepice7', 'paindepice8', 'paindepice9'],
   printanier: [],
   pastel:     [],
@@ -921,7 +921,10 @@ var SONS_PAR_THEME = {
   steampunk:  [],
   flibuste:   ['pirate1', 'pirate2', 'pirate3'],
   ruedor:     ['western1', 'western2', "western3"],
-  wasteland:  ['wasteland1', 'wasteland2', 'wasteland3', 'wasteland4', 'wasteland5', 'wasteland6', 'wasteland7', 'wasteland8', 'wasteland9', 'wasteland10', 'wasteland11']
+  wasteland:  ['wasteland1', 'wasteland2', 'wasteland3', 'wasteland4', 'wasteland5', 'wasteland6', 'wasteland7', 'wasteland8', 'wasteland9', 'wasteland10', 'wasteland11'],
+  classique:  ['classique'],
+  douce:      ['douce'],
+  alarme:     ['alarme']
 };
 
 var dernierSonParTheme = {};
@@ -1055,9 +1058,21 @@ function sonBruit(ctx, t, duree, volume, freqFiltre, typeFiltre) {
 }
 
 var SONNERIES = [
+  { valeur: 'classique', libelle: 'Classique', jouer: function (ctx, t) {
+    jouerBip(ctx, t, 880, 0.2);
+    jouerBip(ctx, t + 0.3, 880, 0.2);
+    jouerBip(ctx, t + 0.6, 880, 0.2);
+  } },
+  { valeur: 'douce', libelle: 'Douce', jouer: function (ctx, t) {
+    jouerBip(ctx, t, 440, 1.2);
+  } },
+  { valeur: 'alarme', libelle: 'Alarme', jouer: function (ctx, t) {
+    for (var i = 0; i < 8; i++) { jouerBip(ctx, t + i * 0.12, 1200, 0.08); }
+  } },
+
   { valeur: 'sombre', libelle: 'Sombre — pulsation grave', jouer: function (ctx, t) {
-    sonNote(ctx, t, 110, 0.35, 'sine', 0.5);
-    sonNote(ctx, t + 0.25, 146.8, 0.6, 'sine', 0.5);
+    sonNote(ctx, t, 220, 0.35, 'sine', 0.5);
+    sonNote(ctx, t + 0.25, 293.7, 0.6, 'sine', 0.5);
   } },
 
   { valeur: 'clair', libelle: 'Clair — double ding', jouer: function (ctx, t) {
@@ -1175,15 +1190,16 @@ function jouerSonnerieParId(valeur) {
   trouverSonnerie(valeur).jouer(ctx, ctx.currentTime + 0.02);
 }
 
-function jouerSonnerie() {
-  var choix = etat.profil.sonnerie || 'auto';
-  if (choix === 'auto') {
-    // Le thème actif (remplace par ta variable réelle si elle s'appelle autrement)
-    var themeActif = etat.profil.theme || 'sombre';
-    if (themeActif === 'auto') {
-      themeActif = (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) ? 'clair' : 'sombre';
-    }
-    choix = themeActif;
+function jouerSonnerie(choixForce) {
+  var themeActif = etat.profil.theme || 'sombre';
+  if (themeActif === 'auto') {
+    themeActif = (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) ? 'clair' : 'sombre';
+  }
+  var choix = choixForce;
+  if (!choix) {
+    var liste = SONS_PAR_THEME[themeActif];
+    if (liste && liste.length > 0) { choix = themeActif; }
+    else { choix = etat.profil.sonnerieMinuteur || 'classique'; }
   }
   jouerSonnerieParId(choix);
 }

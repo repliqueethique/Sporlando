@@ -34,6 +34,9 @@ const urlsToCache = [
   './fonts/metrim.woff2',
 
   /* Sons */
+  './sons/classique.mp3',
+  './sons/douce.mp3',
+  './sons/alarme.mp3',
   './sons/automnal1.mp3',
   './sons/automnal2.mp3',
   './sons/automnal3.mp3',
@@ -49,6 +52,7 @@ const urlsToCache = [
   './sons/effroi6.mp3',
   './sons/effroi7.mp3',
   './sons/effroi8.mp3',
+  './sons/hivernal1.mp3',
   './sons/paindepice1.mp3',
   './sons/paindepice2.mp3',
   './sons/paindepice3.mp3',
