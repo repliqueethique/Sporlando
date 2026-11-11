@@ -1195,12 +1195,8 @@ function jouerSonnerie(choixForce) {
   if (themeActif === 'auto') {
     themeActif = (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) ? 'clair' : 'sombre';
   }
-  var choix = choixForce;
-  if (!choix) {
-    var liste = SONS_PAR_THEME[themeActif];
-    if (liste && liste.length > 0) { choix = themeActif; }
-    else { choix = etat.profil.sonnerieMinuteur || 'classique'; }
-  }
+  var choix = choixForce || etat.profil.sonnerieMinuteur || 'theme';
+  if (choix === 'theme') { choix = themeActif; }
   jouerSonnerieParId(choix);
 }
 

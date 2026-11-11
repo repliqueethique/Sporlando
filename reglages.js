@@ -644,6 +644,7 @@ var THEMES_PERSONNALISATION = [
 ];
 
 var SONNERIES_PERSONNALISATION = [
+  { valeur: 'theme', libelle: 'Thème' },
   { valeur: 'classique', libelle: 'Classique' },
   { valeur: 'douce', libelle: 'Douce' },
   { valeur: 'alarme', libelle: 'Alarme' }
@@ -673,7 +674,6 @@ function construireReglagesPersonnalisation() {
     son += '<button class="reglages-segment' + (s.valeur === sonnerie ? ' reglage-option-active' : '') + '" data-action="choisir-option" data-champ="champ-perso-sonnerie" data-valeur="' + s.valeur + '">' + echapperHtml(s.libelle) + '</button>';
   }
   son += '</div>';
-  son += '<p class="reglages-note">Classique : 3 bips. Douce : un bip long et grave. Alarme : des bips rapides.</p>';
   son += '<button class="btn btn-contour btn-bloc" data-action="tester-sonnerie-minuteur">🔊 Tester la sonnerie</button>';
   html += sectionReglages('Sonnerie du minuteur de repos', son);
 
