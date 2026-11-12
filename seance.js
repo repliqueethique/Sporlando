@@ -481,6 +481,7 @@ function rendreExercicesActifs() {
 
       var badges = '';
       if (unilat) { badges += '<span class="badge-technique">Unilatéral</span>'; }
+      if (exRef && exRef.hauteurSecurite) { badges += '<span class="badge-technique">Sécurité : ' + echapperHtml(exRef.hauteurSecurite) + '</span>'; }
       if (nouveauRecord) { badges += '<span class="badge-technique badge-record">&#9733; Nouveau record</span>'; }
       if (ligneEx.structure && ligneEx.structure !== 'lineaire') {
         badges += '<span class="badge-technique">' + echapperHtml(libelleDepuisValeur(STRUCTURES_SERIES, ligneEx.structure)) + '</span>';

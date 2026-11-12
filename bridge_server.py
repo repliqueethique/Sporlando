@@ -36,7 +36,9 @@ class Serveur(BaseHTTPRequestHandler):
         self.envoyer(204, "")
 
     def do_GET(self):
-        if self.path == "/" or self.path.startswith("/?"):
+        chemin = self.path.split("?")[0]
+
+        if chemin == "/":
             chemin = os.path.join(DOSSIER, "ipad-recepteur.html")
             try:
                 with open(chemin, "r", encoding="utf-8") as fichier:
@@ -45,11 +47,11 @@ class Serveur(BaseHTTPRequestHandler):
                 self.envoyer(404, "Fichier ipad-recepteur.html introuvable", "text/plain; charset=utf-8")
             return
 
-        if self.path == "/health":
+        if chemin == "/health":
             self.envoyer(200, '{"serveur":"ok"}')
             return
 
-        if self.path == "/state":
+        if chemin == "/state":
             try:
                 with open(FICHIER_ETAT, "r", encoding="utf-8") as fichier:
                     contenu = fichier.read()
