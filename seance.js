@@ -425,6 +425,7 @@ function rendreExercicesActifs() {
     var exRef = trouverParId(etat.exercices, ligneEx.exerciceId);
     var nomEx = exRef ? exRef.nom : '(exercice supprimé)';
     var groupeEx = exRef ? exRef.groupe : '';
+    var unilat = !!(exRef && exRef.unilateral);
     var exerciceTermine = ligneEx.series.every(function (sr) { return sr.fait; });
     var estActif = (e === indexExerciceActif);
     var ouvert = (exercicesDeplies[e] !== undefined) ? exercicesDeplies[e] : estActif;
@@ -479,6 +480,7 @@ function rendreExercicesActifs() {
       }
 
       var badges = '';
+      if (unilat) { badges += '<span class="badge-technique">Unilatéral</span>'; }
       if (nouveauRecord) { badges += '<span class="badge-technique badge-record">&#9733; Nouveau record</span>'; }
       if (ligneEx.structure && ligneEx.structure !== 'lineaire') {
         badges += '<span class="badge-technique">' + echapperHtml(libelleDepuisValeur(STRUCTURES_SERIES, ligneEx.structure)) + '</span>';
@@ -518,7 +520,7 @@ function rendreExercicesActifs() {
           html += '</span></div>';
           html += '<div class="sx-hero-champs">';
           html += htmlStepper(e, s, 'poids', serie.poids, 'kg', PAS_POIDS_STEPPER);
-          html += htmlStepper(e, s, 'reps', serie.reps, 'reps', PAS_REPS_STEPPER);
+          html += htmlStepper(e, s, 'reps', serie.reps, unilat ? 'reps / côté' : 'reps', PAS_REPS_STEPPER);
           html += '</div>';
           html += '<button class="sx-valider" data-action="basculer-serie-faite"' + attrs + '>&#10003; Valider la série</button>';
           html += '</div>';
@@ -530,7 +532,7 @@ function rendreExercicesActifs() {
         html += '<div class="sx-serie' + (serie.fait ? ' sx-serie-faite' : '') + (estEchauffement ? ' sx-serie-echauf' : '') + (estNouvelle ? ' sx-nouvelle' : '') + '">';
         html += '<span class="sx-serie-num">' + libelleNum + '</span>';
         html += '<span class="serie-champ"><input type="number" step="0.5" inputmode="decimal" data-role="live-poids"' + attrs + ' value="' + serie.poids + '"></span><span class="serie-unite">kg</span>';
-        html += '<span class="serie-champ"><input type="number" step="1" inputmode="numeric" data-role="live-reps"' + attrs + ' value="' + serie.reps + '"></span><span class="serie-unite">reps</span>';
+        html += '<span class="serie-champ"><input type="number" step="1" inputmode="numeric" data-role="live-reps"' + attrs + ' value="' + serie.reps + '"></span><span class="serie-unite">' + (unilat ? 'reps/côté' : 'reps') + '</span>';
         html += '<button class="bulle-validation' + (serie.fait ? ' bulle-validation-faite' : '') + '" data-action="basculer-serie-faite"' + attrs + '>&#10003;</button>';
         html += '<button class="bouton-note' + (serie.note ? ' bouton-note-remplie' : '') + '" data-action="basculer-note-serie"' + attrs + '>&#9998;</button>';
         html += '<button class="serie-suppr" data-action="supprimer-serie"' + attrs + '>&times;</button>';

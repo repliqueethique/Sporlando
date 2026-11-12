@@ -579,7 +579,8 @@ function chargerExercicesDeBase() {
       repsDefaut: modele.repsDefaut,
       seriesDefaut: modele.seriesDefaut,
       met: modele.met,
-      variantes: modele.variantes || ''
+      variantes: modele.variantes || '',
+      unilateral: !!modele.unilateral
     });
     ajoutes++;
   }

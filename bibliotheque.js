@@ -137,7 +137,7 @@ function ouvrirFormulaireExercice(idExercice) {
   var exercice = idExercice ? trouverParId(etat.exercices, idExercice) : null;
   var estModif = !!exercice;
   if (!exercice) {
-    exercice = { id: null, nom: '', groupe: 'Autre', poidsDefaut: 20, repsDefaut: 10, seriesDefaut: 3, met: 5, variantes: '' };
+    exercice = { id: null, nom: '', groupe: 'Autre', poidsDefaut: 20, repsDefaut: 10, seriesDefaut: 3, met: 5, variantes: '', unilateral: false };
   }
   var html = '';
   html += '<div class="modal-entete"><h2>' + (estModif ? 'Modifier l\'exercice' : 'Nouvel exercice') + '</h2>';
@@ -167,6 +167,7 @@ function ouvrirFormulaireExercice(idExercice) {
   html += '<div class="champ"><label>Répétitions par défaut</label><input type="number" step="1" id="champ-ex-reps" value="' + exercice.repsDefaut + '"></div>';
   html += '<div class="champ"><label>Séries par défaut</label><input type="number" step="1" id="champ-ex-series" value="' + exercice.seriesDefaut + '"></div>';
   html += '<div class="champ"><label>Intensité (MET, sert au calcul des calories — 5 = musculation générale)</label><input type="number" step="0.5" id="champ-ex-met" value="' + exercice.met + '"></div>';
+  html += '<div class="case-liste"><input type="checkbox" id="champ-ex-unilateral"' + (exercice.unilateral ? ' checked' : '') + '><span>Unilatéral (un côté après l\'autre : poids et reps comptés par côté)</span></div>';
   html += '<div class="champ"><label>Variantes (prise, position...)</label><textarea id="champ-ex-variantes" placeholder="ex. Prise sumo : jambes écartées, accentue adducteurs et fessiers">' + echapperHtml(exercice.variantes || '') + '</textarea></div>';
   html += '<div class="champ"><label>Muscles ciblés</label><div id="diagramme-muscles-zone" class="diagramme-muscles-petit"></div></div>';
   html += '<button class="btn btn-plein btn-bloc" data-action="enregistrer-exercice" data-id="' + (exercice.id || '') + '">Enregistrer</button>';
@@ -187,7 +188,8 @@ function enregistrerExercice(idExistant) {
     repsDefaut: parseInt(document.getElementById('champ-ex-reps').value, 10) || 0,
     seriesDefaut: parseInt(document.getElementById('champ-ex-series').value, 10) || 1,
     met: parseFloat(document.getElementById('champ-ex-met').value) || 5,
-    variantes: document.getElementById('champ-ex-variantes').value
+    variantes: document.getElementById('champ-ex-variantes').value,
+    unilateral: document.getElementById('champ-ex-unilateral').checked
   };
   if (idExistant) {
     var exercice = trouverParId(etat.exercices, idExistant);
@@ -198,6 +200,7 @@ function enregistrerExercice(idExistant) {
     exercice.seriesDefaut = donnees.seriesDefaut;
     exercice.met = donnees.met;
     exercice.variantes = donnees.variantes;
+    exercice.unilateral = donnees.unilateral;
   } else {
     donnees.id = genererId();
     etat.exercices.push(donnees);

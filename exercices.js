@@ -14,7 +14,7 @@ var EXERCICES_DE_BASE = [
   { nom: 'Tirage horizontal à la poulie', groupe: 'Dos', poidsDefaut: 40, repsDefaut: 10, seriesDefaut: 4, met: 5, variantes: 'Prise large : accentue le haut du dos. Prise serrée neutre : accentue le milieu du dos.' },
   { nom: 'Tirage vertical à la poulie', groupe: 'Dos', poidsDefaut: 35, repsDefaut: 10, seriesDefaut: 4, met: 5, variantes: 'Prise pronation large (devant) : grand dorsal en largeur. Prise supination serrée : plus de biceps.' },
   { nom: 'Rowing barre buste penché', groupe: 'Dos', poidsDefaut: 30, repsDefaut: 8, seriesDefaut: 4, met: 5.5, variantes: 'Prise pronation : haut du dos. Prise supination : bas du dos et biceps.' },
-  { nom: 'Rowing haltère unilatéral', groupe: 'Dos', poidsDefaut: 14, repsDefaut: 10, seriesDefaut: 3, met: 5, variantes: '' },
+  { nom: 'Rowing haltère unilatéral', groupe: 'Dos', poidsDefaut: 14, repsDefaut: 10, seriesDefaut: 3, met: 5, variantes: '', unilateral: true },
   { nom: 'Tractions', groupe: 'Dos', poidsDefaut: 0, repsDefaut: 6, seriesDefaut: 4, met: 5, variantes: 'Prise large pronation : grand dorsal en largeur. Prise serrée supination (chin-up) : plus de biceps.' },
   { nom: 'Tractions assistées (élastique)', groupe: 'Dos', poidsDefaut: 0, repsDefaut: 8, seriesDefaut: 3, met: 4.5, variantes: '' },
   { nom: 'Soulevé de terre', groupe: 'Dos', poidsDefaut: 50, repsDefaut: 6, seriesDefaut: 4, met: 6, variantes: 'Sumo (jambes écartées, prise entre les jambes) : accentue adducteurs et fessiers, moins le bas du dos. Conventionnel (jambes serrées) : plus de chaîne postérieure.' },
@@ -41,8 +41,8 @@ var EXERCICES_DE_BASE = [
 
   { nom: 'Squat barre', groupe: 'Jambes', poidsDefaut: 40, repsDefaut: 8, seriesDefaut: 4, met: 6, variantes: 'Sumo (jambes écartées, pointes de pieds ouvertes) : accentue adducteurs et fessiers. Squat serré : plus de quadriceps.' },
   { nom: 'Squat avant barre', groupe: 'Jambes', poidsDefaut: 30, repsDefaut: 8, seriesDefaut: 4, met: 6, variantes: 'Barre à l\'avant : accentue davantage les quadriceps que le squat classique.' },
-  { nom: 'Fentes haltères', groupe: 'Jambes', poidsDefaut: 10, repsDefaut: 10, seriesDefaut: 3, met: 5.5, variantes: 'Fente marchée vs fente sur place : la fente marchée sollicite plus l\'équilibre.' },
-  { nom: 'Fentes bulgares (banc)', groupe: 'Jambes', poidsDefaut: 8, repsDefaut: 10, seriesDefaut: 3, met: 5.5, variantes: '' },
+  { nom: 'Fentes haltères', groupe: 'Jambes', poidsDefaut: 10, repsDefaut: 10, seriesDefaut: 3, met: 5.5, variantes: 'Fente marchée vs fente sur place : la fente marchée sollicite plus l\'équilibre.', unilateral: true },
+  { nom: 'Fentes bulgares (banc)', groupe: 'Jambes', poidsDefaut: 8, repsDefaut: 10, seriesDefaut: 3, met: 5.5, variantes: '', unilateral: true },
   { nom: 'Soulevé de terre jambes tendues', groupe: 'Jambes', poidsDefaut: 40, repsDefaut: 10, seriesDefaut: 3, met: 6, variantes: 'Accentue les ischio-jambiers et fessiers, moins le dos que le soulevé classique.' },
   { nom: 'Hip thrust barre (au banc)', groupe: 'Jambes', poidsDefaut: 40, repsDefaut: 10, seriesDefaut: 4, met: 5, variantes: 'Pieds rapprochés : plus quadriceps. Pieds écartés : plus fessiers/adducteurs.' },
   { nom: 'Extension mollets debout', groupe: 'Jambes', poidsDefaut: 20, repsDefaut: 15, seriesDefaut: 4, met: 3.5, variantes: 'Pointes de pieds vers l\'intérieur : accentue le mollet externe. Vers l\'extérieur : accentue l\'interne.' },
@@ -50,7 +50,7 @@ var EXERCICES_DE_BASE = [
   { nom: 'Crunch au sol', groupe: 'Abdominaux', poidsDefaut: 0, repsDefaut: 20, seriesDefaut: 3, met: 3, variantes: '' },
   { nom: 'Relevé de jambes suspendu', groupe: 'Abdominaux', poidsDefaut: 0, repsDefaut: 12, seriesDefaut: 3, met: 4, variantes: 'Jambes tendues : plus difficile. Genoux repliés : plus accessible.' },
   { nom: 'Gainage planche (secondes)', groupe: 'Abdominaux', poidsDefaut: 0, repsDefaut: 30, seriesDefaut: 3, met: 3, variantes: '' },
-  { nom: 'Gainage latéral (secondes/côté)', groupe: 'Abdominaux', poidsDefaut: 0, repsDefaut: 20, seriesDefaut: 3, met: 3, variantes: '' },
+  { nom: 'Gainage latéral (secondes/côté)', groupe: 'Abdominaux', poidsDefaut: 0, repsDefaut: 20, seriesDefaut: 3, met: 3, variantes: '', unilateral: true },
   { nom: 'Rotation russe', groupe: 'Abdominaux', poidsDefaut: 5, repsDefaut: 20, seriesDefaut: 3, met: 3.5, variantes: '' },
   { nom: 'Crunch à la poulie', groupe: 'Abdominaux', poidsDefaut: 25, repsDefaut: 15, seriesDefaut: 3, met: 3.5, variantes: '' }
 ];
