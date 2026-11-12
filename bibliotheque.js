@@ -1,3 +1,6 @@
+var SVG_FLECHE_HAUT = '<svg class="fleche-svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 4l9 16H3z"/></svg>';
+var SVG_FLECHE_BAS = '<svg class="fleche-svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 20L3 4h18z"/></svg>';
+
 /* ============================================================
    BLOC 8 : EXERCICES (bibliothèque)
    ============================================================ */
@@ -137,7 +140,7 @@ function ouvrirFormulaireExercice(idExercice) {
   var exercice = idExercice ? trouverParId(etat.exercices, idExercice) : null;
   var estModif = !!exercice;
   if (!exercice) {
-    exercice = { id: null, nom: '', groupe: 'Autre', poidsDefaut: 20, repsDefaut: 10, seriesDefaut: 3, met: 5, variantes: '', unilateral: false, hauteurSecurite: '' };  }
+    exercice = { id: null, nom: '', groupe: 'Autre', poidsDefaut: 20, repsDefaut: 10, seriesDefaut: 3, met: 5, variantes: '', unilateral: false, securiteCran: '', securiteSens: 'haut' };  }
   var html = '';
   html += '<div class="modal-entete"><h2>' + (estModif ? 'Modifier l\'exercice' : 'Nouvel exercice') + '</h2>';
   html += '<button class="bouton-fermer" data-action="fermer-modal">&times;</button></div>';
@@ -168,7 +171,14 @@ function ouvrirFormulaireExercice(idExercice) {
   html += '<div class="champ"><label>Intensité (MET, sert au calcul des calories — 5 = musculation générale)</label><input type="number" step="0.5" id="champ-ex-met" value="' + exercice.met + '"></div>';
   html += '<div class="reglages-section"><label class="reglages-interrupteur" style="padding-bottom:0;"><span>Unilatéral</span><input type="checkbox" id="champ-ex-unilateral"' + (exercice.unilateral ? ' checked' : '') + '></label>';
   html += '<p class="reglages-note">Un côté après l\'autre : poids et reps comptés par côté.</p></div>';  html += '<div class="champ"><label>Variantes (prise, position...)</label><textarea id="champ-ex-variantes" placeholder="ex. Prise sumo : jambes écartées, accentue adducteurs et fessiers">' + echapperHtml(exercice.variantes || '') + '</textarea></div>';
-  html += '<div class="champ"><label>Hauteur des barres de sécurité (optionnel)</label><input type="text" id="champ-ex-securite" value="' + echapperHtml(exercice.hauteurSecurite || '') + '" placeholder="ex. cran 5, ou 85 cm"></div>';
+  var sensSec = (exercice.securiteSens === 'bas') ? 'bas' : 'haut';
+  var secu = '<input type="hidden" id="champ-ex-securite-sens" value="' + sensSec + '">';
+  secu += '<div class="champ"><label>Cran (optionnel)</label><input type="number" inputmode="numeric" step="1" min="1" id="champ-ex-securite" value="' + echapperHtml(exercice.securiteCran || '') + '" placeholder="ex. 5"></div>';
+  secu += '<div class="reglages-segments">';
+  secu += '<button class="reglages-segment' + (sensSec === 'haut' ? ' reglage-option-active' : '') + '" data-action="choisir-option" data-champ="champ-ex-securite-sens" data-valeur="haut">' + SVG_FLECHE_HAUT + 'Du dessus</button>';
+  secu += '<button class="reglages-segment' + (sensSec === 'bas' ? ' reglage-option-active' : '') + '" data-action="choisir-option" data-champ="champ-ex-securite-sens" data-valeur="bas">' + SVG_FLECHE_BAS + 'Du dessous</button>';
+  secu += '</div><p class="reglages-note">Barres de sécurité : numéro du cran, compté depuis le haut ou depuis le bas du rack.</p>';
+  html += sectionReglages('Barres de sécurité', secu);
   html += '<div class="champ"><label>Muscles ciblés</label><div id="diagramme-muscles-zone" class="diagramme-muscles-petit"></div></div>';
   html += '<button class="btn btn-plein btn-bloc" data-action="enregistrer-exercice" data-id="' + (exercice.id || '') + '">Enregistrer</button>';
   if (estModif) {
@@ -190,7 +200,8 @@ function enregistrerExercice(idExistant) {
     met: parseFloat(document.getElementById('champ-ex-met').value) || 5,
     variantes: document.getElementById('champ-ex-variantes').value,
     unilateral: document.getElementById('champ-ex-unilateral').checked,
-    hauteurSecurite: document.getElementById('champ-ex-securite').value.trim()
+    securiteCran: document.getElementById('champ-ex-securite').value.trim(),
+    securiteSens: document.getElementById('champ-ex-securite-sens').value
   };
   if (idExistant) {
     var exercice = trouverParId(etat.exercices, idExistant);
@@ -202,7 +213,8 @@ function enregistrerExercice(idExistant) {
     exercice.met = donnees.met;
     exercice.variantes = donnees.variantes;
     exercice.unilateral = donnees.unilateral;
-    exercice.hauteurSecurite = donnees.hauteurSecurite;
+    exercice.securiteCran = donnees.securiteCran;
+    exercice.securiteSens = donnees.securiteSens;
   } else {
     donnees.id = genererId();
     etat.exercices.push(donnees);

@@ -406,6 +406,18 @@ function basculerExercice(exIndex, etaitOuvert) {
   rendreExercicesActifs();
 }
 
+function htmlInfosExercice(exRef) {
+  if (!exRef) { return ''; }
+  var h = '';
+  if (exRef.unilateral) {
+    h += '<span class="sx-info"><svg class="sx-info-icone" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h16M8 8l-4 4 4 4M16 8l4 4-4 4"/></svg>Unilatéral</span>';
+  }
+  if (exRef.securiteCran) {
+    h += '<span class="sx-info sx-info-secu"><svg class="sx-info-icone" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3v18M19 3v18M5 15h14"/></svg><b class="donnee-num">' + echapperHtml(exRef.securiteCran) + '</b>' + (exRef.securiteSens === 'bas' ? SVG_FLECHE_BAS : SVG_FLECHE_HAUT) + '</span>';
+  }
+  return h ? '<div class="sx-infos">' + h + '</div>' : '';
+}
+
 function rendreExercicesActifs() {
   var seance = etat.seanceActive;
   if (!seance) { return; }
@@ -473,15 +485,13 @@ function rendreExercicesActifs() {
     /* ----- Corps (seulement si ouvert) ----- */
     if (ouvert) {
       html += '<div class="sx-exo-corps">';
-
+      html += htmlInfosExercice(exRef);
       var derniereFois = derniereOccurrenceExercice(ligneEx.exerciceId);
       if (derniereFois) {
-        html += '<div class="sx-derniere donnee-num">Dernière fois · ' + formaterDateCourte(derniereFois.date) + ' : ' + echapperHtml(formaterResumeSeries(derniereFois.ligneEx)) + '</div>';
+        html += '<div class="sx-derniere donnee-num">Dernière · ' + formaterDateCourte(derniereFois.date) + ' : ' + echapperHtml(formaterResumeSeries(derniereFois.ligneEx)) + '</div>';
       }
 
       var badges = '';
-      if (unilat) { badges += '<span class="badge-technique">Unilatéral</span>'; }
-      if (exRef && exRef.hauteurSecurite) { badges += '<span class="badge-technique">Sécurité : ' + echapperHtml(exRef.hauteurSecurite) + '</span>'; }
       if (nouveauRecord) { badges += '<span class="badge-technique badge-record">&#9733; Nouveau record</span>'; }
       if (ligneEx.structure && ligneEx.structure !== 'lineaire') {
         badges += '<span class="badge-technique">' + echapperHtml(libelleDepuisValeur(STRUCTURES_SERIES, ligneEx.structure)) + '</span>';

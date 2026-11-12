@@ -575,3 +575,25 @@
 .rer-bouton-actif.rer-niveau-2, .rer-bouton-actif.rer-niveau-3 { background: var(--couleur-avertissement); }
 .rer-bouton-actif.rer-niveau-4, .rer-bouton-actif.rer-niveau-5 { background: var(--couleur-succes); }
 
+/* Infos d'exercice en séance : unilatéral, barres de sécurité */
+.sx-infos { display: -webkit-box; display: -webkit-flex; display: flex; -webkit-flex-wrap: wrap; flex-wrap: wrap; margin: 0 0 6px 0; }
+.sx-info {
+  display: -webkit-inline-box; display: -webkit-inline-flex; display: inline-flex;
+  -webkit-box-align: center; -webkit-align-items: center; align-items: center;
+  margin: 0 8px 6px 0;
+  padding: 7px 12px;
+  border: 1px solid var(--couleur-bordure);
+  border-radius: 14px;
+  background: var(--couleur-carte-creux);
+  color: var(--couleur-texte);
+  font-size: 13px; font-weight: 700; letter-spacing: 0.03em;
+}
+.sx-info-icone {
+  display: block; width: 18px; height: 18px; margin-right: 7px;
+  fill: none; stroke: var(--couleur-turquoise);
+  stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round;
+}
+.sx-info-secu { border-color: var(--couleur-turquoise); box-shadow: 0 0 14px -6px var(--couleur-turquoise); }
+.sx-info-secu b { margin-right: 5px; font-size: 18px; font-weight: 800; }
+.sx-info-secu .fleche-svg { display: block; color: var(--couleur-turquoise); }
+.reglages-segment .fleche-svg { display: inline-block; vertical-align: -1px; margin-right: 6px; }
