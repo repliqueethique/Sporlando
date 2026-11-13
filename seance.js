@@ -487,7 +487,7 @@ function rendreExercicesActifs() {
       var derniereFois = derniereOccurrenceExercice(ligneEx.exerciceId);
       var htmlDerniere = '';
       if (derniereFois) {
-        htmlDerniere = '<div class="sx-derniere donnee-num">Dernière · ' + formaterDateCourte(derniereFois.date) + ' : ' + echapperHtml(formaterResumeSeries(derniereFois.ligneEx)) + '</div>';
+        htmlDerniere = '<div class="sx-derniere donnee-num">' + formaterDateCourte(derniereFois.date) + ' : ' + echapperHtml(formaterResumeSeries(derniereFois.ligneEx)) + '</div>';
       }
       var htmlInfos = htmlInfosExercice(exRef);
       if (htmlDerniere || htmlInfos) { html += '<div class="sx-ligne-info">' + htmlDerniere + htmlInfos + '</div>'; }
