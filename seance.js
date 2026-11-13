@@ -1953,10 +1953,10 @@ function voixAjusterSerie(champ, delta) {
 function voixDefinirRer(valeur) {
   var pos = voixPositionEnCours();
   var exIndex = pos ? pos.ex : (etat.seanceActive.exercices.length - 1);
-  if (valeur < 0 || valeur > 10) { afficherToast('RER : un chiffre entre 0 et 10.'); return; }
-  modifierRerExercice(exIndex, valeur);
-  rendreExercicesActifs();
-  afficherToast('🎤 RER ' + valeur);
+  if (valeur < 0) { return; }
+  var niveau = Math.min(5, valeur);
+  appliquerRer(exIndex, niveau);
+  afficherToast('🎤 RER ' + (niveau === 5 ? '5+' : niveau));
 }
 
 /* Clique sur le bouton d'échauffement de l'exercice en cours (repéré par "chauff" dans son data-action) */
@@ -2009,7 +2009,7 @@ function traiterCommandeVocale(texte) {
   var t = normaliserTexteRecherche(texte).replace(/[^a-z0-9 ]/g, ' ').replace(/ +/g, ' ');
   t = voixNombresEnChiffres(t);
   var action = null;
-  var mRer = t.match(/\br ?p ?e\b ?(\d+)/);
+  var mRer = t.match(/\b(?:r ?e ?r|rere|erre|erreur|air|ere) ?(\d+)/);
 
   if (t.indexOf('desactiv') !== -1) { action = 'desactive'; }
   else if (mRer) { action = 'rer'; }
