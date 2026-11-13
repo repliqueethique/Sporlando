@@ -413,7 +413,7 @@ function htmlInfosExercice(exRef) {
     h += '<span class="sx-info"><svg class="sx-info-icone" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h16M8 8l-4 4 4 4M16 8l4 4-4 4"/></svg>Unilatéral</span>';
   }
   if (exRef.securiteCran) {
-    h += '<span class="sx-info sx-info-secu"><svg class="sx-info-icone" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3v18M19 3v18M5 15h14"/></svg><b class="donnee-num">' + echapperHtml(exRef.securiteCran) + '</b>' + (exRef.securiteSens === 'bas' ? SVG_FLECHE_BAS : SVG_FLECHE_HAUT) + '</span>';
+    h += '<span class="sx-info sx-info-secu"><svg class="sx-info-icone" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l8 3v6c0 4.5-3.2 7.8-8 9-4.8-1.2-8-4.5-8-9V6z"/></svg><b class="donnee-num">' + echapperHtml(exRef.securiteCran) + '</b>' + (exRef.securiteSens === 'bas' ? SVG_FLECHE_BAS : SVG_FLECHE_HAUT) + '</span>';
   }
   return h ? '<div class="sx-infos">' + h + '</div>' : '';
 }
@@ -479,17 +479,18 @@ function rendreExercicesActifs() {
       }
       html += '</span>';
     }
-    html += '<span class="sx-exo-chevron">' + (ouvert ? '&#9662;' : '&#9656;') + '</span>';
     html += '</div>';
 
     /* ----- Corps (seulement si ouvert) ----- */
     if (ouvert) {
       html += '<div class="sx-exo-corps">';
-      html += htmlInfosExercice(exRef);
       var derniereFois = derniereOccurrenceExercice(ligneEx.exerciceId);
+      var htmlDerniere = '';
       if (derniereFois) {
-        html += '<div class="sx-derniere donnee-num">Dernière · ' + formaterDateCourte(derniereFois.date) + ' : ' + echapperHtml(formaterResumeSeries(derniereFois.ligneEx)) + '</div>';
+        htmlDerniere = '<div class="sx-derniere donnee-num">Dernière · ' + formaterDateCourte(derniereFois.date) + ' : ' + echapperHtml(formaterResumeSeries(derniereFois.ligneEx)) + '</div>';
       }
+      var htmlInfos = htmlInfosExercice(exRef);
+      if (htmlDerniere || htmlInfos) { html += '<div class="sx-ligne-info">' + htmlDerniere + htmlInfos + '</div>'; }
 
       var badges = '';
       if (nouveauRecord) { badges += '<span class="badge-technique badge-record">&#9733; Nouveau record</span>'; }
@@ -555,8 +556,7 @@ function rendreExercicesActifs() {
       /* RER : sélecteur 0 → 5+ */
       var rerDefini = (ligneEx.rer !== null && ligneEx.rer !== undefined && ligneEx.rer >= 0);
       html += '<div class="rer-zone" data-ex="' + e + '">';
-      html += '<div class="rer-entete"><span class="rer-titre">RER</span>';
-      html += '<span class="rer-aide' + (rerDefini ? ' rer-aide-active' : '') + '">' + (rerDefini ? RER_LIBELLES[Math.min(5, ligneEx.rer)] : 'Reps en réserve · optionnel') + '</span></div>';
+      html += '<div class="rer-entete"><span class="rer-titre">RER</span></div>';
       html += '<div class="rer-choix">';
       for (var r = 0; r <= 5; r++) {
         var rerActif = rerDefini && (r === 5 ? ligneEx.rer >= 5 : ligneEx.rer === r);

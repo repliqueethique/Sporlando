@@ -576,24 +576,30 @@
 .rer-bouton-actif.rer-niveau-4, .rer-bouton-actif.rer-niveau-5 { background: var(--couleur-succes); }
 
 /* Infos d'exercice en séance : unilatéral, barres de sécurité */
-.sx-infos { display: -webkit-box; display: -webkit-flex; display: flex; -webkit-flex-wrap: wrap; flex-wrap: wrap; margin: 0 0 6px 0; }
+.sx-ligne-info { display: -webkit-box; display: -webkit-flex; display: flex; -webkit-box-align: center; -webkit-align-items: center; align-items: center; margin-bottom: 8px; }
+.sx-ligne-info .sx-derniere { -webkit-box-flex: 1; -webkit-flex: 1; flex: 1; min-width: 0; margin-bottom: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.sx-infos { display: -webkit-box; display: -webkit-flex; display: flex; -webkit-flex-shrink: 0; flex-shrink: 0; }
+.sx-derniere + .sx-infos { margin-left: 8px; }
 .sx-info {
   display: -webkit-inline-box; display: -webkit-inline-flex; display: inline-flex;
   -webkit-box-align: center; -webkit-align-items: center; align-items: center;
-  margin: 0 8px 6px 0;
-  padding: 7px 12px;
+  margin-right: 6px;
+  padding: 4px 9px;
   border: 1px solid var(--couleur-bordure);
-  border-radius: 14px;
+  border-radius: 11px;
   background: var(--couleur-carte-creux);
   color: var(--couleur-texte);
-  font-size: 13px; font-weight: 700; letter-spacing: 0.03em;
+  font-size: 12px; font-weight: 700; letter-spacing: 0.02em;
 }
+.sx-infos .sx-info:last-child { margin-right: 0; }
 .sx-info-icone {
-  display: block; width: 18px; height: 18px; margin-right: 7px;
+  display: block; width: 15px; height: 15px; margin-right: 5px;
   fill: none; stroke: var(--couleur-turquoise);
   stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round;
 }
-.sx-info-secu { border-color: var(--couleur-turquoise); box-shadow: 0 0 14px -6px var(--couleur-turquoise); }
-.sx-info-secu b { margin-right: 5px; font-size: 18px; font-weight: 800; }
-.sx-info-secu .fleche-svg { display: block; color: var(--couleur-turquoise); }
+.sx-info-secu { border-color: var(--couleur-turquoise); box-shadow: 0 0 12px -6px var(--couleur-turquoise); }
+.sx-info-secu b { margin-right: 4px; font-size: 15px; font-weight: 800; }
+.sx-info-secu .fleche-svg { display: block; width: 12px; height: 12px; color: var(--couleur-turquoise); }
 .reglages-segment .fleche-svg { display: inline-block; vertical-align: -1px; margin-right: 6px; }
+
+.rer-zone { margin-top: 0; padding-top: 10px; border-top: 0; }
