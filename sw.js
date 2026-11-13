@@ -1,4 +1,4 @@
-const CACHE_NAME = 'carnet-v9-ipad-sync';
+const CACHE_NAME = 'carnet-v10-ipad-theme-alarm';
 const urlsToCache = [
   './',
   './index.html',
