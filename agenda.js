@@ -61,8 +61,8 @@ function rendreCalendrier() {
     var entrees = entreesPourDate(dateISO);
     var aPrevu = entrees.some(function (e) { return e.statut === 'planifie'; });
     var entreesTermineesJour = entrees.filter(function (e) { return e.statut === 'termine'; });
-    var aFaitComplet = entreesTermineesJour.some(function (e) { return seanceEstComplete(e); });
-    var aFaitIncomplet = entreesTermineesJour.some(function (e) { return !seanceEstComplete(e); });
+    var nbFaitsComplets = entreesTermineesJour.filter(function (e) { return seanceEstComplete(e); }).length;
+    var nbFaitsIncomplets = entreesTermineesJour.length - nbFaitsComplets;
     var aPiscine = !!etat.piscine[dateISO];
     var aNutrition = objectifsNutritionAtteints(dateISO);
     var checklistFaite = checklistEstComplete(dateISO);
@@ -72,8 +72,8 @@ function rendreCalendrier() {
     html += '<button class="cal-jour-bouton" data-action="selectionner-jour" data-date="' + dateISO + '">' + jour + '</button>';
     html += '<div class="cal-marqueurs">';
     if (aPrevu) { html += '<span class="cal-point cal-point-prevu"></span>'; }
-    if (aFaitComplet) { html += '<span class="cal-point cal-point-fait"></span>'; }
-    if (aFaitIncomplet) { html += '<span class="cal-point cal-point-incomplet"></span>'; }
+    for (var nf = 0; nf < nbFaitsComplets; nf++) { html += '<span class="cal-point cal-point-fait"></span>'; }
+    for (var ni = 0; ni < nbFaitsIncomplets; ni++) { html += '<span class="cal-point cal-point-incomplet"></span>'; }
     if (aPiscine) { html += '<span class="cal-point cal-point-piscine"></span>'; }
     if (aNutrition) { html += '<span class="cal-point cal-point-nutrition"></span>'; }
     if (checklistFaite) { html += '<span class="cal-point cal-point-checklist"></span>'; }
