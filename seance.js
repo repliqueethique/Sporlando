@@ -556,8 +556,9 @@ function rendreExercicesActifs() {
       /* RER : sélecteur 0 → 5+ */
       var rerDefini = (ligneEx.rer !== null && ligneEx.rer !== undefined && ligneEx.rer >= 0);
       html += '<div class="rer-zone" data-ex="' + e + '">';
-      html += '<div class="rer-entete"><span class="rer-titre">RER</span></div>';
+      html += '<span class="rer-titre">RER</span>';
       html += '<div class="rer-choix">';
+      html += '<span class="rer-indicateur ' + (rerDefini ? 'rer-pos-' + Math.min(5, ligneEx.rer) + ' rer-niv-' + Math.min(5, ligneEx.rer) : 'rer-aucun') + '"></span>';
       for (var r = 0; r <= 5; r++) {
         var rerActif = rerDefini && (r === 5 ? ligneEx.rer >= 5 : ligneEx.rer === r);
         html += '<button class="rer-bouton rer-niveau-' + r + (rerActif ? ' rer-bouton-actif' : '') + '" data-action="choisir-rer" data-ex="' + e + '" data-valeur="' + r + '">' + (r === 5 ? '5+' : r) + '</button>';
@@ -587,6 +588,8 @@ function rendreExercicesActifs() {
 
   var lignesRer = document.querySelectorAll('#seance-liste-exercices .rer-ligne');
   for (var r = 0; r < lignesRer.length; r++) { configurerGlisseRer(lignesRer[r]); }
+  var barresRer = document.querySelectorAll('#seance-liste-exercices .rer-choix');
+  for (var br = 0; br < barresRer.length; br++) { configurerGlisseRerBarre(barresRer[br]); }
 }
 
 function mettreAJourChrono() {
@@ -612,24 +615,63 @@ var RER_LIBELLES = ['Échec : 0 rep en réserve', '1 rep en réserve', '2 reps e
 
 function choisirRer(exIndex, valeur) {
   var ligne = etat.seanceActive.exercices[exIndex];
-  ligne.rer = (ligne.rer === valeur) ? null : valeur;
-  sauvegarderEtat();
+  appliquerRer(exIndex, (ligne.rer === valeur) ? null : valeur);
+}
 
-  /* Mise à jour sur place : pas de rechargement de toute la séance */
+/* Applique la valeur et déplace la pastille sans tout redessiner */
+function appliquerRer(exIndex, valeur) {
+  var ligne = etat.seanceActive.exercices[exIndex];
+  if (ligne.rer === valeur) { return; }
+  ligne.rer = valeur;
+  sauvegarderEtat();
   var zone = document.querySelector('.rer-zone[data-ex="' + exIndex + '"]');
   if (!zone) { return; }
-  var defini = (ligne.rer !== null && ligne.rer !== undefined);
+  var defini = (valeur !== null && valeur !== undefined);
+  var niveau = defini ? Math.min(5, valeur) : -1;
   var boutons = zone.querySelectorAll('.rer-bouton');
   for (var i = 0; i < boutons.length; i++) {
     var r = parseInt(boutons[i].getAttribute('data-valeur'), 10);
-    var actif = defini && (r === 5 ? ligne.rer >= 5 : ligne.rer === r);
-    if (actif) { boutons[i].classList.add('rer-bouton-actif'); } else { boutons[i].classList.remove('rer-bouton-actif'); }
+    if (defini && r === niveau) { boutons[i].classList.add('rer-bouton-actif'); } else { boutons[i].classList.remove('rer-bouton-actif'); }
   }
-  var aide = zone.querySelector('.rer-aide');
-  if (aide) {
-    aide.textContent = defini ? RER_LIBELLES[Math.min(5, ligne.rer)] : 'Reps en réserve · optionnel';
-    if (defini) { aide.classList.add('rer-aide-active'); } else { aide.classList.remove('rer-aide-active'); }
+  var ind = zone.querySelector('.rer-indicateur');
+  if (ind) { ind.className = 'rer-indicateur ' + (defini ? 'rer-pos-' + niveau + ' rer-niv-' + niveau : 'rer-aucun'); }
+}
+
+/* Glisser le doigt sur la barre RER (même principe que la barre de navigation) */
+function configurerGlisseRerBarre(barre) {
+  var zone = barre.parentNode;
+  var exIndex = parseInt(zone.getAttribute('data-ex'), 10);
+  var g = null;
+
+  function indexDepuisX(x) {
+    var r = barre.getBoundingClientRect();
+    var i = Math.floor((x - r.left - 3) / ((r.width - 6) / 6));
+    return Math.max(0, Math.min(5, i));
   }
+
+  barre.addEventListener('touchstart', function (e) {
+    if (e.touches.length !== 1) { g = null; return; }
+    g = { x: e.touches[0].clientX, y: e.touches[0].clientY, glisse: false };
+  }, false);
+
+  barre.addEventListener('touchmove', function (e) {
+    if (!g) { return; }
+    var dx = e.touches[0].clientX - g.x;
+    var dy = e.touches[0].clientY - g.y;
+    if (!g.glisse) {
+      if (Math.abs(dx) < 8) { return; }
+      if (Math.abs(dy) > Math.abs(dx)) { g = null; return; }
+      g.glisse = true;
+    }
+    e.preventDefault();
+    appliquerRer(exIndex, indexDepuisX(e.touches[0].clientX));
+  }, false);
+
+  barre.addEventListener('touchend', function (e) {
+    if (g && g.glisse && e.cancelable) { e.preventDefault(); }   /* évite le clic fantôme après un glissement */
+    g = null;
+  }, false);
+  barre.addEventListener('touchcancel', function () { g = null; }, false);
 }
 
 /* Rend la ligne RER d'un exercice glissable au doigt/à la souris (même principe que le glissé
