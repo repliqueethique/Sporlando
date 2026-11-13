@@ -1806,7 +1806,7 @@ var voixFinDemandeeMs = 0;
 var voixDerniereAction = '';
 var VOIX_PAS_POIDS = 2.5;            /* kg ajoutés/retirés par "plus/moins de poids" : mets le même pas que tes boutons + / - */
 var VOIX_PAS_REPS = 1;
-var VOIX_LANCER_APRES_REGLAGE = false; /* true = "minuteur 90 secondes" règle ET lance le minuteur */
+var VOIX_LANCER_APRES_REGLAGE = true; /* true = "minuteur 90 secondes" règle ET lance le minuteur */
 
 var verrouEcran = null;
 
@@ -2014,14 +2014,42 @@ function voixRegler(totalSec) {
   afficherToast('🎤 Minuteur réglé : ' + morceaux.join(' '));
 }
 
+function voixDefinirSerie(champ, valeur) {
+  var pos = voixPositionEnCours();
+  if (!pos) { afficherToast('Toutes les séries sont déjà validées.'); return; }
+  var serie = etat.seanceActive.exercices[pos.ex].series[pos.serie];
+  if (champ === 'poids') {
+    serie.poids = valeur;
+    afficherToast('🎤 ' + serie.poids + ' kg');
+  } else {
+    serie.reps = Math.round(valeur);
+    afficherToast('🎤 ' + serie.reps + ' reps');
+  }
+  sauvegarderEtat();
+  rendreExercicesActifs();
+}
+
+function voixAjouterSerie() {
+  var pos = voixPositionEnCours();
+  var exIndex = pos ? pos.ex : (etat.seanceActive.exercices.length - 1);
+  if (exIndex < 0) { return; }
+  ajouterSerieLive(exIndex);
+  afficherToast('🎤 Série ajoutée');
+}
+
 function traiterCommandeVocale(texte) {
   var t = normaliserTexteRecherche(texte).replace(/[^a-z0-9 ]/g, ' ').replace(/ +/g, ' ');
   t = voixNombresEnChiffres(t);
   var action = null;
   var mRer = t.match(/\b(?:r ?e ?r|rere|erre|erreur|air|ere) ?(\d+)/);
+  var mPoids = t.match(/\bpoids (\d+)(?: virgule (\d+))?/);
+  var mReps = t.match(/\brep\w* (\d+)/);
 
   if (t.indexOf('desactiv') !== -1) { action = 'desactive'; }
   else if (mRer) { action = 'rer'; }
+  else if (mPoids) { action = 'poids='; }
+  else if (mReps) { action = 'reps='; }
+  else if (/serie.*plus|plus.*serie/.test(t)) { action = 'serie+'; }
   else if (t.indexOf('minuteur') !== -1 || t.indexOf('minuterie') !== -1) { action = 'minuteur'; }
   else if (/\bstop\b/.test(t) || t.indexOf('annul') !== -1) { action = 'stop'; }
   else if (t.indexOf('echauff') !== -1) { action = 'echauffement'; }
@@ -2044,6 +2072,9 @@ function traiterCommandeVocale(texte) {
   var confirmationFinOuverte = voixFinDemandeeMs && (maintenant - voixFinDemandeeMs) < 15000 && document.querySelector('[data-action="confirmation-valider"]');
 
   if (action === 'rer') { voixDefinirRer(parseInt(mRer[1], 10)); return; }
+  if (action === 'poids=') { voixDefinirSerie('poids', parseFloat(mPoids[1] + (mPoids[2] ? '.' + mPoids[2] : ''))); return; }
+  if (action === 'reps=') { voixDefinirSerie('reps', parseInt(mReps[1], 10)); return; }
+  if (action === 'serie+') { voixAjouterSerie(); return; }
 
   if (action === 'minuteur') {
     var duree = voixExtraireDuree(t);
