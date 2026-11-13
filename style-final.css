@@ -599,21 +599,22 @@
 }
 .reglages-segment .fleche-svg { display: inline-block; vertical-align: -1px; margin-right: 6px; }
 
-/* Barres de sécurité : le bouclier est la pastille */
+/* Barres de sécurité : le bouclier contient le cran */
 .sx-bouclier {
   position: relative;
   display: -webkit-inline-box; display: -webkit-inline-flex; display: inline-flex;
   -webkit-box-align: center; -webkit-align-items: center; align-items: center;
   -webkit-box-pack: center; -webkit-justify-content: center; justify-content: center;
-  width: 30px; height: 35px;
+  -webkit-flex-shrink: 0; flex-shrink: 0;
+  width: 40px; height: 46px;
   margin-right: 6px;
   -webkit-filter: drop-shadow(0 0 4px var(--couleur-turquoise));
   filter: drop-shadow(0 0 4px var(--couleur-turquoise));
 }
-.sx-bouclier-fond { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: block; fill: var(--couleur-carte-creux); stroke: var(--couleur-turquoise); stroke-width: 1.6; stroke-linejoin: round; }
-.sx-bouclier-texte { position: relative; display: -webkit-box; display: -webkit-flex; display: flex; -webkit-box-align: center; -webkit-align-items: center; align-items: center; padding-bottom: 3px; color: var(--couleur-texte); }
-.sx-bouclier-texte b { margin-right: 2px; font-size: 14px; font-weight: 800; line-height: 1; }
-.sx-bouclier-texte .fleche-svg { display: block; width: 9px; height: 9px; color: var(--couleur-turquoise); }
+.sx-bouclier-fond { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: block; fill: var(--couleur-carte-creux); stroke: var(--couleur-turquoise); stroke-width: 1.4; stroke-linejoin: round; }
+.sx-bouclier-texte { position: relative; display: -webkit-box; display: -webkit-flex; display: flex; -webkit-box-align: center; -webkit-align-items: center; align-items: center; padding-bottom: 4px; color: var(--couleur-texte); }
+.sx-bouclier-texte b { margin-right: 3px; font-size: 19px; font-weight: 800; line-height: 1; }
+.sx-bouclier-texte .fleche-svg { display: block; width: 11px; height: 11px; color: var(--couleur-turquoise); }
 
 /* RER : curseur glissant */
 .rer-zone { display: -webkit-box; display: -webkit-flex; display: flex; -webkit-box-align: center; -webkit-align-items: center; align-items: center; margin-top: 0; padding-top: 10px; border-top: 0; }
