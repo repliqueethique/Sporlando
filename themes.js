@@ -1427,6 +1427,9 @@ function appliquerTheme() {
   majEclair(themeEffectif);
   majEsprits(themeEffectif);
   majNitro(themeEffectif);
+  if (typeof window.publierEtatVersIPad === 'function') {
+    window.publierEtatVersIPad();
+  }
   if (pageCourante === 'accueil') { rendreCarteSeanceJour(); }
 }
 

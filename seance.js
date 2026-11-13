@@ -1443,7 +1443,7 @@ function messageTheme(cle, messageParDefaut) {
   return messageParDefaut;
 }
 
-function jouerMotFinMinuteur() {
+function jouerMotFinMinuteur(sansVibration) {
   var ancien = document.getElementById('cdr-mot-fin');
   if (ancien && ancien.parentNode) { ancien.parentNode.removeChild(ancien); }
 
@@ -1496,7 +1496,7 @@ function jouerMotFinMinuteur() {
   var centre = Math.max(centreY, overlay.offsetHeight / 2 + 64);
   overlay.style.top = centre + 'px';
 
-  if (navigator.vibrate) { try { navigator.vibrate([30, 40, 30]); } catch (e) {} }
+  if (!sansVibration && navigator.vibrate) { try { navigator.vibrate([30, 40, 30]); } catch (e) {} }
 
   /* Timing : lecture, sortie lettre par lettre, pop du bouton, nettoyage */
   var delaiLecture = 1150;
@@ -1742,13 +1742,22 @@ function mettreAJourCompteARebours() {
     compteARebours.enPause = false;
     compteARebours.resteMsPause = null;
     if (intervalleCompteARebours) { window.clearInterval(intervalleCompteARebours); intervalleCompteARebours = null; }
-    jouerSonnerie();
     sifflerVapeur();
     cdrCacherBouton = true;
     rendreZoneCompteARebours();
-    jouerMotFinMinuteur();
+    jouerMotFinMinuteur(true);
     if (typeof window.publierEtatVersIPad === 'function') {
-      window.publierEtatVersIPad();
+      window.publierEtatVersIPad(function (reponseBridge) {
+        var alarmeSurIPad = !!(reponseBridge && reponseBridge.suppressPhoneAlarm);
+        window.sporlIPadSuppressPhoneAlarm = alarmeSurIPad;
+        if (!alarmeSurIPad) {
+          jouerSonnerie();
+          if (navigator.vibrate) { try { navigator.vibrate([30, 40, 30]); } catch (e) {} }
+        }
+      });
+    } else {
+      jouerSonnerie();
+      if (navigator.vibrate) { try { navigator.vibrate([30, 40, 30]); } catch (e) {} }
     }
     return;
   }

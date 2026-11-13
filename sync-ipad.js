@@ -7,12 +7,19 @@
   'use strict';
 
   var ADRESSE_SERVEUR = 'http://127.0.0.1:8765/state';
+  var intervalleSyncMinuteur = null;
+  window.sporlIPadSuppressPhoneAlarm = false;
 
-  window.publierEtatVersIPad = function () {
+  window.publierEtatVersIPad = function (callback) {
+    var callbackExecute = false;
+    function terminerPublication(reponse) {
+      if (callback && !callbackExecute) { callbackExecute = true; callback(reponse); }
+    }
     var seance = etat && etat.seanceActive;
     var donnees = {
       connecte: true,
       date: Date.now(),
+      theme: (document.documentElement.getAttribute('data-theme') || 'sombre'),
       seance: null,
       minuteur: {
         actif: false,
@@ -53,16 +60,41 @@
       donnees.minuteur.resteMsPause = compteARebours.resteMsPause;
     }
 
+    var minuteurActif = donnees.minuteur.actif;
+    if (minuteurActif && !intervalleSyncMinuteur) {
+      intervalleSyncMinuteur = window.setInterval(function () {
+        window.publierEtatVersIPad();
+      }, 1000);
+    } else if (!minuteurActif && intervalleSyncMinuteur) {
+      window.clearInterval(intervalleSyncMinuteur);
+      intervalleSyncMinuteur = null;
+    }
+
     var requete = new XMLHttpRequest();
     requete.open('POST', ADRESSE_SERVEUR, true);
     requete.setRequestHeader('Content-Type', 'application/json;charset=UTF-8');
     requete.timeout = 2000;
 
-    requete.onerror = function () {};
-    requete.ontimeout = function () {};
+    requete.onload = function () {
+      if (requete.status >= 200 && requete.status < 300) {
+        try {
+          var reponse = JSON.parse(requete.responseText);
+          window.sporlIPadSuppressPhoneAlarm = !!(reponse && reponse.suppressPhoneAlarm);
+          terminerPublication(reponse);
+        } catch (erreurLecture) {
+          window.sporlIPadSuppressPhoneAlarm = false;
+          terminerPublication(null);
+        }
+      } else {
+        window.sporlIPadSuppressPhoneAlarm = false;
+        terminerPublication(null);
+      }
+    };
+    requete.onerror = function () { window.sporlIPadSuppressPhoneAlarm = false; terminerPublication(null); };
+    requete.ontimeout = function () { window.sporlIPadSuppressPhoneAlarm = false; terminerPublication(null); };
 
     try {
       requete.send(JSON.stringify(donnees));
-    } catch (erreur) {}
+    } catch (erreur) { window.sporlIPadSuppressPhoneAlarm = false; terminerPublication(null); }
   };
 })();
