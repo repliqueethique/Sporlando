@@ -536,7 +536,7 @@ function rendreExercicesActifs() {
           html += htmlStepper(e, s, 'poids', serie.poids, 'kg', PAS_POIDS_STEPPER);
           html += htmlStepper(e, s, 'reps', serie.reps, unilat ? 'reps / côté' : 'reps', PAS_REPS_STEPPER);
           html += '</div>';
-          html += '<button class="sx-valider" data-action="basculer-serie-faite"' + attrs + '>&#10003; Valider la série</button>';
+          html += '<button class="sx-valider" data-action="basculer-serie-faite"' + attrs + '>Valider la série</button>';
           html += '</div>';
           html += htmlNoteSerie(e, s, serie);
           continue;
