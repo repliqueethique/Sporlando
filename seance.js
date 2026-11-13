@@ -413,7 +413,9 @@ function htmlInfosExercice(exRef) {
     h += '<span class="sx-info"><svg class="sx-info-icone" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h16M8 8l-4 4 4 4M16 8l4 4-4 4"/></svg>Unilatéral</span>';
   }
   if (exRef.securiteCran) {
-    h += '<span class="sx-bouclier"><svg class="sx-bouclier-fond" viewBox="0 0 24 28" aria-hidden="true"><path d="M12 1.5L21.5 5v8.5c0 5.6-3.9 9.7-9.5 12-5.6-2.3-9.5-6.4-9.5-12V5z"/></svg><span class="sx-bouclier-texte"><b class="donnee-num">' + echapperHtml(exRef.securiteCran) + '</b>' + (exRef.securiteSens === 'bas' ? SVG_FLECHE_BAS : SVG_FLECHE_HAUT) + '</span></span>';
+    var chiffreSecu = '<b class="donnee-num">' + echapperHtml(exRef.securiteCran) + '</b>';
+    var contenuSecu = (exRef.securiteSens === 'bas') ? chiffreSecu + SVG_FLECHE_BAS : SVG_FLECHE_HAUT + chiffreSecu;
+    h += '<span class="sx-bouclier"><svg class="sx-bouclier-fond" viewBox="0 0 24 28" aria-hidden="true"><path d="M12 1.5L21.5 5v8.5c0 5.6-3.9 9.7-9.5 12-5.6-2.3-9.5-6.4-9.5-12V5z"/></svg><span class="sx-bouclier-texte">' + contenuSecu + '</span></span>';
   }
   return h ? '<div class="sx-infos">' + h + '</div>' : '';
 }
