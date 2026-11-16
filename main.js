@@ -317,6 +317,41 @@ setInterval(function () {
   mettreAJourDateEntete();
 }, 60000);
 
+/* La barre d'onglets de l'historique suit le header quand il sort de l'écran */
+(function () {
+  var entete = document.querySelector('.entete');
+  var attente = false;
+  var minTop = null;
+
+  function mesurerMin() {
+    var sonde = document.createElement('div');
+    sonde.style.cssText = 'position:absolute;visibility:hidden;height:0;padding-top:env(safe-area-inset-top);';
+    document.body.appendChild(sonde);
+    minTop = sonde.offsetHeight + 8;
+    document.body.removeChild(sonde);
+  }
+
+  function maj() {
+    attente = false;
+    var barre = document.querySelector('#page-historique > .sous-onglets');
+    if (!entete || !barre) { return; }
+    if (minTop === null) { mesurerMin(); }
+    var bas = entete.getBoundingClientRect().bottom;
+    barre.style.top = Math.max(bas, minTop) + 'px';
+  }
+
+  function planifier() {
+    if (attente) { return; }
+    attente = true;
+    (window.requestAnimationFrame || function (f) { return window.setTimeout(f, 16); })(maj);
+  }
+
+  window.addEventListener('scroll', planifier, false);
+  window.addEventListener('resize', planifier, false);
+  window.addEventListener('load', planifier, false);
+  planifier();
+})();
+
 /* BLOC 19 : NOTIFICATIONS */
 
 document.addEventListener('change', function (e) {
