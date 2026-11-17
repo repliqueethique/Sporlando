@@ -292,6 +292,7 @@ function choisirAlimentSelecteur(id) {
 
 /* ---------- Fenêtre PLAT ---------- */
 
+var ingredientsPlatEnCours = [];
 var platEnConstruction = { id: null, nom: '', portions: 4 };
 
 /* Redessine seulement la liste : la fenêtre ne remonte pas, le clavier reste ouvert */
@@ -733,40 +734,43 @@ function ouvrirFormulairePlat(idPlat) {
     return;
   }
   var plat = idPlat ? trouverParId(etat.plats, idPlat) : null;
-  var estModif = !!plat;
-  if (!plat) { plat = { id: null, nom: '', portions: 4, ingredients: [] }; }
-  ingredientsPlatEnCours = plat.ingredients.length > 0
-    ? plat.ingredients.slice()
-    : [{ alimentId: etat.aliments[0].id, quantiteGrammes: 100 }];
-  rendreFormulairePlat(plat.id, plat.nom, plat.portions, estModif);
+  if (plat) {
+    platEnConstruction = { id: plat.id, nom: plat.nom, portions: plat.portions };
+    ingredientsPlatEnCours = plat.ingredients.map(function (l) {
+      return { alimentId: l.alimentId, quantiteGrammes: l.quantiteGrammes };
+    });
+  } else {
+    platEnConstruction = { id: null, nom: '', portions: 4 };
+    ingredientsPlatEnCours = [];
+  }
+  rendreFormulairePlat();
 }
 
-function rendreFormulairePlat(idPlat, nomActuel, portionsActuelles, estModif) {
-  var portions = portionsActuelles || 4;
-  var html = '';
-  html += '<div class="modal-entete"><h2>' + (estModif ? 'Modifier le plat' : 'Nouveau plat') + '</h2>';
-  html += '<button class="bouton-fermer" data-action="fermer-modal">&times;</button></div>';
-  html += '<div class="champ"><label>Nom du plat</label><input type="text" id="champ-plat-nom" value="' + echapperHtml(nomActuel || '') + '" placeholder="ex. Curry de lentilles"></div>';
-  html += '<div class="champ"><label>Nombre de portions</label><input type="number" step="0.5" min="0.5" id="champ-plat-portions" value="' + portions + '" onchange="mettreAJourApercuPlat()"></div>';
-  html += '<h3 style="margin:14px 0 6px;">Ingrédients</h3>';
-  for (var i = 0; i < ingredientsPlatEnCours.length; i++) {
-    var ligne = ingredientsPlatEnCours[i];
-    html += '<div class="ligne" style="gap:6px; margin-bottom:6px;">';
-    html += '<select style="flex:2;" onchange="changerIngredientPlat(' + i + ', this.value)">' + optionsAlimentsHtml(ligne.alimentId) + '</select>';
-    html += '<input type="number" step="1" min="1" style="flex:1;" value="' + ligne.quantiteGrammes + '" placeholder="g" onchange="changerQuantiteIngredientPlat(' + i + ', this.value)">';
-    html += '<button class="serie-suppr" data-action="retirer-ingredient-plat" data-index="' + i + '">&times;</button>';
-    html += '</div>';
-  }
-  html += '<button class="btn btn-contour btn-bloc" data-action="ajouter-ingredient-plat" style="margin:8px 0 14px;">+ Ajouter un ingrédient</button>';
+function rendreFormulairePlat(sens) {
+  var p = platEnConstruction;
+  var estModif = !!p.id;
+  var html = '<div class="modal-entete"><h2>' + (estModif ? 'Modifier le plat' : 'Nouveau plat') + '</h2><button class="bouton-fermer" data-action="fermer-modal">&times;</button></div>';
 
-  var apercu = calculerMacrosPortionPlat({ ingredients: ingredientsPlatEnCours, portions: parseFloat(portions) || 1 });
-  html += '<div id="apercu-plat-macros" class="texte-att donnee-num" style="margin-bottom:14px;">Par portion : ' + Math.round(apercu.calories) + ' kcal · P ' + apercu.proteines.toFixed(1) + 'g · G ' + apercu.glucides.toFixed(1) + 'g · L ' + apercu.lipides.toFixed(1) + 'g</div>';
+  var base = '<div class="champ"><label>Nom du plat</label><input type="text" id="champ-plat-nom" data-role="plat-nom" value="' + echapperHtml(p.nom) + '" placeholder="ex. Curry de lentilles"></div>';
+  base += '<div class="champ"><label>Nombre de portions</label><div class="stepper-ligne">';
+  base += '<button class="stepper-btn" data-action="plat-portions-delta" data-delta="-0.5">&minus;</button>';
+  base += '<input type="number" inputmode="decimal" step="0.5" min="0.5" id="champ-plat-portions" data-role="plat-portions" value="' + p.portions + '">';
+  base += '<button class="stepper-btn" data-action="plat-portions-delta" data-delta="0.5">+</button>';
+  base += '</div></div>';
+  html += sectionReglages('', base);
 
-  html += '<button class="btn btn-plein btn-bloc" data-action="enregistrer-plat" data-id="' + (idPlat || '') + '">Enregistrer</button>';
+  html += '<div class="selecteur-groupe">Ingrédients</div>';
+  html += '<div id="plat-liste-ingredients"></div>';
+  html += '<button class="btn btn-contour btn-bloc" data-action="ajouter-ingredient-plat" style="margin:8px 0 14px;">+ Ajouter des ingrédients</button>';
+  html += '<div id="apercu-plat-macros" class="plat-apercu donnee-num"></div>';
+
   if (estModif) {
-    html += '<button class="btn btn-alerte btn-bloc" style="margin-top:8px;" data-action="supprimer-plat" data-id="' + idPlat + '">Supprimer ce plat</button>';
+    html += '<button class="btn btn-alerte btn-bloc" data-action="supprimer-plat" data-id="' + p.id + '">Supprimer ce plat</button>';
   }
-  ouvrirModal(html);
+  html += '<div class="modal-pied"><button class="btn btn-plein btn-bloc" data-action="enregistrer-plat" data-id="' + (p.id || '') + '">Enregistrer</button></div>';
+
+  ouvrirModal(html, sens);
+  rendreListeIngredientsPlat();
 }
 
 function supprimerPlat(id) {

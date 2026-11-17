@@ -745,4 +745,69 @@ function construireReglagesSauvegarde() {
   return html;
 }
 
+/* --- Export / import manuel --- */
 
+function ouvrirExportDonnees() {
+  var texte = JSON.stringify(etat);
+  var html = '<div class="modal-entete"><div class="modal-entete-gauche"><button class="bouton-retour" data-action="reglages-retour">&#8249;</button><h2>Exporter</h2></div><button class="bouton-fermer" data-action="fermer-modal">&times;</button></div>';
+  html += '<p class="reglages-note" style="margin:0 2px 10px;">Touche le texte, sélectionne tout, copie, puis colle-le dans Notes.</p>';
+  html += '<div class="champ"><textarea id="champ-export" style="min-height:220px;" readonly>' + echapperHtml(texte) + '</textarea></div>';
+  html += '<button class="btn btn-plein btn-bloc" data-action="tenter-telechargement-json">Télécharger un fichier</button>';
+  ouvrirModal(html, 'avant');
+}
+
+function tenterTelechargementJson() {
+  try {
+    var blob = new Blob([JSON.stringify(etat)], { type: 'application/json' });
+    var lien = document.createElement('a');
+    lien.href = URL.createObjectURL(blob);
+    lien.download = 'sporlando-sauvegarde.json';
+    document.body.appendChild(lien);
+    lien.click();
+    document.body.removeChild(lien);
+  } catch (e) {
+    afficherToast('Téléchargement impossible : copie le texte à la place.');
+  }
+}
+
+function ouvrirImportDonnees() {
+  var html = '<div class="modal-entete"><div class="modal-entete-gauche"><button class="bouton-retour" data-action="reglages-retour">&#8249;</button><h2>Importer</h2></div><button class="bouton-fermer" data-action="fermer-modal">&times;</button></div>';
+  html += '<p class="reglages-note" style="margin:0 2px 10px;">Colle ici le texte exporté. Attention : toutes les données actuelles seront remplacées.</p>';
+  html += '<div class="champ"><textarea id="champ-import-texte" style="min-height:200px;" placeholder="Colle la sauvegarde ici"></textarea></div>';
+  html += '<div class="champ"><label>Ou choisir un fichier</label><input type="file" id="champ-import-fichier" accept=".json,application/json"></div>';
+  html += '<button class="btn btn-plein btn-bloc" data-action="lancer-import-json">Importer</button>';
+  ouvrirModal(html, 'avant');
+}
+
+function chargerFichierImport() {
+  var champ = document.getElementById('champ-import-fichier');
+  if (!champ || !champ.files || !champ.files[0]) { return; }
+  var lecteur = new FileReader();
+  lecteur.onload = function () {
+    var zone = document.getElementById('champ-import-texte');
+    if (zone) { zone.value = lecteur.result; }
+  };
+  lecteur.readAsText(champ.files[0]);
+}
+
+function lancerImportJson() {
+  var zone = document.getElementById('champ-import-texte');
+  var texte = zone ? zone.value.trim() : '';
+  var donnees = null;
+  try { donnees = JSON.parse(texte); } catch (e) { donnees = null; }
+  if (!donnees || typeof donnees !== 'object' || !donnees.profil) {
+    afficherToast('Texte invalide : ce n\'est pas une sauvegarde.');
+    return;
+  }
+  demanderConfirmation('Remplacer toutes les données de cet appareil par cette sauvegarde ?', function () {
+    etat = completerChampsEtat(donnees);
+    etat.derniereMiseAJour = Date.now();
+    sauvegarderEtat();
+    fermerModal();
+    appliquerTheme();
+    allerVersPage('accueil');
+    afficherToast('Données importées.');
+  }, function () {
+    ouvrirImportDonnees();
+  });
+}
