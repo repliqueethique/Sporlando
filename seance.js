@@ -2114,4 +2114,52 @@ function traiterCommandeVocale(texte) {
   }
 }
 
+/* Appui long sur l'en-tête d'un exercice (séance active) : ouvre "Modifier l'exercice" */
+(function () {
+  var minuteur = null;
+  var x0 = 0, y0 = 0;
+  var blocClicJusqua = 0;
+
+  function annuler() {
+    if (minuteur) { window.clearTimeout(minuteur); minuteur = null; }
+  }
+
+  function debut(e, x, y) {
+    var tete = e.target.closest ? e.target.closest('.sx-exo-tete') : null;
+    if (!tete) { return; }
+    var exIndex = parseInt(tete.getAttribute('data-ex'), 10);
+    x0 = x; y0 = y;
+    annuler();
+    minuteur = window.setTimeout(function () {
+      minuteur = null;
+      blocClicJusqua = Date.now() + 700;
+      if (navigator.vibrate) { navigator.vibrate(15); }
+      var ligne = etat.seanceActive ? etat.seanceActive.exercices[exIndex] : null;
+      if (ligne) { ouvrirFormulaireExercice(ligne.exerciceId); }
+    }, 500);
+  }
+
+  function bouge(x, y) {
+    if (minuteur && (Math.abs(x - x0) > 10 || Math.abs(y - y0) > 10)) { annuler(); }
+  }
+
+  var zone = document.getElementById('seance-liste-exercices');
+  if (zone) {
+    zone.addEventListener('touchstart', function (e) { debut(e, e.touches[0].clientX, e.touches[0].clientY); }, { passive: true });
+    zone.addEventListener('touchmove', function (e) { bouge(e.touches[0].clientX, e.touches[0].clientY); }, { passive: true });
+    zone.addEventListener('touchend', annuler, false);
+    zone.addEventListener('touchcancel', annuler, false);
+    zone.addEventListener('mousedown', function (e) { debut(e, e.clientX, e.clientY); });
+    zone.addEventListener('mousemove', function (e) { bouge(e.clientX, e.clientY); });
+    zone.addEventListener('mouseup', annuler);
+  }
+
+  /* Évite que le clic qui suit l'appui long replie l'exercice ou ferme la modale */
+  document.addEventListener('click', function (e) {
+    if (Date.now() < blocClicJusqua) {
+      e.stopPropagation();
+      e.preventDefault();
+    }
+  }, true);
+})();
 

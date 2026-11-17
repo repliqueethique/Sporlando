@@ -222,6 +222,7 @@ function enregistrerExercice(idExistant) {
   sauvegarderEtat();
   fermerModal();
   rendreExercices();
+  if (etat.seanceActive) { rendreExercicesActifs(); }
 }
 
 function supprimerExercice(id) {
