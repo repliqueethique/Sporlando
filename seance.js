@@ -333,6 +333,7 @@ function rendreSeance() {
 
   document.getElementById('seance-zone-inactive').style.display = 'none';
   document.getElementById('seance-zone-active').style.display = 'block';
+  demanderVerrouEcran();
   document.getElementById('seance-active-nom').innerHTML = echapperHtml(etat.seanceActive.nom);
 
   if (chronoIntervalle) { window.clearInterval(chronoIntervalle); }
@@ -1829,7 +1830,7 @@ var VOIX_LANCER_APRES_REGLAGE = true; /* true = "minuteur 90 secondes" règle ET
 var verrouEcran = null;
 
 function demanderVerrouEcran() {
-  if (!('wakeLock' in navigator)) { return; }
+  if (!('wakeLock' in navigator) || verrouEcran) { return; }
   navigator.wakeLock.request('screen').then(function (v) {
     verrouEcran = v;
     v.addEventListener('release', function () { verrouEcran = null; });
@@ -1842,7 +1843,7 @@ function libererVerrouEcran() {
 
 /* Le verrou saute quand l'app passe en arrière-plan : on le reprend au retour */
 document.addEventListener('visibilitychange', function () {
-  if (!document.hidden && voixActive) { demanderVerrouEcran(); }
+  if (!document.hidden && (voixActive || etat.seanceActive)) { demanderVerrouEcran(); }
 });
 
 function voixEstSupportee() {
@@ -1879,7 +1880,7 @@ function desactiverCommandeVocale(silencieux) {
     voixReco = null;
   }
   majBoutonVoix();
-  libererVerrouEcran();
+  if (!etat.seanceActive) { libererVerrouEcran(); }
   if (etaitActive && !silencieux) { afficherToast('Commande vocale désactivée'); }
 }
 
