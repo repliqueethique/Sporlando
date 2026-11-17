@@ -680,7 +680,7 @@ function rendreNutrition() {
       libelle = aliment ? aliment.nom : '(aliment supprimé)';
       details = entree.quantiteGrammes + ' g';
     }
-    html += '<li class="carte">';
+    html += '<li class="carte" data-action="editer-entree-journal" data-id="' + entree.id + '" style="cursor:pointer;">';
     html += '<div class="ligne"><span><strong>' + echapperHtml(libelle) + '</strong> — ' + details + '</span>';
     html += '<button class="serie-suppr" data-action="retirer-aliment-journal" data-id="' + entree.id + '">&times;</button></div>';
     html += '</li>';
@@ -804,4 +804,64 @@ function rendrePlats() {
   conteneur.innerHTML = html;
 }
 
+/* ---------- Modifier une entrée du journal ---------- */
 
+var entreeJournalEnEdition = null;
+
+function trouverEntreeJournal(id) {
+  var liste = etat.journalAlimentaire[dateNutritionAffichee] || [];
+  for (var i = 0; i < liste.length; i++) {
+    if (liste[i].id === id) { return liste[i]; }
+  }
+  return null;
+}
+
+function ouvrirEditionEntreeJournal(id) {
+  var entree = trouverEntreeJournal(id);
+  if (!entree) { return; }
+  entreeJournalEnEdition = id;
+  var estPlat = (entree.type === 'plat');
+  var item = estPlat ? trouverParId(etat.plats, entree.platId) : trouverParId(etat.aliments, entree.alimentId);
+  var nom = item ? item.nom : (estPlat ? '(plat supprimé)' : '(aliment supprimé)');
+  var valeur = estPlat ? entree.portions : entree.quantiteGrammes;
+
+  var html = '<div class="modal-entete"><h2>Modifier</h2><button class="bouton-fermer" data-action="fermer-modal">&times;</button></div>';
+  html += '<div class="journal-resume"><span class="journal-resume-nom">' + echapperHtml(nom) + '</span></div>';
+  html += '<div class="champ champ-gros"><label>' + (estPlat ? 'Nombre de portions' : 'Quantité (grammes)') + '</label>';
+  html += '<input type="number" inputmode="decimal" step="' + (estPlat ? '0.5' : '1') + '" min="0" id="champ-edition-valeur" data-role="edition-valeur" value="' + valeur + '"></div>';
+  html += '<div class="journal-apercu donnee-num" id="edition-apercu"></div>';
+  html += '<button class="btn btn-alerte btn-bloc" data-action="supprimer-entree-journal" data-id="' + id + '" style="margin-top:10px;">Supprimer cette ligne</button>';
+  html += '<div class="modal-pied"><button class="btn btn-plein btn-bloc" data-action="enregistrer-entree-journal">Enregistrer</button></div>';
+  ouvrirModal(html);
+  majApercuEdition();
+}
+
+function majApercuEdition() {
+  var zone = document.getElementById('edition-apercu');
+  var entree = trouverEntreeJournal(entreeJournalEnEdition);
+  if (!zone || !entree) { return; }
+  var v = lireChampNombre('champ-edition-valeur');
+  var m = null;
+  if (entree.type === 'plat') {
+    var plat = trouverParId(etat.plats, entree.platId);
+    if (plat) {
+      var mp = calculerMacrosPortionPlat(plat);
+      m = { calories: mp.calories * v, proteines: mp.proteines * v, glucides: mp.glucides * v, lipides: mp.lipides * v };
+    }
+  } else {
+    var al = trouverParId(etat.aliments, entree.alimentId);
+    if (al) { m = macrosAliment(al, v); }
+  }
+  zone.innerHTML = m ? 'Total · ' + texteMacros(m) : '';
+}
+
+function enregistrerEditionJournal() {
+  var entree = trouverEntreeJournal(entreeJournalEnEdition);
+  if (!entree) { fermerModal(); return; }
+  var v = lireChampNombre('champ-edition-valeur');
+  if (!(v > 0)) { afficherToast('Choisis une valeur supérieure à zéro.'); return; }
+  if (entree.type === 'plat') { entree.portions = v; } else { entree.quantiteGrammes = v; }
+  sauvegarderEtat();
+  fermerModal();
+  rendreNutrition();
+}

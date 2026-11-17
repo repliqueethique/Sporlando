@@ -131,6 +131,9 @@ ajouterEcouteurClicDelegue(document.body, function (cible) {
   if (action === 'ajouter-aliment-journal') { ouvrirFormulaireAjoutJournal(); return; }
   if (action === 'confirmer-ajout-journal') { confirmerAjoutJournal(); return; }
   if (action === 'retirer-aliment-journal') { retirerAlimentDuJournal(id); return; }
+  if (action === 'editer-entree-journal') { ouvrirEditionEntreeJournal(id); return; }
+  if (action === 'enregistrer-entree-journal') { enregistrerEditionJournal(); return; }
+  if (action === 'supprimer-entree-journal') { retirerAlimentDuJournal(id); fermerModal(); return; }
   if (action === 'charger-aliments-base') { chargerAlimentsDeBase(); return; }
   if (action === 'basculer-groupe-aliments') { basculerGroupeAliments(cible.getAttribute('data-groupe')); return; }
   if (action === 'calculer-objectifs-nutrition') { calculerObjectifsNutritionAuto(); return; }
@@ -283,6 +286,7 @@ document.body.addEventListener('input', function (evt) {
     rafraichirChipsJournal();
     majApercuJournal();
   }
+  if (role === 'edition-valeur') { majApercuEdition(); }
 }, false);
 
 document.getElementById('modal-overlay').addEventListener('click', function (evt) {
