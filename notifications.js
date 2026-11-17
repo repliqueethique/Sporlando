@@ -9,7 +9,9 @@ var RAPPELS_DEFAUT = [
   { id: 'fatigue',   label: 'Niveau de fatigue',      heure: '08:00', actif: true },
   { id: 'stress',    label: 'Niveau de stress',       heure: '08:00', actif: true },
   { id: 'seance',    label: 'Séance prévue',          heure: '17:00', actif: true },
-  { id: 'pesee',     label: 'Se peser',               heure: '08:00', actif: false }
+  { id: 'pesee',     label: 'Se peser',               heure: '08:00', actif: false },
+  { id: 'b12',       label: 'Prendre ma B12',         heure: '12:00', actif: true }
+];
 ];
 
 function chargerReglagesRappels() {
@@ -17,7 +19,14 @@ function chargerReglagesRappels() {
     var brut = window.localStorage.getItem(CLE_REGLAGES_RAPPELS);
     if (brut) {
       var donnees = JSON.parse(brut);
-      if (Array.isArray(donnees) && donnees.length > 0) { return donnees; }
+      if (Array.isArray(donnees) && donnees.length > 0) {
+        /* ajoute les rappels par défaut qui n'existent pas encore (ex. un nouveau rappel ajouté plus tard) */
+        RAPPELS_DEFAUT.forEach(function (modele) {
+          var present = donnees.some(function (r) { return r.id === modele.id; });
+          if (!present) { donnees.push(JSON.parse(JSON.stringify(modele))); }
+        });
+        return donnees;
+      }
     }
   } catch (erreur) {}
   return JSON.parse(JSON.stringify(RAPPELS_DEFAUT));
