@@ -1,4 +1,4 @@
-const CACHE_NAME = 'carnet-v10-ipad-theme-alarm';
+const CACHE_NAME = 'carnet-v10';
 const urlsToCache = [
   './',
   './index.html',
@@ -116,16 +116,19 @@ self.addEventListener('activate', (event) => {
 });
 
 self.addEventListener('fetch', (event) => {
+  const req = event.request;
+  /* On ne gère que les GET de ton propre site : GitHub, Open-Meteo et le serveur iPad passent directement */
+  if (req.method !== 'GET' || new URL(req.url).origin !== self.location.origin) { return; }
   event.respondWith(
-    fetch(event.request)
+    fetch(req)
       .then((response) => {
-        const responseClone = response.clone();
-        caches.open(CACHE_NAME).then((cache) => {
-          cache.put(event.request, responseClone);
-        });
+        if (response && response.ok) {
+          const copie = response.clone();
+          caches.open(CACHE_NAME).then((cache) => { cache.put(req, copie); });
+        }
         return response;
       })
-      .catch(() => caches.match(event.request))
+      .catch(() => caches.match(req))
   );
 });
 

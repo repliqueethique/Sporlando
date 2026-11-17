@@ -1307,7 +1307,7 @@ function rendreHistoriqueSeances() {
     var infos = [nbEx + ' exercice' + (nbEx > 1 ? 's' : '')];
     if (entree.dureeMinutes) { infos.push(entree.dureeMinutes + ' min'); }
     if (entree.caloriesEstimees) { infos.push(Math.round(entree.caloriesEstimees) + ' kcal'); }
-    if (entree.rpeSeance) { html += ' · RPE ' + entree.rpeSeance; }
+    if (entree.rpeSeance) { infos.push('RPE ' + entree.rpeSeance); }
     html += '<li class="hist-ligne ' + (complete ? 'hist-fait' : 'hist-incomplet') + '" data-action="voir-detail-historique" data-id="' + entree.id + '">';
     html += '<span class="hist-date"><span class="hist-date-j donnee-num">' + d.getDate() + '</span><span class="hist-date-m">' + MOIS_COURTS[d.getMonth()] + '</span></span>';
     html += '<div class="hist-ligne-corps"><strong class="hist-ligne-titre">' + echapperHtml(nomSeance) + '</strong><span class="hist-ligne-sous donnee-num">' + infos.join(' · ') + '</span></div>';

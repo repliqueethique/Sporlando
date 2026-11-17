@@ -461,11 +461,6 @@
 <script src="theme-noel.js"></script>
 <script src="sync-ipad.js"></script>
 <script>
-  if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('./sw.js')
-      .then(() => console.log('Service Worker enregistré'))
-      .catch((err) => console.error('Erreur SW:', err));
-  }
 
   window.addEventListener('load', () => {
     traiterRappelsAuLancement();
