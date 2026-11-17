@@ -215,14 +215,6 @@ ajouterEcouteurClicDelegue(document.body, function (cible) {
   if (action === 'etirement-quitter') { quitterSeanceEtirement(); return; }
   if (action === 'etirement-toggle-pause') { togglePauseChronoEtirement(); return; }
   if (action === 'ouvrir-etirement') { ouvrirSeanceEtirement(); return; }
-
-  if (action === 'tester-sonnerie') {
-    var sel = document.getElementById('champ-profil-sonnerie');
-    if (sel) { etat.profil.sonnerie = sel.value; sauvegarderEtat(); }
-    jouerSonnerie();
-    return;
-  }
-
 });
 
 document.body.addEventListener('change', function (evt) {
@@ -362,21 +354,6 @@ document.addEventListener('change', function (e) {
   if (e.target.getAttribute('data-action') === 'changer-heure-rappel') {
     changerHeureRappel(parseInt(e.target.getAttribute('data-index'), 10), e.target.value);
   }
-});
-
-/* BLOC 20 : SONNERIE DU MINUTEUR */
-
-document.addEventListener('change', function (e) {
-  if (e.target.id === 'champ-profil-sonnerie') {
-    etat.profil.sonnerie = e.target.value;
-    sauvegarderEtat();
-    jouerSonnerie(); // aperçu immédiat
-  }
-});
-
-document.addEventListener('click', function (e) {
-  var bouton = e.target.closest ? e.target.closest('[data-action="tester-sonnerie"]') : null;
-  if (bouton) { jouerSonnerie(); }
 });
 
 

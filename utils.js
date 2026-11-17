@@ -11,11 +11,15 @@ function genererId() {
 
 function echapperHtml(texte) {
   if (texte === null || texte === undefined) { return ''; }
+  var et = '&' + 'amp;';
+  var inf = '&' + 'lt;';
+  var sup = '&' + 'gt;';
+  var guill = '&' + 'quot;';
   return String(texte)
-    .replace(/&/g, '&')
-    .replace(/</g, '<')
-    .replace(/>/g, '>')
-    .replace(/"/g, '"');
+    .replace(/&/g, et)
+    .replace(/</g, inf)
+    .replace(/>/g, sup)
+    .replace(/"/g, guill);
 }
 
 function completerZero(nombre) {

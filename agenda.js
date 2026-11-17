@@ -28,12 +28,14 @@ function seanceEstComplete(entree) {
 }
 
 function objectifsNutritionAtteints(dateISO) {
-  var totaux = calculerTotauxJour(dateISO);
   var entrees = etat.journalAlimentaire[dateISO] || [];
   if (entrees.length === 0) { return false; }
-  return totaux.proteines >= (etat.profil.objectifProteines || 0) &&
-    totaux.glucides >= (etat.profil.objectifGlucides || 0) &&
-    totaux.lipides >= (etat.profil.objectifLipides || 0);
+  var totaux = calculerTotauxJour(dateISO);
+  var objP = etat.profil.objectifProteines || 0;
+  var objCal = etat.profil.objectifCalories || 0;
+  if (totaux.proteines < objP) { return false; }
+  if (objCal > 0 && (totaux.calories < objCal * 0.9 || totaux.calories > objCal * 1.1)) { return false; }
+  return true;
 }
 
 function rendreCalendrier() {

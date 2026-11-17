@@ -23,7 +23,7 @@ function demarrerSeanceDepuisModele(seanceModeleId, agendaEntryId) {
         structure: structure,
         technique: e.technique || 'aucune',
         tempo: e.tempo || '',
-        rer: 3,
+        rer: null,
         series: seriesTab
       };
     });

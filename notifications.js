@@ -12,7 +12,6 @@ var RAPPELS_DEFAUT = [
   { id: 'pesee',     label: 'Se peser',               heure: '08:00', actif: false },
   { id: 'b12',       label: 'Prendre ma B12',         heure: '12:00', actif: true }
 ];
-];
 
 function chargerReglagesRappels() {
   try {
@@ -142,25 +141,6 @@ function traiterRappelsAuLancement() {
   afficherBanniereRappels(rappelsDus);
 }
 
-/* --- Bannière sur l'accueil --- */
-
-function afficherBanniereRappels(rappelsDus) {
-  var zone = document.getElementById('zone-banniere-rappels');
-  if (!zone) { return; }
-  if (!rappelsDus || rappelsDus.length === 0) { zone.innerHTML = ''; return; }
-
-  var html = '<div class="carte-checklist">';
-  html += '<div class="checklist-entete"><span class="titre-affichage">À noter aujourd\'hui</span></div>';
-  rappelsDus.forEach(function (rappel) {
-    html += '<div class="checklist-ligne">';
-    html += '<button class="bulle-validation checklist-bouton" data-action="marquer-rappel-fait" data-rappel-id="' + rappel.id + '" title="Marquer comme fait">✓</button>';
-    html += '<span class="checklist-texte">' + echapperHtml(rappel.label) + '</span>';
-    html += '</div>';
-  });
-  html += '</div>';
-  zone.innerHTML = html;
-}
-
 function marquerRappelFaitEtRafraichir(idRappel) {
   marquerRappelFait(idRappel);
   var rappelsDus = verifierRappelsDus();
@@ -192,14 +172,4 @@ function toggleRappelActif(index) {
 function changerHeureRappel(index, nouvelleHeure) {
   reglagesRappels[index].heure = nouvelleHeure;
   sauvegarderReglagesRappels();
-}
-
-function allerVersRessentiJour() {
-  allerVersPage('seance');
-  // Si tu as un onglet/section dédiée dans la page séance, remplace 'ressenti' par le bon sélecteur.
-  var section = document.getElementById('seance-zone-inactive');
-  if (section) { section.scrollIntoView({ behavior: 'smooth' }); }
-  // Focus optionnel sur le premier champ
-  var champ = document.getElementById('champ-ressenti-sommeil');
-  if (champ) { champ.focus(); }
 }

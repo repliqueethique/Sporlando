@@ -1182,9 +1182,11 @@ function calculerIndiceFatigueManuel() {
     /* Moins de 7h de sommeil augmente la contribution ; 7h ou plus = 0 (pas de trop-dormir penalise ici) */
     var heures = joursRecents[j].sommeil;
     var manque = (typeof heures === 'number') ? Math.max(0, Math.min(5, (7 - heures) * 1.5)) : 0;
-    sommeManqueSommeil += manque;
-    sommeFatigue += joursRecents[j].fatigue;
-    sommeStress += joursRecents[j].stress;
+    sommeManqueSommeil += manque * 2;   /* 0 à 10 */
+    var fat = (typeof joursRecents[j].fatigue === 'number') ? joursRecents[j].fatigue : 4;
+    var str = (typeof joursRecents[j].stress === 'number') ? joursRecents[j].stress : 4;
+    sommeFatigue += (8 - fat) * 1.25;   /* 0 = épuisé, donc on inverse : 0 à 10 */
+    sommeStress += (8 - str) * 1.25;
   }
   return {
     score: (sommeManqueSommeil + sommeFatigue + sommeStress) / (joursRecents.length * 3),
@@ -1216,7 +1218,7 @@ function suggestionFatigue() {
   var semaines = semainesDepuisDerniereDecharge();
   var signaux = [];
 
-  if (indiceManuel !== null && indiceManuel.score >= 3.5) {
+  if (indiceManuel !== null && indiceManuel.score >= 6) {
     signaux.push('ton ressenti quotidien moyen des ' + indiceManuel.nbJours + ' derniers jours renseignés indique une fatigue plutôt élevée (sommeil/fatigue/stress)');
   }
   if (tendance !== null && (tendance.recent - tendance.ancien) >= 1) {
