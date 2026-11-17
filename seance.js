@@ -745,11 +745,29 @@ function modifierValeurSerieLive(role, exIndex, serieIndex, valeur) {
   sauvegarderEtat();
 }
 
+var REPOS_AUTO = true;   /* false = le minuteur ne démarre plus tout seul */
+
 function basculerSerieFaite(exIndex, serieIndex) {
   var serie = etat.seanceActive.exercices[exIndex].series[serieIndex];
   serie.fait = !serie.fait;
   sauvegarderEtat();
   rendreExercicesActifs();
+
+  /* Repos automatique : seulement quand on VALIDE une série de travail, pas un échauffement,
+     et pas si c'était la toute dernière série de la séance */
+  if (REPOS_AUTO && serie.fait && !serie.echauffement) {
+    var resteUneSerie = false;
+    var exs = etat.seanceActive.exercices;
+    for (var e = 0; e < exs.length && !resteUneSerie; e++) {
+      for (var s = 0; s < exs[e].series.length; s++) {
+        if (!exs[e].series[s].fait) { resteUneSerie = true; break; }
+      }
+    }
+    if (resteUneSerie) {
+      var totalMs = (derniereMinutesReglees * 60 + dernieresSecondesReglees) * 1000;
+      if (totalMs > 0) { demarrerCompteARebours(totalMs); }
+    }
+  }
 }
 
 var notesSerieOuvertes = {};
