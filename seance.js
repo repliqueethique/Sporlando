@@ -149,6 +149,7 @@ function rgbVersHex(r, g, b) {
 }
 
 function rendreRessentiJour() {
+  rendrePrete();
   var aujourdHui = obtenirDateJourReference();
   var donnees = etat.ressentiQuotidien[aujourdHui] || { sommeil: 8, fatigue: 5, stress: 5, humeur: 4 };
   var champSommeil = document.getElementById('champ-ressenti-sommeil');
@@ -243,6 +244,140 @@ function rendreRessentiJour() {
   }, { passive: true });
   document.addEventListener('touchend', terminer);
 })();
+
+/* ===== Réveil et digestion (dans « Ressenti du jour ») ===== */
+
+function preparationDuJour() {
+  var jour = obtenirDateJourReference();
+  if (!etat.preparation || etat.preparation.date !== jour) {
+    etat.preparation = { date: jour, leverMs: null, repasMs: null, repasType: null };
+  }
+  return etat.preparation;
+}
+
+function heureTexte(ms) {
+  var d = new Date(ms);
+  return completerZero(d.getHours()) + ':' + completerZero(d.getMinutes());
+}
+
+function texteDuree(min) {
+  if (min >= 60) { return Math.floor(min / 60) + ' h ' + completerZero(min % 60); }
+  return min + ' min';
+}
+
+function prochainDepartPossible() {
+  var n = new Date();
+  var m = n.getHours() * 60 + n.getMinutes();
+  for (var t = m; t <= METEO_DERNIER_DEPART; t += 5) {
+    if (departPossible(t)) { return t; }
+  }
+  return null;
+}
+
+function htmlJaugePrete(icone, titre, ms, dureeMin, texteAbsent) {
+  var h = '<div class="prete-rangee"><span class="prete-icone">' + icone + '</span>';
+  h += '<div class="prete-centre"><span class="prete-titre">' + titre + '</span>';
+  if (!ms) {
+    h += '<span class="prete-piste"><i style="width:0%"></i></span></div>';
+    h += '<span class="prete-etat prete-etat-vide">' + texteAbsent + '</span></div>';
+    return h;
+  }
+  var reste = dureeMin - (Date.now() - ms) / 60000;
+  if (reste > 0) {
+    h += '<span class="prete-piste"><i style="width:' + Math.round(reste / dureeMin * 100) + '%"></i></span></div>';
+    h += '<span class="prete-etat donnee-num">Encore ' + texteDuree(Math.ceil(reste)) + '</span></div>';
+  } else {
+    h += '<span class="prete-piste prete-piste-ok"><i style="width:100%"></i></span></div>';
+    h += '<span class="prete-etat prete-etat-ok">✓ Prêt</span></div>';
+  }
+  return h;
+}
+
+function rendrePrete() {
+  var p = preparationDuJour();
+
+  var bouton = document.getElementById('btn-leve');
+  if (bouton) {
+    bouton.className = 'btn-leve' + (p.leverMs ? ' btn-leve-fait' : '');
+    bouton.innerHTML = '<span class="btn-leve-icone">☀️</span><span class="btn-leve-texte">' + (p.leverMs ? heureTexte(p.leverMs) : 'Je me lève') + '</span>';
+  }
+
+  var zone = document.getElementById('zone-prete');
+  if (!zone) { return; }
+  var html = '<label>Avant la séance</label>';
+  html += htmlJaugePrete('☀️', 'Réveil', p.leverMs, METEO_APRES_LEVER, 'Pas noté');
+  html += '<div class="prete-legende">Je viens de finir :</div><div class="prete-repas">';
+  var types = [{ v: 'collation', l: '🥐 Collation' }, { v: 'repas', l: '🍽️ Repas' }];
+  for (var i = 0; i < types.length; i++) {
+    var actif = !!p.repasMs && p.repasType === types[i].v;
+    html += '<button class="prete-btn' + (actif ? ' prete-btn-actif' : '') + '" data-action="heure-repas" data-type="' + types[i].v + '">' + types[i].l + (actif ? ' · ' + heureTexte(p.repasMs) : '') + '</button>';
+  }
+  html += '</div>';
+  html += htmlJaugePrete('🍽️', 'Digestion', p.repasMs, dureeDigestion(p.repasType), 'Aucun repas noté');
+
+  var n = new Date();
+  var maintenant = n.getHours() * 60 + n.getMinutes();
+  var m = prochainDepartPossible();
+  var texte, classe = '';
+  if (m === null) { texte = 'Plus de créneau possible aujourd\'hui'; }
+  else if (m <= maintenant) { texte = '✓ Tu peux t\'entraîner maintenant'; classe = ' prete-conclusion-ok'; }
+  else { texte = 'Séance possible à partir de ' + completerZero(Math.floor(m / 60)) + ':' + completerZero(m % 60); }
+  html += '<div class="prete-conclusion' + classe + '">' + texte + '</div>';
+  zone.innerHTML = html;
+}
+
+function toucherHeureLeve() {
+  var p = preparationDuJour();
+  if (p.leverMs) { ouvrirReglageHeurePrete('leve'); return; }
+  p.leverMs = Date.now();
+  sauvegarderEtat();
+  rendrePrete();
+}
+
+function toucherRepas(type) {
+  var p = preparationDuJour();
+  if (p.repasMs && p.repasType === type) { ouvrirReglageHeurePrete('repas'); return; }
+  p.repasMs = Date.now();
+  p.repasType = type;
+  sauvegarderEtat();
+  rendrePrete();
+}
+
+function ouvrirReglageHeurePrete(quoi) {
+  var p = preparationDuJour();
+  var ms = (quoi === 'leve') ? p.leverMs : p.repasMs;
+  var titre = (quoi === 'leve') ? 'Heure de lever' : (p.repasType === 'collation' ? 'Fin de collation' : 'Fin de repas');
+  var html = '<div class="modal-entete"><h2>' + titre + '</h2><button class="bouton-fermer" data-action="fermer-modal">&times;</button></div>';
+  html += '<div class="champ"><label>Heure</label><input type="time" id="champ-heure-prete" value="' + heureTexte(ms) + '"></div>';
+  html += '<button class="btn btn-plein btn-bloc" data-action="enregistrer-heure-prete" data-quoi="' + quoi + '">Enregistrer</button>';
+  html += '<button class="btn btn-alerte btn-bloc" style="margin-top:8px;" data-action="effacer-heure-prete" data-quoi="' + quoi + '">Effacer</button>';
+  ouvrirModal(html);
+}
+
+function enregistrerHeurePrete(quoi) {
+  var champ = document.getElementById('champ-heure-prete');
+  if (!champ || !champ.value) { afficherToast('Choisis une heure.'); return; }
+  var parties = champ.value.split(':');
+  var d = new Date();
+  d.setHours(parseInt(parties[0], 10), parseInt(parties[1], 10), 0, 0);
+  if (d.getTime() > Date.now()) {
+    if (new Date().getHours() < 5) { d.setDate(d.getDate() - 1); }
+    else { afficherToast('Cette heure est dans le futur.'); return; }
+  }
+  var p = preparationDuJour();
+  if (quoi === 'leve') { p.leverMs = d.getTime(); } else { p.repasMs = d.getTime(); }
+  sauvegarderEtat();
+  fermerModal();
+  rendrePrete();
+}
+
+function effacerHeurePrete(quoi) {
+  var p = preparationDuJour();
+  if (quoi === 'leve') { p.leverMs = null; } else { p.repasMs = null; p.repasType = null; }
+  sauvegarderEtat();
+  fermerModal();
+  rendrePrete();
+}
 
 function modifierRessenti(champ, valeur) {
   var aujourdHui = obtenirDateJourReference();

@@ -732,6 +732,17 @@ var METEO_LEVER = 8 * 60;                    /* heure de lever */
 var METEO_REPAS = [12 * 60 + 30, 20 * 60];   /* heures des repas */
 var METEO_APRES_LEVER = 60;                  /* minutes à attendre après le lever */
 var METEO_APRES_REPAS = 120;                 /* minutes de digestion après un repas */
+var METEO_APRES_COLLATION = 45;              /* minutes de digestion après une collation légère (petit-déj, goûter) */
+
+function dureeDigestion(type) { return type === 'collation' ? METEO_APRES_COLLATION : METEO_APRES_REPAS; }
+
+/* minute de la journée (9 h = 540) d'un horodatage d'aujourd'hui, sinon null */
+function minuteDuJourDepuis(ms) {
+  if (!ms) { return null; }
+  var d = new Date(ms), n = new Date();
+  if (d.getFullYear() !== n.getFullYear() || d.getMonth() !== n.getMonth() || d.getDate() !== n.getDate()) { return null; }
+  return d.getHours() * 60 + d.getMinutes();
+}
 var METEO_DUREE_SEANCE = 75;                 /* durée d'une séance : elle doit finir avant le repas suivant */
 var METEO_DERNIER_DEPART = 21 * 60;          /* pas de départ après cette heure */
 var METEO_PLUIE_PROBA = 50;                  /* % de risque à partir duquel on considère qu'il pleut */
@@ -745,11 +756,23 @@ function ressentiSansVent(temperature, humidite) {
 
 /* peut-on partir à cette minute de la journée (ex. 9 h = 540) ? */
 function departPossible(minute) {
-  if (minute < METEO_LEVER + METEO_APRES_LEVER) { return false; }
+  var prep = preparationDuJour();
+  var lever = minuteDuJourDepuis(prep.leverMs);
+  if (lever === null) { lever = METEO_LEVER; }
+  if (minute < lever + METEO_APRES_LEVER) { return false; }
   if (minute > METEO_DERNIER_DEPART) { return false; }
   var fin = minute + METEO_DUREE_SEANCE;
+
+  /* dernier repas ou collation que tu as noté aujourd'hui */
+  var vu = minuteDuJourDepuis(prep.repasMs);
+  if (vu !== null) {
+    if (minute >= vu && minute < vu + dureeDigestion(prep.repasType)) { return false; }
+  }
+
   for (var i = 0; i < METEO_REPAS.length; i++) {
     var repas = METEO_REPAS[i];
+    /* un vrai repas déjà pris remplace le repas prévu à peu près à la même heure */
+    if (vu !== null && prep.repasType !== 'collation' && repas <= vu + METEO_APRES_REPAS) { continue; }
     if (minute >= repas && minute < repas + METEO_APRES_REPAS) { return false; }  /* digestion */
     if (minute < repas && fin > repas) { return false; }                          /* la séance déborderait sur le repas */
   }

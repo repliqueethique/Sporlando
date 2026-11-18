@@ -70,6 +70,10 @@ ajouterEcouteurClicDelegue(document.body, function (cible) {
     return;
   }  
   if (action === 'valider-poids-jour') { validerPoidsJour(); return; }
+  if (action === 'heure-leve') { toucherHeureLeve(); return; }
+  if (action === 'heure-repas') { toucherRepas(cible.getAttribute('data-type')); return; }
+  if (action === 'enregistrer-heure-prete') { enregistrerHeurePrete(cible.getAttribute('data-quoi')); return; }
+  if (action === 'effacer-heure-prete') { effacerHeurePrete(cible.getAttribute('data-quoi')); return; }
   if (action === 'tester-notif') {
     demanderPermissionNotif().then(function (accorde) {
       if (accorde) {
@@ -311,6 +315,7 @@ setInterval(function () {
   verifierResetQuotidien();
   rendreChecklistQuotidienne();
   mettreAJourDateEntete();
+  rendrePrete();
 }, 60000);
 
 /* La barre d'onglets de l'historique suit le header quand il sort de l'écran */

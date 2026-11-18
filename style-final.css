@@ -662,3 +662,45 @@
   -webkit-transition: color 0.2s ease; transition: color 0.2s ease;
 }
 .rer-bouton-actif { color: #0B1114; }
+
+/* ===== Ressenti : bouton « Je me lève » + jauges réveil / digestion ===== */
+.ressenti-carte .sommeil-rangee { display: flex; align-items: stretch; margin-bottom: 10px; }
+.ressenti-carte .sommeil-rangee .sommeil-ligne { flex: 1 1 auto; min-width: 0; width: auto; margin-bottom: 0; padding: 14px 8px; font-size: 28px; }
+
+.btn-leve {
+  flex: 0 0 74px; margin-left: 8px; padding: 6px 4px;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  background-color: var(--couleur-carte-creux);
+  border: 1px var(--tuile-trait, solid) var(--tuile-bord, var(--couleur-bordure));
+  border-radius: var(--tuile-rayon, 20px);
+  color: var(--couleur-texte);
+  transition: transform .25s cubic-bezier(.34,1.56,.64,1), border-color .2s ease;
+}
+.btn-leve:active { transform: scale(.94); }
+.btn-leve-icone { font-size: 22px; line-height: 1; }
+.btn-leve-texte { margin-top: 4px; font-size: 11px; font-weight: 700; line-height: 1.1; text-align: center; color: var(--couleur-texte-att); }
+.btn-leve-fait { border-color: var(--couleur-turquoise); }
+.btn-leve-fait .btn-leve-texte { font-family: var(--police-donnees); font-size: 14px; color: var(--couleur-turquoise); }
+
+.prete-bloc .prete-rangee { display: flex; align-items: center; margin-bottom: 10px; }
+.prete-icone { flex: 0 0 26px; font-size: 20px; text-align: center; }
+.prete-centre { flex: 1 1 auto; min-width: 0; margin: 0 10px; }
+.prete-titre { display: block; margin-bottom: 4px; font-size: 12px; font-weight: 700; color: var(--couleur-texte-att); }
+.prete-piste { display: block; height: 10px; border-radius: 5px; overflow: hidden; background: var(--couleur-carte); border: 1px solid var(--couleur-bordure); }
+.prete-piste i { display: block; height: 100%; border-radius: 5px; background: var(--couleur-avertissement); transition: width .6s ease; }
+.prete-piste-ok i { background: var(--couleur-succes); }
+.prete-etat { flex: 0 0 auto; min-width: 84px; text-align: right; font-size: 12px; font-weight: 700; color: var(--couleur-avertissement); }
+.prete-etat-ok { color: var(--couleur-succes); }
+.prete-etat-vide { font-weight: 400; color: var(--couleur-texte-att); }
+.prete-legende { margin: 2px 0 6px; font-size: 11px; color: var(--couleur-texte-att); }
+.prete-repas { display: flex; margin: 0 -3px 10px; }
+.prete-btn {
+  flex: 1 1 0; margin: 0 3px; padding: 9px 4px;
+  border: 1px solid var(--couleur-bordure); border-radius: 12px;
+  background: var(--couleur-carte); color: var(--couleur-texte-att);
+  font-size: 12.5px; font-weight: 700;
+}
+.prete-btn:active { transform: scale(.96); }
+.prete-btn-actif { border-color: var(--couleur-turquoise); color: var(--couleur-turquoise); }
+.prete-conclusion { margin-top: 2px; padding-top: 8px; border-top: 1px solid var(--couleur-bordure); font-size: 13px; font-weight: 700; text-align: center; }
+.prete-conclusion-ok { color: var(--couleur-succes); }
