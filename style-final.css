@@ -663,44 +663,71 @@
 }
 .rer-bouton-actif { color: #0B1114; }
 
-/* ===== Ressenti : bouton « Je me lève » + jauges réveil / digestion ===== */
-.ressenti-carte .sommeil-rangee { display: flex; align-items: stretch; margin-bottom: 10px; }
-.ressenti-carte .sommeil-rangee .sommeil-ligne { flex: 1 1 auto; min-width: 0; width: auto; margin-bottom: 0; padding: 14px 8px; font-size: 28px; }
+/* ===== PAGE SÉANCE ===== */
+#seance-zone-inactive .carte { padding: 16px; }
+.seance-liste-etir { margin-top: 8px; }
+.seance-etir .hist-date-j { font-size: 22px; }
 
-.btn-leve {
-  flex: 0 0 74px; margin-left: 8px; padding: 6px 4px;
+/* Ligne couché / sommeil / levé */
+.ressenti-carte .sommeil-rangee { display: flex; align-items: stretch; margin-bottom: 10px; }
+.ressenti-carte .sommeil-rangee .sommeil-ligne {
+  flex: 1 1 auto; min-width: 0; width: auto;
+  margin: 0 8px; padding: 10px 6px; font-size: 32px;
+}
+.prete-case { flex: 0 0 64px; display: flex; }
+.prete-case .prete-tuile { flex: 1 1 auto; }
+
+/* Tuiles d'heure (couché, levé, collation, repas) */
+.prete-tuile {
+  position: relative;
   display: flex; flex-direction: column; align-items: center; justify-content: center;
+  padding: 8px 4px 12px;
   background-color: var(--couleur-carte-creux);
   border: 1px var(--tuile-trait, solid) var(--tuile-bord, var(--couleur-bordure));
   border-radius: var(--tuile-rayon, 20px);
   color: var(--couleur-texte);
+  -webkit-user-select: none; user-select: none;
+  -webkit-touch-callout: none;
   transition: transform .25s cubic-bezier(.34,1.56,.64,1), border-color .2s ease;
 }
-.btn-leve:active { transform: scale(.94); }
-.btn-leve-icone { font-size: 22px; line-height: 1; }
-.btn-leve-texte { margin-top: 4px; font-size: 11px; font-weight: 700; line-height: 1.1; text-align: center; color: var(--couleur-texte-att); }
-.btn-leve-fait { border-color: var(--couleur-turquoise); }
-.btn-leve-fait .btn-leve-texte { font-family: var(--police-donnees); font-size: 14px; color: var(--couleur-turquoise); }
+.prete-tuile:active { transform: scale(.94); }
+.prete-emoji { font-size: 24px; line-height: 1; filter: grayscale(100%); opacity: .5; transition: opacity .3s ease; }
+.prete-heure { margin-top: 4px; min-height: 14px; font-family: var(--police-donnees); font-size: 13px; font-weight: 700; line-height: 14px; color: var(--couleur-turquoise); }
+.prete-tuile-fait { border-color: var(--couleur-turquoise); }
+.prete-tuile-fait .prete-emoji { filter: none; opacity: 1; }
 
-.prete-bloc .prete-rangee { display: flex; align-items: center; margin-bottom: 10px; }
-.prete-icone { flex: 0 0 26px; font-size: 20px; text-align: center; }
-.prete-centre { flex: 1 1 auto; min-width: 0; margin: 0 10px; }
-.prete-titre { display: block; margin-bottom: 4px; font-size: 12px; font-weight: 700; color: var(--couleur-texte-att); }
-.prete-piste { display: block; height: 10px; border-radius: 5px; overflow: hidden; background: var(--couleur-carte); border: 1px solid var(--couleur-bordure); }
+/* Jauge du réveil : fine barre au bas de la tuile ☀️ */
+.prete-mini { position: absolute; left: 10px; right: 10px; bottom: 6px; height: 4px; border-radius: 2px; overflow: hidden; background: var(--couleur-bordure); }
+.prete-mini i { display: block; height: 100%; border-radius: 2px; background: var(--couleur-avertissement); transition: width .6s ease; }
+.prete-mini-ok i { background: var(--couleur-succes); }
+
+/* Ligne collation / repas + jauge de digestion */
+.prete-repas { display: flex; align-items: center; margin-bottom: 14px; }
+.prete-repas .prete-tuile { flex: 0 0 56px; margin-right: 8px; padding-bottom: 8px; }
+.prete-piste { flex: 1 1 auto; min-width: 0; height: 10px; border-radius: 5px; overflow: hidden; background: var(--couleur-carte-creux); border: 1px solid var(--couleur-bordure); }
 .prete-piste i { display: block; height: 100%; border-radius: 5px; background: var(--couleur-avertissement); transition: width .6s ease; }
 .prete-piste-ok i { background: var(--couleur-succes); }
-.prete-etat { flex: 0 0 auto; min-width: 84px; text-align: right; font-size: 12px; font-weight: 700; color: var(--couleur-avertissement); }
-.prete-etat-ok { color: var(--couleur-succes); }
-.prete-etat-vide { font-weight: 400; color: var(--couleur-texte-att); }
-.prete-legende { margin: 2px 0 6px; font-size: 11px; color: var(--couleur-texte-att); }
-.prete-repas { display: flex; margin: 0 -3px 10px; }
-.prete-btn {
-  flex: 1 1 0; margin: 0 3px; padding: 9px 4px;
-  border: 1px solid var(--couleur-bordure); border-radius: 12px;
-  background: var(--couleur-carte); color: var(--couleur-texte-att);
-  font-size: 12.5px; font-weight: 700;
+.prete-ok { margin-left: 8px; font-size: 16px; font-weight: 800; color: var(--couleur-succes); }
+
+/* Fenêtre de choix de l'heure */
+.heure-edition { display: flex; align-items: center; justify-content: center; margin: 6px 0 20px; }
+.heure-glissable {
+  flex: 1 1 auto; min-width: 0; margin: 0 10px; padding: 14px 4px;
+  text-align: center;
+  background: var(--couleur-carte-creux);
+  border: 1px solid var(--couleur-bordure);
+  border-radius: 16px;
+  cursor: ew-resize; touch-action: pan-y;
+  -webkit-user-select: none; user-select: none;
+  transition: border-color .2s ease;
 }
-.prete-btn:active { transform: scale(.96); }
-.prete-btn-actif { border-color: var(--couleur-turquoise); color: var(--couleur-turquoise); }
-.prete-conclusion { margin-top: 2px; padding-top: 8px; border-top: 1px solid var(--couleur-bordure); font-size: 13px; font-weight: 700; text-align: center; }
-.prete-conclusion-ok { color: var(--couleur-succes); }
+.heure-glissable.glisse-actif { border-color: var(--couleur-turquoise); }
+.heure-affichage { font-size: 56px; font-weight: 800; line-height: 1; color: var(--couleur-turquoise); }
+.heure-pas {
+  flex: 0 0 52px; height: 52px;
+  border: 1px solid var(--couleur-bordure); border-radius: 14px;
+  background: var(--couleur-carte-creux); color: var(--couleur-texte);
+  font-size: 30px; line-height: 1;
+  transition: transform .2s cubic-bezier(.34,1.56,.64,1), border-color .2s ease;
+}
+.heure-pas:active { transform: scale(.92); border-color: var(--couleur-turquoise); color: var(--couleur-turquoise); }

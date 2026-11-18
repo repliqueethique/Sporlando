@@ -70,10 +70,9 @@ ajouterEcouteurClicDelegue(document.body, function (cible) {
     return;
   }  
   if (action === 'valider-poids-jour') { validerPoidsJour(); return; }
-  if (action === 'heure-leve') { toucherHeureLeve(); return; }
-  if (action === 'heure-repas') { toucherRepas(cible.getAttribute('data-type')); return; }
-  if (action === 'enregistrer-heure-prete') { enregistrerHeurePrete(cible.getAttribute('data-quoi')); return; }
-  if (action === 'effacer-heure-prete') { effacerHeurePrete(cible.getAttribute('data-quoi')); return; }
+  if (action === 'heure-prete-pas') { ajusterHeurePrete(parseInt(cible.getAttribute('data-delta'), 10)); return; }
+  if (action === 'enregistrer-heure-prete') { validerHeurePrete(); return; }
+  if (action === 'effacer-heure-prete') { effacerPrete(heureEdition.cle); return; }
   if (action === 'tester-notif') {
     demanderPermissionNotif().then(function (accorde) {
       if (accorde) {

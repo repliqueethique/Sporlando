@@ -779,6 +779,25 @@ function departPossible(minute) {
   return true;
 }
 
+/* première minute (par pas de 5 min) à partir de maintenant où l'on peut partir, ou null */
+function prochainDepartPossible() {
+  var n = new Date();
+  var m = n.getHours() * 60 + n.getMinutes();
+  for (var t = m; t <= METEO_DERNIER_DEPART; t += 5) {
+    if (departPossible(t)) { return t; }
+  }
+  return null;
+}
+
+function texteProchainDepart() {
+  var n = new Date();
+  var maintenant = n.getHours() * 60 + n.getMinutes();
+  var m = prochainDepartPossible();
+  if (m === null) { return 'Plus de créneau possible aujourd\'hui.'; }
+  if (m <= maintenant) { return 'Tu peux t\'entraîner maintenant.'; }
+  return 'Séance possible à partir de ' + Math.floor(m / 60) + 'h' + completerZero(m % 60) + '.';
+}
+
 function pleutALHeure(r, h) {
   var proba = r.probaPluie ? r.probaPluie[h] : 0;
   var mm = r.mmPluie ? r.mmPluie[h] : 0;
@@ -958,6 +977,7 @@ function ouvrirModaleMeteo() {
     html += '<p class="reglages-note">Prochain meilleur créneau : ' + libelleCreneauMeteo(evaluerTemperature(tranche.temperature)) + ' ' + heureCourte(tranche.heure) + ' (' + Math.round(tranche.temperature) + '°' + (tranche.pluie ? ', pluie' : '') + ')</p>';
   }
   html += '<p class="reglages-note">' + resumePluie(r) + '</p>';
+  html += '<p class="reglages-note">' + texteProchainDepart() + '</p>';
   html += '<p class="reglages-note">Départs possibles (lever, repas) : ' + plagesPossibles() + '</p>';
   if (pirate) {
     html += '<p class="pr-plume">' + phraseJournalDeBord(r, tranche) + '</p></div>';

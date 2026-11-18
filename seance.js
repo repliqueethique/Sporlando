@@ -65,8 +65,10 @@ function rendrePrevuAujourdHui() {
   var html = '';
   for (var i = 0; i < entrees.length; i++) {
     var seance = trouverParId(etat.seances, entrees[i].seanceId);
-    html += '<li class="ligne" style="padding:8px 0; border-bottom:1px solid var(--couleur-bordure);">';
-    html += '<span>' + echapperHtml(seance ? seance.nom : '-') + '</span>';
+    var nb = seance ? seance.exercices.length : 0;
+    html += '<li class="hist-ligne hist-prevu" data-action="demarrer-depuis-agenda" data-id="' + entrees[i].id + '">';
+    html += '<div class="hist-ligne-corps"><strong class="hist-ligne-titre">' + echapperHtml(seance ? seance.nom : '-') + '</strong>';
+    html += '<span class="hist-ligne-sous donnee-num">' + nb + ' exercice' + (nb > 1 ? 's' : '') + '</span></div>';
     html += '<button class="btn btn-plein btn-petit" data-action="demarrer-depuis-agenda" data-id="' + entrees[i].id + '">Début</button>';
     html += '</li>';
   }
@@ -82,9 +84,12 @@ function rendreDemarrageLibre() {
   }
   var html = '';
   for (var i = 0; i < etat.seances.length; i++) {
-    html += '<li class="ligne" style="padding:8px 0; border-bottom:1px solid var(--couleur-bordure);">';
-    html += '<span>' + echapperHtml(etat.seances[i].nom) + '</span>';
-    html += '<button class="btn btn-plein btn-petit" data-action="demarrer-seance-libre" data-id="' + etat.seances[i].id + '">Début</button>';
+    var s = etat.seances[i];
+    var nb = s.exercices.length;
+    html += '<li class="hist-ligne" data-action="demarrer-seance-libre" data-id="' + s.id + '">';
+    html += '<div class="hist-ligne-corps"><strong class="hist-ligne-titre">' + echapperHtml(s.nom) + '</strong>';
+    html += '<span class="hist-ligne-sous donnee-num">' + nb + ' exercice' + (nb > 1 ? 's' : '') + '</span></div>';
+    html += '<button class="btn btn-plein btn-petit" data-action="demarrer-seance-libre" data-id="' + s.id + '">Début</button>';
     html += '</li>';
   }
   conteneur.innerHTML = html;
@@ -245,7 +250,16 @@ function rendreRessentiJour() {
   document.addEventListener('touchend', terminer);
 })();
 
-/* ===== Réveil et digestion (dans « Ressenti du jour ») ===== */
+/* ===== Couché / levé / fin de repas (dans « Ressenti du jour ») ===== */
+
+var EMOJIS_PRETE = { coucher: '🌙', leve: '☀️', collation: '🥐', repas: '🍽️' };
+var LIBELLES_PRETE = { coucher: 'Heure de coucher', leve: 'Heure de lever', collation: 'Fin de collation', repas: 'Fin de repas' };
+var PRETE_APPUI_LONG_MS = 450;   /* durée de l'appui long */
+var PRETE_PX_PAR_PAS = 24;       /* 24 px de glissement = 15 minutes */
+var pressePrete = { cle: null, minuteur: null, long: false, x: 0, y: 0, bouge: false };
+var heureEdition = { cle: null, minutes: 0 };
+var glisseHeure = { actif: false, x0: 0, min0: 0 };
+var glisseHeureInit = false;
 
 function preparationDuJour() {
   var jour = obtenirDateJourReference();
@@ -260,123 +274,245 @@ function heureTexte(ms) {
   return completerZero(d.getHours()) + ':' + completerZero(d.getMinutes());
 }
 
-function texteDuree(min) {
-  if (min >= 60) { return Math.floor(min / 60) + ' h ' + completerZero(min % 60); }
-  return min + ' min';
+function formatMinutes(m) {
+  return completerZero(Math.floor(m / 60)) + ':' + completerZero(m % 60);
 }
 
-function prochainDepartPossible() {
-  var n = new Date();
-  var m = n.getHours() * 60 + n.getMinutes();
-  for (var t = m; t <= METEO_DERNIER_DEPART; t += 5) {
-    if (departPossible(t)) { return t; }
+/* le coucher n'est affiché que pendant 14 h (il disparaît l'après-midi, prêt pour le soir) */
+function coucheRecente() {
+  if (!etat.coucheMs) { return null; }
+  return (Date.now() - etat.coucheMs < 14 * 3600000) ? etat.coucheMs : null;
+}
+
+function msPrete(cle) {
+  var p = preparationDuJour();
+  if (cle === 'leve') { return p.leverMs; }
+  if (cle === 'coucher') { return coucheRecente(); }
+  return (p.repasType === cle) ? p.repasMs : null;
+}
+
+/* part de temps restante (1 = tout juste commencé, 0 = terminé), ou null si rien de noté */
+function fractionRestante(ms, dureeMin) {
+  if (!ms) { return null; }
+  var reste = 1 - (Date.now() - ms) / 60000 / dureeMin;
+  return reste > 0 ? reste : 0;
+}
+
+function htmlTuilePrete(cle, ms, jauge) {
+  var h = '<button type="button" class="prete-tuile' + (ms ? ' prete-tuile-fait' : '') + '" data-prete="' + cle + '" aria-label="' + LIBELLES_PRETE[cle] + '">';
+  h += '<span class="prete-emoji">' + EMOJIS_PRETE[cle] + '</span>';
+  h += '<span class="prete-heure">' + (ms ? heureTexte(ms) : '') + '</span>';
+  return h + (jauge || '') + '</button>';
+}
+
+function rendrePrete() {
+  if (pressePrete.cle) { return; }   /* pas de redessin pendant un appui */
+  var p = preparationDuJour();
+
+  var zc = document.getElementById('zone-couche');
+  if (zc) { zc.innerHTML = htmlTuilePrete('coucher', msPrete('coucher'), ''); }
+
+  var zl = document.getElementById('zone-leve');
+  if (zl) {
+    var frL = fractionRestante(p.leverMs, METEO_APRES_LEVER);
+    var mini = '';
+    if (frL !== null) {
+      mini = '<span class="prete-mini' + (frL > 0 ? '' : ' prete-mini-ok') + '"><i style="width:' + (frL > 0 ? Math.round(frL * 100) : 100) + '%"></i></span>';
+    }
+    zl.innerHTML = htmlTuilePrete('leve', p.leverMs, mini);
+  }
+
+  var zr = document.getElementById('zone-repas');
+  if (zr) {
+    var h = htmlTuilePrete('collation', msPrete('collation'), '') + htmlTuilePrete('repas', msPrete('repas'), '');
+    var fr = fractionRestante(p.repasMs, dureeDigestion(p.repasType));
+    if (fr === null) { h += '<span class="prete-piste"><i style="width:0%"></i></span>'; }
+    else if (fr > 0) { h += '<span class="prete-piste"><i style="width:' + Math.round(fr * 100) + '%"></i></span>'; }
+    else { h += '<span class="prete-piste prete-piste-ok"><i style="width:100%"></i></span><span class="prete-ok">✓</span>'; }
+    zr.innerHTML = h;
+  }
+}
+
+/* Sommeil = levé − couché (arrondi à 0,5 h), seulement si le résultat est plausible */
+function recalculerSommeil() {
+  var p = preparationDuJour();
+  if (!p.leverMs || !etat.coucheMs) { return; }
+  var h = (p.leverMs - etat.coucheMs) / 3600000;
+  if (h < 1 || h > 16) { return; }
+  h = Math.round(h * 2) / 2;
+  modifierRessenti('sommeil', h);
+  rendreRessentiJour();
+  afficherToast('Sommeil : ' + h + ' h');
+}
+
+function enregistrerPrete(cle, ms) {
+  var p = preparationDuJour();
+  if (cle === 'leve') { p.leverMs = ms; }
+  else if (cle === 'coucher') { etat.coucheMs = ms; }
+  else { p.repasMs = ms; p.repasType = cle; }
+  sauvegarderEtat();
+  if (cle === 'leve' || cle === 'coucher') { recalculerSommeil(); }
+  rendrePrete();
+}
+
+function effacerPrete(cle) {
+  var p = preparationDuJour();
+  if (cle === 'leve') { p.leverMs = null; }
+  else if (cle === 'coucher') { etat.coucheMs = null; }
+  else if (p.repasType === cle) { p.repasMs = null; p.repasType = null; }
+  sauvegarderEtat();
+  fermerModal();
+  rendrePrete();
+}
+
+/* tap : enregistre maintenant (ou ouvre la fenêtre si l'heure est déjà notée) */
+function toucherPrete(cle) {
+  if (msPrete(cle)) { ouvrirReglageHeurePrete(cle); return; }
+  enregistrerPrete(cle, Date.now());
+}
+
+/* --- Appui long / tap sur les tuiles (sans data-action, géré ici) --- */
+function tuilePreteDepuis(el) {
+  while (el && el !== document.body) {
+    if (el.getAttribute && el.getAttribute('data-prete')) { return el; }
+    el = el.parentNode;
   }
   return null;
 }
 
-function htmlJaugePrete(icone, titre, ms, dureeMin, texteAbsent) {
-  var h = '<div class="prete-rangee"><span class="prete-icone">' + icone + '</span>';
-  h += '<div class="prete-centre"><span class="prete-titre">' + titre + '</span>';
-  if (!ms) {
-    h += '<span class="prete-piste"><i style="width:0%"></i></span></div>';
-    h += '<span class="prete-etat prete-etat-vide">' + texteAbsent + '</span></div>';
-    return h;
-  }
-  var reste = dureeMin - (Date.now() - ms) / 60000;
-  if (reste > 0) {
-    h += '<span class="prete-piste"><i style="width:' + Math.round(reste / dureeMin * 100) + '%"></i></span></div>';
-    h += '<span class="prete-etat donnee-num">Encore ' + texteDuree(Math.ceil(reste)) + '</span></div>';
-  } else {
-    h += '<span class="prete-piste prete-piste-ok"><i style="width:100%"></i></span></div>';
-    h += '<span class="prete-etat prete-etat-ok">✓ Prêt</span></div>';
-  }
-  return h;
+function arreterMinuteurPresse() {
+  if (pressePrete.minuteur) { window.clearTimeout(pressePrete.minuteur); pressePrete.minuteur = null; }
 }
 
-function rendrePrete() {
-  var p = preparationDuJour();
+function debutPressePrete(el, x, y) {
+  arreterMinuteurPresse();
+  pressePrete.cle = el.getAttribute('data-prete');
+  pressePrete.long = false;
+  pressePrete.bouge = false;
+  pressePrete.x = x;
+  pressePrete.y = y;
+  pressePrete.minuteur = window.setTimeout(function () {
+    pressePrete.minuteur = null;
+    pressePrete.long = true;
+    if (navigator.vibrate) { try { navigator.vibrate(15); } catch (e) {} }
+    ouvrirReglageHeurePrete(pressePrete.cle);
+  }, PRETE_APPUI_LONG_MS);
+}
 
-  var bouton = document.getElementById('btn-leve');
-  if (bouton) {
-    bouton.className = 'btn-leve' + (p.leverMs ? ' btn-leve-fait' : '');
-    bouton.innerHTML = '<span class="btn-leve-icone">☀️</span><span class="btn-leve-texte">' + (p.leverMs ? heureTexte(p.leverMs) : 'Je me lève') + '</span>';
+function bougePressePrete(x, y) {
+  if (!pressePrete.cle || pressePrete.bouge) { return; }
+  if (Math.abs(x - pressePrete.x) > 10 || Math.abs(y - pressePrete.y) > 10) {
+    pressePrete.bouge = true;
+    arreterMinuteurPresse();
   }
+}
 
-  var zone = document.getElementById('zone-prete');
-  if (!zone) { return; }
-  var html = '<label>Avant la séance</label>';
-  html += htmlJaugePrete('☀️', 'Réveil', p.leverMs, METEO_APRES_LEVER, 'Pas noté');
-  html += '<div class="prete-legende">Je viens de finir :</div><div class="prete-repas">';
-  var types = [{ v: 'collation', l: '🥐 Collation' }, { v: 'repas', l: '🍽️ Repas' }];
-  for (var i = 0; i < types.length; i++) {
-    var actif = !!p.repasMs && p.repasType === types[i].v;
-    html += '<button class="prete-btn' + (actif ? ' prete-btn-actif' : '') + '" data-action="heure-repas" data-type="' + types[i].v + '">' + types[i].l + (actif ? ' · ' + heureTexte(p.repasMs) : '') + '</button>';
-  }
+function finPressePrete() {
+  if (!pressePrete.cle) { return; }
+  var cle = pressePrete.cle, estLong = pressePrete.long, aBouge = pressePrete.bouge;
+  arreterMinuteurPresse();
+  pressePrete.cle = null;
+  if (!estLong && !aBouge) { toucherPrete(cle); }
+}
+
+function annulerPressePrete() {
+  arreterMinuteurPresse();
+  pressePrete.cle = null;
+}
+
+document.addEventListener('touchstart', function (e) {
+  var el = tuilePreteDepuis(e.target);
+  if (!el || e.touches.length !== 1) { return; }
+  debutPressePrete(el, e.touches[0].clientX, e.touches[0].clientY);
+}, { passive: true });
+document.addEventListener('touchmove', function (e) {
+  if (pressePrete.cle) { bougePressePrete(e.touches[0].clientX, e.touches[0].clientY); }
+}, { passive: true });
+document.addEventListener('touchend', function (e) {
+  if (!pressePrete.cle) { return; }
+  if (e.cancelable) { e.preventDefault(); }   /* évite le clic fantôme */
+  finPressePrete();
+}, false);
+document.addEventListener('touchcancel', annulerPressePrete, false);
+document.addEventListener('mousedown', function (e) {
+  var el = tuilePreteDepuis(e.target);
+  if (el) { debutPressePrete(el, e.clientX, e.clientY); }
+});
+document.addEventListener('mouseup', finPressePrete);
+
+/* --- Fenêtre : choisir l'heure en glissant (15 min par pas, comme le minuteur) --- */
+function ouvrirReglageHeurePrete(cle) {
+  var ms = msPrete(cle);
+  var d = new Date(ms || Date.now());
+  var min = d.getHours() * 60 + d.getMinutes();
+  if (!ms) { min = Math.floor(min / 15) * 15; }
+  heureEdition.cle = cle;
+  heureEdition.minutes = min;
+
+  var html = '<div class="modal-entete"><h2>' + EMOJIS_PRETE[cle] + '</h2><button class="bouton-fermer" data-action="fermer-modal">&times;</button></div>';
+  html += '<div class="heure-edition">';
+  html += '<button class="heure-pas" data-action="heure-prete-pas" data-delta="-15">&lsaquo;</button>';
+  html += '<div class="heure-glissable" id="heure-glissable"><span id="heure-affichage" class="heure-affichage donnee-num">' + formatMinutes(min) + '</span></div>';
+  html += '<button class="heure-pas" data-action="heure-prete-pas" data-delta="15">&rsaquo;</button>';
   html += '</div>';
-  html += htmlJaugePrete('🍽️', 'Digestion', p.repasMs, dureeDigestion(p.repasType), 'Aucun repas noté');
-
-  var n = new Date();
-  var maintenant = n.getHours() * 60 + n.getMinutes();
-  var m = prochainDepartPossible();
-  var texte, classe = '';
-  if (m === null) { texte = 'Plus de créneau possible aujourd\'hui'; }
-  else if (m <= maintenant) { texte = '✓ Tu peux t\'entraîner maintenant'; classe = ' prete-conclusion-ok'; }
-  else { texte = 'Séance possible à partir de ' + completerZero(Math.floor(m / 60)) + ':' + completerZero(m % 60); }
-  html += '<div class="prete-conclusion' + classe + '">' + texte + '</div>';
-  zone.innerHTML = html;
-}
-
-function toucherHeureLeve() {
-  var p = preparationDuJour();
-  if (p.leverMs) { ouvrirReglageHeurePrete('leve'); return; }
-  p.leverMs = Date.now();
-  sauvegarderEtat();
-  rendrePrete();
-}
-
-function toucherRepas(type) {
-  var p = preparationDuJour();
-  if (p.repasMs && p.repasType === type) { ouvrirReglageHeurePrete('repas'); return; }
-  p.repasMs = Date.now();
-  p.repasType = type;
-  sauvegarderEtat();
-  rendrePrete();
-}
-
-function ouvrirReglageHeurePrete(quoi) {
-  var p = preparationDuJour();
-  var ms = (quoi === 'leve') ? p.leverMs : p.repasMs;
-  var titre = (quoi === 'leve') ? 'Heure de lever' : (p.repasType === 'collation' ? 'Fin de collation' : 'Fin de repas');
-  var html = '<div class="modal-entete"><h2>' + titre + '</h2><button class="bouton-fermer" data-action="fermer-modal">&times;</button></div>';
-  html += '<div class="champ"><label>Heure</label><input type="time" id="champ-heure-prete" value="' + heureTexte(ms) + '"></div>';
-  html += '<button class="btn btn-plein btn-bloc" data-action="enregistrer-heure-prete" data-quoi="' + quoi + '">Enregistrer</button>';
-  html += '<button class="btn btn-alerte btn-bloc" style="margin-top:8px;" data-action="effacer-heure-prete" data-quoi="' + quoi + '">Effacer</button>';
+  html += '<button class="btn btn-plein btn-bloc" data-action="enregistrer-heure-prete">Enregistrer</button>';
+  if (ms) { html += '<button class="btn btn-alerte btn-bloc" style="margin-top:8px;" data-action="effacer-heure-prete">Effacer</button>'; }
   ouvrirModal(html);
+  configurerGlisseHeurePrete();
 }
 
-function enregistrerHeurePrete(quoi) {
-  var champ = document.getElementById('champ-heure-prete');
-  if (!champ || !champ.value) { afficherToast('Choisis une heure.'); return; }
-  var parties = champ.value.split(':');
+function appliquerMinutesEdition(m) {
+  heureEdition.minutes = ((m % 1440) + 1440) % 1440;
+  var el = document.getElementById('heure-affichage');
+  if (el) { el.innerHTML = formatMinutes(heureEdition.minutes); }
+}
+
+function ajusterHeurePrete(delta) { appliquerMinutesEdition(heureEdition.minutes + delta); }
+
+function deplacerGlisseHeure(x) {
+  if (!glisseHeure.actif) { return; }
+  var pas = Math.trunc((x - glisseHeure.x0) / PRETE_PX_PAR_PAS);
+  appliquerMinutesEdition(glisseHeure.min0 + pas * 15);
+}
+
+function finGlisseHeure() {
+  glisseHeure.actif = false;
+  var zone = document.getElementById('heure-glissable');
+  if (zone) { zone.classList.remove('glisse-actif'); }
+}
+
+function configurerGlisseHeurePrete() {
+  var zone = document.getElementById('heure-glissable');
+  if (!zone) { return; }
+  function debut(x) {
+    glisseHeure.actif = true;
+    glisseHeure.x0 = x;
+    glisseHeure.min0 = heureEdition.minutes;
+    zone.classList.add('glisse-actif');
+  }
+  zone.addEventListener('mousedown', function (e) { debut(e.clientX); });
+  zone.addEventListener('touchstart', function (e) { debut(e.touches[0].clientX); }, { passive: true });
+  if (!glisseHeureInit) {
+    glisseHeureInit = true;
+    document.addEventListener('mousemove', function (e) { deplacerGlisseHeure(e.clientX); });
+    document.addEventListener('touchmove', function (e) { deplacerGlisseHeure(e.touches[0].clientX); }, { passive: true });
+    document.addEventListener('mouseup', finGlisseHeure);
+    document.addEventListener('touchend', finGlisseHeure);
+  }
+}
+
+function validerHeurePrete() {
+  var cle = heureEdition.cle;
+  if (!cle) { return; }
   var d = new Date();
-  d.setHours(parseInt(parties[0], 10), parseInt(parties[1], 10), 0, 0);
+  d.setHours(Math.floor(heureEdition.minutes / 60), heureEdition.minutes % 60, 0, 0);
   if (d.getTime() > Date.now()) {
-    if (new Date().getHours() < 5) { d.setDate(d.getDate() - 1); }
+    /* un coucher « dans le futur » est celui d'hier soir ; pour le reste, on refuse */
+    if (cle === 'coucher' || new Date().getHours() < 5) { d.setDate(d.getDate() - 1); }
     else { afficherToast('Cette heure est dans le futur.'); return; }
   }
-  var p = preparationDuJour();
-  if (quoi === 'leve') { p.leverMs = d.getTime(); } else { p.repasMs = d.getTime(); }
-  sauvegarderEtat();
   fermerModal();
-  rendrePrete();
-}
-
-function effacerHeurePrete(quoi) {
-  var p = preparationDuJour();
-  if (quoi === 'leve') { p.leverMs = null; } else { p.repasMs = null; p.repasType = null; }
-  sauvegarderEtat();
-  fermerModal();
-  rendrePrete();
+  enregistrerPrete(cle, d.getTime());
 }
 
 function modifierRessenti(champ, valeur) {
