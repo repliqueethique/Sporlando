@@ -197,61 +197,93 @@ function rendreZoneSync() {
 }
 
 function ouvrirNotice() {
+  function section(titre, intro, puces) {
+    var h = '<div class="notice-section"><h3>' + titre + '</h3>';
+    if (intro) { h += '<p>' + intro + '</p>'; }
+    if (puces && puces.length) { h += '<ul><li>' + puces.join('</li><li>') + '</li></ul>'; }
+    return h + '</div>';
+  }
+
   var html = '';
   html += '<div class="modal-entete"><h2>Notice complète</h2><button class="bouton-fermer" data-action="fermer-modal">&times;</button></div>';
   html += '<button class="btn btn-contour btn-bloc" data-action="ouvrir-notes" style="margin-bottom:14px;">📝 Mes notes (' + listeNotes().length + ')</button>';
 
-  html += '<div class="notice-section"><h3>Accueil</h3><p>Quatre raccourcis : Nouvelle séance, Nutrition, Bibliothèque, Historique. Deux bannières peuvent apparaître automatiquement : un rappel pour vérifier ton objectif de programme (toutes les 4 semaines), et une alerte météo si la température à ton lieu d\'entraînement dépasse les seuils que tu as réglés.</p></div>';
+  html += section("Accueil", "De haut en bas, selon ta journée :", [
+    "<strong>Routine</strong> : trois boutons ronds, 💧 eau, 🤸 étirements, ⚖️ pesée. Les étirements lancent la séance de réveil, la pesée ouvre le poids du jour. Quand les trois sont faits, la carte disparaît (la journée change à 5 h du matin).",
+    "<strong>Objectif</strong> : tous les 28 jours de programme, un rappel te propose de vérifier ton objectif.",
+    "<strong>Météo</strong> : température ressentie (sans vent) à ton lieu d'entraînement, mini-courbe de la journée et meilleur créneau. Touche la barre pour ouvrir la météo du jour : courbe, pluie, départs possibles et heure à partir de laquelle tu peux t'entraîner.",
+    "<strong>À noter aujourd'hui</strong> : tes rappels du jour, à cocher avec ✓.",
+    "<strong>Séance prévue</strong> : si une séance est planifiée aujourd'hui, la carte colorée la lance directement. Sinon, la carte Séances ouvre la page Séance.",
+    "Trois tuiles en dessous : Nutrition (protéines restantes), Biblio (objectif du programme), Historique (nombre de séances faites)."
+  ]);
 
-  html += '<div class="notice-section"><h3>Nouvelle séance</h3><ul>';
-  html += '<li>Si une séance est planifiée aujourd\'hui dans l\'agenda, elle apparaît en premier avec un bouton <strong>Début</strong>. Sinon, choisis une séance libre dans la liste.</li>';
-  html += '<li>Une fois lancée : chrono en haut, et un <strong>minuteur de repos</strong> réglable en minutes/secondes, toujours accessible, qui sonne une seule fois (bip généré, pas de fichier audio).</li>';
-  html += '<li>Pour chaque exercice : la <strong>barre de charge</strong> (un bloc par série, se remplit au fur et à mesure), la <strong>bulle ✓</strong> pour valider poids/reps d\'une série, le <strong>crayon ✎</strong> pour noter un changement ou une douleur sur une série précise.</li>';
-  html += '<li>Le bouton <strong>+ Échauffement</strong> ajoute une série d\'échauffement, placée avant les séries de travail (après les échauffements déjà ajoutés). Elle est numérotée « É1, É2... », ne compte jamais dans les records, l\'historique, le volume ou la progression, et peut être validée/supprimée comme une série normale.</li>';
-  html += '<li>Un champ <strong>RER</strong> (reps en réserve : 0 = échec, optionnel) par exercice.</li>';
-  html += '<li>À la fin de la séance, tu indiques ton <strong>RPE</strong> (1 à 10) : l\'effort global ressenti. Il alimente une courbe dans Progression et les suggestions de fatigue.</li>';
-  html += '<li>La <strong>référence "dernière fois"</strong> (ce que tu avais fait la séance précédente) et un badge <strong>★ Nouveau record</strong> si tu dépasses ton meilleur poids.</li>';
-  html += '<li>Des badges rappellent la structure de séries, la technique d\'intensification et le tempo si tu les as définis pour cet exercice dans la séance.</li>';
-  html += '<li>Le bouton <strong>Fin</strong> enregistre tout dans l\'historique, calcule la durée et les calories dépensées (formule MET × poids corporel × durée).</li>';
-  html += '</ul></div>';
+  html += section("Page Séance", "", [
+    "<strong>Prévu aujourd'hui</strong> et <strong>Démarrer une séance</strong> : touche une ligne (ou Début) pour commencer. La dernière ligne lance les étirements.",
+    "Avant de démarrer, un échauffement haut ou bas du corps est proposé. Tu peux le passer.",
+    "<strong>Ressenti du jour</strong> : 🌙 couché à gauche, ☀️ levé à droite, les heures de sommeil au milieu. Un tap enregistre l'heure actuelle. Un appui long (ou un tap sur une heure déjà notée) permet de choisir une autre heure en glissant par pas de 15 min. Le sommeil se calcule tout seul, tu peux ensuite le modifier en glissant sur le chiffre.",
+    "🥐 collation légère et 🍽️ repas : touche l'icône quand tu viens de finir. Les barres se vident pendant le réveil (1 h) et la digestion (45 min après une collation, 2 h après un repas). La météo et le créneau idéal en tiennent compte.",
+    "Humeur, fatigue et stress (curseurs) et événements 🤬 🤕 🤒 😶 alimentent l'onglet État de l'historique."
+  ]);
 
-  html += '<div class="notice-section"><h3>Bibliothèque</h3><ul>';
-  html += '<li><strong>Exercices</strong> : recherche par nom ou groupe musculaire avec ET/OU (ex. "dos ET poulie"), groupes musculaires repliables. Le bouton "Charger les exercices de base" ajoute 45 exercices adaptés à ton matériel (rack ATX, banc, barre, haltères, élastiques...). En modifiant un exercice : historique (nombre de fois, poids max par mode, RER moyen), schéma des muscles ciblés, et un champ Variantes (prise, position) pré-rempli pour les exercices qui en ont.</li>';
-  html += '<li><strong>Séances</strong> : assembler des exercices avec poids/reps/séries, et pour chacun une structure de séries (linéaire, pyramide montante/descendante, échelle, cluster), une technique d\'intensification (drop set, rest-pause...) et un tempo.</li>';
-  html += '<li><strong>Programmes</strong> : regrouper des séances, définir un objectif texte libre, un type de mésocycle (Hypertrophie/Force/Décharge/Personnalisé) et une durée en semaines. Un seul programme actif à la fois ("Démarrer ce programme"). Ce type de mésocycle est aussi utilisé pour ajuster automatiquement tes objectifs nutrition (voir section Nutrition).</li>';
-  html += '<li><strong>Aliments</strong> : bibliothèque 100% végétalienne. Le bouton "Charger les aliments de base" ajoute 32 aliments (tofu, tempeh, seitan, légumineuses, céréales, laits et fromages végétaux...).</li>';
-  html += '</ul></div>';
+  html += section("Séance en cours", "", [
+    "En haut : nom, chrono, bouton Fin et progression. 🎤 active la commande vocale, ✕ annule la séance.",
+    "Les exercices sont des cartes repliables ; l'exercice en cours s'ouvre seul. La série en cours s'affiche en grand : boutons − et + (2,5 kg, 1 rep) ou saisie directe, puis Valider la série. Poids et reps sont préremplis avec ton record.",
+    "🔥 ajoute une série d'échauffement (É1, É2… : jamais comptée dans les records, le volume ni la progression). ✎ ajoute une note à une série. + Série en ajoute une ; + Série dégressive apparaît quand la technique est drop set.",
+    "<strong>RER</strong> (0 = échec, jusqu'à 5+) : touche un chiffre ou glisse le doigt sur la barre. Facultatif : sans choix, rien n'est enregistré.",
+    "Badges et repères : ★ Nouveau record, structure de séries, technique d'intensification, tempo, résultats de la dernière fois, exercice unilatéral, cran des barres de sécurité.",
+    "<strong>Minuteur de repos</strong> : il démarre tout seul quand tu valides une série de travail (pas la toute dernière), avec la dernière durée utilisée. Sur la pastille, tap = lancer, appui long = régler la durée (glisse, par pas de 15 s). Pendant le décompte : tap = pause, glisser vers le haut = arrêter. À la fin : sonnerie du thème et mot d'encouragement.",
+    "L'écran reste allumé pendant la séance si ton navigateur le permet.",
+    "<strong>Fin</strong> : tu peux indiquer ton RPE (1 à 10). La durée et les calories (MET × poids × durée) sont enregistrées."
+  ]);
 
-  html += '<div class="notice-section"><h3>Nutrition</h3>';
-  html += '<p>Journal du jour avec navigation par date (flèches). Barres de progression Protéines/Glucides/Lipides comparées à tes objectifs (réglables dans Réglages). Bouton "+ Ajouter" pour choisir un aliment de la bibliothèque et sa quantité en grammes.</p>';
-  html += '<p><strong>Recalcul automatique des objectifs</strong> : le bouton "Recalculer automatiquement mes objectifs" ajuste tes cibles caloriques et de macronutriments à partir de ton poids corporel et du type de mésocycle de ton programme actif :</p>';
-  html += '<ul>';
-  html += '<li><strong>Hypertrophie</strong> : léger surplus calorique (~+10%) pour soutenir la synthèse protéique musculaire, avec un apport protéique élevé (~2g/kg de poids de corps) — quantité généralement admise comme suffisante pour maximiser la prise de masse maigre sans excès catabolique.</li>';
-  html += '<li><strong>Force</strong> : maintien calorique (autour du métabolisme de base + activité), protéines élevées (~1.8-2g/kg) pour la récupération, avec une part de glucides plus importante pour soutenir la performance sur les charges lourdes (resynthèse du glycogène musculaire).</li>';
-  html += '<li><strong>Décharge</strong> : léger déficit ou maintien bas, car le volume et l\'intensité d\'entraînement chutent temporairement : les besoins énergétiques diminuent, mais les protéines restent élevées pour préserver la masse musculaire pendant cette phase de récupération.</li>';
-  html += '<li><strong>Personnalisé</strong> : valeurs par défaut modérées (maintien, ~1.8g/kg de protéines), à ajuster manuellement selon ton objectif propre.</li>';
-  html += '</ul>';
-  html += '<p class="texte-att">Ces repères s\'appuient sur des recommandations courantes en nutrition sportive (apport protéique de 1.6 à 2.2g/kg selon les objectifs, surplus/déficit de 10 à 20% pour la prise de masse ou la perte de poids). Ce sont des points de départ raisonnables, pas des valeurs individualisées : ajuste-les selon ta réponse réelle (poids, énergie, performance).</p>';
-  html += '</div>';
+  html += section("Commande vocale", "Touche 🎤 pendant une séance, puis dis :", [
+    "« valide » : valide la série en cours.",
+    "« plus de poids », « moins de poids », « plus de reps », « moins de reps ».",
+    "« RER 2 » : règle le RER de l'exercice en cours.",
+    "« minuteur » lance le repos ; « minuteur deux minutes » règle la durée sans lancer. « stop » arrête le minuteur.",
+    "« échauffement » ajoute une série d'échauffement. « terminer » ouvre la fin de séance, puis « valide » confirme. « désactive » coupe la commande vocale."
+  ]);
 
-  html += '<div class="notice-section"><h3>Historique</h3><ul>';
-  html += '<li><strong>Agenda</strong> : calendrier avec des points de couleur par jour — prévu (cyan), fait complet (vert), fait incomplet (orange), piscine (bleu), objectifs nutrition atteints (violet). Case à cocher simple pour noter une séance de piscine. Bouton "+ Planifier" pour programmer une séance à une date.</li>';
-  html += '<li><strong>Progression</strong> : courbe de poids corporel (alimentée automatiquement quand tu mets à jour ton poids dans Réglages), poids max par exercice et par mode, volume total par semaine, calories dépensées, et 4 courbes nutrition sur 30 jours (calories, protéines, glucides, lipides).</li>';
-  html += '<li><strong>Équilibre</strong> : volume (séries) et fréquence (jours) par groupe musculaire cette semaine, avec comparaison Pectoraux/Dos et alerte en cas de déséquilibre marqué.</li>';
-  html += '<li><strong>Suggestions</strong> : signaux de fatigue accumulée (ressenti quotidien + tendance RPE + semaines sans décharge, seulement si au moins 2 signaux concordent) et plateaux détectés par exercice. Toujours expliqués, jamais des décisions automatiques.</li>';
-  html += '</ul></div>';
+  html += section("Étirements", "Une séance de réveil articulaire (environ 7 min, 5 étapes), depuis la Routine ou la page Séance. Touche le chrono pour mettre en pause, Passer l'étape ou Quitter. À la fin, 🤸 est coché dans la Routine.", []);
 
-  html += '<div class="notice-section"><h3>Réglages</h3><ul>';
-  html += '<li>Poids corporel (alimente la courbe et le calcul de calories), objectifs nutrition quotidiens.</li>';
-  html += '<li>Météo du lieu d\'entraînement : latitude/longitude et seuils de température min/max (via Open-Meteo, gratuit et sans compte).</li>';
-  html += '<li>Synchronisation entre appareils via un Gist GitHub personnel (token + identifiant à coller sur chaque appareil).</li>';
-  html += '</ul></div>';
+  html += section("Bibliothèque", "", [
+    "<strong>Exercices</strong> : recherche avec ET / OU (ex. « dos ET poulie »), groupes repliables. « Charger les exercices de base » ajoute 45 exercices adaptés à ton matériel. Dans une fiche : historique (nombre de fois, poids max par structure, RER moyen), valeurs par défaut, MET, unilatéral, variantes, barres de sécurité (cran et sens), schéma des muscles.",
+    "<strong>Séances</strong> : assemble des exercices avec poids, reps et séries, une structure de séries (linéaire, pyramides, échelle, cluster), une technique d'intensification et un tempo.",
+    "<strong>Programmes</strong> : regroupe des séances, avec un objectif, un type de mésocycle (hypertrophie, force, décharge, personnalisé) et une durée. Un seul programme est actif à la fois.",
+    "<strong>Aliments</strong> : bibliothèque 100 % végétalienne, plus de 120 aliments à charger (tofu, tempeh, seitan, légumineuses, céréales, laits et fromages végétaux, produits du commerce…). Les calories se déduisent des macros (4 × P + 4 × G + 9 × L) : un conseil s'affiche si ça ne colle pas.",
+    "<strong>Plats</strong> : des recettes composées d'ingrédients, avec un nombre de portions et les macros par portion."
+  ]);
 
-  html += '<div class="notice-section"><h3>Bon à savoir</h3><ul>';
-  html += '<li>Toutes les données restent sur l\'appareil (localStorage) sauf si tu actives la synchronisation.</li>';
-  html += '<li>Les suggestions, alertes météo et objectifs nutrition recalculés sont des pistes, pas des décisions — à valider avec ton bon sens ou ton coach.</li>';
-  html += '<li>Ressenti quotidien, ressenti météo et synchro dépendent du réseau ou d\'une saisie manuelle : rien n\'est bloquant si tu ne les utilises pas.</li>';
-  html += '</ul></div>';
+  html += section("Nutrition", "Journal du jour (les flèches changent de jour), avec des barres de progression pour les calories, les protéines, les glucides et les lipides.", [
+    "<strong>+ Ajouter</strong> : onglet Aliment (recherche, récents, catégories) ou Plat. Choisis la quantité (raccourcis 50 à 250 g, ou ½ à 3 portions). « + Un autre » permet d'enchaîner.",
+    "Touche une ligne du journal pour modifier sa quantité ou la supprimer. Le × la supprime directement.",
+    "<strong>Recalcul automatique des objectifs</strong> (Réglages, Profil) : métabolisme de base (Mifflin-St Jeor) × 1,55. Surplus de 250 kcal en hypertrophie ou force, déficit de 200 kcal en décharge, maintenance sinon. Protéines : 2 g par kg. Lipides : 25 % des calories. Glucides : le reste. C'est un point de départ à ajuster. Pense à enregistrer le profil ensuite."
+  ]);
+
+  html += section("Historique", "", [
+    "<strong>Agenda</strong> : programme actif et calendrier avec des points de couleur : prévu, fait, incomplet, piscine, nutrition atteinte (protéines atteintes et calories à ±10 % de l'objectif), routine complète. Tu peux planifier une séance et cocher une séance de piscine.",
+    "<strong>État</strong> : courbes d'humeur, de fatigue, de stress et de sommeil sur 30 jours, 2 mois, 6 mois, 1 an ou depuis le début, avec une vue superposée et la liste des événements.",
+    "<strong>Progression</strong> : poids corporel, poids max par exercice, volume hebdomadaire, calories dépensées, RPE des séances et 4 courbes de nutrition sur 30 jours.",
+    "<strong>Équilibre</strong> : volume (séries) et fréquence (jours) par groupe musculaire pour une semaine, avec la comparaison Pectoraux / Dos.",
+    "<strong>Suggestions</strong> : fatigue accumulée (au moins 2 signaux parmi ton ressenti, ton RPE et les semaines sans décharge) et plateaux par exercice. Ce sont des pistes, jamais des décisions.",
+    "<strong>Séances passées</strong> : liste par mois ; touche une séance pour corriger ses poids, reps et séries validées."
+  ]);
+
+  html += section("Réglages", "Le bouton ⚙️ en haut à droite :", [
+    "<strong>Profil et objectifs</strong> : poids, taille, âge, sexe, objectifs nutritionnels.",
+    "<strong>Météo</strong> : latitude et longitude du lieu d'entraînement, seuils de température (données Open-Meteo, sans compte).",
+    "<strong>Synchronisation</strong> : via un Gist GitHub privé (token et identifiant à coller sur chaque appareil). La version la plus récente remplace l'autre, sans fusion. Le point sur le ⚙️ indique l'état.",
+    "<strong>Rappels</strong> : sommeil, fatigue, stress, séance, pesée et B12, chacun avec son heure et son interrupteur. Ils s'affichent à l'ouverture de l'app, à partir de l'heure choisie.",
+    "<strong>Personnalisation</strong> : 15 thèmes (aperçu en direct) et sonnerie du minuteur (thème, classique, douce, alarme).",
+    "<strong>Sauvegarde manuelle</strong> : exporte tes données en texte ou fichier, ou importe une sauvegarde. Utile avant de changer d'appareil."
+  ]);
+
+  html += section("Bon à savoir", "", [
+    "Toutes les données restent sur l'appareil (localStorage), sauf si tu actives la synchronisation.",
+    "Écran iPad : si tu lances <strong>bridge_server.py</strong> sur le même appareil, la page ipad-recepteur.html affiche la série en cours et le minuteur.",
+    "Les suggestions, la météo et les objectifs recalculés sont des repères, à valider avec ton bon sens ou ton coach.",
+    "Rien n'est bloquant : tu peux ignorer le ressenti, la météo, la synchro ou les rappels."
+  ]);
 
   ouvrirModal(html);
 }
