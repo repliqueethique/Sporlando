@@ -446,6 +446,7 @@ function rendreReglages(vue, sens) {
   if (vue === 'profil') { html += construireReglagesProfil(); }
   if (vue === 'meteo') { html += construireReglagesMeteo(); }
   if (vue === 'sync') { html += construireReglagesSync(); }
+  if (vue === 'ipad') { html += construireReglagesIpad(); }
   if (vue === 'rappels') { html += construireReglagesRappels(); }
   if (vue === 'personnalisation') { html += construireReglagesPersonnalisation(); }
   if (vue === 'sauvegarde') { html += construireReglagesSauvegarde(); }
@@ -461,6 +462,7 @@ function construireMenuReglages() {
   html += ligneMenuReglages('👤', 'Profil & objectifs', 'profil');
   html += ligneMenuReglages('🌤️', 'Météo du lieu d\'entraînement', 'meteo');
   html += ligneMenuReglages('🔄', 'Synchronisation', 'sync');
+  html += ligneMenuReglages('📺', 'Écran iPad', 'ipad');
   html += ligneMenuReglages('🔔', 'Rappels & notifications', 'rappels');
   html += ligneMenuReglages('🎨', 'Personnalisation', 'personnalisation');
   html += ligneMenuReglages('💾', 'Sauvegarde manuelle', 'sauvegarde');
@@ -828,4 +830,47 @@ function lancerImportJson() {
   }, function () {
     ouvrirImportDonnees();
   });
+}
+
+/* --- Écran iPad --- */
+
+function construireReglagesIpad() {
+  var corps = champReglage('Adresse du serveur', 'champ-ipad-adresse', 'text', '', window.lireAdresseIpad(), 'http://192.168.1.20:8765');
+  corps += '<p class="reglages-note">Adresse du PC où tourne bridge_server.py, avec le port (8765). Laisse vide pour désactiver l\'envoi.</p>';
+  corps += '<button class="btn btn-contour btn-bloc" data-action="tester-ipad">Tester la connexion</button>';
+  corps += '<div class="sync-statut-texte" id="ipad-statut"></div>';
+  var html = sectionReglages('Serveur', corps);
+  html += '<p class="reglages-note" style="margin:0 2px 12px;">Si l\'app est ouverte en https (par exemple sur GitHub Pages), le navigateur n\'autorise l\'envoi que vers 127.0.0.1 : une adresse en réseau local sera bloquée.</p>';
+  html += '<button class="btn btn-plein btn-bloc" data-action="enregistrer-ipad">Enregistrer</button>';
+  return html;
+}
+
+function adresseIpadSaisie() {
+  var champ = document.getElementById('champ-ipad-adresse');
+  var v = champ ? champ.value.trim().replace(/\/+$/, '') : '';
+  if (v && !/^https?:\/\//i.test(v)) { v = 'http://' + v; }
+  return v;
+}
+
+function enregistrerAdresseIpad() {
+  var v = adresseIpadSaisie();
+  window.ecrireAdresseIpad(v);
+  afficherToast(v ? 'Adresse enregistrée.' : 'Envoi vers l\'iPad désactivé.');
+}
+
+function testerConnexionIpad() {
+  var zone = document.getElementById('ipad-statut');
+  var base = adresseIpadSaisie();
+  if (!zone) { return; }
+  if (!base) { zone.innerHTML = 'Saisis d\'abord une adresse.'; return; }
+  zone.innerHTML = 'Test en cours...';
+  var xhr = new XMLHttpRequest();
+  try { xhr.open('GET', base + '/health', true); } catch (e) { zone.innerHTML = 'Adresse invalide.'; return; }
+  xhr.timeout = 3000;
+  xhr.onreadystatechange = function () {
+    if (xhr.readyState !== 4) { return; }
+    var z = document.getElementById('ipad-statut');
+    if (z) { z.innerHTML = (xhr.status === 200) ? 'Serveur joignable ✓' : 'Serveur injoignable (adresse, port, ou page en https).'; }
+  };
+  xhr.send();
 }

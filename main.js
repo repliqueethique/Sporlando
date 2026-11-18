@@ -58,6 +58,8 @@ ajouterEcouteurClicDelegue(document.body, function (cible) {
   if (action === 'enregistrer-profil') { enregistrerProfil(); return; }
   if (action === 'choisir-option') { choisirOptionReglage(cible); return; }
   if (action === 'enregistrer-reglages-sync') { enregistrerReglagesSync(); return; }
+  if (action === 'enregistrer-ipad') { enregistrerAdresseIpad(); return; }
+  if (action === 'tester-ipad') { testerConnexionIpad(); return; }
   if (action === 'creer-gist') { creerNouveauGist(); return; }
   if (action === 'synchroniser-maintenant') { synchroniserMaintenant(); return; }
   if (action === 'basculer-token') { basculerAffichageToken(); return; }

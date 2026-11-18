@@ -6,11 +6,27 @@
 (function () {
   'use strict';
 
-  var ADRESSE_SERVEUR = 'http://127.0.0.1:8765/state';
+  var CLE_ADRESSE_IPAD = 'carnetMusculationAdresseIpad_v1';
+  var ADRESSE_PAR_DEFAUT = 'http://127.0.0.1:8765';
+
+  /* adresse vide = envoi désactivé */
+  window.lireAdresseIpad = function () {
+    try {
+      var v = window.localStorage.getItem(CLE_ADRESSE_IPAD);
+      if (v !== null) { return v; }
+    } catch (e) {}
+    return ADRESSE_PAR_DEFAUT;
+  };
+
+  window.ecrireAdresseIpad = function (valeur) {
+    try { window.localStorage.setItem(CLE_ADRESSE_IPAD, valeur); } catch (e) {}
+  };
   var intervalleSyncMinuteur = null;
   window.sporlIPadSuppressPhoneAlarm = false;
 
   window.publierEtatVersIPad = function (callback) {
+    var base = window.lireAdresseIpad().replace(/\/+$/, '');
+    if (!base) { return; }
     var callbackExecute = false;
     function terminerPublication(reponse) {
       if (callback && !callbackExecute) { callbackExecute = true; callback(reponse); }
@@ -71,7 +87,7 @@
     }
 
     var requete = new XMLHttpRequest();
-    requete.open('POST', ADRESSE_SERVEUR, true);
+    requete.open('POST', base + '/state', true);
     requete.setRequestHeader('Content-Type', 'application/json;charset=UTF-8');
     requete.timeout = 2000;
 
