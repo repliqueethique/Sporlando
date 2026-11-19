@@ -221,6 +221,7 @@ function construireSvgCourbe(points, suffixeUnite, couleur, plageMin, plageMax, 
 }
 
 function rendreGraphiqueProgression() {
+  rendreGraphique1RM();
   var conteneur = document.getElementById('progression-zone-graphique');
   if (!exerciceSelectionneProgression) {
     conteneur.innerHTML = '<div class="etat-vide">Termine une première séance pour voir apparaître ta progression ici.</div>';
@@ -228,6 +229,73 @@ function rendreGraphiqueProgression() {
   }
   var points = pointsPoidsMaxParSeance(exerciceSelectionneProgression);
   conteneur.innerHTML = construireSvgCourbe(points, ' kg', '#1FD9C4');
+}
+
+/* ---- 1RM estimé (formule d'Epley) : charge × (1 + reps / 30), fiable jusqu'à ~12 reps ---- */
+var REPS_MAX_1RM = 12;
+
+function estimer1RM(poids, reps) {
+  if (!(poids > 0) || !(reps > 0) || reps > REPS_MAX_1RM) { return null; }
+  if (reps === 1) { return poids; }
+  return poids * (1 + reps / 30);
+}
+
+/* Pour chaque séance terminée : la meilleure estimation parmi les séries validées (hors échauffement) */
+function points1RMParSeance(exerciceId) {
+  var points = [];
+  var entrees = etat.agenda.filter(function (a) { return a.statut === 'termine' && a.resultat; });
+  entrees.sort(function (a, b) { return a.date < b.date ? -1 : 1; });
+  for (var i = 0; i < entrees.length; i++) {
+    var meilleur = null;
+    var lignes = entrees[i].resultat.exercices;
+    for (var j = 0; j < lignes.length; j++) {
+      if (lignes[j].exerciceId !== exerciceId) { continue; }
+      for (var s = 0; s < lignes[j].series.length; s++) {
+        var serie = lignes[j].series[s];
+        if (!serie.fait || serie.echauffement) { continue; }
+        var e = estimer1RM(serie.poids, serie.reps);
+        if (e !== null && (meilleur === null || e > meilleur.valeur)) {
+          meilleur = { valeur: e, poids: serie.poids, reps: serie.reps };
+        }
+      }
+    }
+    if (meilleur !== null) {
+      points.push({ date: entrees[i].date, valeur: Math.round(meilleur.valeur * 10) / 10, poids: meilleur.poids, reps: meilleur.reps });
+    }
+  }
+  return points;
+}
+
+function rendreGraphique1RM() {
+  var zone = document.getElementById('progression-zone-1rm');
+  if (!zone) { return; }
+  if (!exerciceSelectionneProgression) {
+    zone.innerHTML = '<div class="etat-vide">Termine une première séance pour voir ton 1RM estimé.</div>';
+    return;
+  }
+  var points = points1RMParSeance(exerciceSelectionneProgression);
+  if (points.length === 0) {
+    zone.innerHTML = '<div class="etat-vide">Pas d\'estimation possible : il faut des séries validées avec une charge et 12 reps ou moins.</div>';
+    return;
+  }
+  var record = points[0];
+  for (var i = 1; i < points.length; i++) {
+    if (points[i].valeur > record.valeur) { record = points[i]; }
+  }
+  var dernier = points[points.length - 1];
+
+  var html = '<div class="ligne"><span class="texte-att">Record estimé</span><span class="donnee-num">' + nombreCourt(record.valeur) + ' kg</span></div>';
+  html += '<div class="texte-att donnee-num" style="margin:2px 0 10px 0;">' + record.poids + ' kg × ' + record.reps + ' · ' + formaterDateCourte(record.date) + '</div>';
+  html += construireSvgCourbe(points, ' kg', '#E0A73D');
+
+  html += '<div class="texte-att" style="margin:14px 0 6px 0;">Charges conseillées (d\'après ta dernière séance)</div>';
+  var pourcentages = [0.95, 0.9, 0.85, 0.8, 0.75, 0.7];
+  for (var p = 0; p < pourcentages.length; p++) {
+    var reps = Math.round(30 * (1 / pourcentages[p] - 1));
+    html += '<div class="ligne"><span class="texte-att">≈ ' + reps + ' reps</span>';
+    html += '<span class="donnee-num">' + Math.round(pourcentages[p] * 100) + ' % · ' + nombreCourt(arrondirPoids(dernier.valeur * pourcentages[p])) + ' kg</span></div>';
+  }
+  zone.innerHTML = html;
 }
 
 function rendreGraphiqueCalories() {

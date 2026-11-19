@@ -263,7 +263,7 @@ function ouvrirNotice() {
   html += section("Historique", "", [
     "<strong>Agenda</strong> : programme actif et calendrier avec des points de couleur : prévu, fait, incomplet, piscine, nutrition atteinte (protéines atteintes et calories à ±10 % de l'objectif), routine complète. Tu peux planifier une séance et cocher une séance de piscine.",
     "<strong>État</strong> : courbes d'humeur, de fatigue, de stress et de sommeil sur 30 jours, 2 mois, 6 mois, 1 an ou depuis le début, avec une vue superposée et la liste des événements.",
-    "<strong>Progression</strong> : poids corporel, poids max par exercice, volume hebdomadaire, calories dépensées, RPE des séances et 4 courbes de nutrition sur 30 jours.",
+    "<strong>Progression</strong> : poids corporel, poids max par exercice, 1RM estimé (formule d'Epley, séries de 12 reps ou moins, avec le record, la courbe et les charges conseillées par pourcentage), volume hebdomadaire, calories dépensées, RPE des séances et 4 courbes de nutrition sur 30 jours.",
     "<strong>Équilibre</strong> : volume (séries) et fréquence (jours) par groupe musculaire pour une semaine, avec la comparaison Pectoraux / Dos.",
     "<strong>Suggestions</strong> : fatigue accumulée (au moins 2 signaux parmi ton ressenti, ton RPE et les semaines sans décharge) et plateaux par exercice. Ce sont des pistes, jamais des décisions.",
     "<strong>Séances passées</strong> : liste par mois ; touche une séance pour corriger ses poids, reps et séries validées."
