@@ -207,6 +207,7 @@ function ouvrirNotice() {
   var html = '';
   html += '<div class="modal-entete"><h2>Notice complète</h2><button class="bouton-fermer" data-action="fermer-modal">&times;</button></div>';
   html += '<button class="btn btn-contour btn-bloc" data-action="ouvrir-notes" style="margin-bottom:14px;">📝 Mes notes (' + listeNotes().length + ')</button>';
+  html += '<button class="btn btn-contour btn-bloc" data-action="ouvrir-guide-types" style="margin-bottom:14px;">🏋️ Types d\'exercice</button>';
 
   html += section("Accueil", "De haut en bas, selon ta journée :", [
     "<strong>Routine</strong> : trois boutons ronds, 💧 eau, 🤸 étirements, ⚖️ pesée. Les étirements lancent la séance de réveil, la pesée ouvre le poids du jour. Quand les trois sont faits, la carte disparaît (la journée change à 5 h du matin).",
@@ -227,7 +228,7 @@ function ouvrirNotice() {
 
   html += section("Séance en cours", "", [
     "En haut : nom, chrono, bouton Fin et progression. 🎤 active la commande vocale, ✕ annule la séance.",
-    "Les exercices sont des cartes repliables ; l'exercice en cours s'ouvre seul. La série en cours s'affiche en grand : boutons − et + (2,5 kg, 1 rep) ou saisie directe, puis Valider la série. Poids et reps sont préremplis avec ton record.",
+    "Les exercices sont des cartes repliables ; l'exercice en cours s'ouvre seul. La série en cours s'affiche en grand : boutons − et + (2,5 kg, 1 rep) ou saisie directe, puis Valider la série. Poids et reps sont préremplis avec ton record. Un bouton 💡 propose une charge adaptée aux reps prévues, d'après ton 1RM estimé (avec +2,5 kg si ta dernière séance avait un RER de 2 ou plus) : touche-le pour l'appliquer.",
     "🔥 ajoute une série d'échauffement (É1, É2… : jamais comptée dans les records, le volume ni la progression). ✎ ajoute une note à une série. + Série en ajoute une ; + Série dégressive apparaît quand la technique est drop set.",
     "<strong>RER</strong> (0 = échec, jusqu'à 5+) : touche un chiffre ou glisse le doigt sur la barre. Facultatif : sans choix, rien n'est enregistré.",
     "Badges et repères : ★ Nouveau record, structure de séries, technique d'intensification, tempo, résultats de la dernière fois, exercice unilatéral, cran des barres de sécurité.",
@@ -265,7 +266,7 @@ function ouvrirNotice() {
     "<strong>État</strong> : courbes d'humeur, de fatigue, de stress et de sommeil sur 30 jours, 2 mois, 6 mois, 1 an ou depuis le début, avec une vue superposée et la liste des événements.",
     "<strong>Progression</strong> : poids corporel, poids max par exercice, 1RM estimé (formule d'Epley, séries de 12 reps ou moins, avec le record, la courbe et les charges conseillées par pourcentage), volume hebdomadaire, calories dépensées, RPE des séances et 4 courbes de nutrition sur 30 jours.",
     "<strong>Équilibre</strong> : volume (séries) et fréquence (jours) par groupe musculaire pour une semaine, avec la comparaison Pectoraux / Dos.",
-    "<strong>Suggestions</strong> : fatigue accumulée (au moins 2 signaux parmi ton ressenti, ton RPE et les semaines sans décharge) et plateaux par exercice. Ce sont des pistes, jamais des décisions.",
+    "<strong>Suggestions</strong> : fatigue accumulée (au moins 2 signaux parmi ton ressenti, ton RPE, les semaines sans décharge et une baisse du 1RM estimé sur plusieurs exercices), plateaux et baisses de force par exercice d'après le 1RM estimé. Rien n'est signalé pendant un programme de décharge. Tu peux déclarer une <strong>pause</strong> (vacances, blessure) en bas de l'onglet : l'analyse et la charge suggérée repartent de zéro après sa fin, et la pause compte comme une décharge. Ce sont des pistes, jamais des décisions.",
     "<strong>Séances passées</strong> : liste par mois ; touche une séance pour corriger ses poids, reps et séries validées."
   ]);
 

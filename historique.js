@@ -241,9 +241,9 @@ function estimer1RM(poids, reps) {
 }
 
 /* Pour chaque séance terminée : la meilleure estimation parmi les séries validées (hors échauffement) */
-function points1RMParSeance(exerciceId) {
+function points1RMParSeance(exerciceId, apresDate) {
   var points = [];
-  var entrees = etat.agenda.filter(function (a) { return a.statut === 'termine' && a.resultat; });
+  var entrees = etat.agenda.filter(function (a) { return a.statut === 'termine' && a.resultat && (!apresDate || a.date > apresDate); });
   entrees.sort(function (a, b) { return a.date < b.date ? -1 : 1; });
   for (var i = 0; i < entrees.length; i++) {
     var meilleur = null;
@@ -663,6 +663,13 @@ function semainesDepuisDerniereDecharge() {
     }
   }
   var dateReference = derniereDateDecharge;
+  var aujourdHuiISO = formaterDateISO(new Date());
+  var pauses = listePauses();
+  for (var q = 0; q < pauses.length; q++) {
+    if (pauses[q].debut > aujourdHuiISO) { continue; }
+    var finPause = pauses[q].fin < aujourdHuiISO ? pauses[q].fin : aujourdHuiISO;
+    if (derniereDateDecharge === null || finPause > derniereDateDecharge) { derniereDateDecharge = finPause; }
+  }
   if (!dateReference) {
     var datesSeances = etat.agenda.filter(function (a) { return a.statut === 'termine'; }).map(function (a) { return a.date; });
     if (datesSeances.length === 0) { return null; }
@@ -1258,22 +1265,144 @@ function rendreEquilibre() {
    BLOC 15ter : SUGGESTIONS (indices calculés + ressenti manuel, jamais de décision automatique)
    ============================================================ */
 
-/* Détecte un plateau : poids max stagnant ou en recul sur les 3 dernières séances d'un exercice */
-function detecterPlateaux() {
-  var suggestions = [];
+/* ---- Pauses déclarées (vacances, blessure...) : l'analyse repart de zéro après la fin d'une pause ---- */
+function listePauses() {
+  if (!etat.pauses) { etat.pauses = []; }
+  return etat.pauses;
+}
+
+/* date de fin de la dernière pause terminée, ou null */
+function dateRepriseAnalyse() {
+  var aujourdHui = formaterDateISO(new Date());
+  var pauses = listePauses();
+  var reprise = null;
+  for (var i = 0; i < pauses.length; i++) {
+    if (pauses[i].fin > aujourdHui) { continue; }   /* pause pas encore terminée : on ne coupe rien */
+    if (reprise === null || pauses[i].fin > reprise) { reprise = pauses[i].fin; }
+  }
+  return reprise;
+}
+
+function formaterPause(p) {
+  function court(iso) {
+    var d = dateDepuisISO(iso);
+    return d.getDate() + ' ' + MOIS_COURTS[d.getMonth()];
+  }
+  return (p.debut === p.fin) ? court(p.debut) : court(p.debut) + ' → ' + court(p.fin);
+}
+
+function rendrePauses() {
+  var zone = document.getElementById('zone-pauses');
+  if (!zone) { return; }
+  var pauses = listePauses().slice().sort(function (a, b) { return a.debut < b.debut ? 1 : -1; });
+  var html = '<div class="carte">';
+  html += '<div class="ligne" style="margin-bottom:10px;"><h2 class="carte-titre" style="margin-bottom:0;">Pauses</h2><button class="btn btn-plein btn-petit" data-action="ajouter-pause">+ Ajouter</button></div>';
+  html += '<div class="texte-att" style="margin-bottom:10px;">L\'analyse des plateaux et des baisses repart de zéro après une pause.</div>';
+  if (pauses.length > 0) {
+    html += '<ul>';
+    for (var i = 0; i < pauses.length; i++) {
+      html += '<li class="hist-ligne"><div class="hist-ligne-corps"><strong class="hist-ligne-titre donnee-num">' + formaterPause(pauses[i]) + '</strong></div>';
+      html += '<button class="hist-ligne-suppr" data-action="supprimer-pause" data-id="' + pauses[i].id + '" aria-label="Supprimer">&times;</button></li>';
+    }
+    html += '</ul>';
+  }
+  html += '</div>';
+  zone.innerHTML = html;
+}
+
+function ouvrirFormulairePause() {
+  var aujourdHui = formaterDateISO(new Date());
+  var html = '<div class="modal-entete"><h2>Pause</h2><button class="bouton-fermer" data-action="fermer-modal">&times;</button></div>';
+  html += '<div class="champ"><label>Du</label><input type="date" id="champ-pause-debut" value="' + aujourdHui + '"></div>';
+  html += '<div class="champ"><label>Au (dernier jour sans entraînement)</label><input type="date" id="champ-pause-fin" value="' + aujourdHui + '"></div>';
+  html += '<button class="btn btn-plein btn-bloc" data-action="enregistrer-pause">Enregistrer</button>';
+  ouvrirModal(html);
+}
+
+function enregistrerPause() {
+  var debut = document.getElementById('champ-pause-debut').value;
+  var fin = document.getElementById('champ-pause-fin').value;
+  if (!debut || !fin) { afficherToast('Choisis les deux dates.'); return; }
+  if (fin < debut) { afficherToast('La date de fin est avant le début.'); return; }
+  listePauses().push({ id: genererId(), debut: debut, fin: fin });
+  sauvegarderEtat();
+  fermerModal();
+  rendreSuggestions();
+  rendreProgrammeActif();
+}
+
+function supprimerPause(id) {
+  demanderConfirmation('Supprimer cette pause ?', function () {
+    etat.pauses = retirerParId(listePauses(), id);
+    sauvegarderEtat();
+    fermerModal();
+    rendreSuggestions();
+    rendreProgrammeActif();
+  });
+}
+
+/* ---- Plateaux et baisses d'après le 1RM estimé ---- */
+var BAISSE_1RM_SEUIL = 0.95;    /* baisse = moins de 95 % du meilleur 1RM précédent */
+var PLATEAU_1RM_SEUIL = 1.01;   /* plateau = pas plus de +1 % sur 3 séances */
+var ANALYSE_1RM_JOURS = 42;     /* on ignore les exercices non pratiqués depuis 6 semaines */
+
+function maxValeurPoints(points) {
+  var m = 0;
+  for (var i = 0; i < points.length; i++) {
+    if (points[i].valeur > m) { m = points[i].valeur; }
+  }
+  return m;
+}
+
+function analyser1RMExercices() {
+  var resultat = { plateaux: [], baisses: [] };
+  if (typeMesocycleProgrammeActifEstDecharge()) { return resultat; }   /* en décharge, une baisse est normale */
+  var limite = formaterDateISO(new Date(Date.now() - ANALYSE_1RM_JOURS * 86400000));
+  var reprise = dateRepriseAnalyse();
+
   for (var i = 0; i < etat.exercices.length; i++) {
     var ex = etat.exercices[i];
-    var points = pointsPoidsMaxParSeance(ex.id);
-    if (points.length < 3) { continue; }
-    var dernierTrois = points.slice(points.length - 3);
-    var stagne = dernierTrois[2].valeur <= dernierTrois[0].valeur;
-    if (stagne) {
-      var detail = dernierTrois.map(function (p) { return p.valeur + 'kg'; }).join(' → ');
-      suggestions.push({
-        titre: 'Plateau sur ' + ex.nom,
-        explication: 'Le poids max n\'a pas progressé sur les 3 dernières séances (' + detail + '). Une technique d\'intensification (drop set, rest-pause) ou un changement de structure de séries peut aider à relancer la progression — ou c\'est peut-être simplement le signal d\'une décharge.'
-      });
+    var points = points1RMParSeance(ex.id, reprise);
+    var n = points.length;
+    if (n < 3 || points[n - 1].date < limite) { continue; }
+
+    /* baisse : les 2 dernières séances contre les 6 d'avant */
+    var recent2 = maxValeurPoints(points.slice(-2));
+    var avant2 = maxValeurPoints(points.slice(-8, -2));
+    if (recent2 < avant2 * BAISSE_1RM_SEUIL) {
+      resultat.baisses.push({ nom: ex.nom, de: avant2, a: recent2, pct: Math.round((1 - recent2 / avant2) * 100) });
+      continue;
     }
+
+    /* plateau : les 3 dernières séances contre les 6 d'avant */
+    if (n >= 4) {
+      var recent3 = maxValeurPoints(points.slice(-3));
+      var avant3 = maxValeurPoints(points.slice(-9, -3));
+      if (recent3 <= avant3 * PLATEAU_1RM_SEUIL) {
+        resultat.plateaux.push({ nom: ex.nom, de: avant3, a: recent3 });
+      }
+    }
+  }
+  return resultat;
+}
+
+function detecterPlateaux() {
+  var suggestions = [];
+  var analyse = analyser1RMExercices();
+  var i;
+  for (i = 0; i < analyse.baisses.length; i++) {
+    var b = analyse.baisses[i];
+    suggestions.push({
+      titre: 'Baisse de force sur ' + b.nom,
+      explication: 'Ton 1RM estimé est passé de ' + nombreCourt(b.de) + ' kg à ' + nombreCourt(b.a) + ' kg (−' + b.pct + ' %) sur les 2 dernières séances. Fatigue, mauvaise nuit, charge trop ambitieuse ou technique : regarde ton ressenti et ton RER sur cet exercice avant de forcer.'
+    });
+  }
+  for (i = 0; i < analyse.plateaux.length; i++) {
+    var p = analyse.plateaux[i];
+    suggestions.push({
+      titre: 'Plateau sur ' + p.nom,
+      explication: 'Ton 1RM estimé n\'a pas progressé sur les 3 dernières séances (' + nombreCourt(p.de) + ' kg → ' + nombreCourt(p.a) + ' kg). Une technique d\'intensification (drop set, rest-pause), un changement de reps ou de structure de séries peut relancer la progression, ou c\'est le signe qu\'une décharge serait utile.'
+    });
   }
   return suggestions;
 }
@@ -1338,6 +1467,10 @@ function suggestionFatigue() {
   if (semaines !== null && semaines >= 6) {
     signaux.push('ça fait ' + semaines + ' semaines sans décharge enregistrée');
   }
+  var baisses1RM = analyser1RMExercices().baisses;
+  if (baisses1RM.length >= 2) {
+    signaux.push('ton 1RM estimé a baissé de plus de 5 % sur ' + baisses1RM.length + ' exercices');
+  }
 
   if (signaux.length >= 2) {
     return {
@@ -1357,6 +1490,7 @@ function genererSuggestions() {
 }
 
 function rendreSuggestions() {
+  rendrePauses();
   var zone = document.getElementById('zone-suggestions');
   if (!zone) { return; }
   var suggestions = genererSuggestions();

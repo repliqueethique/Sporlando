@@ -668,6 +668,7 @@ function ajusterSerieLive(exIndex, serieIndex, champ, delta) {
   valeur = Math.round(valeur * 100) / 100;
   serie[cle] = valeur;
   sauvegarderEtat();
+  if (cle === 'reps') { rendreExercicesActifs(); return; }
   var saisie = document.querySelector('[data-role="live-' + cle + '"][data-ex="' + exIndex + '"][data-serie="' + serieIndex + '"]');
   if (saisie) { saisie.value = valeur; }
 }
@@ -690,6 +691,60 @@ function htmlInfosExercice(exRef) {
     h += '<span class="sx-bouclier"><svg class="sx-bouclier-fond" viewBox="0 0 24 28" aria-hidden="true"><path d="M12 1.5L21.5 5v8.5c0 5.6-3.9 9.7-9.5 12-5.6-2.3-9.5-6.4-9.5-12V5z"/></svg><span class="sx-bouclier-texte">' + contenuSecu + '</span></span>';
   }
   return h ? '<div class="sx-infos">' + h + '</div>' : '';
+}
+
+/* Charge suggérée pour la série en cours : 1RM estimé (meilleur des 3 dernières séances) converti pour les reps prévues,
+   +2,5 kg si la dernière séance avait un RER d'au moins 2 (marge confortable) */
+function chargeSuggeree(exerciceId, reps) {
+  if (!(reps > 0) || reps > REPS_MAX_1RM) { return null; }
+  var reprise = dateRepriseAnalyse();
+  var points = points1RMParSeance(exerciceId, reprise);
+  if (points.length < 2) { return null; }
+
+  var recents = points.slice(-3);
+  var base = 0;
+  for (var i = 0; i < recents.length; i++) {
+    if (recents[i].valeur > base) { base = recents[i].valeur; }
+  }
+  var poids = arrondirPoids(reps === 1 ? base : base / (1 + reps / 30));
+  var raison = '1rm';
+
+  var derniere = derniereOccurrenceExercice(exerciceId);
+  if (derniere && (!reprise || derniere.date > reprise) && derniere.ligneEx.rer !== undefined && derniere.ligneEx.rer !== null && derniere.ligneEx.rer >= 2) {
+    var series = derniere.ligneEx.series;
+    var maxPoids = 0, repsAuMax = 0, nb = 0, toutesFaites = true;
+    for (var s = 0; s < series.length; s++) {
+      if (series[s].echauffement) { continue; }
+      nb++;
+      if (!series[s].fait) { toutesFaites = false; continue; }
+      if (series[s].poids > maxPoids || (series[s].poids === maxPoids && series[s].reps > repsAuMax)) {
+        maxPoids = series[s].poids;
+        repsAuMax = series[s].reps;
+      }
+    }
+    if (nb > 0 && toutesFaites && maxPoids > 0 && reps <= repsAuMax) {
+      var prog = arrondirPoids(maxPoids + PAS_POIDS_STEPPER);
+      if (prog > poids) { poids = prog; raison = 'progression'; }
+    }
+  }
+  return { poids: poids, raison: raison };
+}
+
+function htmlSuggestionCharge(exerciceId, reps, poidsActuel, exIndex, serieIndex) {
+  var sug = chargeSuggeree(exerciceId, reps);
+  if (!sug || Math.abs(sug.poids - poidsActuel) < 0.01) { return ''; }
+  var h = '<button class="sx-suggestion" data-action="appliquer-suggestion" data-ex="' + exIndex + '" data-serie="' + serieIndex + '" data-poids="' + sug.poids + '">';
+  h += '<span class="sx-suggestion-icone">💡</span>';
+  h += '<span class="sx-suggestion-poids donnee-num">' + nombreCourt(sug.poids) + ' kg</span>';
+  h += '<span class="sx-suggestion-raison">' + (sug.raison === 'progression' ? 'progression' : 'd\'après ton 1RM') + '</span></button>';
+  return h;
+}
+
+function appliquerSuggestionSerie(exIndex, serieIndex, poids) {
+  var serie = etat.seanceActive.exercices[exIndex].series[serieIndex];
+  serie.poids = poids;
+  sauvegarderEtat();
+  rendreExercicesActifs();
 }
 
 function rendreExercicesActifs() {
@@ -804,6 +859,7 @@ function rendreExercicesActifs() {
           html += '<button class="bouton-note' + (serie.note ? ' bouton-note-remplie' : '') + '" data-action="basculer-note-serie"' + attrs + '>&#9998;</button>';
           html += '<button class="serie-suppr" data-action="supprimer-serie"' + attrs + '>&times;</button>';
           html += '</span></div>';
+          if (!estEchauffement) { html += htmlSuggestionCharge(ligneEx.exerciceId, serie.reps, serie.poids, e, s); }
           html += '<div class="sx-hero-champs">';
           html += htmlStepper(e, s, 'poids', serie.poids, 'kg', PAS_POIDS_STEPPER);
           html += htmlStepper(e, s, 'reps', serie.reps, unilat ? 'reps / côté' : 'reps', PAS_REPS_STEPPER);

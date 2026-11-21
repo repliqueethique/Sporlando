@@ -16,6 +16,7 @@ const urlsToCache = [
   './utils.js',
   './notifications.js',
   './exercices.js',
+  './types-exercice.js',
   './nutrition.js',
   './core.js',
   './etirement-echauffement.js',
