@@ -6,7 +6,7 @@
 
 var CATEGORIES_TYPES = [
   { id: 'base', nom: "Séries de base" },
-  { id: 'variable', nom: "Charges et reps qui changent" },
+  { id: 'variable', nom: "Séries structurées" },
   { id: 'intensif', nom: "Techniques d'intensification" },
   { id: 'combine', nom: "Combinaisons d'exercices" },
   { id: 'special', nom: "Sans reps × charge classiques" }
@@ -63,7 +63,7 @@ var TYPES_EXERCICE = [
     comment: "Une série lourde (ex. 1 × 5 à 85 % du 1RM), puis 2 à 4 séries 10 à 15 % plus légères avec plus de reps (ex. 3 × 8).",
     conseil: "Très utilisée en force. La série lourde sert de repère : si elle progresse, tu montes la charge à la séance suivante." },
 
-  { id: 'cluster', cat: 'intensif', nom: "Cluster set",
+  { id: 'cluster', cat: 'variable', nom: "Cluster set",
     besoin: "Faire des reps lourdes de bonne qualité sans t'épuiser, pour la force et la puissance.",
     comment: "Tu découpes une série en grappes de 2 à 3 reps avec 10 à 20 s de repos entre elles (ex. 4 grappes de 2 reps), puis 2 à 3 min de repos avant la série suivante.",
     conseil: "Permet de faire plus de reps qu'une série continue ne le permettrait à cette charge." },
@@ -131,12 +131,33 @@ function trouverTypeExercice(id) {
   return null;
 }
 
+/* Techniques de dernière série et types qui relient plusieurs exercices : ils ne se choisissent pas comme type principal */
+var TYPES_NON_PRINCIPAUX = ['drop_set', 'rest_pause', 'myo_reps', 'partielles', 'forcees', 'negatives', 'superset', 'circuit'];
+
+function estTypePrincipal(t) { return TYPES_NON_PRINCIPAUX.indexOf(t.id) === -1; }
+
+/* <option> groupées par catégorie, pour le menu « Type d'exercice » */
+function optionsTypesPrincipaux(idSelectionne) {
+  var html = '';
+  for (var c = 0; c < CATEGORIES_TYPES.length; c++) {
+    var cat = CATEGORIES_TYPES[c];
+    var groupe = '';
+    for (var i = 0; i < TYPES_EXERCICE.length; i++) {
+      var t = TYPES_EXERCICE[i];
+      if (t.cat !== cat.id || !estTypePrincipal(t)) { continue; }
+      groupe += '<option value="' + t.id + '"' + (t.id === idSelectionne ? ' selected' : '') + '>' + echapperHtml(t.nom) + '</option>';
+    }
+    if (groupe !== '') { html += '<optgroup label="' + echapperHtml(cat.nom) + '">' + groupe + '</optgroup>'; }
+  }
+  return html;
+}
+
 function ligneTypeFiche(libelle, texte) {
   return '<div class="type-ligne"><span class="type-label">' + libelle + '</span>' + echapperHtml(texte) + '</div>';
 }
 
 /* idOuvert (optionnel) : la fiche à déplier directement */
-function ouvrirGuideTypes(idOuvert) {
+function ouvrirGuideTypes(idOuvert, retour) {
   var html = '<div class="modal-entete"><h2>Types d\'exercice</h2><button class="bouton-fermer" data-action="fermer-modal">&times;</button></div>';
   html += '<p class="reglages-note" style="margin:0 2px 6px;">Pour chaque type : le besoin auquel il répond, comment le pratiquer, et un conseil.</p>';
   for (var c = 0; c < CATEGORIES_TYPES.length; c++) {
@@ -151,6 +172,10 @@ function ouvrirGuideTypes(idOuvert) {
       html += '</div></details>';
     }
   }
-  html += '<button class="btn btn-contour btn-bloc" style="margin-top:12px;" data-action="ouvrir-notice">Retour à la notice</button>';
+  if (retour === 'seance') {
+    html += '<button class="btn btn-contour btn-bloc" style="margin-top:12px;" data-action="retour-formulaire-seance">Retour à la séance</button>';
+  } else {
+    html += '<button class="btn btn-contour btn-bloc" style="margin-top:12px;" data-action="ouvrir-notice">Retour à la notice</button>';
+  }
   ouvrirModal(html, 'avant');
 }

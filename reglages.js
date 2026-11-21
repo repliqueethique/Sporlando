@@ -249,7 +249,7 @@ function ouvrirNotice() {
 
   html += section("Bibliothèque", "", [
     "<strong>Exercices</strong> : recherche avec ET / OU (ex. « dos ET poulie »), groupes repliables. « Charger les exercices de base » ajoute 45 exercices adaptés à ton matériel. Dans une fiche : historique (nombre de fois, poids max par structure, RER moyen), valeurs par défaut, MET, unilatéral, variantes, barres de sécurité (cran et sens), schéma des muscles.",
-    "<strong>Séances</strong> : assemble des exercices avec poids, reps et séries, une structure de séries (linéaire, pyramides, échelle, cluster), une technique d'intensification et un tempo.",
+    "<strong>Séances</strong> : assemble des exercices avec poids, reps et séries, un type d'exercice (séries droites, fourchette de reps, pyramides, échelle, jusqu'à l'échec, cluster, poids du corps, cardio…), une technique sur la dernière série (drop set, rest-pause, myo-reps…) et un tempo. Le bouton ? explique chaque choix ; tous les types sont détaillés dans la notice, « Types d'exercice ».",
     "<strong>Programmes</strong> : regroupe des séances, avec un objectif, un type de mésocycle (hypertrophie, force, décharge, personnalisé) et une durée. Un seul programme est actif à la fois.",
     "<strong>Aliments</strong> : bibliothèque 100 % végétalienne, plus de 120 aliments à charger (tofu, tempeh, seitan, légumineuses, céréales, laits et fromages végétaux, produits du commerce…). Les calories se déduisent des macros (4 × P + 4 × G + 9 × L) : un conseil s'affiche si ça ne colle pas.",
     "<strong>Plats</strong> : des recettes composées d'ingrédients, avec un nombre de portions et les macros par portion."

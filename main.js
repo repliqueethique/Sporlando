@@ -171,6 +171,8 @@ ajouterEcouteurClicDelegue(document.body, function (cible) {
 
   if (action === 'nouvelle-seance') { ouvrirFormulaireSeance(null); return; }
   if (action === 'editer-seance') { ouvrirFormulaireSeance(id); return; }
+  if (action === 'aide-type-seance') { ouvrirAideTypeSeance(parseInt(cible.getAttribute('data-index'), 10), cible.getAttribute('data-champ')); return; }
+  if (action === 'retour-formulaire-seance') { rendreFormulaireSeance('arriere'); return; }
   if (action === 'ajouter-exercice-a-seance') { ajouterExerciceASeance(); return; }
   if (action === 'retirer-exercice-seance') { retirerExerciceDeSeance(parseInt(cible.getAttribute('data-index'), 10)); return; }
   if (action === 'enregistrer-seance') { enregistrerSeance(); return; }

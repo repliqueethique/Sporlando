@@ -473,13 +473,9 @@ var TYPES_MESOCYCLE = [
   { valeur: 'personnalise', libelle: 'Personnalisé' }
 ];
 
-var STRUCTURES_SERIES = [
-  { valeur: 'lineaire', libelle: 'Linéaire (classique)' },
-  { valeur: 'pyramide_montante', libelle: 'Pyramide montante' },
-  { valeur: 'pyramide_descendante', libelle: 'Pyramide descendante' },
-  { valeur: 'echelle', libelle: 'Échelle' },
-  { valeur: 'cluster', libelle: 'Cluster' }
-];
+var STRUCTURES_SERIES = TYPES_EXERCICE.filter(estTypePrincipal).map(function (t) {
+  return { valeur: t.id, libelle: t.nom };
+});
 
 /* Techniques d'intensification : appliquées en pratique sur la DERNIERE serie de l'exercice */
 var TECHNIQUES_INTENSIFICATION = [
@@ -534,6 +530,24 @@ function genererSeriesSelonStructure(structure, poidsBase, repsBase, nbSeries) {
       var repsSupplementaires = Math.round((1 - fraction) * 8);
       var repsSerie = Math.max(1, repsBase + repsSupplementaires);
       series.push({ poids: poidsSerie, reps: repsSerie, fait: false, note: '' });
+    }
+    return series;
+  }
+
+  /* pyramide double : la charge monte jusqu'au milieu puis redescend */
+  if (structure === 'pyramide_double') {
+    for (i = 0; i < nbSeries; i++) {
+      var fractionD = (nbSeries === 1) ? 1 : 0.6 + 0.4 * (1 - Math.abs(2 * i / (nbSeries - 1) - 1));
+      series.push({ poids: arrondirPoids(poidsBase * fractionD), reps: Math.max(1, repsBase + Math.round((1 - fractionD) * 8)), fait: false, note: '' });
+    }
+    return series;
+  }
+
+  /* top set + décharge : une série lourde, puis des séries ~13 % plus légères avec 3 reps de plus */
+  if (structure === 'back_off') {
+    for (i = 0; i < nbSeries; i++) {
+      if (i === 0) { series.push({ poids: poidsBase, reps: repsBase, fait: false, note: '' }); }
+      else { series.push({ poids: arrondirPoids(poidsBase * 0.87), reps: repsBase + 3, fait: false, note: '' }); }
     }
     return series;
   }

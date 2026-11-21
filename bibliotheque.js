@@ -360,7 +360,7 @@ function ouvrirFormulaireSeance(idSeance) {
   rendreFormulaireSeance();
 }
 
-function rendreFormulaireSeance() {
+function rendreFormulaireSeance(sens) {
   var estModif = !!seanceEnConstruction.id;
   var html = '';
   html += '<div class="modal-entete"><h2>' + (estModif ? 'Modifier la séance' : 'Nouvelle séance') + '</h2>';
@@ -383,10 +383,12 @@ function rendreFormulaireSeance() {
       html += '<div class="serie-champ" style="width:auto; margin-right:10px;"><label class="texte-att" style="font-size:11px;">Reps</label><input type="number" step="1" data-role="se-reps" data-index="' + i + '" value="' + ligneEx.reps + '"></div>';
       html += '<div class="serie-champ" style="width:auto;"><label class="texte-att" style="font-size:11px;">Séries</label><input type="number" step="1" data-role="se-series" data-index="' + i + '" value="' + ligneEx.series + '"></div>';
       html += '</div>';
-      html += '<div class="champ" style="margin-top:8px; margin-bottom:6px;"><label style="font-size:11px;">Structure de séries</label>';
-      html += '<select data-role="se-structure" data-index="' + i + '">' + optionsListeValeurLibelle(STRUCTURES_SERIES, ligneEx.structure || 'lineaire') + '</select></div>';
-      html += '<div class="champ" style="margin-bottom:6px;"><label style="font-size:11px;">Technique d\'intensification (dernière série)</label>';
-      html += '<select data-role="se-technique" data-index="' + i + '">' + optionsListeValeurLibelle(TECHNIQUES_INTENSIFICATION, ligneEx.technique || 'aucune') + '</select></div>';
+      html += '<div class="champ" style="margin-top:8px; margin-bottom:6px;"><label style="font-size:11px;">Type d\'exercice</label>';
+      html += '<div class="type-choix"><select data-role="se-structure" data-index="' + i + '">' + optionsTypesPrincipaux(ligneEx.structure || 'lineaire') + '</select>';
+      html += '<button class="btn-aide-type" data-action="aide-type-seance" data-index="' + i + '" data-champ="structure" aria-label="Explication">?</button></div></div>';
+      html += '<div class="champ" style="margin-bottom:6px;"><label style="font-size:11px;">Technique sur la dernière série</label>';
+      html += '<div class="type-choix"><select data-role="se-technique" data-index="' + i + '">' + optionsListeValeurLibelle(TECHNIQUES_INTENSIFICATION, ligneEx.technique || 'aucune') + '</select>';
+      html += '<button class="btn-aide-type" data-action="aide-type-seance" data-index="' + i + '" data-champ="technique" aria-label="Explication">?</button></div></div>';
       html += '<div class="champ" style="margin-bottom:0;"><label style="font-size:11px;">Tempo (optionnel, ex. 4-1-1-0)</label>';
       html += '<input type="text" data-role="se-tempo" data-index="' + i + '" value="' + echapperHtml(ligneEx.tempo || '') + '" placeholder="ex. 4-1-1-0"></div>';
       html += '</div>';
@@ -403,7 +405,7 @@ function rendreFormulaireSeance() {
   if (estModif) {
     html += '<button class="btn btn-alerte btn-bloc" style="margin-top:8px;" data-action="supprimer-seance" data-id="' + seanceEnConstruction.id + '">Supprimer cette séance</button>';
   }
-  ouvrirModal(html);
+  ouvrirModal(html, sens);
 }
 
 function memoriserChampsSeanceEnCours() {
@@ -439,6 +441,15 @@ function memoriserChampsSeanceEnCours() {
     var idx6 = parseInt(champsTempo[o].getAttribute('data-index'), 10);
     seanceEnConstruction.exercices[idx6].tempo = champsTempo[o].value;
   }
+}
+
+/* Bouton « ? » d'un exercice : ouvre le guide sur le type choisi, sans perdre la séance en cours d'édition */
+function ouvrirAideTypeSeance(index, champ) {
+  memoriserChampsSeanceEnCours();
+  var ligne = seanceEnConstruction.exercices[index];
+  var id = (champ === 'technique') ? ligne.technique : ligne.structure;
+  if (id === 'aucune') { id = null; }
+  ouvrirGuideTypes(id, 'seance');
 }
 
 function ajouterExerciceASeance() {
