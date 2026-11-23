@@ -17,6 +17,7 @@ function demarrerSeanceDepuisModele(seanceModeleId, agendaEntryId) {
       var record = meilleureSerieHistorique(e.exerciceId);
       var poidsBase = record ? record.poids : e.poids;
       var repsBase = record ? record.reps : e.reps;
+      if (structure === 'fourchette') { repsBase = e.reps; }   /* on repart du bas de la fourchette */
       var seriesTab = genererSeriesSelonStructure(structure, poidsBase, repsBase, e.series);
       return {
         exerciceId: e.exerciceId,
@@ -25,7 +26,8 @@ function demarrerSeanceDepuisModele(seanceModeleId, agendaEntryId) {
         tempo: e.tempo || '',
         rer: null,
         poidsBase: poidsBase,
-        repsBase: repsBase,
+        repsMin: e.reps,
+        repsMax: e.repsMax || 0,
         series: seriesTab
       };
     });
@@ -842,6 +844,8 @@ function rendreExercicesActifs() {
         }
       }
 
+      var fourchetteTxt = (ligneEx.structure === 'fourchette' && ligneEx.repsMax > ligneEx.repsMin) ? ligneEx.repsMin + '–' + ligneEx.repsMax + ' reps' : '';
+      var indexEchec = (ligneEx.structure === 'echec') ? indexDerniereSerieTravail(ligneEx) : -1;      
       var compteurEchauffement = 0;
       var compteurTravail = 0;
       for (var s = 0; s < ligneEx.series.length; s++) {
@@ -855,13 +859,20 @@ function rendreExercicesActifs() {
 
         if (s === indexProchaineSerie) {
           /* ===== SÉRIE EN COURS : grand format ===== */
-          html += '<div class="sx-hero' + (estEchauffement ? ' sx-hero-echauf' : '') + (estNouvelle ? ' sx-nouvelle' : '') + '">';
-          html += '<div class="sx-hero-tete"><span class="sx-hero-label">' + (estEchauffement ? 'Échauffement ' + compteurEchauffement : 'Série ' + compteurTravail + ' / ' + nbTravail) + '</span>';
+          html += '<div class="sx-hero' + (estEchauffement ? ' sx-hero-echauf' : '') + (s === indexEchec ? ' sx-hero-echec' : '') + (estNouvelle ? ' sx-nouvelle' : '') + '">';
+          var infoStyle = '';
+          if (!estEchauffement && fourchetteTxt) { infoStyle = ' · ' + fourchetteTxt; }
+          if (!estEchauffement && s === indexEchec) { infoStyle = ' · à l\'échec'; }
+          html += '<div class="sx-hero-tete"><span class="sx-hero-label">' + (estEchauffement ? 'Échauffement ' + compteurEchauffement : 'Série ' + compteurTravail + ' / ' + nbTravail + infoStyle) + '</span>';
           html += '<span class="sx-hero-outils">';
           html += '<button class="bouton-note' + (serie.note ? ' bouton-note-remplie' : '') + '" data-action="basculer-note-serie"' + attrs + '>&#9998;</button>';
           html += '<button class="serie-suppr" data-action="supprimer-serie"' + attrs + '>&times;</button>';
           html += '</span></div>';
-          if (!estEchauffement) { html += htmlSuggestionCharge(ligneEx.exerciceId, serie.reps, serie.poids, e, s); }
+          if (!estEchauffement) {
+            html += (ligneEx.structure === 'fourchette' && ligneEx.repsMax > ligneEx.repsMin)
+              ? htmlSuggestionFourchette(ligneEx, serie, e, s)
+              : htmlSuggestionCharge(ligneEx.exerciceId, serie.reps, serie.poids, e, s);
+          }
           html += '<div class="sx-hero-champs">';
           html += htmlStepper(e, s, 'poids', serie.poids, 'kg', PAS_POIDS_STEPPER);
           html += htmlStepper(e, s, 'reps', serie.reps, unilat ? 'reps / côté' : 'reps', PAS_REPS_STEPPER);
@@ -1081,6 +1092,11 @@ var REPOS_AUTO = true;   /* false = le minuteur ne démarre plus tout seul */
 function basculerSerieFaite(exIndex, serieIndex) {
   var serie = etat.seanceActive.exercices[exIndex].series[serieIndex];
   serie.fait = !serie.fait;
+  var ligneEx = etat.seanceActive.exercices[exIndex];
+  if (ligneEx.structure === 'echec' && serieIndex === indexDerniereSerieTravail(ligneEx)) {
+    serie.echec = !!serie.fait;
+    if (serie.fait && (ligneEx.rer === null || ligneEx.rer === undefined)) { ligneEx.rer = 0; }
+  }
   sauvegarderEtat();
   rendreExercicesActifs();
 
@@ -2582,6 +2598,14 @@ function changerStyleExercice(exIndex, champ, valeur) {
   } else if (ligne.structure !== valeur) {
     var ancienne = ligne.structure || 'lineaire';
     ligne.structure = valeur;
+    if (valeur === 'fourchette' && !(ligne.repsMax > 0)) {
+      var premiere = null;
+      for (var f = 0; f < ligne.series.length; f++) {
+        if (!ligne.series[f].echauffement) { premiere = ligne.series[f]; break; }
+      }
+      ligne.repsMin = premiere ? premiere.reps : 8;
+      ligne.repsMax = ligne.repsMin + 4;
+    }
     if (STRUCTURES_CALCULEES.indexOf(valeur) !== -1 || STRUCTURES_CALCULEES.indexOf(ancienne) !== -1) {
       recalculerSeriesRestantes(ligne);
     }
@@ -2613,4 +2637,56 @@ function definirStyleParDefaut(exIndex) {
   exRef.techniqueDefaut = ligne.technique || 'aucune';
   sauvegarderEtat();
   afficherToast('Style enregistré par défaut pour cet exercice.');
+}
+
+/* ===== Types fourchette de reps et jusqu'à l'échec ===== */
+
+function indexDerniereSerieTravail(ligneEx) {
+  for (var i = ligneEx.series.length - 1; i >= 0; i--) {
+    if (!ligneEx.series[i].echauffement) { return i; }
+  }
+  return -1;
+}
+
+/* Double progression : haut de la fourchette atteint => +2,5 kg et retour au bas ; sinon même charge, une rep de plus */
+function suggestionFourchette(ligneEx) {
+  var repsMin = ligneEx.repsMin, repsMax = ligneEx.repsMax;
+  var reprise = dateRepriseAnalyse();
+  var derniere = derniereOccurrenceExercice(ligneEx.exerciceId);
+  if (!derniere || (reprise && derniere.date <= reprise)) { return null; }
+  var series = derniere.ligneEx.series;
+  var maxPoids = 0, i;
+  for (i = 0; i < series.length; i++) {
+    if (!series[i].echauffement && series[i].fait && series[i].poids > maxPoids) { maxPoids = series[i].poids; }
+  }
+  if (maxPoids <= 0) { return null; }
+  var nb = 0, minReps = 9999;
+  for (i = 0; i < series.length; i++) {
+    if (series[i].echauffement || !series[i].fait || series[i].poids !== maxPoids) { continue; }
+    nb++;
+    if (series[i].reps < minReps) { minReps = series[i].reps; }
+  }
+  if (nb === 0) { return null; }
+  if (minReps >= repsMax) { return { poids: arrondirPoids(maxPoids + PAS_POIDS_STEPPER), reps: repsMin, raison: 'progression' }; }
+  return { poids: maxPoids, reps: Math.min(repsMax, Math.max(repsMin, minReps + 1)), raison: 'reps' };
+}
+
+function htmlSuggestionFourchette(ligneEx, serie, exIndex, serieIndex) {
+  var sug = suggestionFourchette(ligneEx);
+  if (!sug || (Math.abs(sug.poids - serie.poids) < 0.01 && sug.reps === serie.reps)) { return ''; }
+  var h = '<button class="sx-suggestion" data-action="appliquer-suggestion-fourchette" data-ex="' + exIndex + '" data-poids="' + sug.poids + '" data-reps="' + sug.reps + '">';
+  h += '<span class="sx-suggestion-icone">💡</span>';
+  h += '<span class="sx-suggestion-poids donnee-num">' + nombreCourt(sug.poids) + ' kg × ' + sug.reps + '</span>';
+  h += '<span class="sx-suggestion-raison">' + (sug.raison === 'progression' ? 'progression' : 'plus de reps') + '</span></button>';
+  return h;
+}
+
+/* Applique la suggestion à toutes les séries de travail pas encore validées */
+function appliquerSuggestionFourchette(exIndex, poids, reps) {
+  var series = etat.seanceActive.exercices[exIndex].series;
+  for (var i = 0; i < series.length; i++) {
+    if (!series[i].echauffement && !series[i].fait) { series[i].poids = poids; series[i].reps = reps; }
+  }
+  sauvegarderEtat();
+  rendreExercicesActifs();
 }

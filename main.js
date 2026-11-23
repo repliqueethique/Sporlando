@@ -209,6 +209,7 @@ ajouterEcouteurClicDelegue(document.body, function (cible) {
   if (action === 'supprimer-serie') { supprimerSerieLive(parseInt(cible.getAttribute('data-ex'), 10), parseInt(cible.getAttribute('data-serie'), 10)); return; }
   if (action === 'basculer-serie-faite') { basculerSerieFaite(parseInt(cible.getAttribute('data-ex'), 10), parseInt(cible.getAttribute('data-serie'), 10)); return; }
   if (action === 'basculer-note-serie') { basculerNoteSerie(parseInt(cible.getAttribute('data-ex'), 10), parseInt(cible.getAttribute('data-serie'), 10)); return; }
+  if (action === 'appliquer-suggestion-fourchette') { appliquerSuggestionFourchette(parseInt(cible.getAttribute('data-ex'), 10), parseFloat(cible.getAttribute('data-poids')), parseInt(cible.getAttribute('data-reps'), 10)); return; }
   if (action === 'choisir-style-exercice') { ouvrirChoixStyleExercice(parseInt(cible.getAttribute('data-ex'), 10)); return; }
   if (action === 'choisir-style-seance') { choisirStyleSeance(cible.getAttribute('data-champ'), cible.getAttribute('data-valeur')); return; }
   if (action === 'aide-style-seance') { ouvrirGuideTypes(id, 'style'); return; }
@@ -244,6 +245,7 @@ document.body.addEventListener('change', function (evt) {
     modifierRerExercice(parseInt(evt.target.getAttribute('data-ex'), 10), evt.target.value);
   }
   if (evt.target.id === 'champ-ex-groupe') { rafraichirDiagrammeMuscles(); }
+  if (role === 'se-structure') { memoriserChampsSeanceEnCours(); rendreFormulaireSeance(); }
   if (evt.target.id === 'champ-import-fichier') { chargerFichierImport(); }
   if (role === 'hist-poids' || role === 'hist-reps') {
     modifierValeurSerieHistorique(

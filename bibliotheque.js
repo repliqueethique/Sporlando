@@ -356,7 +356,8 @@ function ouvrirFormulaireSeance(idSeance) {
           series: e.series,
           structure: e.structure || 'lineaire',
           technique: e.technique || 'aucune',
-          tempo: e.tempo || ''
+          tempo: e.tempo || '',
+          repsMax: e.repsMax || 0
         };
       })
     };
@@ -386,12 +387,19 @@ function rendreFormulaireSeance(sens) {
       html += '<button class="btn btn-alerte btn-petit" data-action="retirer-exercice-seance" data-index="' + i + '">Retirer</button></div>';
       html += '<div class="ligne" style="margin-top:8px;">';
       html += '<div class="serie-champ" style="width:auto; margin-right:10px;"><label class="texte-att" style="font-size:11px;">Poids (kg)</label><input type="number" step="0.5" data-role="se-poids" data-index="' + i + '" value="' + ligneEx.poids + '"></div>';
-      html += '<div class="serie-champ" style="width:auto; margin-right:10px;"><label class="texte-att" style="font-size:11px;">Reps</label><input type="number" step="1" data-role="se-reps" data-index="' + i + '" value="' + ligneEx.reps + '"></div>';
+      var fourchette = (ligneEx.structure === 'fourchette');
+      html += '<div class="serie-champ" style="width:auto; margin-right:10px;"><label class="texte-att" style="font-size:11px;">' + (fourchette ? 'Reps min' : 'Reps') + '</label><input type="number" step="1" data-role="se-reps" data-index="' + i + '" value="' + ligneEx.reps + '"></div>';
+      if (fourchette) {
+        html += '<div class="serie-champ" style="width:auto; margin-right:10px;"><label class="texte-att" style="font-size:11px;">Reps max</label><input type="number" step="1" data-role="se-repsmax" data-index="' + i + '" value="' + (ligneEx.repsMax || (ligneEx.reps + 4)) + '"></div>';
+      }
       html += '<div class="serie-champ" style="width:auto;"><label class="texte-att" style="font-size:11px;">Séries</label><input type="number" step="1" data-role="se-series" data-index="' + i + '" value="' + ligneEx.series + '"></div>';
       html += '</div>';
       html += '<div class="champ" style="margin-top:8px; margin-bottom:6px;"><label style="font-size:11px;">Type d\'exercice</label>';
       html += '<div class="type-choix"><select data-role="se-structure" data-index="' + i + '">' + optionsTypesPrincipaux(ligneEx.structure || 'lineaire') + '</select>';
-      html += '<button class="btn-aide-type" data-action="aide-type-seance" data-index="' + i + '" data-champ="structure" aria-label="Explication">?</button></div></div>';
+      html += '<button class="btn-aide-type" data-action="aide-type-seance" data-index="' + i + '" data-champ="structure" aria-label="Explication">?</button></div>';
+      var typeChoisi = trouverTypeExercice(ligneEx.structure || 'lineaire');
+      if (typeChoisi) { html += '<div class="texte-att type-resume">' + echapperHtml(typeChoisi.besoin) + '</div>'; }
+      html += '</div>';
       html += '<div class="champ" style="margin-bottom:6px;"><label style="font-size:11px;">Technique sur la dernière série</label>';
       html += '<div class="type-choix"><select data-role="se-technique" data-index="' + i + '">' + optionsListeValeurLibelle(TECHNIQUES_INTENSIFICATION, ligneEx.technique || 'aucune') + '</select>';
       html += '<button class="btn-aide-type" data-action="aide-type-seance" data-index="' + i + '" data-champ="technique" aria-label="Explication">?</button></div></div>';
@@ -446,6 +454,11 @@ function memoriserChampsSeanceEnCours() {
   for (var o = 0; o < champsTempo.length; o++) {
     var idx6 = parseInt(champsTempo[o].getAttribute('data-index'), 10);
     seanceEnConstruction.exercices[idx6].tempo = champsTempo[o].value;
+  }
+  var champsRepsMax = document.querySelectorAll('[data-role="se-repsmax"]');
+  for (var q = 0; q < champsRepsMax.length; q++) {
+    var idx7 = parseInt(champsRepsMax[q].getAttribute('data-index'), 10);
+    seanceEnConstruction.exercices[idx7].repsMax = parseInt(champsRepsMax[q].value, 10) || 0;
   }
 }
 
