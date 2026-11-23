@@ -168,6 +168,8 @@ function ouvrirFormulaireExercice(idExercice) {
   html += '<div class="champ"><label>Poids par défaut (kg)</label><input type="number" step="0.5" id="champ-ex-poids" value="' + exercice.poidsDefaut + '"></div>';
   html += '<div class="champ"><label>Répétitions par défaut</label><input type="number" step="1" id="champ-ex-reps" value="' + exercice.repsDefaut + '"></div>';
   html += '<div class="champ"><label>Séries par défaut</label><input type="number" step="1" id="champ-ex-series" value="' + exercice.seriesDefaut + '"></div>';
+  html += '<div class="champ"><label>Type d\'exercice par défaut</label><select id="champ-ex-type">' + optionsTypesPrincipaux(exercice.typeDefaut || 'lineaire') + '</select></div>';
+  html += '<div class="champ"><label>Technique par défaut (dernière série)</label><select id="champ-ex-technique">' + optionsListeValeurLibelle(TECHNIQUES_INTENSIFICATION, exercice.techniqueDefaut || 'aucune') + '</select></div>';
   html += '<div class="champ"><label>Intensité (MET, sert au calcul des calories — 5 = musculation générale)</label><input type="number" step="0.5" id="champ-ex-met" value="' + exercice.met + '"></div>';
   html += '<div class="reglages-section"><label class="reglages-interrupteur" style="padding-bottom:0;"><span>Unilatéral</span><input type="checkbox" id="champ-ex-unilateral"' + (exercice.unilateral ? ' checked' : '') + '></label>';
   html += '<p class="reglages-note">Un côté après l\'autre : poids et reps comptés par côté.</p></div>';  html += '<div class="champ"><label>Variantes (prise, position...)</label><textarea id="champ-ex-variantes" placeholder="ex. Prise sumo : jambes écartées, accentue adducteurs et fessiers">' + echapperHtml(exercice.variantes || '') + '</textarea></div>';
@@ -201,7 +203,9 @@ function enregistrerExercice(idExistant) {
     variantes: document.getElementById('champ-ex-variantes').value,
     unilateral: document.getElementById('champ-ex-unilateral').checked,
     securiteCran: document.getElementById('champ-ex-securite').value.trim(),
-    securiteSens: document.getElementById('champ-ex-securite-sens').value
+    securiteSens: document.getElementById('champ-ex-securite-sens').value,
+    typeDefaut: document.getElementById('champ-ex-type').value,
+    techniqueDefaut: document.getElementById('champ-ex-technique').value
   };
   if (idExistant) {
     var exercice = trouverParId(etat.exercices, idExistant);
@@ -215,6 +219,8 @@ function enregistrerExercice(idExistant) {
     exercice.unilateral = donnees.unilateral;
     exercice.securiteCran = donnees.securiteCran;
     exercice.securiteSens = donnees.securiteSens;
+    exercice.typeDefaut = donnees.typeDefaut;
+    exercice.techniqueDefaut = donnees.techniqueDefaut;
   } else {
     donnees.id = genererId();
     etat.exercices.push(donnees);
@@ -461,8 +467,8 @@ function ajouterExerciceASeance() {
   seanceEnConstruction.exercices.push({
     exerciceId: idChoisi,
     poids: exRef.poidsDefaut,
-    structure: 'lineaire',
-    technique: 'aucune',
+    structure: exRef.typeDefaut || 'lineaire',
+    technique: exRef.techniqueDefaut || 'aucune',
     tempo: '',
     reps: exRef.repsDefaut,
     series: exRef.seriesDefaut

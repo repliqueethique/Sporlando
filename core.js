@@ -488,6 +488,9 @@ var TECHNIQUES_INTENSIFICATION = [
   { valeur: 'negatives', libelle: 'Répétitions négatives' }
 ];
 
+/* Types dont les séries se calculent à partir d'une charge et de reps de référence */
+var STRUCTURES_CALCULEES = ['pyramide_montante', 'pyramide_descendante', 'pyramide_double', 'echelle', 'back_off'];
+
 function libelleDepuisValeur(liste, valeur) {
   for (var i = 0; i < liste.length; i++) {
     if (liste[i].valeur === valeur) { return liste[i].libelle; }

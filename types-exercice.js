@@ -174,6 +174,8 @@ function ouvrirGuideTypes(idOuvert, retour) {
   }
   if (retour === 'seance') {
     html += '<button class="btn btn-contour btn-bloc" style="margin-top:12px;" data-action="retour-formulaire-seance">Retour à la séance</button>';
+  } else if (retour === 'style') {
+    html += '<button class="btn btn-contour btn-bloc" style="margin-top:12px;" data-action="retour-choix-style">Retour</button>';
   } else {
     html += '<button class="btn btn-contour btn-bloc" style="margin-top:12px;" data-action="ouvrir-notice">Retour à la notice</button>';
   }

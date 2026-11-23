@@ -24,6 +24,8 @@ function demarrerSeanceDepuisModele(seanceModeleId, agendaEntryId) {
         technique: e.technique || 'aucune',
         tempo: e.tempo || '',
         rer: null,
+        poidsBase: poidsBase,
+        repsBase: repsBase,
         series: seriesTab
       };
     });
@@ -897,6 +899,7 @@ function rendreExercicesActifs() {
       html += '<div class="ligne-actions-exercice">';
       html += '<button class="btn btn-contour btn-action-serie" data-action="ajouter-serie" data-ex="' + e + '">+ Série</button>';
       html += '<button class="btn-action-echauffement" data-action="ajouter-serie-echauffement" data-ex="' + e + '" title="Ajouter une série d\'échauffement"><span class="icone-echauffement" aria-hidden="true"><svg viewBox="0 0 24 24" width="20" height="20"><path d="M12 2c.9 2.1 2.2 3.6 3.6 5.1 1.8 1.9 3.4 3.9 3.4 6.9 0 4.4-3.1 8-7 8s-7-3.6-7-8c0-2.1.7-3.7 1.6-5.1.3 1.5 1.1 2.4 2.1 2.4 1 0 1.3-.8 1-1.9-.5-1.8-.4-4 .6-5.9C10.9 2.9 11.4 2.4 12 2z"/></svg></span></button>';
+      html += '<button class="btn-action-style" data-action="choisir-style-exercice" data-ex="' + e + '" title="Changer le style" aria-label="Changer le style de l\'exercice">' + SVG_STYLE + '</button>';
       html += '</div>';
       if (ligneEx.technique === 'drop_set') {
         html += '<button class="btn btn-contour btn-bloc" style="margin-top:6px;" data-action="ajouter-serie-degressive" data-ex="' + e + '">+ Série dégressive (~70%)</button>';
@@ -2509,3 +2512,105 @@ function traiterCommandeVocale(texte) {
   }, true);
 })();
 
+/* ===== Changer le style d'un exercice en cours de séance ===== */
+
+var SVG_STYLE = '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="4" y1="6" x2="12" y2="6"/><circle cx="15" cy="6" r="2.5"/><line x1="17.5" y1="6" x2="20" y2="6"/><line x1="4" y1="12" x2="6" y2="12"/><circle cx="9" cy="12" r="2.5"/><line x1="11.5" y1="12" x2="20" y2="12"/><line x1="4" y1="18" x2="13" y2="18"/><circle cx="16" cy="18" r="2.5"/><line x1="18.5" y1="18" x2="20" y2="18"/></svg>';
+var exerciceStyleEnCours = null;
+
+function nomCategorieType(idCat) {
+  for (var i = 0; i < CATEGORIES_TYPES.length; i++) {
+    if (CATEGORIES_TYPES[i].id === idCat) { return CATEGORIES_TYPES[i].nom; }
+  }
+  return '';
+}
+
+function ligneStyle(champ, valeur, nom, meta, avecAide, active) {
+  var h = '<div class="type-choix style-ligne">';
+  h += '<button class="selecteur-ligne' + (active ? ' selecteur-ligne-active' : '') + '" data-action="choisir-style-seance" data-champ="' + champ + '" data-valeur="' + valeur + '">';
+  h += '<span class="selecteur-ligne-textes"><span class="selecteur-ligne-nom">' + echapperHtml(nom) + '</span>';
+  if (meta) { h += '<span class="selecteur-ligne-meta">' + echapperHtml(meta) + '</span>'; }
+  h += '</span><span class="selecteur-coche">&#10003;</span></button>';
+  if (avecAide) { h += '<button class="btn-aide-type" data-action="aide-style-seance" data-id="' + valeur + '" aria-label="Explication">?</button>'; }
+  return h + '</div>';
+}
+
+function htmlListeStyle(champ, valeurActive) {
+  var h = '', i;
+  if (champ === 'technique') {
+    for (i = 0; i < TECHNIQUES_INTENSIFICATION.length; i++) {
+      var tech = TECHNIQUES_INTENSIFICATION[i];
+      h += ligneStyle(champ, tech.valeur, tech.libelle, '', tech.valeur !== 'aucune', tech.valeur === valeurActive);
+    }
+    return h;
+  }
+  for (i = 0; i < TYPES_EXERCICE.length; i++) {
+    var t = TYPES_EXERCICE[i];
+    if (!estTypePrincipal(t)) { continue; }
+    h += ligneStyle(champ, t.id, t.nom, nomCategorieType(t.cat), true, t.id === valeurActive);
+  }
+  return h;
+}
+
+function ouvrirChoixStyleExercice(exIndex) {
+  if (!etat.seanceActive) { return; }
+  exerciceStyleEnCours = exIndex;
+  var ligne = etat.seanceActive.exercices[exIndex];
+  var exRef = trouverParId(etat.exercices, ligne.exerciceId);
+  var html = '<div class="modal-entete"><h2>' + echapperHtml(exRef ? exRef.nom : 'Exercice') + '</h2><button class="bouton-fermer" data-action="fermer-modal">&times;</button></div>';
+  html += '<div class="selecteur-groupe">Type d\'exercice</div>' + htmlListeStyle('structure', ligne.structure || 'lineaire');
+  html += '<div class="selecteur-groupe">Technique sur la dernière série</div>' + htmlListeStyle('technique', ligne.technique || 'aucune');
+  html += '<div class="modal-pied modal-pied-ligne"><button class="btn btn-contour" style="flex:1;" data-action="style-par-defaut" data-ex="' + exIndex + '">Par défaut</button>';
+  html += '<button class="btn btn-plein" style="flex:1.4;" data-action="fermer-modal">Terminé</button></div>';
+  ouvrirModal(html);
+}
+
+/* Applique le choix tout de suite et déplace la coche sans redessiner la feuille */
+function choisirStyleSeance(champ, valeur) {
+  if (exerciceStyleEnCours === null || !etat.seanceActive) { return; }
+  changerStyleExercice(exerciceStyleEnCours, champ, valeur);
+  var lignes = document.querySelectorAll('[data-action="choisir-style-seance"][data-champ="' + champ + '"]');
+  for (var i = 0; i < lignes.length; i++) {
+    if (lignes[i].getAttribute('data-valeur') === valeur) { lignes[i].classList.add('selecteur-ligne-active'); }
+    else { lignes[i].classList.remove('selecteur-ligne-active'); }
+  }
+}
+
+function changerStyleExercice(exIndex, champ, valeur) {
+  var ligne = etat.seanceActive.exercices[exIndex];
+  if (champ === 'technique') {
+    ligne.technique = valeur;
+  } else if (ligne.structure !== valeur) {
+    var ancienne = ligne.structure || 'lineaire';
+    ligne.structure = valeur;
+    if (STRUCTURES_CALCULEES.indexOf(valeur) !== -1 || STRUCTURES_CALCULEES.indexOf(ancienne) !== -1) {
+      recalculerSeriesRestantes(ligne);
+    }
+  }
+  sauvegarderEtat();
+  rendreExercicesActifs();
+}
+
+/* Recalcule poids et reps des séries de travail pas encore validées ; les séries faites ne bougent pas */
+function recalculerSeriesRestantes(ligne) {
+  var travail = [];
+  for (var i = 0; i < ligne.series.length; i++) {
+    if (!ligne.series[i].echauffement) { travail.push(ligne.series[i]); }
+  }
+  if (travail.length === 0) { return; }
+  var poidsBase = (ligne.poidsBase !== undefined) ? ligne.poidsBase : travail[0].poids;
+  var repsBase = (ligne.repsBase !== undefined) ? ligne.repsBase : travail[0].reps;
+  var neuves = genererSeriesSelonStructure(ligne.structure, poidsBase, repsBase, travail.length);
+  for (var k = 0; k < travail.length; k++) {
+    if (!travail[k].fait) { travail[k].poids = neuves[k].poids; travail[k].reps = neuves[k].reps; }
+  }
+}
+
+function definirStyleParDefaut(exIndex) {
+  var ligne = etat.seanceActive.exercices[exIndex];
+  var exRef = trouverParId(etat.exercices, ligne.exerciceId);
+  if (!exRef) { return; }
+  exRef.typeDefaut = ligne.structure || 'lineaire';
+  exRef.techniqueDefaut = ligne.technique || 'aucune';
+  sauvegarderEtat();
+  afficherToast('Style enregistré par défaut pour cet exercice.');
+}

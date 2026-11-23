@@ -209,6 +209,11 @@ ajouterEcouteurClicDelegue(document.body, function (cible) {
   if (action === 'supprimer-serie') { supprimerSerieLive(parseInt(cible.getAttribute('data-ex'), 10), parseInt(cible.getAttribute('data-serie'), 10)); return; }
   if (action === 'basculer-serie-faite') { basculerSerieFaite(parseInt(cible.getAttribute('data-ex'), 10), parseInt(cible.getAttribute('data-serie'), 10)); return; }
   if (action === 'basculer-note-serie') { basculerNoteSerie(parseInt(cible.getAttribute('data-ex'), 10), parseInt(cible.getAttribute('data-serie'), 10)); return; }
+  if (action === 'choisir-style-exercice') { ouvrirChoixStyleExercice(parseInt(cible.getAttribute('data-ex'), 10)); return; }
+  if (action === 'choisir-style-seance') { choisirStyleSeance(cible.getAttribute('data-champ'), cible.getAttribute('data-valeur')); return; }
+  if (action === 'aide-style-seance') { ouvrirGuideTypes(id, 'style'); return; }
+  if (action === 'retour-choix-style') { ouvrirChoixStyleExercice(exerciceStyleEnCours); return; }
+  if (action === 'style-par-defaut') { definirStyleParDefaut(parseInt(cible.getAttribute('data-ex'), 10)); return; }
   if (action === 'appliquer-suggestion') { appliquerSuggestionSerie(parseInt(cible.getAttribute('data-ex'), 10), parseInt(cible.getAttribute('data-serie'), 10), parseFloat(cible.getAttribute('data-poids'))); return; }
   if (action === 'ajouter-pause') { ouvrirFormulairePause(); return; }
   if (action === 'enregistrer-pause') { enregistrerPause(); return; }
