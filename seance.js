@@ -18,6 +18,10 @@ function demarrerSeanceDepuisModele(seanceModeleId, agendaEntryId) {
       var poidsBase = record ? record.poids : e.poids;
       var repsBase = record ? record.reps : e.reps;
       if (structure === 'fourchette') { repsBase = e.reps; }   /* on repart du bas de la fourchette */
+      if (structure === 'maintien' || structure === 'poids_corps' || structure === 'cardio') {
+        poidsBase = (structure === 'cardio') ? 0 : e.poids;   /* lest éventuel */
+        repsBase = e.reps;                                      /* secondes, reps ou minutes de la séance modèle */
+      }
       var seriesTab = genererSeriesSelonStructure(structure, poidsBase, repsBase, e.series);
       return {
         exerciceId: e.exerciceId,
@@ -628,7 +632,12 @@ function formaterResumeSeries(ligneEx) {
   var morceaux = [];
   for (var i = 0; i < ligneEx.series.length; i++) {
     if (ligneEx.series[i].echauffement) { continue; }
-    morceaux.push(ligneEx.series[i].poids + 'kg×' + ligneEx.series[i].reps);
+    var sr = ligneEx.series[i];
+    var t = ligneEx.structure;
+    if (t === 'cardio') { morceaux.push(sr.reps + ' min' + (sr.distance ? ' · ' + sr.distance + ' km' : '')); }
+    else if (t === 'maintien') { morceaux.push((sr.poids > 0 ? sr.poids + 'kg×' : '') + sr.reps + ' s'); }
+    else if (t === 'poids_corps') { morceaux.push((sr.poids > 0 ? '+' + sr.poids + 'kg×' : '') + sr.reps); }
+    else { morceaux.push(sr.poids + 'kg×' + sr.reps); }
   }
   return morceaux.join(', ');
 }
@@ -639,11 +648,11 @@ var PAS_POIDS_STEPPER = 2.5;  /* kg ajoutés/retirés par les boutons − / + (c
 var PAS_REPS_STEPPER = 1;
 
 function htmlStepper(e, s, champ, valeur, unite, pas) {
-  var role = (champ === 'poids') ? 'live-poids' : 'live-reps';
+  var role = 'live-' + champ;
   var attrs = ' data-action="ajuster-serie" data-ex="' + e + '" data-serie="' + s + '" data-champ="' + champ + '"';
   var h = '<div class="sx-hero-champ">';
   h += '<button class="sx-pas"' + attrs + ' data-delta="' + (-pas) + '">&minus;</button>';
-  h += '<div class="sx-hero-valeur"><input type="number" step="' + (champ === 'poids' ? '0.5' : '1') + '" inputmode="' + (champ === 'poids' ? 'decimal' : 'numeric') + '" data-role="' + role + '" data-ex="' + e + '" data-serie="' + s + '" value="' + valeur + '">';
+  h += '<div class="sx-hero-valeur"><input type="number" step="' + (champ === 'reps' ? '1' : '0.5') + '" inputmode="' + (champ === 'reps' ? 'numeric' : 'decimal') + '" data-role="' + role + '" data-ex="' + e + '" data-serie="' + s + '" value="' + valeur + '">';
   h += '<span class="sx-hero-unite">' + unite + '</span></div>';
   h += '<button class="sx-pas"' + attrs + ' data-delta="' + pas + '">+</button>';
   h += '</div>';
@@ -666,7 +675,7 @@ function mettreAJourProgressionSeance(faites, total) {
 /* Boutons − / + : modifie la valeur sans tout redessiner */
 function ajusterSerieLive(exIndex, serieIndex, champ, delta) {
   var serie = etat.seanceActive.exercices[exIndex].series[serieIndex];
-  var cle = (champ === 'poids') ? 'poids' : 'reps';
+  var cle = (champ === 'poids' || champ === 'distance') ? champ : 'reps';
   var valeur = (serie[cle] || 0) + delta;
   if (valeur < 0) { valeur = 0; }
   valeur = Math.round(valeur * 100) / 100;
@@ -873,10 +882,7 @@ function rendreExercicesActifs() {
               ? htmlSuggestionFourchette(ligneEx, serie, e, s)
               : htmlSuggestionCharge(ligneEx.exerciceId, serie.reps, serie.poids, e, s);
           }
-          html += '<div class="sx-hero-champs">';
-          html += htmlStepper(e, s, 'poids', serie.poids, 'kg', PAS_POIDS_STEPPER);
-          html += htmlStepper(e, s, 'reps', serie.reps, unilat ? 'reps / côté' : 'reps', PAS_REPS_STEPPER);
-          html += '</div>';
+          html += htmlChampsHero(ligneEx, serie, e, s, unilat);
           html += '<button class="sx-valider" data-action="basculer-serie-faite"' + attrs + '>Valider la série</button>';
           html += '</div>';
           html += htmlNoteSerie(e, s, serie);
@@ -886,8 +892,7 @@ function rendreExercicesActifs() {
         /* ===== Autres séries : ligne compacte ===== */
         html += '<div class="sx-serie' + (serie.fait ? ' sx-serie-faite' : '') + (estEchauffement ? ' sx-serie-echauf' : '') + (estNouvelle ? ' sx-nouvelle' : '') + '">';
         html += '<span class="sx-serie-num">' + libelleNum + '</span>';
-        html += '<span class="serie-champ"><input type="number" step="0.5" inputmode="decimal" data-role="live-poids"' + attrs + ' value="' + serie.poids + '"></span><span class="serie-unite">kg</span>';
-        html += '<span class="serie-champ"><input type="number" step="1" inputmode="numeric" data-role="live-reps"' + attrs + ' value="' + serie.reps + '"></span><span class="serie-unite">' + (unilat ? 'reps/côté' : 'reps') + '</span>';
+        html += htmlChampsCompact(ligneEx, serie, attrs, unilat);
         html += '<button class="bulle-validation' + (serie.fait ? ' bulle-validation-faite' : '') + '" data-action="basculer-serie-faite"' + attrs + '>&#10003;</button>';
         html += '<button class="bouton-note' + (serie.note ? ' bouton-note-remplie' : '') + '" data-action="basculer-note-serie"' + attrs + '>&#9998;</button>';
         html += '<button class="serie-suppr" data-action="supprimer-serie"' + attrs + '>&times;</button>';
@@ -1083,6 +1088,7 @@ function modifierValeurSerieLive(role, exIndex, serieIndex, valeur) {
   var serie = etat.seanceActive.exercices[exIndex].series[serieIndex];
   if (role === 'live-poids') { serie.poids = parseFloat(valeur) || 0; }
   if (role === 'live-reps') { serie.reps = parseInt(valeur, 10) || 0; }
+  if (role === 'live-distance') { serie.distance = parseFloat(valeur) || 0; }
   if (role === 'live-note') { serie.note = valeur; }
   sauvegarderEtat();
 }
@@ -1090,6 +1096,7 @@ function modifierValeurSerieLive(role, exIndex, serieIndex, valeur) {
 var REPOS_AUTO = true;   /* false = le minuteur ne démarre plus tout seul */
 
 function basculerSerieFaite(exIndex, serieIndex) {
+  if (chronoMaintien.actif && chronoMaintien.ex === exIndex && chronoMaintien.serie === serieIndex) { arreterChronoMaintien(true); }
   var serie = etat.seanceActive.exercices[exIndex].series[serieIndex];
   serie.fait = !serie.fait;
   var ligneEx = etat.seanceActive.exercices[exIndex];
@@ -2688,5 +2695,123 @@ function appliquerSuggestionFourchette(exIndex, poids, reps) {
     if (!series[i].echauffement && !series[i].fait) { series[i].poids = poids; series[i].reps = reps; }
   }
   sauvegarderEtat();
+  rendreExercicesActifs();
+}
+
+/* ===== Maintien chronométré, poids du corps, cardio ===== */
+
+var PAS_SECONDES_STEPPER = 5;
+var PAS_MINUTES_STEPPER = 5;
+var PAS_DISTANCE_STEPPER = 0.5;
+var chronoMaintien = { actif: false, ex: null, serie: null, debut: 0, cibleAtteinte: false, intervalle: null };
+
+function formaterSecondes(sec) {
+  return completerZero(Math.floor(sec / 60)) + ':' + completerZero(sec % 60);
+}
+
+/* Champs de la série en cours, selon le type */
+function htmlChampsHero(ligneEx, serie, e, s, unilat) {
+  var type = ligneEx.structure || 'lineaire';
+  var sansCharge = (type === 'poids_corps' || type === 'maintien');
+  var h = '<div class="sx-hero-champs">';
+  if (type === 'cardio') {
+    h += htmlStepper(e, s, 'reps', serie.reps, 'minutes', PAS_MINUTES_STEPPER);
+    h += htmlStepper(e, s, 'distance', serie.distance || 0, 'km', PAS_DISTANCE_STEPPER);
+  } else {
+    if (!sansCharge || serie.poids > 0) {
+      h += htmlStepper(e, s, 'poids', serie.poids, sansCharge ? 'kg de lest' : 'kg', PAS_POIDS_STEPPER);
+    }
+    if (type === 'maintien') {
+      h += htmlStepper(e, s, 'reps', serie.reps, unilat ? 'secondes / côté' : 'secondes', PAS_SECONDES_STEPPER);
+    } else {
+      h += htmlStepper(e, s, 'reps', serie.reps, unilat ? 'reps / côté' : 'reps', PAS_REPS_STEPPER);
+    }
+  }
+  h += '</div>';
+  if (sansCharge && !(serie.poids > 0)) {
+    h += '<button class="sx-lest" data-action="ajouter-lest" data-ex="' + e + '">+ lest</button>';
+  }
+  if (type === 'maintien') { h += htmlChronoMaintien(e, s, serie); }
+  return h;
+}
+
+/* Champs des autres séries (lignes compactes), selon le type */
+function htmlChampsCompact(ligneEx, serie, attrs, unilat) {
+  var type = ligneEx.structure || 'lineaire';
+  var sansCharge = (type === 'poids_corps' || type === 'maintien');
+  var h = '';
+  if (type !== 'cardio' && (!sansCharge || serie.poids > 0)) {
+    h += '<span class="serie-champ"><input type="number" step="0.5" inputmode="decimal" data-role="live-poids"' + attrs + ' value="' + serie.poids + '"></span><span class="serie-unite">kg</span>';
+  }
+  var unite = unilat ? 'reps/côté' : 'reps';
+  if (type === 'maintien') { unite = unilat ? 's/côté' : 's'; }
+  if (type === 'cardio') { unite = 'min'; }
+  h += '<span class="serie-champ"><input type="number" step="1" inputmode="numeric" data-role="live-reps"' + attrs + ' value="' + serie.reps + '"></span><span class="serie-unite">' + unite + '</span>';
+  if (type === 'cardio') {
+    h += '<span class="serie-champ"><input type="number" step="0.1" inputmode="decimal" data-role="live-distance"' + attrs + ' value="' + (serie.distance || 0) + '"></span><span class="serie-unite">km</span>';
+  }
+  return h;
+}
+
+/* « + lest » : fait apparaître le champ kg sur les séries restantes */
+function ajouterLest(exIndex) {
+  var series = etat.seanceActive.exercices[exIndex].series;
+  for (var i = 0; i < series.length; i++) {
+    if (!series[i].echauffement && !series[i].fait && !(series[i].poids > 0)) { series[i].poids = PAS_POIDS_STEPPER; }
+  }
+  sauvegarderEtat();
+  rendreExercicesActifs();
+}
+
+/* --- Chrono du maintien : il compte depuis 0, bipe à la durée cible, s'arrête et inscrit le temps tenu --- */
+function secondesChronoMaintien() {
+  return Math.floor((Date.now() - chronoMaintien.debut) / 1000);
+}
+
+function htmlChronoMaintien(exIndex, serieIndex, serie) {
+  var actif = chronoMaintien.actif && chronoMaintien.ex === exIndex && chronoMaintien.serie === serieIndex;
+  var h = '<button class="sx-chrono-maintien' + (actif ? ' sx-chrono-actif' : '') + (actif && chronoMaintien.cibleAtteinte ? ' sx-chrono-ok' : '') + '" data-action="chrono-maintien" data-ex="' + exIndex + '" data-serie="' + serieIndex + '">';
+  h += '<span class="sx-chrono-icone">' + (actif ? '&#9632;' : '&#9654;') + '</span>';
+  h += '<span class="sx-chrono-temps donnee-num"' + (actif ? ' id="chrono-maintien-temps"' : '') + '>' + formaterSecondes(actif ? secondesChronoMaintien() : 0) + '</span>';
+  h += '<span class="sx-chrono-cible donnee-num">/ ' + serie.reps + ' s</span></button>';
+  return h;
+}
+
+function basculerChronoMaintien(exIndex, serieIndex) {
+  if (chronoMaintien.actif) { arreterChronoMaintien(true); return; }
+  var ctx = obtenirContexteAudio();
+  if (ctx && ctx.resume) { ctx.resume(); }
+  chronoMaintien = { actif: true, ex: exIndex, serie: serieIndex, debut: Date.now(), cibleAtteinte: false, intervalle: null };
+  chronoMaintien.intervalle = window.setInterval(tickChronoMaintien, 250);
+  rendreExercicesActifs();
+}
+
+function tickChronoMaintien() {
+  if (!chronoMaintien.actif || !etat.seanceActive) { arreterChronoMaintien(false); return; }
+  var sec = secondesChronoMaintien();
+  var el = document.getElementById('chrono-maintien-temps');
+  if (el) { el.innerHTML = formaterSecondes(sec); }
+  var ligne = etat.seanceActive.exercices[chronoMaintien.ex];
+  var serie = ligne ? ligne.series[chronoMaintien.serie] : null;
+  if (!chronoMaintien.cibleAtteinte && serie && serie.reps > 0 && sec >= serie.reps) {
+    chronoMaintien.cibleAtteinte = true;
+    var ctx = obtenirContexteAudio();
+    if (ctx) { jouerBip(ctx, ctx.currentTime + 0.02, 880, 0.3); }
+    if (navigator.vibrate) { try { navigator.vibrate([30, 40, 30]); } catch (e) {} }
+    var bouton = document.querySelector('.sx-chrono-actif');
+    if (bouton) { bouton.classList.add('sx-chrono-ok'); }
+  }
+}
+
+function arreterChronoMaintien(enregistrer) {
+  if (chronoMaintien.intervalle) { window.clearInterval(chronoMaintien.intervalle); }
+  var etaitActif = chronoMaintien.actif;
+  var sec = etaitActif ? secondesChronoMaintien() : 0;
+  var ex = chronoMaintien.ex, se = chronoMaintien.serie;
+  chronoMaintien = { actif: false, ex: null, serie: null, debut: 0, cibleAtteinte: false, intervalle: null };
+  if (etaitActif && enregistrer && etat.seanceActive && etat.seanceActive.exercices[ex]) {
+    var serie = etat.seanceActive.exercices[ex].series[se];
+    if (serie && sec > 0) { serie.reps = sec; sauvegarderEtat(); }
+  }
   rendreExercicesActifs();
 }

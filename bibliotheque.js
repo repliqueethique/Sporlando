@@ -386,9 +386,13 @@ function rendreFormulaireSeance(sens) {
       html += '<div class="ligne"><strong>' + echapperHtml(nomEx) + '</strong>';
       html += '<button class="btn btn-alerte btn-petit" data-action="retirer-exercice-seance" data-index="' + i + '">Retirer</button></div>';
       html += '<div class="ligne" style="margin-top:8px;">';
-      html += '<div class="serie-champ" style="width:auto; margin-right:10px;"><label class="texte-att" style="font-size:11px;">Poids (kg)</label><input type="number" step="0.5" data-role="se-poids" data-index="' + i + '" value="' + ligneEx.poids + '"></div>';
-      var fourchette = (ligneEx.structure === 'fourchette');
-      html += '<div class="serie-champ" style="width:auto; margin-right:10px;"><label class="texte-att" style="font-size:11px;">' + (fourchette ? 'Reps min' : 'Reps') + '</label><input type="number" step="1" data-role="se-reps" data-index="' + i + '" value="' + ligneEx.reps + '"></div>';
+      var typeLigne = ligneEx.structure || 'lineaire';
+      if (typeLigne !== 'cardio') {
+        html += '<div class="serie-champ" style="width:auto; margin-right:10px;"><label class="texte-att" style="font-size:11px;">' + ((typeLigne === 'poids_corps' || typeLigne === 'maintien') ? 'Lest (kg)' : 'Poids (kg)') + '</label><input type="number" step="0.5" data-role="se-poids" data-index="' + i + '" value="' + ligneEx.poids + '"></div>';
+      }
+      var fourchette = (typeLigne === 'fourchette');
+      var labelReps = fourchette ? 'Reps min' : (typeLigne === 'maintien' ? 'Secondes' : (typeLigne === 'cardio' ? 'Minutes' : 'Reps'));
+      html += '<div class="serie-champ" style="width:auto; margin-right:10px;"><label class="texte-att" style="font-size:11px;">' + labelReps + '</label><input type="number" step="1" data-role="se-reps" data-index="' + i + '" value="' + ligneEx.reps + '"></div>';
       if (fourchette) {
         html += '<div class="serie-champ" style="width:auto; margin-right:10px;"><label class="texte-att" style="font-size:11px;">Reps max</label><input type="number" step="1" data-role="se-repsmax" data-index="' + i + '" value="' + (ligneEx.repsMax || (ligneEx.reps + 4)) + '"></div>';
       }

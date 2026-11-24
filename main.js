@@ -210,6 +210,8 @@ ajouterEcouteurClicDelegue(document.body, function (cible) {
   if (action === 'basculer-serie-faite') { basculerSerieFaite(parseInt(cible.getAttribute('data-ex'), 10), parseInt(cible.getAttribute('data-serie'), 10)); return; }
   if (action === 'basculer-note-serie') { basculerNoteSerie(parseInt(cible.getAttribute('data-ex'), 10), parseInt(cible.getAttribute('data-serie'), 10)); return; }
   if (action === 'appliquer-suggestion-fourchette') { appliquerSuggestionFourchette(parseInt(cible.getAttribute('data-ex'), 10), parseFloat(cible.getAttribute('data-poids')), parseInt(cible.getAttribute('data-reps'), 10)); return; }
+  if (action === 'chrono-maintien') { basculerChronoMaintien(parseInt(cible.getAttribute('data-ex'), 10), parseInt(cible.getAttribute('data-serie'), 10)); return; }
+  if (action === 'ajouter-lest') { ajouterLest(parseInt(cible.getAttribute('data-ex'), 10)); return; }
   if (action === 'choisir-style-exercice') { ouvrirChoixStyleExercice(parseInt(cible.getAttribute('data-ex'), 10)); return; }
   if (action === 'choisir-style-seance') { choisirStyleSeance(cible.getAttribute('data-champ'), cible.getAttribute('data-valeur')); return; }
   if (action === 'aide-style-seance') { ouvrirGuideTypes(id, 'style'); return; }
@@ -236,7 +238,7 @@ ajouterEcouteurClicDelegue(document.body, function (cible) {
 
 document.body.addEventListener('change', function (evt) {
   var role = evt.target.getAttribute && evt.target.getAttribute('data-role');
-  if (role === 'live-poids' || role === 'live-reps' || role === 'live-note') {
+  if (role === 'live-poids' || role === 'live-reps' || role === 'live-note' || role === 'live-distance') {
     var exIndex = parseInt(evt.target.getAttribute('data-ex'), 10);
     var serieIndex = parseInt(evt.target.getAttribute('data-serie'), 10);
     modifierValeurSerieLive(role, exIndex, serieIndex, evt.target.value);

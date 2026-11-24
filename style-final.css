@@ -779,3 +779,24 @@
 .sx-hero-echec { border-color: var(--couleur-alerte); box-shadow: 0 0 24px -10px var(--couleur-alerte); }
 .sx-hero-echec .sx-hero-label { color: var(--couleur-alerte); }
 .type-resume { margin-top: 5px; font-size: 11.5px; line-height: 1.35; }
+
+/* ===== Maintien chronométré, lest ===== */
+.sx-lest {
+  display: block; width: 100%; margin: 0 0 8px 0; padding: 9px;
+  border: 1px dashed var(--couleur-bordure); border-radius: 14px;
+  color: var(--couleur-texte-att); font-size: 13px; font-weight: 700;
+}
+.sx-lest:active { border-color: var(--couleur-turquoise); color: var(--couleur-turquoise); }
+.sx-chrono-maintien {
+  display: flex; align-items: center; width: 100%; margin: 0 0 8px 0; padding: 12px 14px;
+  background: var(--couleur-carte); border: 1px solid var(--couleur-bordure); border-radius: 16px;
+  color: var(--couleur-texte);
+  transition: transform .2s cubic-bezier(.34,1.56,.64,1), border-color .2s ease;
+}
+.sx-chrono-maintien:active { transform: scale(.98); }
+.sx-chrono-icone { width: 30px; font-size: 18px; color: var(--couleur-turquoise); }
+.sx-chrono-temps { font-size: 34px; font-weight: 800; line-height: 1; color: var(--couleur-turquoise); }
+.sx-chrono-cible { margin-left: auto; font-size: 13px; color: var(--couleur-texte-att); }
+.sx-chrono-actif { border-color: var(--couleur-turquoise); box-shadow: 0 0 18px -8px var(--couleur-turquoise); }
+.sx-chrono-ok { border-color: var(--couleur-succes); box-shadow: 0 0 18px -8px var(--couleur-succes); }
+.sx-chrono-ok .sx-chrono-temps, .sx-chrono-ok .sx-chrono-icone { color: var(--couleur-succes); }
