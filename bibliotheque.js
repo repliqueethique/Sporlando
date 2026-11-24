@@ -357,7 +357,8 @@ function ouvrirFormulaireSeance(idSeance) {
           structure: e.structure || 'lineaire',
           technique: e.technique || 'aucune',
           tempo: e.tempo || '',
-          repsMax: e.repsMax || 0
+          repsMax: e.repsMax || 0,
+          grappes: e.grappes || 0
         };
       })
     };
@@ -395,6 +396,9 @@ function rendreFormulaireSeance(sens) {
       html += '<div class="serie-champ" style="width:auto; margin-right:10px;"><label class="texte-att" style="font-size:11px;">' + labelReps + '</label><input type="number" step="1" data-role="se-reps" data-index="' + i + '" value="' + ligneEx.reps + '"></div>';
       if (fourchette) {
         html += '<div class="serie-champ" style="width:auto; margin-right:10px;"><label class="texte-att" style="font-size:11px;">Reps max</label><input type="number" step="1" data-role="se-repsmax" data-index="' + i + '" value="' + (ligneEx.repsMax || (ligneEx.reps + 4)) + '"></div>';
+      }
+      if (typeLigne === 'cluster') {
+        html += '<div class="serie-champ" style="width:auto; margin-right:10px;"><label class="texte-att" style="font-size:11px;">Grappes</label><input type="number" step="1" data-role="se-grappes" data-index="' + i + '" value="' + (ligneEx.grappes || 4) + '"></div>';
       }
       html += '<div class="serie-champ" style="width:auto;"><label class="texte-att" style="font-size:11px;">Séries</label><input type="number" step="1" data-role="se-series" data-index="' + i + '" value="' + ligneEx.series + '"></div>';
       html += '</div>';
@@ -463,6 +467,11 @@ function memoriserChampsSeanceEnCours() {
   for (var q = 0; q < champsRepsMax.length; q++) {
     var idx7 = parseInt(champsRepsMax[q].getAttribute('data-index'), 10);
     seanceEnConstruction.exercices[idx7].repsMax = parseInt(champsRepsMax[q].value, 10) || 0;
+  }
+  var champsGrappes = document.querySelectorAll('[data-role="se-grappes"]');
+  for (var w = 0; w < champsGrappes.length; w++) {
+    var idx8 = parseInt(champsGrappes[w].getAttribute('data-index'), 10);
+    seanceEnConstruction.exercices[idx8].grappes = parseInt(champsGrappes[w].value, 10) || 4;
   }
 }
 

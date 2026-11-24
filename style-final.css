@@ -800,3 +800,39 @@
 .sx-chrono-actif { border-color: var(--couleur-turquoise); box-shadow: 0 0 18px -8px var(--couleur-turquoise); }
 .sx-chrono-ok { border-color: var(--couleur-succes); box-shadow: 0 0 18px -8px var(--couleur-succes); }
 .sx-chrono-ok .sx-chrono-temps, .sx-chrono-ok .sx-chrono-icone { color: var(--couleur-succes); }
+
+/* ===== Mini-pauses (rest-pause, myo-reps, cluster) ===== */
+.sx-mini { margin: 0 0 8px 0; }
+.sx-mini-liste { display: flex; align-items: center; flex-wrap: wrap; margin: 0 0 8px 0; }
+.sx-mini-reps {
+  width: 54px; margin: 0 6px 6px 0; padding: 8px 4px; text-align: center;
+  font-size: 18px; font-weight: 800;
+  border: 1px solid var(--couleur-bordure); border-radius: 12px;
+  background: var(--couleur-carte); color: var(--couleur-turquoise);
+}
+.sx-mini-unite { margin: 0 8px 6px 2px; font-size: 12px; color: var(--couleur-texte-att); }
+.sx-mini-suppr {
+  width: 30px; height: 30px; margin: 0 0 6px 0; padding: 0;
+  border: 1px solid var(--couleur-bordure); border-radius: 10px;
+  background: var(--couleur-carte); color: var(--couleur-alerte);
+  font-size: 18px; line-height: 1;
+}
+.sx-mini-pause {
+  position: relative; overflow: hidden;
+  display: flex; align-items: center; justify-content: center;
+  width: 100%; padding: 13px 12px;
+  background: var(--couleur-carte); border: 1px solid var(--couleur-turquoise); border-radius: 14px;
+  color: var(--couleur-texte); font-size: 14px; font-weight: 800;
+  transition: transform .15s ease, border-color .2s ease;
+}
+.sx-mini-pause:active { transform: scale(.98); }
+.sx-mini-barre { position: absolute; top: 0; bottom: 0; left: 0; width: 100%; pointer-events: none; }
+.sx-mini-barre i { display: block; height: 100%; width: 0; background: var(--couleur-avertissement); opacity: .35; }
+.sx-mini-texte { position: relative; z-index: 1; }
+.sx-mini-actif { border-color: var(--couleur-avertissement); }
+.sx-mini-actif .sx-mini-barre i { transition: width .2s linear; }
+.sx-grappes { display: flex; align-items: center; margin: 0 0 8px 0; }
+.sx-grappe { width: 22px; height: 22px; margin-right: 8px; border-radius: 50%; border: 2px solid var(--couleur-bordure); }
+.sx-grappe-faite { background: var(--couleur-degrade); border-color: transparent; }
+.sx-grappes-info { margin-left: auto; margin-right: 8px; font-size: 13px; color: var(--couleur-texte-att); }
+.sx-grappes .sx-mini-suppr { margin: 0; }

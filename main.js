@@ -210,6 +210,10 @@ ajouterEcouteurClicDelegue(document.body, function (cible) {
   if (action === 'basculer-serie-faite') { basculerSerieFaite(parseInt(cible.getAttribute('data-ex'), 10), parseInt(cible.getAttribute('data-serie'), 10)); return; }
   if (action === 'basculer-note-serie') { basculerNoteSerie(parseInt(cible.getAttribute('data-ex'), 10), parseInt(cible.getAttribute('data-serie'), 10)); return; }
   if (action === 'appliquer-suggestion-fourchette') { appliquerSuggestionFourchette(parseInt(cible.getAttribute('data-ex'), 10), parseFloat(cible.getAttribute('data-poids')), parseInt(cible.getAttribute('data-reps'), 10)); return; }
+  if (action === 'mini-serie') { ajouterMiniSerie(parseInt(cible.getAttribute('data-ex'), 10), parseInt(cible.getAttribute('data-serie'), 10)); return; }
+  if (action === 'retirer-mini-serie') { retirerMiniSerie(parseInt(cible.getAttribute('data-ex'), 10), parseInt(cible.getAttribute('data-serie'), 10)); return; }
+  if (action === 'grappe-faite') { grappeFaite(parseInt(cible.getAttribute('data-ex'), 10), parseInt(cible.getAttribute('data-serie'), 10)); return; }
+  if (action === 'grappe-moins') { grappeMoins(parseInt(cible.getAttribute('data-ex'), 10), parseInt(cible.getAttribute('data-serie'), 10)); return; }
   if (action === 'chrono-maintien') { basculerChronoMaintien(parseInt(cible.getAttribute('data-ex'), 10), parseInt(cible.getAttribute('data-serie'), 10)); return; }
   if (action === 'ajouter-lest') { ajouterLest(parseInt(cible.getAttribute('data-ex'), 10)); return; }
   if (action === 'choisir-style-exercice') { ouvrirChoixStyleExercice(parseInt(cible.getAttribute('data-ex'), 10)); return; }
@@ -242,6 +246,9 @@ document.body.addEventListener('change', function (evt) {
     var exIndex = parseInt(evt.target.getAttribute('data-ex'), 10);
     var serieIndex = parseInt(evt.target.getAttribute('data-serie'), 10);
     modifierValeurSerieLive(role, exIndex, serieIndex, evt.target.value);
+  }
+  if (role === 'live-mini') {
+    modifierMiniSerie(parseInt(evt.target.getAttribute('data-ex'), 10), parseInt(evt.target.getAttribute('data-serie'), 10), parseInt(evt.target.getAttribute('data-mini'), 10), evt.target.value);
   }
   if (role === 'live-rer') {
     modifierRerExercice(parseInt(evt.target.getAttribute('data-ex'), 10), evt.target.value);

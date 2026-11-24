@@ -32,6 +32,7 @@ function demarrerSeanceDepuisModele(seanceModeleId, agendaEntryId) {
         poidsBase: poidsBase,
         repsMin: e.reps,
         repsMax: e.repsMax || 0,
+        grappes: e.grappes || 0,
         series: seriesTab
       };
     });
@@ -637,7 +638,7 @@ function formaterResumeSeries(ligneEx) {
     if (t === 'cardio') { morceaux.push(sr.reps + ' min' + (sr.distance ? ' · ' + sr.distance + ' km' : '')); }
     else if (t === 'maintien') { morceaux.push((sr.poids > 0 ? sr.poids + 'kg×' : '') + sr.reps + ' s'); }
     else if (t === 'poids_corps') { morceaux.push((sr.poids > 0 ? '+' + sr.poids + 'kg×' : '') + sr.reps); }
-    else { morceaux.push(sr.poids + 'kg×' + sr.reps); }
+    else { morceaux.push(sr.poids + 'kg×' + sr.reps + (sr.minis && sr.minis.length ? '+' + sr.minis.join('+') : '')); }
   }
   return morceaux.join(', ');
 }
@@ -883,6 +884,7 @@ function rendreExercicesActifs() {
               : htmlSuggestionCharge(ligneEx.exerciceId, serie.reps, serie.poids, e, s);
           }
           html += htmlChampsHero(ligneEx, serie, e, s, unilat);
+          if (!estEchauffement) { html += htmlPanneauMini(ligneEx, serie, e, s); }
           html += '<button class="sx-valider" data-action="basculer-serie-faite"' + attrs + '>Valider la série</button>';
           html += '</div>';
           html += htmlNoteSerie(e, s, serie);
@@ -1097,6 +1099,7 @@ var REPOS_AUTO = true;   /* false = le minuteur ne démarre plus tout seul */
 
 function basculerSerieFaite(exIndex, serieIndex) {
   if (chronoMaintien.actif && chronoMaintien.ex === exIndex && chronoMaintien.serie === serieIndex) { arreterChronoMaintien(true); }
+  if (miniPause.actif) { finirMiniPause(); }
   var serie = etat.seanceActive.exercices[exIndex].series[serieIndex];
   serie.fait = !serie.fait;
   var ligneEx = etat.seanceActive.exercices[exIndex];
@@ -2813,5 +2816,144 @@ function arreterChronoMaintien(enregistrer) {
     var serie = etat.seanceActive.exercices[ex].series[se];
     if (serie && sec > 0) { serie.reps = sec; sauvegarderEtat(); }
   }
+  rendreExercicesActifs();
+}
+
+/* ===== Mini-pauses : rest-pause, myo-reps, cluster ===== */
+
+var PAUSES_MINI = { rest_pause: 20, myo_reps: 15, cluster: 15 };   /* secondes de pause entre les mini-séries ou les grappes */
+var REPS_MINI_DEFAUT = { rest_pause: 3, myo_reps: 4 };
+var miniPause = { actif: false, ex: null, serie: null, duree: 0, fin: 0, intervalle: null };
+
+/* Arrête la mini-pause et remet le bouton à zéro, sans redessiner l'écran (on ne perd pas une saisie en cours) */
+function finirMiniPause() {
+  if (miniPause.intervalle) { window.clearInterval(miniPause.intervalle); }
+  miniPause = { actif: false, ex: null, serie: null, duree: 0, fin: 0, intervalle: null };
+  var bouton = document.querySelector('.sx-mini-actif');
+  if (bouton) {
+    bouton.classList.remove('sx-mini-actif');
+    bouton.querySelector('.sx-mini-texte').textContent = bouton.getAttribute('data-libelle');
+    bouton.querySelector('.sx-mini-barre i').style.width = '0%';
+  }
+}
+
+function lancerMiniPause(exIndex, serieIndex, secondes) {
+  finirMiniPause();
+  var ctx = obtenirContexteAudio();
+  if (ctx && ctx.resume) { ctx.resume(); }
+  miniPause = { actif: true, ex: exIndex, serie: serieIndex, duree: secondes, fin: Date.now() + secondes * 1000, intervalle: null };
+  miniPause.intervalle = window.setInterval(tickMiniPause, 200);
+}
+
+function tickMiniPause() {
+  if (!miniPause.actif || !etat.seanceActive) { finirMiniPause(); return; }
+  var reste = miniPause.fin - Date.now();
+  if (reste <= 0) {
+    var ctx = obtenirContexteAudio();
+    if (ctx) {
+      var t = ctx.currentTime + 0.02;
+      jouerBip(ctx, t, 880, 0.15);
+      jouerBip(ctx, t + 0.22, 1175, 0.25);
+    }
+    if (navigator.vibrate) { try { navigator.vibrate([30, 40, 30]); } catch (e) {} }
+    finirMiniPause();
+    return;
+  }
+  var bouton = document.querySelector('.sx-mini-actif');
+  if (bouton) {
+    bouton.querySelector('.sx-mini-texte').textContent = Math.ceil(reste / 1000) + ' s';
+    bouton.querySelector('.sx-mini-barre i').style.width = Math.round(reste / (miniPause.duree * 1000) * 100) + '%';
+  }
+}
+
+function htmlBoutonMiniPause(action, libelle, e, s, secondes) {
+  var actif = miniPause.actif && miniPause.ex === e && miniPause.serie === s;
+  var repos = libelle + ' · ' + secondes + ' s';
+  var fraction = actif ? Math.max(0, (miniPause.fin - Date.now()) / (miniPause.duree * 1000)) : 0;
+  var h = '<button class="sx-mini-pause' + (actif ? ' sx-mini-actif' : '') + '" data-action="' + action + '" data-ex="' + e + '" data-serie="' + s + '" data-libelle="' + echapperHtml(repos) + '">';
+  h += '<span class="sx-mini-barre"><i style="width:' + Math.round(fraction * 100) + '%"></i></span>';
+  h += '<span class="sx-mini-texte">' + (actif ? Math.ceil(fraction * secondes) + ' s' : echapperHtml(repos)) + '</span></button>';
+  return h;
+}
+
+/* Rest-pause et myo-reps : mini-séries après la série principale, sur la dernière série de travail */
+function htmlPanneauMiniSeries(ligneEx, serie, e, s) {
+  var minis = serie.minis || [];
+  var h = '<div class="sx-mini">';
+  if (minis.length > 0) {
+    h += '<div class="sx-mini-liste">';
+    for (var m = 0; m < minis.length; m++) {
+      h += '<input class="sx-mini-reps donnee-num" type="number" inputmode="numeric" step="1" min="0" data-role="live-mini" data-ex="' + e + '" data-serie="' + s + '" data-mini="' + m + '" value="' + minis[m] + '">';
+    }
+    h += '<span class="sx-mini-unite">reps</span>';
+    h += '<button class="sx-mini-suppr" data-action="retirer-mini-serie" data-ex="' + e + '" data-serie="' + s + '" aria-label="Retirer la dernière mini-série">&times;</button></div>';
+  }
+  h += htmlBoutonMiniPause('mini-serie', '+ mini-série', e, s, PAUSES_MINI[ligneEx.technique]);
+  return h + '</div>';
+}
+
+/* Cluster : une pastille par grappe, une pause entre les grappes */
+function htmlPanneauCluster(ligneEx, serie, e, s) {
+  var total = ligneEx.grappes > 0 ? ligneEx.grappes : 4;
+  var faites = Math.min(total, serie.grappes || 0);
+  var repsGrappe = Math.max(1, Math.round(serie.reps / total));
+  var h = '<div class="sx-mini"><div class="sx-grappes">';
+  for (var g = 0; g < total; g++) { h += '<span class="sx-grappe' + (g < faites ? ' sx-grappe-faite' : '') + '"></span>'; }
+  h += '<span class="sx-grappes-info donnee-num">' + repsGrappe + ' reps × ' + total + '</span>';
+  if (faites > 0) { h += '<button class="sx-mini-suppr" data-action="grappe-moins" data-ex="' + e + '" data-serie="' + s + '" aria-label="Annuler une grappe">&minus;</button>'; }
+  h += '</div>';
+  if (faites < total) { h += htmlBoutonMiniPause('grappe-faite', '✓ Grappe faite', e, s, PAUSES_MINI.cluster); }
+  return h + '</div>';
+}
+
+function htmlPanneauMini(ligneEx, serie, e, s) {
+  if (ligneEx.structure === 'cluster') { return htmlPanneauCluster(ligneEx, serie, e, s); }
+  var tech = ligneEx.technique;
+  if ((tech === 'rest_pause' || tech === 'myo_reps') && s === indexDerniereSerieTravail(ligneEx)) {
+    return htmlPanneauMiniSeries(ligneEx, serie, e, s);
+  }
+  return '';
+}
+
+function ajouterMiniSerie(exIndex, serieIndex) {
+  var ligne = etat.seanceActive.exercices[exIndex];
+  var serie = ligne.series[serieIndex];
+  if (!serie.minis) { serie.minis = []; }
+  var reps = serie.minis.length > 0 ? serie.minis[serie.minis.length - 1] : (REPS_MINI_DEFAUT[ligne.technique] || 3);
+  serie.minis.push(reps);
+  sauvegarderEtat();
+  lancerMiniPause(exIndex, serieIndex, PAUSES_MINI[ligne.technique] || 15);
+  rendreExercicesActifs();
+}
+
+function retirerMiniSerie(exIndex, serieIndex) {
+  var serie = etat.seanceActive.exercices[exIndex].series[serieIndex];
+  if (serie.minis && serie.minis.length > 0) { serie.minis.pop(); }
+  finirMiniPause();
+  sauvegarderEtat();
+  rendreExercicesActifs();
+}
+
+function modifierMiniSerie(exIndex, serieIndex, miniIndex, valeur) {
+  var serie = etat.seanceActive.exercices[exIndex].series[serieIndex];
+  if (serie.minis) { serie.minis[miniIndex] = parseInt(valeur, 10) || 0; sauvegarderEtat(); }
+}
+
+function grappeFaite(exIndex, serieIndex) {
+  var ligne = etat.seanceActive.exercices[exIndex];
+  var serie = ligne.series[serieIndex];
+  var total = ligne.grappes > 0 ? ligne.grappes : 4;
+  serie.grappes = Math.min(total, (serie.grappes || 0) + 1);
+  sauvegarderEtat();
+  if (serie.grappes < total) { lancerMiniPause(exIndex, serieIndex, PAUSES_MINI.cluster); }
+  else { finirMiniPause(); }
+  rendreExercicesActifs();
+}
+
+function grappeMoins(exIndex, serieIndex) {
+  var serie = etat.seanceActive.exercices[exIndex].series[serieIndex];
+  serie.grappes = Math.max(0, (serie.grappes || 0) - 1);
+  finirMiniPause();
+  sauvegarderEtat();
   rendreExercicesActifs();
 }
