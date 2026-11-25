@@ -879,7 +879,7 @@ function rendreExercicesActifs() {
           html += '<button class="serie-suppr" data-action="supprimer-serie"' + attrs + '>&times;</button>';
           html += '</span></div>';
           if (!estEchauffement) {
-            html += (ligneEx.structure === 'fourchette' && ligneEx.repsMax > ligneEx.repsMin)
+            html += ((ligneEx.structure === 'fourchette' && ligneEx.repsMax > ligneEx.repsMin) || ligneEx.structure === 'echec')
               ? htmlSuggestionFourchette(ligneEx, serie, e, s)
               : htmlSuggestionCharge(ligneEx.exerciceId, serie.reps, serie.poids, e, s);
           }
@@ -2682,12 +2682,14 @@ function suggestionFourchette(ligneEx) {
 }
 
 function htmlSuggestionFourchette(ligneEx, serie, exIndex, serieIndex) {
-  var sug = suggestionFourchette(ligneEx);
+  var estEchec = (ligneEx.structure === 'echec');
+  var sug = estEchec ? suggestionEchec(ligneEx) : suggestionFourchette(ligneEx);
+  if (!sug && estEchec) { return htmlSuggestionCharge(ligneEx.exerciceId, serie.reps, serie.poids, exIndex, serieIndex); }
   if (!sug || (Math.abs(sug.poids - serie.poids) < 0.01 && sug.reps === serie.reps)) { return ''; }
   var h = '<button class="sx-suggestion" data-action="appliquer-suggestion-fourchette" data-ex="' + exIndex + '" data-poids="' + sug.poids + '" data-reps="' + sug.reps + '">';
   h += '<span class="sx-suggestion-icone">💡</span>';
   h += '<span class="sx-suggestion-poids donnee-num">' + nombreCourt(sug.poids) + ' kg × ' + sug.reps + '</span>';
-  h += '<span class="sx-suggestion-raison">' + (sug.raison === 'progression' ? 'progression' : 'plus de reps') + '</span></button>';
+  h += '<span class="sx-suggestion-raison">' + (sug.raison === 'progression' ? 'progression' : (sug.raison === 'stable' ? 'même charge' : 'plus de reps')) + '</span></button>';
   return h;
 }
 
@@ -2956,4 +2958,29 @@ function grappeMoins(exIndex, serieIndex) {
   finirMiniPause();
   sauvegarderEtat();
   rendreExercicesActifs();
+}
+
+/* ===== Jusqu'à l'échec : progression ===== */
+var ECHEC_MARGE_REPS = 2;   /* reps au-dessus de l'objectif à partir desquelles on propose +2,5 kg */
+
+function suggestionEchec(ligneEx) {
+  var cible = ligneEx.repsMin > 0 ? ligneEx.repsMin : 0;
+  if (!(cible > 0)) { return null; }
+  var reprise = dateRepriseAnalyse();
+  var derniere = derniereOccurrenceExercice(ligneEx.exerciceId);
+  if (!derniere || (reprise && derniere.date <= reprise)) { return null; }
+
+  /* la dernière série marquée « à l'échec » de la séance précédente */
+  var series = derniere.ligneEx.series;
+  var amrap = null;
+  for (var i = series.length - 1; i >= 0; i--) {
+    if (series[i].echec && series[i].fait) { amrap = series[i]; break; }
+  }
+  if (!amrap || !(amrap.poids > 0)) { return null; }
+
+  var cibleAvant = derniere.ligneEx.repsMin > 0 ? derniere.ligneEx.repsMin : cible;
+  if (amrap.reps >= cibleAvant + ECHEC_MARGE_REPS) {
+    return { poids: arrondirPoids(amrap.poids + PAS_POIDS_STEPPER), reps: cible, raison: 'progression' };
+  }
+  return { poids: amrap.poids, reps: cible, raison: 'stable' };
 }
