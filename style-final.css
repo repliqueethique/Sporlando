@@ -847,3 +847,110 @@
 .sx-groupe-tete { display: flex; align-items: center; justify-content: space-between; padding: 2px 8px 8px 8px; }
 .sx-groupe-nom { font-size: 11.5px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--couleur-turquoise); }
 .sx-groupe-tour { font-size: 12px; font-weight: 700; color: var(--couleur-texte-att); }
+
+/* ============================================================
+   CASES À COCHER (liste de séances d'un programme) + JOURS
+   Les couleurs suivent les variables du thème ; quelques thèmes ont leur variante.
+   ============================================================ */
+.case-liste { cursor: pointer; -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
+.case-liste span { -webkit-box-flex: 1; -webkit-flex: 1; flex: 1; min-width: 0; font-size: 15px; font-weight: 600; }
+
+.modal-contenu .case-liste input[type="checkbox"] {
+  -webkit-appearance: none; appearance: none;
+  position: relative;
+  width: 26px; height: 26px; min-width: 26px;
+  margin: 0 12px 0 0; padding: 0;
+  border: 2px solid var(--couleur-bordure);
+  border-radius: 9px;
+  background: var(--couleur-carte-creux);
+  box-shadow: none;
+  outline: none;
+  cursor: pointer;
+  -webkit-transition: background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease, -webkit-transform 0.2s ease;
+  transition: background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+}
+.modal-contenu .case-liste input[type="checkbox"]::after {
+  content: '';
+  position: absolute;
+  left: 6px; top: 1px;
+  width: 6px; height: 12px;
+  border: solid #0B1114;
+  border-width: 0 3px 3px 0;
+  -webkit-transform: rotate(45deg) scale(0); transform: rotate(45deg) scale(0);
+  -webkit-transition: -webkit-transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.modal-contenu .case-liste input[type="checkbox"]:checked {
+  background: var(--couleur-degrade);
+  border-color: transparent;
+  box-shadow: 0 0 12px -4px var(--couleur-turquoise);
+}
+.modal-contenu .case-liste input[type="checkbox"]:checked::after {
+  -webkit-transform: rotate(45deg) scale(1); transform: rotate(45deg) scale(1);
+}
+.case-liste:active input[type="checkbox"] { -webkit-transform: scale(0.9); transform: scale(0.9); }
+
+/* Une séance = case + rangée de jours */
+.pr-seance-bloc { padding: 2px 0 10px 0; border-bottom: 1px solid var(--couleur-bordure); }
+.pr-seance-bloc:last-of-type { border-bottom: none; }
+.pr-seance-bloc .case-liste { border-bottom: none; padding-bottom: 6px; }
+.pr-jours {
+  display: -webkit-box; display: -webkit-flex; display: flex;
+  margin: 0 -2px 2px 38px;
+}
+.pr-jours .chip-rapide {
+  -webkit-box-flex: 1; -webkit-flex: 1 1 0; flex: 1 1 0;
+  min-width: 0;
+  margin: 0 2px;
+  padding: 8px 0;
+  text-align: center;
+  font-size: 12px;
+}
+
+/* --- Variantes par thème --- */
+:root[data-theme="cyberpunk"] .modal-contenu .case-liste input[type="checkbox"] {
+  border: 2px solid #74859a; border-radius: 4px;
+  background: linear-gradient(180deg, #303a4b, #111824);
+  box-shadow: inset 0 2px 4px rgba(0,0,0,.6), 0 0 0 1px #070a11;
+}
+:root[data-theme="cyberpunk"] .modal-contenu .case-liste input[type="checkbox"]:checked {
+  border-color: #00F0FF;
+  background: linear-gradient(180deg, #154b5b, #101b2a);
+  box-shadow: 0 0 9px rgba(0,240,255,.45), inset 0 0 7px rgba(0,240,255,.2);
+}
+:root[data-theme="cyberpunk"] .modal-contenu .case-liste input[type="checkbox"]::after { border-color: #E9FBFF; }
+
+:root[data-theme="wasteland"] .modal-contenu .case-liste input[type="checkbox"],
+:root[data-theme="ruedor"] .modal-contenu .case-liste input[type="checkbox"],
+:root[data-theme="steampunk"] .modal-contenu .case-liste input[type="checkbox"],
+:root[data-theme="flibuste"] .modal-contenu .case-liste input[type="checkbox"] { border-radius: 4px; }
+
+:root[data-theme="ruedor"] .modal-contenu .case-liste input[type="checkbox"]::after { border-color: #F6E6B8; }
+
+:root[data-theme="steampunk"] .modal-contenu .case-liste input[type="checkbox"] {
+  border-color: #8A5E1E; background: #1B0F07; box-shadow: inset 0 2px 4px rgba(0,0,0,.65);
+}
+:root[data-theme="steampunk"] .modal-contenu .case-liste input[type="checkbox"]:checked { border-color: #8A5E1E; box-shadow: 0 0 8px rgba(77,227,154,.5); }
+
+:root[data-theme="flibuste"] .modal-contenu .case-liste input[type="checkbox"] {
+  border-color: #A87B2C; background-image: var(--pr-piece-vide); box-shadow: inset 0 2px 5px rgba(0,0,0,.75);
+}
+:root[data-theme="flibuste"] .modal-contenu .case-liste input[type="checkbox"]:checked {
+  background-image: var(--pr-laiton); border-color: #7C5314; box-shadow: 0 0 8px rgba(240,180,60,.4);
+}
+:root[data-theme="flibuste"] .modal-contenu .case-liste input[type="checkbox"]::after { border-color: #1C1105; }
+
+:root[data-theme="paindepice"] .modal-contenu .case-liste input[type="checkbox"] { border-color: #B8912B; border-radius: 7px; }
+:root[data-theme="paindepice"] .modal-contenu .case-liste input[type="checkbox"]:checked {
+  background: linear-gradient(180deg, #E23A4A 0%, #B3202E 50%, #8A1420 100%);
+  border-color: #F2D26B;
+}
+:root[data-theme="paindepice"] .modal-contenu .case-liste input[type="checkbox"]::after { border-color: #FFF6E0; }
+
+:root[data-theme="hivernal"] .modal-contenu .case-liste input[type="checkbox"],
+:root[data-theme="effroi"] .modal-contenu .case-liste input[type="checkbox"] {
+  border-radius: 0;
+  -webkit-clip-path: polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px);
+  clip-path: polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px);
+}
+:root[data-theme="effroi"] .modal-contenu .case-liste input[type="checkbox"] { border-color: var(--cadre); }

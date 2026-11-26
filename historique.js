@@ -1160,7 +1160,7 @@ function ouvrirVerificationObjectif() {
   var html = '';
   html += '<div class="modal-entete"><h2>Objectif — ' + echapperHtml(prog.nom) + '</h2><button class="bouton-fermer" data-action="fermer-modal">&times;</button></div>';
   html += '<div class="texte-att" style="margin-bottom:10px;">Ton objectif est-il toujours le même ? Modifie-le si besoin.</div>';
-  html += '<div class="champ"><label>Objectif actuel</label><textarea id="champ-objectif-verif">' + echapperHtml(prog.objectif || '') + '</textarea></div>';
+  html += htmlChoixObjectif(prog.objectif || '', 'champ-objectif-verif-choix', 'champ-objectif-verif');
   html += '<button class="btn btn-plein btn-bloc" data-action="confirmer-objectif">Enregistrer</button>';
   ouvrirModal(html);
 }
@@ -1168,7 +1168,7 @@ function ouvrirVerificationObjectif() {
 function confirmerObjectif() {
   if (!etat.programmeActif) { fermerModal(); return; }
   var prog = trouverParId(etat.programmes, etat.programmeActif.programmeId);
-  if (prog) { prog.objectif = document.getElementById('champ-objectif-verif').value; }
+  if (prog) { prog.objectif = lireObjectif('champ-objectif-verif-choix', 'champ-objectif-verif'); }
   etat.programmeActif.dateDernierObjectif = formaterDateISO(new Date());
   sauvegarderEtat();
   fermerModal();

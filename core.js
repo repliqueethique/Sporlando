@@ -473,6 +473,18 @@ var TYPES_MESOCYCLE = [
   { valeur: 'personnalise', libelle: 'Personnalisé' }
 ];
 
+/* Objectifs proposés pour un programme (le dernier choix, « Autre », ouvre un champ libre) */
+var OBJECTIFS_PROGRAMME = [
+  'Prise de masse',
+  'Gain de force',
+  'Perte de gras',
+  'Recomposition corporelle',
+  'Maintien',
+  'Endurance musculaire',
+  'Reprise / remise en forme',
+  'Préparation d\'une compétition'
+];
+
 var STRUCTURES_SERIES = TYPES_EXERCICE.filter(estTypePrincipal).map(function (t) {
   return { valeur: t.id, libelle: t.nom };
 });

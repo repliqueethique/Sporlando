@@ -575,8 +575,90 @@ function rendreSeancesBib() {
 
 var programmeEnConstruction = null;
 
+var JOURS_PLANNING = ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'];
+
+/* ---------- Objectif : une liste + « Autre » ---------- */
+
+function htmlChoixObjectif(objectifActuel, idChoix, idLibre) {
+  var actuel = objectifActuel || '';
+  var choix = (OBJECTIFS_PROGRAMME.indexOf(actuel) !== -1) ? actuel : (actuel ? '__autre' : '');
+  var html = '<div class="champ"><label>Objectif actuel</label>';
+  html += '<select id="' + idChoix + '" data-role="objectif-choix" data-libre="' + idLibre + '">';
+  html += '<option value="">— choisir —</option>';
+  for (var i = 0; i < OBJECTIFS_PROGRAMME.length; i++) {
+    var o = OBJECTIFS_PROGRAMME[i];
+    html += '<option value="' + echapperHtml(o) + '"' + (o === choix ? ' selected' : '') + '>' + echapperHtml(o) + '</option>';
+  }
+  html += '<option value="__autre"' + (choix === '__autre' ? ' selected' : '') + '>Autre (je précise)</option></select></div>';
+  html += '<div class="champ" id="' + idLibre + '-zone"' + (choix === '__autre' ? '' : ' style="display:none;"') + '>';
+  html += '<textarea id="' + idLibre + '" placeholder="Précise ton objectif...">' + (choix === '__autre' ? echapperHtml(actuel) : '') + '</textarea></div>';
+  return html;
+}
+
+function majObjectifLibre(select) {
+  var zone = document.getElementById(select.getAttribute('data-libre') + '-zone');
+  if (zone) { zone.style.display = (select.value === '__autre') ? '' : 'none'; }
+}
+
+function lireObjectif(idChoix, idLibre) {
+  var choix = document.getElementById(idChoix).value;
+  if (choix === '__autre') { return document.getElementById(idLibre).value.trim(); }
+  return choix;
+}
+
+/* ---------- Agenda rempli par un programme ---------- */
+
+/* Retire de l'agenda les séances encore prévues (aujourd'hui et après) qui viennent de ce programme */
+function retirerAgendaProgramme(idProg) {
+  var aujourdHui = formaterDateISO(new Date());
+  etat.agenda = etat.agenda.filter(function (a) {
+    return !(a.programmeId === idProg && a.statut === 'planifie' && a.date >= aujourdHui);
+  });
+}
+
+/* Planifie les séances du programme, de dateDebutISO jusqu'à la fin de sa durée (4 semaines si aucune durée).
+   Le passé n'est jamais touché. Renvoie le nombre de séances ajoutées. */
+function remplirAgendaProgramme(prog, dateDebutISO) {
+  var planning = prog.planning || {};
+  var nbSemaines = (prog.dureeSemaines > 0) ? prog.dureeSemaines : 4;
+  var debut = dateDepuisISO(dateDebutISO);
+  var aujourdHui = formaterDateISO(new Date());
+  var ajoutes = 0;
+  for (var i = 0; i < nbSemaines * 7; i++) {
+    var d = new Date(debut.getFullYear(), debut.getMonth(), debut.getDate() + i);
+    var dateISO = formaterDateISO(d);
+    if (dateISO < aujourdHui) { continue; }
+    var jourSemaine = (d.getDay() + 6) % 7;   /* 0 = lundi */
+    for (var s = 0; s < prog.seanceIds.length; s++) {
+      var sid = prog.seanceIds[s];
+      var jours = planning[sid];
+      if (!jours || jours.indexOf(jourSemaine) === -1) { continue; }
+      if (!trouverParId(etat.seances, sid)) { continue; }
+      var dejaLa = etat.agenda.some(function (a) { return a.date === dateISO && a.seanceId === sid; });
+      if (dejaLa) { continue; }
+      etat.agenda.push({ id: genererId(), date: dateISO, seanceId: sid, statut: 'planifie', caloriesEstimees: 0, dureeMinutes: 0, resultat: null, programmeId: prog.id });
+      ajoutes++;
+    }
+  }
+  return ajoutes;
+}
+
+/* Programme déjà en cours et modifié : on refait les séances à venir */
+function synchroniserAgendaProgramme(prog) {
+  retirerAgendaProgramme(prog.id);
+  return remplirAgendaProgramme(prog, etat.programmeActif.dateDebut);
+}
+
+/* ---------- Formulaire ---------- */
+
 function ouvrirFormulaireProgramme(idProgramme) {
   var progExistant = idProgramme ? trouverParId(etat.programmes, idProgramme) : null;
+  var planning = {};
+  if (progExistant && progExistant.planning) {
+    for (var cle in progExistant.planning) {
+      if (progExistant.planning.hasOwnProperty(cle)) { planning[cle] = progExistant.planning[cle].slice(); }
+    }
+  }
   programmeEnConstruction = progExistant
     ? {
         id: progExistant.id,
@@ -585,9 +667,10 @@ function ouvrirFormulaireProgramme(idProgramme) {
         seanceIds: progExistant.seanceIds.slice(),
         typeMesocycle: progExistant.typeMesocycle || 'personnalise',
         dureeSemaines: progExistant.dureeSemaines || '',
-        objectif: progExistant.objectif || ''
+        objectif: progExistant.objectif || '',
+        planning: planning
       }
-    : { id: null, nom: '', notes: '', seanceIds: [], typeMesocycle: 'personnalise', dureeSemaines: '', objectif: '' };
+    : { id: null, nom: '', notes: '', seanceIds: [], typeMesocycle: 'personnalise', dureeSemaines: '', objectif: '', planning: {} };
   rendreFormulaireProgramme();
 }
 
@@ -597,19 +680,27 @@ function rendreFormulaireProgramme() {
   html += '<div class="modal-entete"><h2>' + (estModif ? 'Modifier le programme' : 'Nouveau programme') + '</h2>';
   html += '<button class="bouton-fermer" data-action="fermer-modal">&times;</button></div>';
   html += '<div class="champ"><label>Nom du programme</label><input type="text" id="champ-pr-nom" value="' + echapperHtml(programmeEnConstruction.nom) + '" placeholder="ex. Force 5x5"></div>';
-  html += '<div class="champ"><label>Objectif actuel</label><textarea id="champ-pr-objectif" placeholder="ex. Prise de masse, force sur squat, perte de gras...">' + echapperHtml(programmeEnConstruction.objectif) + '</textarea></div>';
+  html += htmlChoixObjectif(programmeEnConstruction.objectif, 'champ-pr-objectif-choix', 'champ-pr-objectif');
   html += '<div class="champ"><label>Type de mésocycle</label><select id="champ-pr-type">' + optionsListeValeurLibelle(TYPES_MESOCYCLE, programmeEnConstruction.typeMesocycle) + '</select></div>';
   html += '<div class="champ"><label>Durée (semaines, optionnel)</label><input type="number" step="1" min="1" id="champ-pr-duree" value="' + echapperHtml(programmeEnConstruction.dureeSemaines) + '" placeholder="ex. 6"></div>';
   html += '<div class="champ"><label>Notes (optionnel)</label><textarea id="champ-pr-notes">' + echapperHtml(programmeEnConstruction.notes) + '</textarea></div>';
-  html += '<div class="champ"><label>Séances incluses</label>';
+  html += '<div class="champ"><label>Séances incluses et jours</label>';
   if (etat.seances.length === 0) {
     html += '<div class="texte-att">Crée d\'abord des séances dans l\'onglet Séances.</div>';
   } else {
     for (var i = 0; i < etat.seances.length; i++) {
       var s = etat.seances[i];
-      var coche = programmeEnConstruction.seanceIds.indexOf(s.id) !== -1 ? ' checked' : '';
-      html += '<div class="case-liste"><input type="checkbox" data-role="pr-seance" data-id="' + s.id + '"' + coche + '><span>' + echapperHtml(s.nom) + '</span></div>';
+      var coche = programmeEnConstruction.seanceIds.indexOf(s.id) !== -1;
+      var jours = programmeEnConstruction.planning[s.id] || [];
+      html += '<div class="pr-seance-bloc">';
+      html += '<label class="case-liste"><input type="checkbox" data-role="pr-seance" data-id="' + s.id + '"' + (coche ? ' checked' : '') + '><span>' + echapperHtml(s.nom) + '</span></label>';
+      html += '<div class="pr-jours" id="pr-jours-' + s.id + '"' + (coche ? '' : ' style="display:none;"') + '>';
+      for (var j = 0; j < 7; j++) {
+        html += '<button type="button" class="chip-rapide' + (jours.indexOf(j) !== -1 ? ' chip-actif' : '') + '" data-action="pr-jour" data-seance="' + s.id + '" data-jour="' + j + '">' + JOURS_PLANNING[j] + '</button>';
+      }
+      html += '</div></div>';
     }
+    html += '<p class="reglages-note">Un ou plusieurs jours par séance. Au démarrage du programme, l\'agenda se remplit sur sa durée (4 semaines si aucune durée n\'est indiquée).</p>';
   }
   html += '</div>';
   html += '<button class="btn btn-plein btn-bloc" style="margin-top:10px;" data-action="enregistrer-programme">Enregistrer le programme</button>';
@@ -624,11 +715,28 @@ function rendreFormulaireProgramme() {
   ouvrirModal(html);
 }
 
+/* Un tap sur un jour : on bascule sans redessiner la fenêtre (le reste du formulaire n'est pas perdu) */
+function basculerJourProgramme(bouton) {
+  var sid = bouton.getAttribute('data-seance');
+  var j = parseInt(bouton.getAttribute('data-jour'), 10);
+  var liste = programmeEnConstruction.planning[sid] || [];
+  var pos = liste.indexOf(j);
+  if (pos === -1) { liste.push(j); } else { liste.splice(pos, 1); }
+  programmeEnConstruction.planning[sid] = liste;
+  bouton.classList.toggle('chip-actif');
+}
+
+/* Case cochée / décochée : on montre ou on cache la rangée des jours */
+function majJoursProgramme(caseCochee) {
+  var zone = document.getElementById('pr-jours-' + caseCochee.getAttribute('data-id'));
+  if (zone) { zone.style.display = caseCochee.checked ? '' : 'none'; }
+}
+
 function enregistrerProgramme() {
   var nom = document.getElementById('champ-pr-nom').value.trim();
   if (!nom) { afficherToast('Le nom du programme est obligatoire.'); return; }
   var notes = document.getElementById('champ-pr-notes').value;
-  var objectif = document.getElementById('champ-pr-objectif').value;
+  var objectif = lireObjectif('champ-pr-objectif-choix', 'champ-pr-objectif');
   var typeMesocycle = document.getElementById('champ-pr-type').value;
   var dureeBrute = parseInt(document.getElementById('champ-pr-duree').value, 10);
   var dureeSemaines = (!isNaN(dureeBrute) && dureeBrute > 0) ? dureeBrute : null;
@@ -637,21 +745,38 @@ function enregistrerProgramme() {
   for (var i = 0; i < cases.length; i++) {
     if (cases[i].checked) { seanceIds.push(cases[i].getAttribute('data-id')); }
   }
+  var planning = {};
+  for (var p = 0; p < seanceIds.length; p++) {
+    var jours = programmeEnConstruction.planning[seanceIds[p]];
+    if (jours && jours.length > 0) {
+      planning[seanceIds[p]] = jours.slice().sort(function (a, b) { return a - b; });
+    }
+  }
+  var idProg;
   if (programmeEnConstruction.id) {
     var prog = trouverParId(etat.programmes, programmeEnConstruction.id);
     prog.nom = nom; prog.notes = notes; prog.seanceIds = seanceIds;
     prog.typeMesocycle = typeMesocycle; prog.dureeSemaines = dureeSemaines;
-    prog.objectif = objectif;
+    prog.objectif = objectif; prog.planning = planning;
+    idProg = prog.id;
   } else {
-    etat.programmes.push({ id: genererId(), nom: nom, notes: notes, seanceIds: seanceIds, typeMesocycle: typeMesocycle, dureeSemaines: dureeSemaines, objectif: objectif });
+    idProg = genererId();
+    etat.programmes.push({ id: idProg, nom: nom, notes: notes, seanceIds: seanceIds, typeMesocycle: typeMesocycle, dureeSemaines: dureeSemaines, objectif: objectif, planning: planning });
+  }
+  var message = '';
+  if (etat.programmeActif && etat.programmeActif.programmeId === idProg) {
+    var nb = synchroniserAgendaProgramme(trouverParId(etat.programmes, idProg));
+    message = 'Agenda mis à jour : ' + nb + ' séance(s) à venir.';
   }
   sauvegarderEtat();
   fermerModal();
   rendreProgrammesBib();
+  if (message) { afficherToast(message); }
 }
 
 function supprimerProgramme(id) {
-  demanderConfirmation('Supprimer ce programme ? Les séances qu\'il contient ne seront pas supprimées.', function () {
+  demanderConfirmation('Supprimer ce programme ? Les séances qu\'il contient ne seront pas supprimées, mais ses séances à venir seront retirées de l\'agenda.', function () {
+    retirerAgendaProgramme(id);
     etat.programmes = retirerParId(etat.programmes, id);
     if (etat.programmeActif && etat.programmeActif.programmeId === id) { etat.programmeActif = null; }
     sauvegarderEtat();
@@ -666,15 +791,24 @@ function demarrerProgramme(id) {
   var prog = trouverParId(etat.programmes, id);
   if (!prog) { return; }
   var executerDemarrage = function () {
+    if (etat.programmeActif && etat.programmeActif.programmeId !== id) {
+      retirerAgendaProgramme(etat.programmeActif.programmeId);
+    }
     var dateDebut = formaterDateISO(new Date());
     etat.programmeActif = { programmeId: id, dateDebut: dateDebut, dateDernierObjectif: dateDebut };
     etat.historiqueProgrammes.push({ programmeId: id, type: prog.typeMesocycle || 'personnalise', dateDebut: dateDebut });
+    var nb = remplirAgendaProgramme(prog, dateDebut);
     sauvegarderEtat();
     fermerModal();
     rendreProgrammesBib();
+    if (nb > 0) {
+      afficherToast(nb + ' séance(s) ajoutée(s) à l\'agenda' + (prog.dureeSemaines ? '.' : ' (sur 4 semaines : indique une durée pour changer).'));
+    } else {
+      afficherToast('Programme démarré. Choisis des jours pour ses séances pour remplir l\'agenda.');
+    }
   };
   if (etat.programmeActif && etat.programmeActif.programmeId !== id) {
-    demanderConfirmation('Un autre programme est déjà en cours. Le remplacer par celui-ci ?', executerDemarrage, function () {
+    demanderConfirmation('Un autre programme est déjà en cours. Le remplacer par celui-ci ? Les séances à venir de l\'ancien seront retirées de l\'agenda.', executerDemarrage, function () {
       ouvrirFormulaireProgramme(id);
     });
   } else {
@@ -683,7 +817,8 @@ function demarrerProgramme(id) {
 }
 
 function arreterProgrammeActif() {
-  demanderConfirmation('Arrêter le programme en cours ?', function () {
+  demanderConfirmation('Arrêter le programme en cours ? Ses séances à venir seront retirées de l\'agenda.', function () {
+    if (etat.programmeActif) { retirerAgendaProgramme(etat.programmeActif.programmeId); }
     etat.programmeActif = null;
     sauvegarderEtat();
     fermerModal();

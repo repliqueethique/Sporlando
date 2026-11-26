@@ -185,6 +185,7 @@ ajouterEcouteurClicDelegue(document.body, function (cible) {
   if (action === 'supprimer-programme') { supprimerProgramme(id); return; }
   if (action === 'demarrer-programme') { demarrerProgramme(id); return; }
   if (action === 'arreter-programme') { arreterProgrammeActif(); return; }
+  if (action === 'pr-jour') { basculerJourProgramme(cible); return; }
 
   if (action === 'mois-precedent') { changerMois(-1); return; }
   if (action === 'semaine-precedente') { changerSemaine(-1); return; }
@@ -256,6 +257,8 @@ document.body.addEventListener('change', function (evt) {
   }
   if (evt.target.id === 'champ-ex-groupe') { rafraichirDiagrammeMuscles(); }
   if (role === 'se-structure') { memoriserChampsSeanceEnCours(); rendreFormulaireSeance(); }
+  if (role === 'pr-seance') { majJoursProgramme(evt.target); }
+  if (role === 'objectif-choix') { majObjectifLibre(evt.target); }
   if (evt.target.id === 'champ-import-fichier') { chargerFichierImport(); }
   if (role === 'hist-poids' || role === 'hist-reps') {
     modifierValeurSerieHistorique(
