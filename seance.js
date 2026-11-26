@@ -37,6 +37,18 @@ function demarrerSeanceDepuisModele(seanceModeleId, agendaEntryId) {
       };
     });
 
+    /* Exercices enchaînés (superset / circuit) : les exercices liés partagent un identifiant de groupe */
+    var idGroupe = null;
+    for (var g = 0; g < modele.exercices.length; g++) {
+      if (modele.exercices[g].lieSuivant && g < modele.exercices.length - 1) {
+        if (idGroupe === null) { idGroupe = 'g' + g; }
+        exercicesActifs[g].groupe = idGroupe;
+        exercicesActifs[g + 1].groupe = idGroupe;
+      } else {
+        idGroupe = null;
+      }
+    }
+    
     exercicesDeplies = {};
     etat.seanceActive = {
       seanceModeleId: seanceModeleId,
