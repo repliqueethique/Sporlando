@@ -358,7 +358,8 @@ function ouvrirFormulaireSeance(idSeance) {
           technique: e.technique || 'aucune',
           tempo: e.tempo || '',
           repsMax: e.repsMax || 0,
-          grappes: e.grappes || 0
+          grappes: e.grappes || 0,
+          lieSuivant: !!e.lieSuivant
         };
       })
     };
@@ -376,6 +377,9 @@ function rendreFormulaireSeance(sens) {
   html += '<div class="champ"><label>Nom de la séance</label><input type="text" id="champ-se-nom" value="' + echapperHtml(seanceEnConstruction.nom) + '" placeholder="ex. Push day"></div>';
 
   html += '<div class="champ"><label>Exercices dans cette séance</label></div>';
+  if (seanceEnConstruction.exercices.length > 1) {
+    html += '<p class="reglages-note" style="margin:0 2px 10px;">« Enchaîner avec le suivant » relie deux exercices en superset (trois ou plus : circuit) : pas de repos entre eux, le repos se fait après chaque tour.</p>';
+  }
   if (seanceEnConstruction.exercices.length === 0) {
     html += '<div class="texte-att" style="margin-bottom:10px;">Aucun exercice ajouté.</div>';
   } else {
@@ -413,6 +417,9 @@ function rendreFormulaireSeance(sens) {
       html += '<button class="btn-aide-type" data-action="aide-type-seance" data-index="' + i + '" data-champ="technique" aria-label="Explication">?</button></div></div>';
       html += '<div class="champ" style="margin-bottom:0;"><label style="font-size:11px;">Tempo (optionnel, ex. 4-1-1-0)</label>';
       html += '<input type="text" data-role="se-tempo" data-index="' + i + '" value="' + echapperHtml(ligneEx.tempo || '') + '" placeholder="ex. 4-1-1-0"></div>';
+      if (i < seanceEnConstruction.exercices.length - 1) {
+        html += '<label class="reglages-interrupteur" style="padding:12px 0 0 0;"><span>Enchaîner avec le suivant</span><input type="checkbox" data-role="se-lie" data-index="' + i + '"' + (ligneEx.lieSuivant ? ' checked' : '') + '></label>';
+      }
       html += '</div>';
     }
   }
@@ -472,6 +479,11 @@ function memoriserChampsSeanceEnCours() {
   for (var w = 0; w < champsGrappes.length; w++) {
     var idx8 = parseInt(champsGrappes[w].getAttribute('data-index'), 10);
     seanceEnConstruction.exercices[idx8].grappes = parseInt(champsGrappes[w].value, 10) || 4;
+  }
+  var champsLie = document.querySelectorAll('[data-role="se-lie"]');
+  for (var z = 0; z < champsLie.length; z++) {
+    var idx9 = parseInt(champsLie[z].getAttribute('data-index'), 10);
+    seanceEnConstruction.exercices[idx9].lieSuivant = champsLie[z].checked;
   }
 }
 

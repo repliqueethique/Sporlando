@@ -772,18 +772,27 @@ function rendreExercicesActifs() {
   var indexExerciceActif = -1;
   for (var ea = 0; ea < seance.exercices.length; ea++) {
     var toutesFaites = seance.exercices[ea].series.every(function (sr) { return sr.fait; });
-    if (!toutesFaites) { indexExerciceActif = ea; break; }
+    if (!toutesFaites) {
+      indexExerciceActif = ea;
+      if (seance.exercices[ea].groupe) {
+        var posGroupe = positionGroupe(seance, seance.exercices[ea].groupe);
+        if (posGroupe) { indexExerciceActif = posGroupe.ex; }
+      }
+      break;
+    }
   }
+  var groupeActif = (indexExerciceActif >= 0) ? (seance.exercices[indexExerciceActif].groupe || null) : null;
 
   for (var e = 0; e < seance.exercices.length; e++) {
     var ligneEx = seance.exercices[e];
+    html += htmlOuvertureGroupe(seance, e);
     var exRef = trouverParId(etat.exercices, ligneEx.exerciceId);
     var nomEx = exRef ? exRef.nom : '(exercice supprimé)';
     var groupeEx = exRef ? exRef.groupe : '';
     var unilat = !!(exRef && exRef.unilateral);
     var exerciceTermine = ligneEx.series.every(function (sr) { return sr.fait; });
     var estActif = (e === indexExerciceActif);
-    var ouvert = (exercicesDeplies[e] !== undefined) ? exercicesDeplies[e] : estActif;
+    var ouvert = (exercicesDeplies[e] !== undefined) ? exercicesDeplies[e] : (estActif || (groupeActif !== null && ligneEx.groupe === groupeActif));
 
     var nbTravail = 0;
     var nbTravailFaites = 0;
@@ -925,6 +934,7 @@ function rendreExercicesActifs() {
       html += '</div>'; /* fin corps */
     }
     html += '</div>'; /* fin carte */
+    html += htmlFermetureGroupe(seance, e);
   }
 
   /* Tout est fait : invitation à terminer */
@@ -1112,7 +1122,7 @@ function basculerSerieFaite(exIndex, serieIndex) {
 
   /* Repos automatique : seulement quand on VALIDE une série de travail, pas un échauffement,
      et pas si c'était la toute dernière série de la séance */
-  if (REPOS_AUTO && serie.fait && !serie.echauffement) {
+  if (REPOS_AUTO && serie.fait && !serie.echauffement && !suiteDansLeMemeTour(exIndex, serieIndex)) {
     var resteUneSerie = false;
     var exs = etat.seanceActive.exercices;
     for (var e = 0; e < exs.length && !resteUneSerie; e++) {
@@ -2306,7 +2316,17 @@ function voixPositionEnCours() {
   var exs = etat.seanceActive.exercices;
   for (var e = 0; e < exs.length; e++) {
     for (var s = 0; s < exs[e].series.length; s++) {
-      if (!exs[e].series[s].fait) { return { ex: e, serie: s }; }
+      if (exs[e].series[s].fait) { continue; }
+      if (exs[e].groupe) {
+        var pos = positionGroupe(etat.seanceActive, exs[e].groupe);
+        if (pos) {
+          var exG = exs[pos.ex];
+          for (var s2 = 0; s2 < exG.series.length; s2++) {
+            if (!exG.series[s2].fait) { return { ex: pos.ex, serie: s2 }; }
+          }
+        }
+      }
+      return { ex: e, serie: s };
     }
   }
   return null;
@@ -2983,4 +3003,84 @@ function suggestionEchec(ligneEx) {
     return { poids: arrondirPoids(amrap.poids + PAS_POIDS_STEPPER), reps: cible, raison: 'progression' };
   }
   return { poids: amrap.poids, reps: cible, raison: 'stable' };
+}
+
+/* ===== Superset / circuit : exercices enchaînés ===== */
+
+function indicesTravailExercice(ligneEx) {
+  var r = [];
+  for (var i = 0; i < ligneEx.series.length; i++) {
+    if (!ligneEx.series[i].echauffement) { r.push(i); }
+  }
+  return r;
+}
+
+function indicesGroupe(seance, groupeId) {
+  var r = [];
+  for (var i = 0; i < seance.exercices.length; i++) {
+    if (seance.exercices[i].groupe === groupeId) { r.push(i); }
+  }
+  return r;
+}
+
+/* rang d'une série parmi les séries de travail de son exercice (0 = premier tour) */
+function indexTravailSerie(ligneEx, serieIndex) {
+  var n = 0;
+  for (var i = 0; i < serieIndex; i++) {
+    if (!ligneEx.series[i].echauffement) { n++; }
+  }
+  return n;
+}
+
+/* La série en cours d'un groupe : on avance tour par tour, exercice par exercice (A1, B1, A2, B2…) */
+function positionGroupe(seance, groupeId) {
+  var membres = indicesGroupe(seance, groupeId);
+  var travail = [];
+  var tours = 0, k, r;
+  for (k = 0; k < membres.length; k++) {
+    travail.push(indicesTravailExercice(seance.exercices[membres[k]]));
+    if (travail[k].length > tours) { tours = travail[k].length; }
+  }
+  for (r = 0; r < tours; r++) {
+    for (k = 0; k < membres.length; k++) {
+      if (travail[k].length > r && !seance.exercices[membres[k]].series[travail[k][r]].fait) {
+        return { ex: membres[k], serie: travail[k][r] };
+      }
+    }
+  }
+  return null;
+}
+
+/* Vrai si l'exercice suivant du groupe est dans le même tour : pas de repos */
+function suiteDansLeMemeTour(exIndex, serieIndex) {
+  var seance = etat.seanceActive;
+  var ligne = seance.exercices[exIndex];
+  if (!ligne.groupe) { return false; }
+  var suivante = positionGroupe(seance, ligne.groupe);
+  if (!suivante) { return false; }
+  return indexTravailSerie(seance.exercices[suivante.ex], suivante.serie) === indexTravailSerie(ligne, serieIndex);
+}
+
+/* Cadre qui s'ouvre sur le premier exercice d'un groupe, avec « Tour k / n » */
+function htmlOuvertureGroupe(seance, e) {
+  var g = seance.exercices[e].groupe;
+  if (!g || (e > 0 && seance.exercices[e - 1].groupe === g)) { return ''; }
+  var membres = indicesGroupe(seance, g);
+  var tours = 0, minFaites = 9999;
+  for (var k = 0; k < membres.length; k++) {
+    var ligne = seance.exercices[membres[k]];
+    var travail = indicesTravailExercice(ligne);
+    var faites = 0;
+    for (var t = 0; t < travail.length; t++) { if (ligne.series[travail[t]].fait) { faites++; } }
+    if (travail.length > tours) { tours = travail.length; }
+    if (faites < minFaites) { minFaites = faites; }
+  }
+  var tour = Math.min(tours, minFaites + 1);
+  return '<div class="sx-groupe"><div class="sx-groupe-tete"><span class="sx-groupe-nom">' + (membres.length >= 3 ? 'Circuit' : 'Superset') + '</span><span class="sx-groupe-tour donnee-num">Tour ' + tour + ' / ' + tours + '</span></div>';
+}
+
+function htmlFermetureGroupe(seance, e) {
+  var g = seance.exercices[e].groupe;
+  if (!g || (e < seance.exercices.length - 1 && seance.exercices[e + 1].groupe === g)) { return ''; }
+  return '</div>';
 }
