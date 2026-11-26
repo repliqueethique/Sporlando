@@ -86,6 +86,17 @@ ajouterEcouteurClicDelegue(document.body, function (cible) {
     });
     return;
   }
+  if (action === 'ouvrir-tip-du-jour') { ouvrirTipDuJour(); return; }
+  if (action === 'ouvrir-archive-tips') { ouvrirArchiveTips(); return; }
+  if (action === 'ouvrir-detail-tip') { ouvrirDetailTipArchive(cible.getAttribute('data-tip-id')); return; }
+  if (action === 'filtrer-archive-tips') { ouvrirArchiveTips(cible.getAttribute('data-filtre')); return; }
+  if (action === 'basculer-lecture-tip') {
+    basculerLectureTip(cible.getAttribute('data-tip-id'));
+    synchroniserEtatBoutonTipRoutine();
+    var idCourant = cible.getAttribute('data-tip-id');
+    if (idCourant === obtenirTipDuJour().id) { ouvrirTipDuJour(); } else { ouvrirDetailTipArchive(idCourant); }
+    return;
+  }
   if (action === 'changer-periode-etat') { changerPeriodeEtat(cible.getAttribute('data-periode')); return; }
   if (action === 'toggle-rappel-actif') { toggleRappelActif(parseInt(cible.getAttribute('data-index'), 10)); return; }
   if (action === 'marquer-rappel-fait') { marquerRappelFaitEtRafraichir(cible.getAttribute('data-rappel-id')); return; }
@@ -341,6 +352,7 @@ if (syncEstConfiguree()) {
 setInterval(function () {
   verifierResetQuotidien();
   rendreChecklistQuotidienne();
+  synchroniserEtatBoutonTipRoutine();
   mettreAJourDateEntete();
   rendrePrete();
 }, 60000);

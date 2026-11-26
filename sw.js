@@ -33,6 +33,8 @@ const urlsToCache = [
   './sync-ipad.js',
   './nav.js',
   './manifest.json',
+  './tips.css',
+  './tips.js',
 
   /* Polices */
   './fonts/metrim.woff2',

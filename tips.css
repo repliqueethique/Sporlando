@@ -1,0 +1,239 @@
+/* ============================================================
+   MODULE TIPS DU JOUR & ARCHIVE (LU / NON LU)
+   ============================================================ */
+
+@keyframes tipEntree {
+  0% { opacity: 0; transform: translateY(10px) scale(0.985); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes tipBadgePulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(31, 217, 196, 0.35); }
+  50% { box-shadow: 0 0 0 6px rgba(31, 217, 196, 0); }
+}
+
+.tip-carte-modal {
+  animation: tipEntree 0.32s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.tip-meta-ligne {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.tip-numero {
+  font-family: var(--police-donnees);
+  font-size: 12px;
+  font-weight: 800;
+  padding: 4px 9px;
+  border-radius: 999px;
+  background: var(--couleur-carte-creux);
+  border: 1px solid var(--couleur-bordure);
+  color: var(--couleur-turquoise);
+}
+
+.tip-domaine {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 4px 9px;
+  border-radius: 999px;
+  background: var(--couleur-carte-creux);
+  border: 1px solid var(--couleur-bordure);
+  color: var(--couleur-cyan);
+}
+
+.tip-statut-lu {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--couleur-succes);
+}
+
+.tip-statut-nonlu {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--couleur-texte-att);
+}
+
+.tip-titre {
+  margin: 0 0 10px 0;
+  font-size: 19px;
+  line-height: 1.3;
+  font-weight: 800;
+}
+
+.tip-corps {
+  margin: 0 0 14px 0;
+  font-size: 15px;
+  line-height: 1.55;
+  color: var(--couleur-texte);
+}
+
+.tip-sources {
+  padding: 12px;
+  border-radius: 14px;
+  background: var(--couleur-carte-creux);
+  border: 1px solid var(--couleur-bordure);
+  margin-bottom: 14px;
+}
+
+.tip-sources-titre {
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--couleur-texte-att);
+  margin-bottom: 8px;
+}
+
+.tip-source-lien {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--couleur-turquoise);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  word-break: break-word;
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.2s ease;
+}
+
+.tip-source-lien:hover {
+  opacity: 0.85;
+  transform: translateX(2px);
+}
+
+.tip-source-texte {
+  font-size: 12.5px;
+  color: var(--couleur-texte-att);
+  line-height: 1.4;
+}
+
+/* Archive des tips : liste + icône lu / non lu */
+.tip-filtres {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+}
+
+.tip-resume-lecture {
+  font-size: 12px;
+  color: var(--couleur-texte-att);
+  margin-bottom: 10px;
+}
+
+.tip-archive-liste {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.tip-archive-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  border-radius: 14px;
+  background: var(--couleur-carte-creux);
+  border: 1px solid var(--couleur-bordure);
+  cursor: pointer;
+  text-align: left;
+  width: 100%;
+  transition: transform 0.24s cubic-bezier(0.34, 1.56, 0.64, 1), border-color 0.2s ease, background 0.2s ease;
+}
+
+.tip-archive-item:hover {
+  border-color: var(--couleur-turquoise);
+  transform: translateY(-1px);
+}
+
+.tip-archive-item:active {
+  transform: scale(0.985);
+}
+
+.tip-icone-etat {
+  flex: 0 0 34px;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 15px;
+  font-weight: 800;
+  border: 1.5px solid var(--couleur-bordure);
+  background: var(--couleur-carte);
+  color: var(--couleur-texte-att);
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), background 0.25s ease, color 0.25s ease;
+}
+
+.tip-archive-item.est-lu .tip-icone-etat {
+  background: var(--couleur-succes);
+  border-color: var(--couleur-succes);
+  color: #0B1114;
+}
+
+.tip-archive-item:not(.est-lu) .tip-icone-etat {
+  border-color: var(--couleur-turquoise);
+  color: var(--couleur-turquoise);
+  animation: tipBadgePulse 2.8s ease-in-out infinite;
+}
+
+.tip-archive-corps {
+  flex: 1;
+  min-width: 0;
+}
+
+.tip-archive-titre {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--couleur-texte);
+  line-height: 1.3;
+}
+
+.tip-archive-item.est-lu .tip-archive-titre {
+  color: var(--couleur-texte-att);
+  font-weight: 600;
+}
+
+.tip-archive-sous {
+  font-size: 11.5px;
+  color: var(--couleur-texte-att);
+  margin-top: 3px;
+}
+
+/* Adaptation thème Flibuste (parchemin & encre brune dans les cartes tip/archive) */
+:root[data-theme="flibuste"] .tip-sources,
+:root[data-theme="flibuste"] .tip-archive-item {
+  background: rgba(17, 12, 8, 0.72);
+  border-color: rgba(224, 174, 69, 0.32);
+}
+
+:root[data-theme="flibuste"] .todo-barre .todo-bouton[data-tache="tip"].todo-fait .todo-rond {
+  background-image: var(--pr-piece-or);
+  box-shadow: 0 0 14px 2px rgba(240, 180, 60, 0.55);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tip-carte-modal,
+  .tip-archive-item,
+  .tip-icone-etat,
+  .tip-archive-item:not(.est-lu) .tip-icone-etat {
+    animation: none !important;
+    transition: none !important;
+  }
+}
