@@ -49,6 +49,7 @@ ajouterEcouteurClicDelegue(document.body, function (cible) {
   if (action === 'lancer-import-json') { lancerImportJson(); return; }
   if (action === 'ouvrir-notice') { ouvrirNotice(); return; }
   if (action === 'ouvrir-guide-types') { ouvrirGuideTypes(); return; }
+  if (action === 'ouvrir-notes') { ouvrirNotes(); return; }
   if (action === 'nouvelle-note') { ouvrirEditionNote(null); return; }
   if (action === 'editer-note') { ouvrirEditionNote(id); return; }
   if (action === 'enregistrer-note') { enregistrerNote(id || null); return; }
