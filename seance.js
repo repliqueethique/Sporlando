@@ -706,11 +706,22 @@ function basculerExercice(exIndex, etaitOuvert) {
   rendreExercicesActifs();
 }
 
+function modeUnilateralExercice(exRef) {
+  if (!exRef) { return 'aucun'; }
+  return exRef.modeUnilateral || (exRef.unilateral ? 'cote_par_cote' : 'aucun');
+}
+
+function repsParCoteExercice(exRef) {
+  return modeUnilateralExercice(exRef) === 'cote_par_cote';
+}
+
 function htmlInfosExercice(exRef) {
   if (!exRef) { return ''; }
+  var modeUni = exRef.modeUnilateral || (exRef.unilateral ? 'cote_par_cote' : 'aucun');
   var h = '';
-  if (exRef.unilateral) {
-    h += '<span class="sx-info"><svg class="sx-info-icone" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h16M8 8l-4 4 4 4M16 8l4 4-4 4"/></svg>Unilatéral</span>';
+  if (modeUni !== 'aucun') {
+    var iconeUni = (modeUni === 'cote_par_cote') ? svgUnilateralCoteParCote() : svgUnilateralBase();
+    h += '<span class="sx-info">' + iconeUni + 'Unilatéral</span>';
   }
   if (exRef.securiteCran) {
     var chiffreSecu = '<b class="donnee-num">' + echapperHtml(exRef.securiteCran) + '</b>';
@@ -804,6 +815,7 @@ function rendreExercicesActifs() {
     var groupeEx = exRef ? exRef.groupe : '';
     var modeUnilat = (exRef && exRef.modeUnilateral) || ((exRef && exRef.unilateral) ? 'cote_par_cote' : 'aucun');
     var unilat = (modeUnilat !== 'aucun');
+    var repsParCote = (modeUnilat === 'cote_par_cote');
     var exerciceTermine = ligneEx.series.every(function (sr) { return sr.fait; });
     var estActif = (e === indexExerciceActif);
     var ouvert = (exercicesDeplies[e] !== undefined) ? exercicesDeplies[e] : (estActif || (groupeActif !== null && ligneEx.groupe === groupeActif));
@@ -2817,10 +2829,13 @@ function htmlChampsHero(ligneEx, serie, e, s, unilat) {
     if (!sansCharge || serie.poids > 0) {
       h += htmlStepper(e, s, 'poids', serie.poids, sansCharge ? 'kg de lest' : (unilat ? 'kg / côté' : 'kg'), pasPoidsPourExercice(e));
     }
+    var exRefHero = trouverParId(etat.exercices, ligneEx.exerciceId);
+    var modeUniHero = (exRefHero && exRefHero.modeUnilateral) || ((exRefHero && exRefHero.unilateral) ? 'cote_par_cote' : 'aucun');
+    var parCoteHero = (modeUniHero === 'cote_par_cote');
     if (type === 'maintien') {
-      h += htmlStepper(e, s, 'reps', serie.reps, unilat ? 'secondes / côté' : 'secondes', PAS_SECONDES_STEPPER);
+      h += htmlStepper(e, s, 'reps', serie.reps, parCoteHero ? 'secondes / côté' : 'secondes', PAS_SECONDES_STEPPER);
     } else {
-      h += htmlStepper(e, s, 'reps', serie.reps, unilat ? 'reps / côté' : 'reps', PAS_REPS_STEPPER);
+      h += htmlStepper(e, s, 'reps', serie.reps, parCoteHero ? 'reps / côté' : 'reps', PAS_REPS_STEPPER);
     }
   }
   h += '</div>';
@@ -2839,8 +2854,11 @@ function htmlChampsCompact(ligneEx, serie, attrs, unilat) {
   if (type !== 'cardio' && (!sansCharge || serie.poids > 0)) {
     h += '<span class="serie-champ"><input type="number" step="0.5" inputmode="decimal" data-role="live-poids"' + attrs + ' value="' + serie.poids + '"></span><span class="serie-unite">' + (unilat ? 'kg/côté' : 'kg') + '</span>';
   }
-  var unite = unilat ? 'reps/côté' : 'reps';
-  if (type === 'maintien') { unite = unilat ? 's/côté' : 's'; }
+  var exRefCompact = trouverParId(etat.exercices, ligneEx.exerciceId);
+  var modeUniCompact = (exRefCompact && exRefCompact.modeUnilateral) || ((exRefCompact && exRefCompact.unilateral) ? 'cote_par_cote' : 'aucun');
+  var parCoteCompact = (modeUniCompact === 'cote_par_cote');
+  var unite = parCoteCompact ? 'reps/côté' : 'reps';
+  if (type === 'maintien') { unite = parCoteCompact ? 's/côté' : 's'; }
   if (type === 'cardio') { unite = 'min'; }
   h += '<span class="serie-champ"><input type="number" step="1" inputmode="numeric" data-role="live-reps"' + attrs + ' value="' + serie.reps + '"></span><span class="serie-unite">' + unite + '</span>';
   if (type === 'cardio') {

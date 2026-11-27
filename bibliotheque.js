@@ -168,8 +168,21 @@ function svgMaterielExercice(cle) {
   return '<svg viewBox="0 0 28 24" width="22" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="14" cy="5" r="2.5"/><path d="M8 11h12l-2 5h-8z"/><line x1="11" y1="16" x2="9" y2="22"/><line x1="17" y1="16" x2="19" y2="22"/></svg>';
 }
 
-function svgUnilateralExercice() {
+function svgUnilateralBase() {
   return '<svg class="sx-info-icone" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h16M8 8l-4 4 4 4M16 8l4 4-4 4"/></svg>';
+}
+
+function svgUnilateralCoteParCote() {
+  return '<svg class="sx-info-icone" viewBox="0 0 24 24" aria-hidden="true"><path d="M10 12H3M7 8l-4 4 4 4"/><line x1="12" y1="5" x2="12" y2="19" stroke-dasharray="2 2"/><path d="M14 12h7M17 8l4 4-4 4"/></svg>';
+}
+
+function svgUnilateralExercice(mode) {
+  if (mode === 'cote_par_cote') { return svgUnilateralCoteParCote(); }
+  return svgUnilateralBase();
+}
+
+function svgModeUnilateral(mode) {
+  return '<span class="ex-uni-contenu">' + svgUnilateralExercice(mode) + '</span>';
 }
 
 function labelTitreBulle(cleInfo, texteLabel, classeSupp) {
@@ -332,11 +345,11 @@ function basculerUnilateralExercice() {
   var suivant = MODES_UNILATERAL[(idx + 1) % MODES_UNILATERAL.length];
   ecrireModeUnilateralChamp(suivant);
   btnUni.classList.toggle('ex-icone-btn-actif', suivant !== 'aucun');
-  btnUni.classList.toggle('ex-uni-btn-sync', suivant === 'synchronise');
+  btnUni.classList.remove('ex-uni-btn-sync');
   btnUni.innerHTML = svgModeUnilateral(suivant);
   btnUni.title = suivant === 'synchronise'
-    ? 'Unilatéral : poids par côté, reps synchronisées'
-    : (suivant === 'cote_par_cote' ? 'Unilatéral : poids et reps par côté (1 puis l\'autre)' : 'Pas unilatéral');
+    ? 'Unilatéral en même temps (poids / côté, reps)'
+    : (suivant === 'cote_par_cote' ? 'Unilatéral côté par côté (poids / côté, reps / côté)' : 'Pas unilatéral');
 }
 
 function rafraichirZoneMaterielExercice() {
@@ -372,12 +385,12 @@ function rafraichirZoneMaterielExercice() {
     h += '<span class="sx-bouclier-texte">' + contenuBouclier + '</span>';
     h += '</span></div>';
   } else {
-var titreUni = modeUniActuel === 'synchronise'
-      ? 'Unilatéral : poids par côté, reps synchronisées'
-      : (modeUniActuel === 'cote_par_cote' ? 'Unilatéral : poids et reps par côté (1 puis l\'autre)' : 'Pas unilatéral');
-    h += '<button type="button" class="ex-icone-btn' + (modeUniActuel !== 'aucun' ? ' ex-icone-btn-actif' : '') + (modeUniActuel === 'synchronise' ? ' ex-uni-btn-sync' : '') + '" id="ex-btn-unilateral" data-action="basculer-unilateral-exercice" title="' + echapperHtml(titreUni) + '">' + svgModeUnilateral(modeUniActuel) + '</button>';
+    var titreUni = modeUniActuel === 'synchronise'
+      ? 'Unilatéral en même temps (poids / côté, reps)'
+      : (modeUniActuel === 'cote_par_cote' ? 'Unilatéral côté par côté (poids / côté, reps / côté)' : 'Pas unilatéral');
+    h += '<button type="button" class="ex-icone-btn' + (modeUniActuel !== 'aucun' ? ' ex-icone-btn-actif' : '') + '" id="ex-btn-unilateral" data-action="basculer-unilateral-exercice" title="' + echapperHtml(titreUni) + '">' + svgModeUnilateral(modeUniActuel) + '</button>';
   }
-
+  
   zone.innerHTML = h;
   if (estBarre) { configurerGlisseCranExercice(); }
 }
