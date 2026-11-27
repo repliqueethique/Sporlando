@@ -659,25 +659,6 @@ function formaterResumeSeries(ligneEx) {
 }
 
 var exercicesDeplies = {};
-
-function obtenirEquipementExercice(exIndexOuId) {
-  var ligneEx = null;
-  var exRef = null;
-  if (typeof exIndexOuId === 'number') {
-    if (etat.seanceActive && etat.seanceActive.exercices[exIndexOuId]) {
-      ligneEx = etat.seanceActive.exercices[exIndexOuId];
-      exRef = trouverParId(etat.exercices, ligneEx.exerciceId);
-    }
-  } else if (exIndexOuId) {
-    exRef = trouverParId(etat.exercices, exIndexOuId);
-  }
-  var cle = (ligneEx && ligneEx.equipement) || (exRef && exRef.equipement) || 'aucun';
-  return EQUIPEMENTS_POIDS[cle] || EQUIPEMENTS_POIDS.aucun;
-}
-
-function pasPoidsPourExercice(exIndexOuId) {
-  return obtenirEquipementExercice(exIndexOuId).pas;
-}
 var PAS_REPS_STEPPER = 1;
 
 function htmlStepper(e, s, champ, valeur, unite, pas) {
@@ -2782,18 +2763,23 @@ function formaterSecondes(sec) {
 }
 
 /* Champs de la série en cours, selon le type */
-function obtenirEquipementExercice(exIndex) {
-  if (!etat.seanceActive || !etat.seanceActive.exercices[exIndex]) {
-    return EQUIPEMENTS_POIDS.aucun;
+function obtenirEquipementExercice(exIndexOuId) {
+  var ligneEx = null;
+  var exRef = null;
+  if (typeof exIndexOuId === 'number') {
+    if (etat.seanceActive && etat.seanceActive.exercices[exIndexOuId]) {
+      ligneEx = etat.seanceActive.exercices[exIndexOuId];
+      exRef = trouverParId(etat.exercices, ligneEx.exerciceId);
+    }
+  } else if (exIndexOuId) {
+    exRef = trouverParId(etat.exercices, exIndexOuId);
   }
-  var ligneEx = etat.seanceActive.exercices[exIndex];
-  var exRef = trouverParId(etat.exercices, ligneEx.exerciceId);
-  var cle = ligneEx.equipement || (exRef && exRef.equipement) || 'aucun';
+  var cle = (ligneEx && ligneEx.equipement) || (exRef && exRef.equipement) || 'aucun';
   return EQUIPEMENTS_POIDS[cle] || EQUIPEMENTS_POIDS.aucun;
 }
 
-function pasPoidsPourExercice(exIndex) {
-  return obtenirEquipementExercice(exIndex).pas;
+function pasPoidsPourExercice(exIndexOuId) {
+  return obtenirEquipementExercice(exIndexOuId).pas;
 }
 
 function htmlChampsHero(ligneEx, serie, e, s, unilat) {
