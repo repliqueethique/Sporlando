@@ -180,39 +180,87 @@ function derniereOccurrenceExercice(exerciceId) {
   return null;
 }
 
+var anatomieSvgCache = null;
+
 function construireDiagrammeMuscles(groupe) {
+  if (!anatomieSvgCache) {
+    return '<div class="svg-conteneur"></div>';
+  }
+
+  var svg = anatomieSvgCache;
   var actif = '#1FD9C4';
   var inactif = '#10141A';
-  var bordure = '#2A313B';
-  function c(estActif) { return estActif ? actif : inactif; }
-  var pec = (groupe === 'Pectoraux'), abs = (groupe === 'Abdominaux'), dos = (groupe === 'Dos'),
-    epaules = (groupe === 'Épaules'), bras = (groupe === 'Bras'), jambes = (groupe === 'Jambes');
 
-  var svg = '<svg viewBox="0 0 220 210" xmlns="http://www.w3.org/2000/svg">';
-  svg += '<text x="50" y="12" font-size="9" fill="#8996A3" text-anchor="middle">FACE</text>';
-  svg += '<circle cx="50" cy="30" r="14" fill="none" stroke="' + bordure + '" stroke-width="2"/>';
-  svg += '<circle cx="30" cy="53" r="8" fill="' + c(epaules) + '" stroke="' + bordure + '" stroke-width="1.5"/>';
-  svg += '<circle cx="70" cy="53" r="8" fill="' + c(epaules) + '" stroke="' + bordure + '" stroke-width="1.5"/>';
-  svg += '<rect x="33" y="48" width="34" height="32" rx="8" fill="' + c(pec) + '" stroke="' + bordure + '" stroke-width="1.5"/>';
-  svg += '<rect x="36" y="80" width="28" height="28" rx="6" fill="' + c(abs) + '" stroke="' + bordure + '" stroke-width="1.5"/>';
-  svg += '<rect x="15" y="55" width="13" height="52" rx="6.5" fill="' + c(bras) + '" stroke="' + bordure + '" stroke-width="1.5"/>';
-  svg += '<rect x="72" y="55" width="13" height="52" rx="6.5" fill="' + c(bras) + '" stroke="' + bordure + '" stroke-width="1.5"/>';
-  svg += '<rect x="34" y="108" width="32" height="16" rx="5" fill="' + c(jambes) + '" stroke="' + bordure + '" stroke-width="1.5"/>';
-  svg += '<rect x="35" y="124" width="13" height="65" rx="6.5" fill="' + c(jambes) + '" stroke="' + bordure + '" stroke-width="1.5"/>';
-  svg += '<rect x="52" y="124" width="13" height="65" rx="6.5" fill="' + c(jambes) + '" stroke="' + bordure + '" stroke-width="1.5"/>';
+  var muscles = {
+    'Pectoraux': ['grand_pectoral'],
+    'Dos': ['grand_dorsal', 'infra_épineux', 'trapèze'],
+    'Épaules': ['deltoide', 'deltoïde'],
+    'Bras': [
+      'biceps_brachial', 'triceps_brachial', 'brachial',
+      'brachio_radial', 'brachial_radial',
+      'extenseur_de_l_avant_bras', 'flechisseur_de_l_avant_bras'
+    ],
+    'Jambes': [
+      'adducteurs', 'droit_fémoral', 'vaste_latéral',
+      'moyen_fessier', 'grand_fessier', 'biceps_fémorale',
+      'semi_tendineux', 'semi_membraneux',
+      'gastrocnémien', 'gastrocnémien_latéral',
+      'gastrocnémien_médial', 'soléaires',
+      'tibial_intérieur', 'long_fibulaire'
+    ],
+    'Abdominaux': [
+      'droit_de_l_abdomen_1', 'droit_de_l_abdomen_2',
+      'droit_de_l_abdomen_3', 'droit_de_l_abdomen_4',
+      'grand_oblique_de_l_abdomen',
+      'oblique_externe_1', 'oblique_externe_2', 'oblique_externe_3'
+    ]
+  };
 
-  svg += '<text x="170" y="12" font-size="9" fill="#8996A3" text-anchor="middle">DOS</text>';
-  svg += '<circle cx="170" cy="30" r="14" fill="none" stroke="' + bordure + '" stroke-width="2"/>';
-  svg += '<circle cx="150" cy="53" r="8" fill="' + c(epaules) + '" stroke="' + bordure + '" stroke-width="1.5"/>';
-  svg += '<circle cx="190" cy="53" r="8" fill="' + c(epaules) + '" stroke="' + bordure + '" stroke-width="1.5"/>';
-  svg += '<rect x="153" y="48" width="34" height="60" rx="8" fill="' + c(dos) + '" stroke="' + bordure + '" stroke-width="1.5"/>';
-  svg += '<rect x="135" y="55" width="13" height="52" rx="6.5" fill="' + c(bras) + '" stroke="' + bordure + '" stroke-width="1.5"/>';
-  svg += '<rect x="192" y="55" width="13" height="52" rx="6.5" fill="' + c(bras) + '" stroke="' + bordure + '" stroke-width="1.5"/>';
-  svg += '<rect x="154" y="108" width="32" height="16" rx="5" fill="' + c(jambes) + '" stroke="' + bordure + '" stroke-width="1.5"/>';
-  svg += '<rect x="155" y="124" width="13" height="65" rx="6.5" fill="' + c(jambes) + '" stroke="' + bordure + '" stroke-width="1.5"/>';
-  svg += '<rect x="172" y="124" width="13" height="65" rx="6.5" fill="' + c(jambes) + '" stroke="' + bordure + '" stroke-width="1.5"/>';
-  svg += '</svg>';
-  return '<div class="svg-conteneur">' + svg + '</div>';
+  var parser = new DOMParser();
+  var doc = parser.parseFromString(svg, 'image/svg+xml');
+  var chemins = doc.querySelectorAll('path');
+
+  for (var i = 0; i < chemins.length; i++) {
+    var id = chemins[i].getAttribute('id') || '';
+    var nom = id.replace(/-\d+$/, '');
+    var estActif = muscles[groupe] && muscles[groupe].indexOf(nom) !== -1;
+
+    if (nom.indexOf('contour') === 0) { continue; }
+
+    chemins[i].style.fill = estActif ? actif : inactif;
+  }
+
+  return '<div class="svg-conteneur">' +
+    new XMLSerializer().serializeToString(doc.documentElement) +
+    '</div>';
+}
+
+function rafraichirDiagrammeMuscles() {
+  var zone = document.getElementById('diagramme-muscles-zone');
+  var select = document.getElementById('champ-ex-groupe');
+
+  if (!zone || !select) { return; }
+
+  if (!anatomieSvgCache) {
+    zone.innerHTML = '<div class="svg-conteneur"></div>';
+
+    fetch('Anatomie.svg')
+      .then(function (reponse) {
+        if (!reponse.ok) { throw new Error('SVG introuvable'); }
+        return reponse.text();
+      })
+      .then(function (texte) {
+        anatomieSvgCache = texte;
+        rafraichirDiagrammeMuscles();
+      })
+      .catch(function () {
+        zone.innerHTML = '<div class="texte-att">Impossible de charger la silhouette.</div>';
+      });
+
+    return;
+  }
+
+  zone.innerHTML = construireDiagrammeMuscles(select.value);
 }
 
 function rafraichirDiagrammeMuscles() {
