@@ -802,7 +802,8 @@ function rendreExercicesActifs() {
     var exRef = trouverParId(etat.exercices, ligneEx.exerciceId);
     var nomEx = exRef ? exRef.nom : '(exercice supprimé)';
     var groupeEx = exRef ? exRef.groupe : '';
-    var unilat = !!(exRef && exRef.unilateral);
+    var modeUnilat = (exRef && exRef.modeUnilateral) || ((exRef && exRef.unilateral) ? 'cote_par_cote' : 'aucun');
+    var unilat = (modeUnilat !== 'aucun');
     var exerciceTermine = ligneEx.series.every(function (sr) { return sr.fait; });
     var estActif = (e === indexExerciceActif);
     var ouvert = (exercicesDeplies[e] !== undefined) ? exercicesDeplies[e] : (estActif || (groupeActif !== null && ligneEx.groupe === groupeActif));

@@ -142,7 +142,7 @@ var INFOS_CHAMPS_EXERCICE = {
   nom: { titre: 'Nom de l\'exercice', texte: 'Nom affiché dans la bibliothèque, les séances et l\'historique.' },
   groupe: { titre: 'Groupe musculaire', texte: 'Classe l\'exercice par zone principale et met à jour la silhouette.' },
   materiel: { titre: 'Matériel, sécurité & incrément', texte: 'Clique sur le bouton matériel pour faire défiler : barre olympique (+2,5 kg), barre en Z (+2,5 kg), haltères (+1,25 kg), colonne de poids (+5 kg) ou poids du corps. Avec une barre, glisse sur le bouclier pour régler le cran et clique dessus pour passer la flèche au-dessus ou en-dessous.' },
-  unilateral: { titre: 'Unilatéral', texte: 'Actif hors barre olympique et barre en Z. Indique que poids et répétitions sont comptés par côté.' },
+  unilateral: { titre: 'Unilatéral', texte: 'Actif hors barre olympique et barre en Z. Appuie pour faire défiler : non unilatéral → un côté puis l\'autre (poids & reps par côté) → deux côtés ensemble (poids par côté, reps synchronisées).' },
   poids: { titre: 'Poids par défaut (KG)', texte: 'Charge de départ proposée lorsque tu ajoutes cet exercice à une séance.' },
   reps: { titre: 'Répétitions par défaut (REP)', texte: 'Nombre de répétitions (ou secondes / minutes selon le type) de départ.' },
   series: { titre: 'Séries par défaut (SÉR)', texte: 'Nombre de séries de travail créées par défaut pour cet exercice.' },
@@ -295,12 +295,48 @@ function basculerSensSecuriteExercice() {
   }
 }
 
-function basculerUnilateralExercice() {
+var MODES_UNILATERAL = ['aucun', 'cote_par_cote', 'synchronise'];
+
+function lireModeUnilateralChamp() {
   var champUni = document.getElementById('champ-ex-unilateral');
+  if (!champUni) { return 'aucun'; }
+  var val = champUni.getAttribute('data-mode') || champUni.value;
+  if (val === 'cote_par_cote' || val === 'synchronise') { return val; }
+  return champUni.checked ? 'cote_par_cote' : 'aucun';
+}
+
+function ecrireModeUnilateralChamp(mode) {
+  var champUni = document.getElementById('champ-ex-unilateral');
+  if (!champUni) { return; }
+  var valide = (mode === 'cote_par_cote' || mode === 'synchronise') ? mode : 'aucun';
+  champUni.value = valide;
+  champUni.setAttribute('data-mode', valide);
+  champUni.checked = (valide !== 'aucun');
+}
+
+function svgModeUnilateral(mode) {
+  if (mode === 'synchronise') {
+    return '<span class="ex-uni-contenu ex-uni-sync">' + svgUnilateralExercice() + '<span class="ex-uni-badge">2×</span></span>';
+  }
+  if (mode === 'cote_par_cote') {
+    return '<span class="ex-uni-contenu ex-uni-cote">' + svgUnilateralExercice() + '<span class="ex-uni-badge">1|1</span></span>';
+  }
+  return '<span class="ex-uni-contenu">' + svgUnilateralExercice() + '</span>';
+}
+
+function basculerUnilateralExercice() {
   var btnUni = document.getElementById('ex-btn-unilateral');
-  if (!champUni || !btnUni) { return; }
-  champUni.checked = !champUni.checked;
-  btnUni.classList.toggle('ex-icone-btn-actif', champUni.checked);
+  if (!btnUni) { return; }
+  var modeActuel = lireModeUnilateralChamp();
+  var idx = MODES_UNILATERAL.indexOf(modeActuel);
+  var suivant = MODES_UNILATERAL[(idx + 1) % MODES_UNILATERAL.length];
+  ecrireModeUnilateralChamp(suivant);
+  btnUni.classList.toggle('ex-icone-btn-actif', suivant !== 'aucun');
+  btnUni.classList.toggle('ex-uni-btn-sync', suivant === 'synchronise');
+  btnUni.innerHTML = svgModeUnilateral(suivant);
+  btnUni.title = suivant === 'synchronise'
+    ? 'Unilatéral : poids par côté, reps synchronisées'
+    : (suivant === 'cote_par_cote' ? 'Unilatéral : poids et reps par côté (1 puis l\'autre)' : 'Pas unilatéral');
 }
 
 function rafraichirZoneMaterielExercice() {
@@ -313,7 +349,7 @@ function rafraichirZoneMaterielExercice() {
   var estBarre = (cle === 'barre_olympique' || cle === 'barre_z');
   var cranActuel = document.getElementById('champ-ex-securite') ? document.getElementById('champ-ex-securite').value : '';
   var sensActuel = document.getElementById('champ-ex-securite-sens') ? document.getElementById('champ-ex-securite-sens').value : 'haut';
-  var uniActuel = document.getElementById('champ-ex-unilateral') ? document.getElementById('champ-ex-unilateral').checked : false;
+  var modeUniActuel = lireModeUnilateralChamp();
 
   var h = '<div class="ex-mat-groupe">';
   h += labelTitreBulle('materiel', 'Matériel', 'ex-mini-titre');
@@ -322,7 +358,7 @@ function rafraichirZoneMaterielExercice() {
 
   h += '<input type="hidden" id="champ-ex-securite" value="' + echapperHtml(cranActuel) + '">';
   h += '<input type="hidden" id="champ-ex-securite-sens" value="' + (sensActuel === 'bas' ? 'bas' : 'haut') + '">';
-  h += '<input type="checkbox" id="champ-ex-unilateral" style="display:none;"' + (uniActuel ? ' checked' : '') + '>';
+  h += '<input type="checkbox" id="champ-ex-unilateral" data-mode="' + modeUniActuel + '" value="' + modeUniActuel + '" style="display:none;"' + (modeUniActuel !== 'aucun' ? ' checked' : '') + '>';
 
   if (estBarre) {
     var chiffreAff = cranActuel ? cranActuel : '—';
@@ -336,7 +372,10 @@ function rafraichirZoneMaterielExercice() {
     h += '<span class="sx-bouclier-texte">' + contenuBouclier + '</span>';
     h += '</span></div>';
   } else {
-    h += '<button type="button" class="ex-icone-btn' + (uniActuel ? ' ex-icone-btn-actif' : '') + '" id="ex-btn-unilateral" data-action="basculer-unilateral-exercice" title="Unilatéral">' + svgUnilateralExercice() + '</button>';
+var titreUni = modeUniActuel === 'synchronise'
+      ? 'Unilatéral : poids par côté, reps synchronisées'
+      : (modeUniActuel === 'cote_par_cote' ? 'Unilatéral : poids et reps par côté (1 puis l\'autre)' : 'Pas unilatéral');
+    h += '<button type="button" class="ex-icone-btn' + (modeUniActuel !== 'aucun' ? ' ex-icone-btn-actif' : '') + (modeUniActuel === 'synchronise' ? ' ex-uni-btn-sync' : '') + '" id="ex-btn-unilateral" data-action="basculer-unilateral-exercice" title="' + echapperHtml(titreUni) + '">' + svgModeUnilateral(modeUniActuel) + '</button>';
   }
 
   zone.innerHTML = h;
@@ -406,7 +445,8 @@ function ouvrirFormulaireExercice(idExercice) {
   html += '</select>';
   html += '<input type="hidden" id="champ-ex-securite" value="' + echapperHtml(exercice.securiteCran || '') + '">';
   html += '<input type="hidden" id="champ-ex-securite-sens" value="' + ((exercice.securiteSens === 'bas') ? 'bas' : 'haut') + '">';
-  html += '<input type="checkbox" id="champ-ex-unilateral" style="display:none;"' + (exercice.unilateral ? ' checked' : '') + '>';
+  var modeUniInit = exercice.modeUnilateral || (exercice.unilateral ? 'cote_par_cote' : 'aucun');
+  html += '<input type="checkbox" id="champ-ex-unilateral" data-mode="' + modeUniInit + '" value="' + modeUniInit + '" style="display:none;"' + (modeUniInit !== 'aucun' ? ' checked' : '') + '>';
   html += '<div id="ex-zone-materiel-ligne" class="ex-ligne-materiel"></div>';
   html += '</div>';
   html += '<div id="diagramme-muscles-zone" class="diagramme-muscles-petit ex-silhouette-grande"></div>';
@@ -453,7 +493,8 @@ function enregistrerExercice(idExistant) {
     seriesDefaut: parseInt(document.getElementById('champ-ex-series').value, 10) || 1,
     met: parseFloat(document.getElementById('champ-ex-met').value) || 5,
     variantes: document.getElementById('champ-ex-variantes').value,
-    unilateral: document.getElementById('champ-ex-unilateral').checked,
+    modeUnilateral: lireModeUnilateralChamp(),
+    unilateral: lireModeUnilateralChamp() !== 'aucun',
     securiteCran: document.getElementById('champ-ex-securite').value.trim(),
     securiteSens: document.getElementById('champ-ex-securite-sens').value,
     typeDefaut: document.getElementById('champ-ex-type').value,
@@ -470,6 +511,7 @@ function enregistrerExercice(idExistant) {
     exercice.met = donnees.met;
     exercice.variantes = donnees.variantes;
     exercice.unilateral = donnees.unilateral;
+    exercice.modeUnilateral = donnees.modeUnilateral;
     exercice.securiteCran = donnees.securiteCran;
     exercice.securiteSens = donnees.securiteSens;
     exercice.typeDefaut = donnees.typeDefaut;

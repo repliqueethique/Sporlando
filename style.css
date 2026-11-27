@@ -3396,3 +3396,26 @@ main::after {
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 8px;
 }
+
+.ex-uni-contenu {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+}
+
+.ex-uni-badge {
+  position: absolute;
+  bottom: 2px;
+  right: 3px;
+  font-size: 9px;
+  line-height: 1;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.ex-uni-btn-sync {
+  border-style: dashed;
+}
