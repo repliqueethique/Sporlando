@@ -3266,7 +3266,8 @@ main::after {
 .ex-quatre-champs {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 6px;
+  gap: 8px;
+  align-items: end;
 }
 
 .ex-quatre-cell {
@@ -3277,17 +3278,37 @@ main::after {
 }
 
 .ex-quatre-label {
-  font-size: 12px;
-  font-weight: 500;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
   color: var(--texte-att, var(--texte-attenue, #8996A3));
-  margin-bottom: 4px;
+  margin-bottom: 5px;
+  line-height: 1.2;
+  white-space: nowrap;
 }
 
-.ex-quatre-cell input {
+.ex-quatre-input,
+.ex-quatre-cell input[type="number"] {
+  -webkit-appearance: none;
+  appearance: none;
   width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
   text-align: center;
-  padding: 7px 4px;
+  padding: 8px 4px;
   font-size: 14px;
+  font-weight: 600;
+  color: var(--texte, var(--texte-principal, #E6EDF3));
+  background: var(--fond-champ, var(--surface-2, var(--fond-carte, #10141A)));
+  border: 1px solid var(--bordure, #2A313B);
+  border-radius: var(--rayon-champ, var(--rayon-petit, 10px));
+  box-shadow: none;
+  outline: none;
+}
+
+.ex-quatre-input:focus,
+.ex-quatre-cell input[type="number"]:focus {
+  border-color: var(--accent, #1FD9C4);
 }
 
 .ex-deux-champs {

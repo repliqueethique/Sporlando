@@ -427,10 +427,10 @@ function ouvrirFormulaireExercice(idExercice) {
   /* 4. Poids / Répétitions / Séries / Intensité sur la même ligne */
   html += '<div class="carte ex-bloc">';
   html += '<div class="ex-quatre-champs">';
-  html += '<div class="ex-quatre-cell"><span class="ex-quatre-label">' + labelTitreBulle('poids', 'KG') + '</span><input type="number" step="0.5" id="champ-ex-poids" value="' + exercice.poidsDefaut + '"></div>';
-  html += '<div class="ex-quatre-cell"><span class="ex-quatre-label">' + labelTitreBulle('reps', 'REP') + '</span><input type="number" step="1" id="champ-ex-reps" value="' + exercice.repsDefaut + '"></div>';
-  html += '<div class="ex-quatre-cell"><span class="ex-quatre-label">' + labelTitreBulle('series', 'SÉR') + '</span><input type="number" step="1" id="champ-ex-series" value="' + exercice.seriesDefaut + '"></div>';
-  html += '<div class="ex-quatre-cell"><span class="ex-quatre-label">' + labelTitreBulle('met', 'MET') + '</span><input type="number" step="0.5" id="champ-ex-met" value="' + exercice.met + '"></div>';
+  html += '<div class="ex-quatre-cell"><label class="ex-quatre-label">' + labelTitreBulle('poids', 'KG') + '</label><input type="number" inputmode="decimal" step="0.5" id="champ-ex-poids" class="ex-quatre-input donnee-num" value="' + exercice.poidsDefaut + '"></div>';
+  html += '<div class="ex-quatre-cell"><label class="ex-quatre-label">' + labelTitreBulle('reps', 'REP') + '</label><input type="number" inputmode="numeric" step="1" id="champ-ex-reps" class="ex-quatre-input donnee-num" value="' + exercice.repsDefaut + '"></div>';
+  html += '<div class="ex-quatre-cell"><label class="ex-quatre-label">' + labelTitreBulle('series', 'SÉR') + '</label><input type="number" inputmode="numeric" step="1" id="champ-ex-series" class="ex-quatre-input donnee-num" value="' + exercice.seriesDefaut + '"></div>';
+  html += '<div class="ex-quatre-cell"><label class="ex-quatre-label">' + labelTitreBulle('met', 'MET') + '</label><input type="number" inputmode="decimal" step="0.5" id="champ-ex-met" class="ex-quatre-input donnee-num" value="' + exercice.met + '"></div>';
   html += '</div>';
   html += '</div>';
 
