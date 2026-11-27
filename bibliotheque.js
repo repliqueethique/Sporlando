@@ -603,8 +603,8 @@ function ouvrirFormulaireExercice(idExercice) {
   /* 5. Type + Technique côte à côte, puis Variantes */
   html += '<div class="carte ex-bloc">';
   html += '<div class="ex-deux-champs">';
-  html += '<div class="champ"><label>Type d\'exercice par défaut</label>' + htmlChampChoix('type', 'champ-ex-type', exercice.typeDefaut || 'lineaire') + '</div>';
-  html += '<div class="champ"><label>Technique par défaut (dernière série)</label>' + htmlChampChoix('technique', 'champ-ex-technique', exercice.techniqueDefaut || 'aucune') + '</div>';
+  html += '<div class="champ"><label>Type d\'exercice</label>' + htmlChampChoix('type', 'champ-ex-type', exercice.typeDefaut || 'lineaire') + '</div>';
+  html += '<div class="champ"><label>Technique</label>' + htmlChampChoix('technique', 'champ-ex-technique', exercice.techniqueDefaut || 'aucune') + '</div>';
   html += '</div>';
   html += '<div class="champ ex-champ-compact" style="margin-top:10px; margin-bottom:0;"><label>' + labelTitreBulle('variantes', 'Variantes') + '</label><textarea id="champ-ex-variantes" rows="2" placeholder="Prise, position...">' + echapperHtml(exercice.variantes || '') + '</textarea></div>';
   html += '</div>';
