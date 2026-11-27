@@ -169,11 +169,11 @@ function svgMaterielExercice(cle) {
 }
 
 function svgUnilateralBase() {
-  return '<svg class="sx-info-icone" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h16M8 8l-4 4 4 4M16 8l4 4-4 4"/></svg>';
+  return '<svg class="sx-info-icone" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12h16M8 8l-4 4 4 4M16 8l4 4-4 4"/></svg>';
 }
 
 function svgUnilateralCoteParCote() {
-  return '<svg class="sx-info-icone" viewBox="0 0 24 24" aria-hidden="true"><path d="M10 12H3M7 8l-4 4 4 4"/><line x1="12" y1="5" x2="12" y2="19" stroke-dasharray="2 2"/><path d="M14 12h7M17 8l4 4-4 4"/></svg>';
+  return '<svg class="sx-info-icone" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 12H3M7 8l-4 4 4 4"/><line x1="12" y1="5" x2="12" y2="19" stroke-dasharray="2 2"/><path d="M14 12h7M17 8l4 4-4 4"/></svg>';
 }
 
 function svgUnilateralExercice(mode) {
@@ -327,16 +327,6 @@ function ecrireModeUnilateralChamp(mode) {
   champUni.checked = (valide !== 'aucun');
 }
 
-function svgModeUnilateral(mode) {
-  if (mode === 'synchronise') {
-    return '<span class="ex-uni-contenu ex-uni-sync">' + svgUnilateralExercice() + '<span class="ex-uni-badge">2×</span></span>';
-  }
-  if (mode === 'cote_par_cote') {
-    return '<span class="ex-uni-contenu ex-uni-cote">' + svgUnilateralExercice() + '<span class="ex-uni-badge">1|1</span></span>';
-  }
-  return '<span class="ex-uni-contenu">' + svgUnilateralExercice() + '</span>';
-}
-
 function basculerUnilateralExercice() {
   var btnUni = document.getElementById('ex-btn-unilateral');
   if (!btnUni) { return; }
@@ -390,7 +380,7 @@ function rafraichirZoneMaterielExercice() {
       : (modeUniActuel === 'cote_par_cote' ? 'Unilatéral côté par côté (poids / côté, reps / côté)' : 'Pas unilatéral');
     h += '<button type="button" class="ex-icone-btn' + (modeUniActuel !== 'aucun' ? ' ex-icone-btn-actif' : '') + '" id="ex-btn-unilateral" data-action="basculer-unilateral-exercice" title="' + echapperHtml(titreUni) + '">' + svgModeUnilateral(modeUniActuel) + '</button>';
   }
-  
+
   zone.innerHTML = h;
   if (estBarre) { configurerGlisseCranExercice(); }
 }

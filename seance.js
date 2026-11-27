@@ -721,7 +721,7 @@ function htmlInfosExercice(exRef) {
   var h = '';
   if (modeUni !== 'aucun') {
     var iconeUni = (modeUni === 'cote_par_cote') ? svgUnilateralCoteParCote() : svgUnilateralBase();
-    h += '<span class="sx-info">' + iconeUni + 'Unilatéral</span>';
+    h += '<span class="sx-info">' + iconeUni + '<span>Unilatéral</span></span>';
   }
   if (exRef.securiteCran) {
     var chiffreSecu = '<b class="donnee-num">' + echapperHtml(exRef.securiteCran) + '</b>';
