@@ -229,15 +229,25 @@ function construireDiagrammeMuscles(groupe) {
   var musclesActifs = MUSCLES_PAR_GROUPE[groupe] || [];
   var chemins = doc.querySelectorAll('path');
 
+  // Récupération des couleurs du thème actif
+  var elementTexte = document.querySelector('.carte');
+  var elementAccent = document.querySelector('.btn-plein');
+  var couleurBase = elementTexte
+    ? getComputedStyle(elementTexte).color
+    : getComputedStyle(document.body).color;
+  var couleurAccent = elementAccent
+    ? getComputedStyle(elementAccent).backgroundColor
+    : '#1FD9C4';
+
   for (var i = 0; i < chemins.length; i++) {
     var chemin = chemins[i];
     var id = chemin.getAttribute('id') || '';
-
-    // Retire les suffixes des doublons (-2, -3, etc.)
     var nomMuscle = id.replace(/-\d+$/, '');
 
-    // Ignore les contours
     if (nomMuscle.indexOf('contour') === 0) {
+      chemin.style.setProperty('fill', 'none', 'important');
+      chemin.style.setProperty('stroke', couleurBase, 'important');
+      chemin.style.setProperty('stroke-width', '6px', 'important');
       continue;
     }
 
@@ -245,9 +255,13 @@ function construireDiagrammeMuscles(groupe) {
 
     chemin.style.setProperty(
       'fill',
-      actif ? '#1FD9C4' : '#10141A',
+      actif ? couleurAccent : couleurBase,
       'important'
     );
+
+    chemin.style.setProperty('stroke', couleurBase, 'important');
+    chemin.style.setProperty('stroke-width', '3px', 'important');
+    chemin.style.setProperty('stroke-linejoin', 'round', 'important');
   }
 
   var svg = doc.documentElement;
@@ -255,8 +269,10 @@ function construireDiagrammeMuscles(groupe) {
   svg.setAttribute('width', '100%');
   svg.setAttribute('height', 'auto');
   svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+  svg.style.display = 'block';
+  svg.style.maxWidth = '100%';
 
-  return '<div class="svg-conteneur">' +
+  return '<div style="width:100%;max-width:850px;margin:0 auto;">' +
     new XMLSerializer().serializeToString(svg) +
     '</div>';
 }
@@ -268,6 +284,14 @@ function rafraichirDiagrammeMuscles() {
   if (!zone || !select) {
     return;
   }
+
+  zone.style.width = '100%';
+  zone.style.maxWidth = '900px';
+  zone.style.margin = '0 auto';
+  zone.style.minHeight = '0';
+  zone.style.display = 'flex';
+  zone.style.justifyContent = 'center';
+  zone.style.alignItems = 'center';
 
   if (anatomieSvgCache) {
     zone.innerHTML = construireDiagrammeMuscles(select.value);
@@ -617,8 +641,11 @@ function ouvrirFormulaireExercice(idExercice) {
   html += '<input type="checkbox" id="champ-ex-unilateral" data-mode="' + modeUniInit + '" value="' + modeUniInit + '" style="display:none;"' + (modeUniInit !== 'aucun' ? ' checked' : '') + '>';
   html += '<div id="ex-zone-materiel-ligne" class="ex-ligne-materiel"></div>';
   html += '</div>';
-  html += '<div id="diagramme-muscles-zone" class="diagramme-muscles-petit ex-silhouette-grande"></div>';
   html += '</div>';
+  html += '</div>';
+
+  html += '<div class="carte ex-bloc ex-carte-anatomie" style="padding:12px;">';
+  html += '<div id="diagramme-muscles-zone" class="ex-anatomie-zone"></div>';
   html += '</div>';
 
   /* 4. Poids / Répétitions / Séries / Intensité sur la même ligne */
