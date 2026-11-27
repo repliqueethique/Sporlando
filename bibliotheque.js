@@ -823,8 +823,13 @@ function rendreExercices() {
     for (var i = 0; i < exercicesDuGroupe.length; i++) {
       var ex = exercicesDuGroupe[i];
       html += '<li class="carte" data-action="editer-exercice" data-id="' + ex.id + '">';
+      html += '<div class="exo-carte-contenu">';
+      html += '<div class="exo-carte-infos">';
       html += '<div class="ligne"><strong>' + echapperHtml(ex.nom) + '</strong></div>';
       html += '<div class="texte-att donnee-num" style="margin-top:4px;">' + ex.poidsDefaut + ' kg · ' + ex.repsDefaut + ' reps · ' + ex.seriesDefaut + ' séries</div>';
+      html += '</div>';
+      html += htmlBadgesCarteExercice(ex);
+      html += '</div>';
       html += '</li>';
     }
   }
@@ -1347,4 +1352,94 @@ function rendreProgrammesBib() {
   conteneur.innerHTML = html;
 }
 
+function estExerciceUnilateral(exo) {
+  if (!exo) return false;
+  if (exo.modeUnilateral) {
+    return exo.modeUnilateral !== 'aucun';
+  }
+  return Boolean(exo.unilateral);
+}
 
+function libelleEquipementExo(equipement) {
+  const libelles = {
+    barre_olympique: 'Barre olympique',
+    haltere: 'Haltère',
+    barre_z: 'Barre Z',
+    poulie: 'Poulie',
+    aucun: 'Poids du corps / Sans matériel'
+  };
+  return libelles[equipement] || 'Matériel';
+}
+
+function iconeEquipementExo(equipement) {
+  switch (equipement) {
+    case 'barre_olympique':
+      return `
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M2 12h20" />
+          <rect x="5" y="7" width="3" height="10" rx="1" />
+          <rect x="16" y="7" width="3" height="10" rx="1" />
+          <rect x="2.5" y="9" width="1.5" height="6" rx="0.5" />
+          <rect x="20" y="9" width="1.5" height="6" rx="0.5" />
+        </svg>`;
+    case 'haltere':
+      return `
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M6 12h12" />
+          <rect x="3" y="8" width="3" height="8" rx="1" />
+          <rect x="18" y="8" width="3" height="8" rx="1" />
+          <rect x="6.5" y="9.5" width="2" height="5" rx="0.5" />
+          <rect x="15.5" y="9.5" width="2" height="5" rx="0.5" />
+        </svg>`;
+    case 'barre_z':
+      return `
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M3 13l4-2 5 2 5-2 4 2" />
+          <rect x="4" y="8" width="2.5" height="8" rx="1" />
+          <rect x="17.5" y="8" width="2.5" height="8" rx="1" />
+        </svg>`;
+    case 'poulie':
+      return `
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="12" cy="7" r="4" />
+          <circle cx="12" cy="7" r="1.2" />
+          <path d="M12 11v7" />
+          <path d="M9 18h6" />
+        </svg>`;
+    case 'aucun':
+    default:
+      return `
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="12" cy="5" r="2" />
+          <path d="M8 9h8l-1.5 5.5L16 21h-2.5l-1.5-5-1.5 5H8l1.5-6.5L8 9z" />
+        </svg>`;
+  }
+}
+
+function iconeUnilateralExo() {
+  return `
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <circle cx="12" cy="5" r="2" />
+      <path d="M12 8v12" />
+      <path d="M12 10l5 3" />
+      <path d="M12 20l-3-5" />
+    </svg>`;
+}
+
+function htmlBadgesCarteExercice(exo) {
+  const equipement = exo.equipement || 'aucun';
+  const unilateral = estExerciceUnilateral(exo);
+
+  return `
+    <div class="exo-carte-badges">
+      <span class="exo-badge-icone" title="${libelleEquipementExo(equipement)}" aria-label="${libelleEquipementExo(equipement)}">
+        ${iconeEquipementExo(equipement)}
+      </span>
+      ${unilateral ? `
+        <span class="exo-badge-icone exo-badge-icone--unilateral" title="Unilatéral" aria-label="Unilatéral">
+          ${iconeUnilateralExo()}
+        </span>
+      ` : ''}
+    </div>
+  `;
+}

@@ -3449,3 +3449,50 @@ main::after {
 .choix-bouton-texte { flex: 1 1 auto; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .choix-bouton-chevron { margin-left: 10px; font-size: 22px; line-height: 1; color: var(--couleur-texte-att); }
 .champ .type-choix .choix-bouton { flex: 1 1 auto; width: auto; min-width: 0; }
+
+/* Conteneur horizontal d'une carte d'exercice dans la bibliothèque */
+.exo-carte-contenu {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+}
+
+.exo-carte-infos {
+  flex: 1;
+  min-width: 0;
+}
+
+/* Colonne d'icônes à droite, centrée verticalement */
+.exo-carte-badges {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 6px;
+  flex-shrink: 0;
+  align-self: center;
+}
+
+.exo-badge-icone {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 10px;
+  background: var(--surface-2, rgba(255, 255, 255, 0.06));
+  border: 1px solid var(--bordure, rgba(255, 255, 255, 0.08));
+  color: var(--texte-secondaire, inherit);
+}
+
+.exo-badge-icone--unilateral {
+  color: var(--accent, currentColor);
+  border-color: color-mix(in srgb, var(--accent, currentColor) 35%, transparent);
+}
+
+.exo-badge-icone svg {
+  width: 17px;
+  height: 17px;
+  display: block;
+}
