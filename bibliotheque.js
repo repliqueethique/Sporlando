@@ -229,33 +229,33 @@ function construireDiagrammeMuscles(groupe) {
   var musclesActifs = MUSCLES_PAR_GROUPE[groupe] || [];
   var chemins = doc.querySelectorAll('path');
 
-  // Récupération des couleurs du thème actif
-  var elementTexte = document.querySelector('.carte');
-  var elementAccent = document.querySelector('.btn-plein');
-  var couleurBase = elementTexte
-    ? getComputedStyle(elementTexte).color
-    : getComputedStyle(document.body).color;
-  var couleurAccent = elementAccent
-    ? getComputedStyle(elementAccent).backgroundColor
-    : '#1FD9C4';
+  // Récupération des couleurs depuis les variables CSS du thème
+  var couleurs = getComputedStyle(document.documentElement);
+
+  var couleurFond = couleurs.getPropertyValue('--couleur-carte-creux').trim() || '#10141A';
+  var couleurBase = couleurs.getPropertyValue('--couleur-texte-att').trim() || '#8996A3';
+  var couleurActive = couleurs.getPropertyValue('--couleur-turquoise').trim() || '#1FD9C4';
 
   for (var i = 0; i < chemins.length; i++) {
     var chemin = chemins[i];
     var id = chemin.getAttribute('id') || '';
     var nomMuscle = id.replace(/-\d+$/, '');
 
+    // Contours de la silhouette
     if (nomMuscle.indexOf('contour') === 0) {
       chemin.style.setProperty('fill', 'none', 'important');
       chemin.style.setProperty('stroke', couleurBase, 'important');
-      chemin.style.setProperty('stroke-width', '6px', 'important');
+      chemin.style.setProperty('stroke-width', '7px', 'important');
+      chemin.style.setProperty('stroke-linejoin', 'round', 'important');
       continue;
     }
 
     var actif = musclesActifs.indexOf(nomMuscle) !== -1;
 
+    // Muscles sélectionnés en turquoise, les autres en couleur atténuée
     chemin.style.setProperty(
       'fill',
-      actif ? couleurAccent : couleurBase,
+      actif ? couleurActive : couleurBase,
       'important'
     );
 
@@ -269,10 +269,14 @@ function construireDiagrammeMuscles(groupe) {
   svg.setAttribute('width', '100%');
   svg.setAttribute('height', 'auto');
   svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+
   svg.style.display = 'block';
   svg.style.maxWidth = '100%';
 
-  return '<div style="width:100%;max-width:850px;margin:0 auto;">' +
+  // Fond sombre de la carte et silhouettes agrandies
+  return '<div class="svg-conteneur" style="width:100%;max-width:1000px;margin:0 auto;background:' +
+    couleurFond +
+    ';border-radius:10px;padding:8px;box-sizing:border-box;">' +
     new XMLSerializer().serializeToString(svg) +
     '</div>';
 }
@@ -620,14 +624,22 @@ function ouvrirFormulaireExercice(idExercice) {
     html += '</div>';
   }
 
-  /* 2. Nom + Groupe musculaire + Matériel/Sécu/Unilatéral à gauche, silhouette agrandie à droite */
+  /* 2. Nom et groupe musculaire */
   var eqInit = exercice.equipement || 'aucun';
   if (!EQUIPEMENTS_POIDS[eqInit]) { eqInit = 'aucun'; }
+
   html += '<div class="carte ex-bloc">';
   html += '<div class="champ ex-champ-compact"><label>' + labelTitreBulle('nom', 'Nom') + '</label><input type="text" id="champ-ex-nom" value="' + echapperHtml(exercice.nom) + '" placeholder="ex. Développé couché"></div>';
-  html += '<div class="ex-identite-ligne">';
-  html += '<div class="ex-identite-gauche">';
   html += '<div class="champ"><label>Groupe musculaire</label>' + htmlChampChoix('groupe', 'champ-ex-groupe', exercice.groupe) + '</div>';
+  html += '</div>';
+
+  /* 3. Carte anatomique, pleine largeur */
+  html += '<div class="carte ex-bloc ex-carte-anatomie" style="padding:8px;">';
+  html += '<div id="diagramme-muscles-zone" style="width:100%;max-width:1000px;margin:0 auto;"></div>';
+  html += '</div>';
+
+  /* 4. Matériel dans sa propre carte */
+  html += '<div class="carte ex-bloc">';
   html += '<select id="champ-ex-equipement" style="display:none;">';
   for (var eqCle in EQUIPEMENTS_POIDS) {
     if (EQUIPEMENTS_POIDS.hasOwnProperty(eqCle)) {
@@ -640,12 +652,6 @@ function ouvrirFormulaireExercice(idExercice) {
   var modeUniInit = exercice.modeUnilateral || (exercice.unilateral ? 'cote_par_cote' : 'aucun');
   html += '<input type="checkbox" id="champ-ex-unilateral" data-mode="' + modeUniInit + '" value="' + modeUniInit + '" style="display:none;"' + (modeUniInit !== 'aucun' ? ' checked' : '') + '>';
   html += '<div id="ex-zone-materiel-ligne" class="ex-ligne-materiel"></div>';
-  html += '</div>';
-  html += '</div>';
-  html += '</div>';
-
-  html += '<div class="carte ex-bloc ex-carte-anatomie" style="padding:12px;">';
-  html += '<div id="diagramme-muscles-zone" class="ex-anatomie-zone"></div>';
   html += '</div>';
 
   /* 4. Poids / Répétitions / Séries / Intensité sur la même ligne */
