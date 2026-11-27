@@ -3229,27 +3229,87 @@ main::after {
   gap: 4px;
 }
 
-.ex-bouclier-aligne {
+/* Alignement général et boutons icônes */
+.ex-ligne-materiel {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 8px;
+}
+
+.ex-icone-btn {
+  width: 40px;
   height: 40px;
-  min-width: 40px;
-  padding: 0 8px;
   border-radius: 10px;
   border: 1px solid var(--bordure, #2A313B);
   background: var(--fond-carte, #161B22);
-  box-shadow: none;
-  filter: none;
+  color: var(--texte-principal, #E6EDF3);
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  cursor: pointer;
+  padding: 0;
   box-sizing: border-box;
 }
 
-.ex-bouclier-aligne::before,
-.ex-bouclier-aligne::after,
-.ex-bouclier-aligne .sx-bouclier-fond {
-  display: none;
-  box-shadow: none;
-  filter: none;
+/* Centrage parfait des SVG à l'intérieur du bouton */
+.ex-icone-btn svg {
+  display: block;
+  margin: auto;
+}
+
+.ex-icone-btn-actif {
+  border-color: var(--accent, #1FD9C4);
+  background: rgba(31, 217, 196, 0.14);
+  color: var(--accent, #1FD9C4);
+}
+
+/* Forme SVG du bouclier conservée avec la charte graphique du bouton matériel */
+.ex-cran-glissable {
+  display: inline-flex;
+  align-items: center;
+}
+
+.ex-bouclier-style-btn {
+  position: relative;
+  width: 34px;
+  height: 40px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: none !important;
+  filter: none !important;
+}
+
+.ex-bouclier-style-btn::before,
+.ex-bouclier-style-btn::after {
+  display: none !important;
+}
+
+.ex-bouclier-style-btn .sx-bouclier-fond {
+  display: block !important;
+  width: 100%;
+  height: 100%;
+  fill: var(--fond-carte, #161B22) !important;
+  stroke: var(--bordure, #2A313B) !important;
+  stroke-width: 1.5px !important;
+  filter: none !important;
+  box-shadow: none !important;
+}
+
+.ex-bouclier-style-btn .sx-bouclier-texte {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  color: var(--texte-principal, #E6EDF3);
+  font-size: 13px;
+  font-weight: 600;
+  text-shadow: none !important;
 }
 
 .ex-bouclier-aligne .sx-bouclier-texte {
@@ -3275,20 +3335,6 @@ main::after {
   user-select: none;
   display: inline-flex;
   align-items: center;
-}
-
-.ex-icone-btn {
-  width: 40px;
-  height: 40px;
-  border-radius: 10px;
-  border: 1px solid var(--bordure, #2A313B);
-  background: var(--fond-carte, #161B22);
-  color: var(--texte-principal, #E6EDF3);
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  padding: 0;
 }
 
 .ex-icone-btn-actif {

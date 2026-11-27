@@ -331,7 +331,7 @@ function rafraichirZoneMaterielExercice() {
       : (SVG_FLECHE_HAUT + '<b class="donnee-num">' + echapperHtml(chiffreAff) + '</b>');
     h += '<div class="ex-cran-glissable" id="ex-cran-glissable" title="Glisser pour le cran · Cliquer pour inverser haut/bas">';
     h += '<span id="ex-cran-valeur" style="display:none;">' + echapperHtml(chiffreAff) + '</span>';
-    h += '<span class="sx-bouclier ex-bouclier-aligne" id="ex-bouclier-secu">';
+    h += '<span class="sx-bouclier ex-bouclier-style-btn" id="ex-bouclier-secu">';
     h += '<svg class="sx-bouclier-fond" viewBox="0 0 24 28" aria-hidden="true"><path d="M12 1.5L21.5 5v8.5c0 5.6-3.9 9.7-9.5 12-5.6-2.3-9.5-6.4-9.5-12V5z"/></svg>';
     h += '<span class="sx-bouclier-texte">' + contenuBouclier + '</span>';
     h += '</span></div>';
