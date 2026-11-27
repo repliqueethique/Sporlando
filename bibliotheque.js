@@ -188,19 +188,50 @@ function ouvrirBulleInfoExercice(cleInfo) {
 
 var glisseCranExercice = { actif: false, x0: 0, val0: 0, init: false };
 
+function ouvrirModalCranSecurite() {
+  var champ = document.getElementById('champ-ex-securite');
+  var valActuelle = champ && champ.value ? parseInt(champ.value, 10) : 1;
+  if (isNaN(valActuelle) || valActuelle < 1) { valActuelle = 1; }
+  var h = '<div class="modal-entete"><h2>Cran de sécurité</h2><button class="bouton-fermer" data-action="fermer-modal">&times;</button></div>';
+  h += '<div class="champ"><label>Numéro du cran</label><input type="number" inputmode="numeric" min="1" max="99" step="1" id="modal-ex-cran-input" value="' + valActuelle + '"></div>';
+  h += '<button class="btn btn-plein btn-bloc" data-action="valider-cran-securite">Valider</button>';
+  h += '<button class="btn btn-contour btn-bloc" style="margin-top:8px;" data-action="effacer-cran-securite">Effacer le cran</button>';
+  ouvrirModal(h);
+}
+
+function validerCranSecurite() {
+  var inp = document.getElementById('modal-ex-cran-input');
+  var n = inp ? parseInt(inp.value, 10) : 0;
+  fermerModal();
+  var champ = document.getElementById('champ-ex-securite');
+  if (champ) { champ.value = (n > 0) ? String(Math.min(99, n)) : ''; }
+  rafraichirZoneMaterielExercice();
+}
+
+function effacerCranSecurite() {
+  fermerModal();
+  var champ = document.getElementById('champ-ex-securite');
+  if (champ) { champ.value = ''; }
+  rafraichirZoneMaterielExercice();
+}
+
 function configurerGlisseCranExercice() {
   var zone = document.getElementById('ex-cran-glissable');
   var champ = document.getElementById('champ-ex-securite');
   var aff = document.getElementById('ex-cran-valeur');
   if (!zone || !champ || !aff) { return; }
 
+  var aGlisse = false;
+
   function majCran(v) {
     var n = Math.max(0, Math.min(99, Math.round(v)));
     champ.value = n > 0 ? String(n) : '';
     aff.textContent = n > 0 ? String(n) : '—';
+    rafraichirZoneMaterielExercice();
   }
 
   function debut(x) {
+    aGlisse = false;
     glisseCranExercice.actif = true;
     glisseCranExercice.x0 = x;
     glisseCranExercice.val0 = parseInt(champ.value, 10) || 0;
@@ -209,16 +240,30 @@ function configurerGlisseCranExercice() {
 
   function deplacer(x) {
     if (!glisseCranExercice.actif) { return; }
+    if (Math.abs(x - glisseCranExercice.x0) > 8) { aGlisse = true; }
     var pas = Math.trunc((x - glisseCranExercice.x0) / 18);
-    majCran(glisseCranExercice.val0 + pas);
+    if (aGlisse) {
+      var n = Math.max(0, Math.min(99, Math.round(glisseCranExercice.val0 + pas)));
+      champ.value = n > 0 ? String(n) : '';
+      aff.textContent = n > 0 ? String(n) : '—';
+      var b = zone.querySelector('.sx-bouclier-texte b');
+      if (b) { b.textContent = n > 0 ? String(n) : '—'; }
+    }
   }
 
   function fin() {
+    if (!glisseCranExercice.actif) { return; }
+    var etaitGlisse = aGlisse;
     glisseCranExercice.actif = false;
     zone.classList.remove('glisse-actif');
+    if (etaitGlisse) {
+      rafraichirZoneMaterielExercice();
+    } else {
+      ouvrirModalCranSecurite();
+    }
   }
 
-  zone.addEventListener('mousedown', function (e) { debut(e.clientX); });
+  zone.addEventListener('mousedown', function (e) { e.preventDefault(); debut(e.clientX); });
   zone.addEventListener('touchstart', function (e) { debut(e.touches[0].clientX); }, { passive: true });
 
   if (!glisseCranExercice.init) {
@@ -355,21 +400,14 @@ function ouvrirFormulaireExercice(idExercice) {
     html += '</div>';
   }
 
-  /* 2. Nom + Groupe musculaire + Muscles ciblés (silhouette seule) */
+  /* 2. Nom + Groupe musculaire + Matériel/Sécu/Unilatéral à gauche, silhouette agrandie à droite */
+  var eqInit = exercice.equipement || 'aucun';
+  if (!EQUIPEMENTS_POIDS[eqInit]) { eqInit = 'aucun'; }
   html += '<div class="carte ex-bloc">';
   html += '<div class="champ ex-champ-compact"><label>' + labelTitreBulle('nom', 'Nom') + '</label><input type="text" id="champ-ex-nom" value="' + echapperHtml(exercice.nom) + '" placeholder="ex. Développé couché"></div>';
   html += '<div class="ex-identite-ligne">';
   html += '<div class="ex-identite-gauche">';
-  html += '<div class="champ ex-champ-compact" style="margin-bottom:0;"><label>' + labelTitreBulle('groupe', 'Groupe musculaire') + '</label><select id="champ-ex-groupe">' + optionsGroupesMusculaires(exercice.groupe) + '</select></div>';
-  html += '</div>';
-  html += '<div id="diagramme-muscles-zone" class="diagramme-muscles-petit ex-silhouette-seule"></div>';
-  html += '</div>';
-  html += '</div>';
-
-  /* 3. Matériel + Barre de sécu / Unilatéral sur la même ligne */
-  var eqInit = exercice.equipement || 'aucun';
-  if (!EQUIPEMENTS_POIDS[eqInit]) { eqInit = 'aucun'; }
-  html += '<div class="carte ex-bloc">';
+  html += '<div class="champ ex-champ-compact"><label>' + labelTitreBulle('groupe', 'Groupe musculaire') + '</label><select id="champ-ex-groupe">' + optionsGroupesMusculaires(exercice.groupe) + '</select></div>';
   html += '<select id="champ-ex-equipement" style="display:none;">';
   for (var eqCle in EQUIPEMENTS_POIDS) {
     if (EQUIPEMENTS_POIDS.hasOwnProperty(eqCle)) {
@@ -381,6 +419,9 @@ function ouvrirFormulaireExercice(idExercice) {
   html += '<input type="hidden" id="champ-ex-securite-sens" value="' + ((exercice.securiteSens === 'bas') ? 'bas' : 'haut') + '">';
   html += '<input type="checkbox" id="champ-ex-unilateral" style="display:none;"' + (exercice.unilateral ? ' checked' : '') + '>';
   html += '<div id="ex-zone-materiel-ligne" class="ex-ligne-materiel"></div>';
+  html += '</div>';
+  html += '<div id="diagramme-muscles-zone" class="diagramme-muscles-petit ex-silhouette-grande"></div>';
+  html += '</div>';
   html += '</div>';
 
   /* 4. Poids / Répétitions / Séries / Intensité sur la même ligne */

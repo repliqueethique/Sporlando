@@ -184,6 +184,8 @@ ajouterEcouteurClicDelegue(document.body, function (cible) {
   if (action === 'cycle-materiel-exercice') { cycleMaterielExercice(); return; }
   if (action === 'basculer-sens-securite') { basculerSensSecuriteExercice(); return; }
   if (action === 'basculer-unilateral-exercice') { basculerUnilateralExercice(); return; }
+  if (action === 'valider-cran-securite') { validerCranSecurite(); return; }
+  if (action === 'effacer-cran-securite') { effacerCranSecurite(); return; }
 
   if (action === 'nouvelle-seance') { ouvrirFormulaireSeance(null); return; }
   if (action === 'editer-seance') { ouvrirFormulaireSeance(id); return; }
