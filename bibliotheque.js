@@ -329,14 +329,14 @@ function rafraichirZoneMaterielExercice() {
     var contenuBouclier = (sensActuel === 'bas')
       ? ('<b class="donnee-num">' + echapperHtml(chiffreAff) + '</b>' + SVG_FLECHE_BAS)
       : (SVG_FLECHE_HAUT + '<b class="donnee-num">' + echapperHtml(chiffreAff) + '</b>');
-    h += '<div class="ex-mat-groupe">';
-    h += '<div class="ex-cran-glissable" id="ex-cran-glissable" title="Glisser pour le cran · Cliquer pour inverser haut/bas"><span id="ex-cran-valeur" style="display:none;">' + echapperHtml(chiffreAff) + '</span><span class="sx-bouclier" id="ex-bouclier-secu"><svg class="sx-bouclier-fond" viewBox="0 0 24 28" aria-hidden="true"><path d="M12 1.5L21.5 5v8.5c0 5.6-3.9 9.7-9.5 12-5.6-2.3-9.5-6.4-9.5-12V5z"/></svg><span class="sx-bouclier-texte">' + contenuBouclier + '</span></span></div>';
-    h += '</div>';
+    h += '<div class="ex-cran-glissable" id="ex-cran-glissable" title="Glisser pour le cran · Cliquer pour inverser haut/bas">';
+    h += '<span id="ex-cran-valeur" style="display:none;">' + echapperHtml(chiffreAff) + '</span>';
+    h += '<span class="sx-bouclier ex-bouclier-aligne" id="ex-bouclier-secu">';
+    h += '<svg class="sx-bouclier-fond" viewBox="0 0 24 28" aria-hidden="true"><path d="M12 1.5L21.5 5v8.5c0 5.6-3.9 9.7-9.5 12-5.6-2.3-9.5-6.4-9.5-12V5z"/></svg>';
+    h += '<span class="sx-bouclier-texte">' + contenuBouclier + '</span>';
+    h += '</span></div>';
   } else {
-    h += '<div class="ex-mat-groupe">';
-    h += labelTitreBulle('unilateral', 'Unilat.', 'ex-mini-titre');
     h += '<button type="button" class="ex-icone-btn' + (uniActuel ? ' ex-icone-btn-actif' : '') + '" id="ex-btn-unilateral" data-action="basculer-unilateral-exercice" title="Unilatéral">' + svgUnilateralExercice() + '</button>';
-    h += '</div>';
   }
 
   zone.innerHTML = h;

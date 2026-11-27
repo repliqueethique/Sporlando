@@ -3219,14 +3219,48 @@ main::after {
 .ex-ligne-materiel {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 10px;
+  justify-content: flex-start;
+  gap: 6px;
 }
 
 .ex-mat-groupe {
   display: flex;
-  flex-direction: column;
-  align-items: flex-start;
+  align-items: center;
+  gap: 4px;
+}
+
+.ex-bouclier-aligne {
+  height: 40px;
+  min-width: 40px;
+  padding: 0 8px;
+  border-radius: 10px;
+  border: 1px solid var(--bordure, #2A313B);
+  background: var(--fond-carte, #161B22);
+  box-shadow: none;
+  filter: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+}
+
+.ex-bouclier-aligne::before,
+.ex-bouclier-aligne::after,
+.ex-bouclier-aligne .sx-bouclier-fond {
+  display: none;
+  box-shadow: none;
+  filter: none;
+}
+
+.ex-bouclier-aligne .sx-bouclier-texte {
+  position: static;
+  transform: none;
+  box-shadow: none;
+  text-shadow: none;
+  filter: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
 }
 
 .ex-secu-ligne {
