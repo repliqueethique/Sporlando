@@ -182,56 +182,82 @@ function derniereOccurrenceExercice(exerciceId) {
 
 var anatomieSvgCache = null;
 
+var anatomieSvgCache = null;
+var anatomieSvgChargement = false;
+
+var MUSCLES_PAR_GROUPE = {
+  'Pectoraux': [
+    'grand_pectoral'
+  ],
+  'Dos': [
+    'grand_dorsal', 'trapèze', 'infra_épineux'
+  ],
+  'Épaules': [
+    'deltoide', 'deltoïde', 'trapèze'
+  ],
+  'Bras': [
+    'biceps_brachial', 'triceps_brachial', 'brachial',
+    'brachio_radial', 'brachial_radial',
+    'extenseur_de_l_avant_bras', 'flechisseur_de_l_avant_bras'
+  ],
+  'Jambes': [
+    'adducteurs', 'droit_fémoral', 'vaste_latéral',
+    'moyen_fessier', 'grand_fessier', 'biceps_fémorale',
+    'semi_tendineux', 'semi_membraneux',
+    'gastrocnémien', 'gastrocnémien_latéral',
+    'gastrocnémien_médial', 'soléaires',
+    'tibial_intérieur', 'long_fibulaire'
+  ],
+  'Abdominaux': [
+    'droit_de_l_abdomen_1', 'droit_de_l_abdomen_2',
+    'droit_de_l_abdomen_3', 'droit_de_l_abdomen_4',
+    'grand_oblique_de_l_abdomen',
+    'oblique_externe_1', 'oblique_externe_2', 'oblique_externe_3'
+  ]
+};
+
 function construireDiagrammeMuscles(groupe) {
   if (!anatomieSvgCache) {
-    return '<div class="svg-conteneur"></div>';
+    return '<div class="texte-att">Chargement de l’anatomie…</div>';
   }
 
-  var svg = anatomieSvgCache;
-  var actif = '#1FD9C4';
-  var inactif = '#10141A';
+  var doc = new DOMParser().parseFromString(
+    anatomieSvgCache,
+    'image/svg+xml'
+  );
 
-  var muscles = {
-    'Pectoraux': ['grand_pectoral'],
-    'Dos': ['grand_dorsal', 'infra_épineux', 'trapèze'],
-    'Épaules': ['deltoide', 'deltoïde'],
-    'Bras': [
-      'biceps_brachial', 'triceps_brachial', 'brachial',
-      'brachio_radial', 'brachial_radial',
-      'extenseur_de_l_avant_bras', 'flechisseur_de_l_avant_bras'
-    ],
-    'Jambes': [
-      'adducteurs', 'droit_fémoral', 'vaste_latéral',
-      'moyen_fessier', 'grand_fessier', 'biceps_fémorale',
-      'semi_tendineux', 'semi_membraneux',
-      'gastrocnémien', 'gastrocnémien_latéral',
-      'gastrocnémien_médial', 'soléaires',
-      'tibial_intérieur', 'long_fibulaire'
-    ],
-    'Abdominaux': [
-      'droit_de_l_abdomen_1', 'droit_de_l_abdomen_2',
-      'droit_de_l_abdomen_3', 'droit_de_l_abdomen_4',
-      'grand_oblique_de_l_abdomen',
-      'oblique_externe_1', 'oblique_externe_2', 'oblique_externe_3'
-    ]
-  };
-
-  var parser = new DOMParser();
-  var doc = parser.parseFromString(svg, 'image/svg+xml');
+  var musclesActifs = MUSCLES_PAR_GROUPE[groupe] || [];
   var chemins = doc.querySelectorAll('path');
 
   for (var i = 0; i < chemins.length; i++) {
-    var id = chemins[i].getAttribute('id') || '';
-    var nom = id.replace(/-\d+$/, '');
-    var estActif = muscles[groupe] && muscles[groupe].indexOf(nom) !== -1;
+    var chemin = chemins[i];
+    var id = chemin.getAttribute('id') || '';
 
-    if (nom.indexOf('contour') === 0) { continue; }
+    // Retire les suffixes des doublons (-2, -3, etc.)
+    var nomMuscle = id.replace(/-\d+$/, '');
 
-    chemins[i].style.fill = estActif ? actif : inactif;
+    // Ignore les contours
+    if (nomMuscle.indexOf('contour') === 0) {
+      continue;
+    }
+
+    var actif = musclesActifs.indexOf(nomMuscle) !== -1;
+
+    chemin.style.setProperty(
+      'fill',
+      actif ? '#1FD9C4' : '#10141A',
+      'important'
+    );
   }
 
+  var svg = doc.documentElement;
+
+  svg.setAttribute('width', '100%');
+  svg.setAttribute('height', 'auto');
+  svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+
   return '<div class="svg-conteneur">' +
-    new XMLSerializer().serializeToString(doc.documentElement) +
+    new XMLSerializer().serializeToString(svg) +
     '</div>';
 }
 
@@ -239,28 +265,40 @@ function rafraichirDiagrammeMuscles() {
   var zone = document.getElementById('diagramme-muscles-zone');
   var select = document.getElementById('champ-ex-groupe');
 
-  if (!zone || !select) { return; }
-
-  if (!anatomieSvgCache) {
-    zone.innerHTML = '<div class="svg-conteneur"></div>';
-
-    fetch('Anatomie.svg')
-      .then(function (reponse) {
-        if (!reponse.ok) { throw new Error('SVG introuvable'); }
-        return reponse.text();
-      })
-      .then(function (texte) {
-        anatomieSvgCache = texte;
-        rafraichirDiagrammeMuscles();
-      })
-      .catch(function () {
-        zone.innerHTML = '<div class="texte-att">Impossible de charger la silhouette.</div>';
-      });
-
+  if (!zone || !select) {
     return;
   }
 
-  zone.innerHTML = construireDiagrammeMuscles(select.value);
+  if (anatomieSvgCache) {
+    zone.innerHTML = construireDiagrammeMuscles(select.value);
+    return;
+  }
+
+  zone.innerHTML = '<div class="texte-att">Chargement de l’anatomie…</div>';
+
+  if (anatomieSvgChargement) {
+    return;
+  }
+
+  anatomieSvgChargement = true;
+
+  fetch('Anatomie.svg')
+    .then(function (reponse) {
+      if (!reponse.ok) {
+        throw new Error('Impossible de charger Anatomie.svg');
+      }
+      return reponse.text();
+    })
+    .then(function (svg) {
+      anatomieSvgCache = svg;
+      anatomieSvgChargement = false;
+      rafraichirDiagrammeMuscles();
+    })
+    .catch(function () {
+      anatomieSvgChargement = false;
+      zone.innerHTML =
+        '<div class="texte-att">Erreur de chargement de la silhouette.</div>';
+    });
 }
 
 var ORDRE_MATERIEL_EXERCICE = ['barre_olympique', 'barre_z', 'haltere', 'poulie', 'aucun'];
