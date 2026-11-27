@@ -233,7 +233,7 @@ function construireDiagrammeMuscles(groupe) {
   var couleurs = getComputedStyle(document.documentElement);
 
   var couleurFond = couleurs.getPropertyValue('--couleur-carte-creux').trim() || '#10141A';
-  var couleurBase = couleurs.getPropertyValue('--couleur-degrade').trim() || 'linear-gradient(135deg, #1FD9C4 0%, #22A7E5 100%)';
+  var couleurBase = couleurs.getPropertyValue('couleur-carte').trim() || '#1B2027';
   var couleurActive = couleurs.getPropertyValue('--couleur-turquoise').trim() || '#1FD9C4';
 
   for (var i = 0; i < chemins.length; i++) {
