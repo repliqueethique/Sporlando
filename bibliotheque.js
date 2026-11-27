@@ -263,13 +263,6 @@ function rafraichirDiagrammeMuscles() {
   zone.innerHTML = construireDiagrammeMuscles(select.value);
 }
 
-function rafraichirDiagrammeMuscles() {
-  var zone = document.getElementById('diagramme-muscles-zone');
-  var select = document.getElementById('champ-ex-groupe');
-  if (!zone || !select) { return; }
-  zone.innerHTML = construireDiagrammeMuscles(select.value);
-}
-
 var ORDRE_MATERIEL_EXERCICE = ['barre_olympique', 'barre_z', 'haltere', 'poulie', 'aucun'];
 
 var INFOS_CHAMPS_EXERCICE = {
