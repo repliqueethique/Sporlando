@@ -973,7 +973,7 @@ function mettreAJourChrono() {
   var minutes = Math.floor(totalSecondes / 60);
   var secondes = totalSecondes % 60;
   var affichage = document.getElementById('seance-chrono');
-  if (affichage) { affichage.innerHTML = completerZero(minutes) + ':' + completerZero(secondes); }
+  if (affichage) { affichage.innerHTML = formaterDureeMinuteur(minutes * 60 + secondes); }
 }
 
 function modifierRerExercice(exIndex, valeur) {
@@ -1950,7 +1950,7 @@ function rendreZoneCompteARebours() {
     html += '<div class="cdr-pill' + (cdrReglageDeplie ? ' cdr-pill-deplie' : '') + (cdrCacherBouton ? ' cdr-pill-cache' : ' cdr-pill-pop') + '" id="cdr-duree-glissable">';
     html += '<input type="hidden" id="cdr-minutes" value="' + derniereMinutesReglees + '">';
     html += '<input type="hidden" id="cdr-secondes" value="' + dernieresSecondesReglees + '">';
-    html += '<span id="cdr-duree-affichage" class="cdr-duree-affichage">' + completerZero(derniereMinutesReglees) + ':' + completerZero(dernieresSecondesReglees) + '</span>';
+    html += '<span id="cdr-duree-affichage" class="cdr-duree-affichage">' + formaterDureeMinuteur(derniereMinutesReglees * 60 + dernieresSecondesReglees) + '</span>';
     html += '<button class="cdr-bouton-lancer" id="cdr-bouton-lancer" title="Appui court : lancer / appui long : régler la durée">';
     html += '<svg viewBox="0 0 24 24" width="40" height="40" aria-hidden="true" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">';
     html += '<line x1="9" y1="2" x2="15" y2="2"></line>';
@@ -2163,14 +2163,37 @@ function mettreAJourCompteARebours() {
   afficherCompteARebours(resteMs);
 }
 
+/* 75 secondes -> "1:15" ; 60 -> "1:00" ; 50 -> "50" (pas de zéro inutile) */
+function formaterDureeMinuteur(totalSecondes) {
+  var m = Math.floor(totalSecondes / 60);
+  var s = totalSecondes % 60;
+  if (m > 0) { return m + ':' + completerZero(s); }
+  return String(s);
+}
+
+/* Agrandit le chrono au maximum sans toucher le bord du cercle */
+var CDR_RAYON_UTILE_PX = 72;   /* rayon intérieur de l'anneau (82 px) moins une marge de 10 px */
+function ajusterTailleChronoCdr(el) {
+  var cle = String(el.textContent.length);
+  if (el.getAttribute('data-cle') === cle) { return; }   /* même nombre de caractères : rien à refaire */
+  el.style.fontSize = '100px';
+  var largeur = el.offsetWidth;
+  if (!largeur) { return; }
+  var hauteur = 75;   /* hauteur approximative des chiffres à 100 px */
+  var demiDiagonale = Math.sqrt((largeur / 2) * (largeur / 2) + (hauteur / 2) * (hauteur / 2));
+  var taille = 100 * CDR_RAYON_UTILE_PX / demiDiagonale;
+  taille = Math.max(24, Math.min(120, taille));
+  el.style.fontSize = taille.toFixed(1) + 'px';
+  el.setAttribute('data-cle', cle);
+}
+
 function afficherCompteARebours(resteMs) {
   var affichage = document.getElementById('cdr-affichage');
   if (!affichage) { return; }
   var totalSecondes = Math.ceil(resteMs / 1000);
   if (totalSecondes < 0) { totalSecondes = 0; }
-  var minutes = Math.floor(totalSecondes / 60);
-  var secondes = totalSecondes % 60;
-  affichage.innerHTML = completerZero(minutes) + ':' + completerZero(secondes);
+  affichage.innerHTML = formaterDureeMinuteur(totalSecondes);
+  ajusterTailleChronoCdr(affichage);
 
   var fractionRestante = compteARebours.dureeTotaleMs > 0 ? (resteMs / compteARebours.dureeTotaleMs) : 0;
   if (fractionRestante < 0) { fractionRestante = 0; }

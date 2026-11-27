@@ -1571,7 +1571,7 @@ main::after {
   font-weight: 900;
   line-height: 1;
   font-variant-numeric: tabular-nums;
-  letter-spacing: -1px;
+  letter-spacing: -0.02em;
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
