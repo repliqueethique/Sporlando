@@ -141,8 +141,7 @@ var ORDRE_MATERIEL_EXERCICE = ['barre_olympique', 'barre_z', 'haltere', 'poulie'
 var INFOS_CHAMPS_EXERCICE = {
   nom: { titre: 'Nom de l\'exercice', texte: 'Nom affiché dans la bibliothèque, les séances et l\'historique.' },
   groupe: { titre: 'Groupe musculaire', texte: 'Classe l\'exercice par zone principale et met à jour la silhouette.' },
-  materiel: { titre: 'Matériel & pas d\'incrément', texte: 'Clique sur le bouton pour faire défiler : barre olympique (+2,5 kg), barre en Z (+2,5 kg), haltères (+1,25 kg), colonne de poids (+5 kg) ou poids du corps.' },
-  securite: { titre: 'Barres de sécurité', texte: 'Actif avec barre olympique ou barre en Z. Glisse horizontalement sur le chiffre pour régler le cran, et clique sur la flèche pour inverser haut / bas.' },
+  materiel: { titre: 'Matériel, sécurité & incrément', texte: 'Clique sur le bouton matériel pour faire défiler : barre olympique (+2,5 kg), barre en Z (+2,5 kg), haltères (+1,25 kg), colonne de poids (+5 kg) ou poids du corps. Avec une barre, glisse sur le bouclier pour régler le cran et clique dessus pour passer la flèche au-dessus ou en-dessous.' },
   unilateral: { titre: 'Unilatéral', texte: 'Actif hors barre olympique et barre en Z. Indique que poids et répétitions sont comptés par côté.' },
   poids: { titre: 'Poids par défaut (KG)', texte: 'Charge de départ proposée lorsque tu ajoutes cet exercice à une séance.' },
   reps: { titre: 'Répétitions par défaut (REP)', texte: 'Nombre de répétitions (ou secondes / minutes selon le type) de départ.' },
@@ -223,13 +222,6 @@ function configurerGlisseCranExercice() {
 
   var aGlisse = false;
 
-  function majCran(v) {
-    var n = Math.max(0, Math.min(99, Math.round(v)));
-    champ.value = n > 0 ? String(n) : '';
-    aff.textContent = n > 0 ? String(n) : '—';
-    rafraichirZoneMaterielExercice();
-  }
-
   function debut(x) {
     aGlisse = false;
     glisseCranExercice.actif = true;
@@ -241,8 +233,8 @@ function configurerGlisseCranExercice() {
   function deplacer(x) {
     if (!glisseCranExercice.actif) { return; }
     if (Math.abs(x - glisseCranExercice.x0) > 8) { aGlisse = true; }
-    var pas = Math.trunc((x - glisseCranExercice.x0) / 18);
     if (aGlisse) {
+      var pas = Math.trunc((x - glisseCranExercice.x0) / 18);
       var n = Math.max(0, Math.min(99, Math.round(glisseCranExercice.val0 + pas)));
       champ.value = n > 0 ? String(n) : '';
       aff.textContent = n > 0 ? String(n) : '—';
@@ -259,7 +251,7 @@ function configurerGlisseCranExercice() {
     if (etaitGlisse) {
       rafraichirZoneMaterielExercice();
     } else {
-      ouvrirModalCranSecurite();
+      basculerSensSecuriteExercice();
     }
   }
 
@@ -338,11 +330,8 @@ function rafraichirZoneMaterielExercice() {
       ? ('<b class="donnee-num">' + echapperHtml(chiffreAff) + '</b>' + SVG_FLECHE_BAS)
       : (SVG_FLECHE_HAUT + '<b class="donnee-num">' + echapperHtml(chiffreAff) + '</b>');
     h += '<div class="ex-mat-groupe">';
-    h += labelTitreBulle('securite', 'Sécu', 'ex-mini-titre');
-    h += '<div class="ex-secu-ligne">';
-    h += '<div class="ex-cran-glissable" id="ex-cran-glissable" title="Glisser pour régler le cran"><span id="ex-cran-valeur" style="display:none;">' + echapperHtml(chiffreAff) + '</span><span class="sx-bouclier" id="ex-bouclier-secu"><svg class="sx-bouclier-fond" viewBox="0 0 24 28" aria-hidden="true"><path d="M12 1.5L21.5 5v8.5c0 5.6-3.9 9.7-9.5 12-5.6-2.3-9.5-6.4-9.5-12V5z"/></svg><span class="sx-bouclier-texte">' + contenuBouclier + '</span></span></div>';
-    h += '<button type="button" class="ex-icone-btn" id="ex-btn-fleche-secu" data-action="basculer-sens-securite" title="Changer le sens">' + ((sensActuel === 'bas') ? SVG_FLECHE_BAS : SVG_FLECHE_HAUT) + '</button>';
-    h += '</div></div>';
+    h += '<div class="ex-cran-glissable" id="ex-cran-glissable" title="Glisser pour le cran · Cliquer pour inverser haut/bas"><span id="ex-cran-valeur" style="display:none;">' + echapperHtml(chiffreAff) + '</span><span class="sx-bouclier" id="ex-bouclier-secu"><svg class="sx-bouclier-fond" viewBox="0 0 24 28" aria-hidden="true"><path d="M12 1.5L21.5 5v8.5c0 5.6-3.9 9.7-9.5 12-5.6-2.3-9.5-6.4-9.5-12V5z"/></svg><span class="sx-bouclier-texte">' + contenuBouclier + '</span></span></div>';
+    h += '</div>';
   } else {
     h += '<div class="ex-mat-groupe">';
     h += labelTitreBulle('unilateral', 'Unilat.', 'ex-mini-titre');
