@@ -1930,7 +1930,7 @@ function rendreZoneCompteARebours() {
   conteneur.style.cssText =
     'background:none; border:none; box-shadow:none; padding:0; display:flex; align-items:center; ' +
     (compteARebours.actif
-      ? 'margin:0 auto 12px auto; justify-content:center; width:200px; height:200px;'
+      ? 'margin:0 0 12px 0; justify-content:center; width:100%; height:200px; touch-action:none;'
       : 'margin:0 0 12px 0; justify-content:flex-end; width:auto; height:auto;');
   var html = '';
   if (compteARebours.actif) {
@@ -2083,6 +2083,7 @@ function basculerPauseCompteARebours() {
 function configurerGestesMinuteur() {
   var zone = document.getElementById('cdr-cercle-zone');
   if (!zone) { return; }
+  var zoneTouche = document.getElementById('seance-zone-cdr') || zone;
   var yDepart = null;
   var deltaCourant = 0;
   var aDeplaceAssez = false;
@@ -2122,12 +2123,12 @@ function configurerGestesMinuteur() {
     deltaCourant = 0;
   }
 
-  zone.addEventListener('touchstart', function (e) { debut(e.touches[0].clientY); }, { passive: true });
-  zone.addEventListener('touchmove', function (e) { deplace(e.touches[0].clientY); }, { passive: true });
-  zone.addEventListener('touchend', fin, false);
-  zone.addEventListener('mousedown', function (e) { debut(e.clientY); });
-  zone.addEventListener('mousemove', function (e) { deplace(e.clientY); });
-  zone.addEventListener('mouseup', fin);
+  zoneTouche.addEventListener('touchstart', function (e) { debut(e.touches[0].clientY); }, { passive: true });
+  zoneTouche.addEventListener('touchmove', function (e) { deplace(e.touches[0].clientY); }, { passive: true });
+  zoneTouche.addEventListener('touchend', fin, false);
+  zoneTouche.addEventListener('mousedown', function (e) { debut(e.clientY); });
+  zoneTouche.addEventListener('mousemove', function (e) { deplace(e.clientY); });
+  zoneTouche.addEventListener('mouseup', fin);
 }
 
 function mettreAJourCompteARebours() {
@@ -2756,7 +2757,7 @@ function htmlChampsHero(ligneEx, serie, e, s, unilat) {
     h += htmlStepper(e, s, 'distance', serie.distance || 0, 'km', PAS_DISTANCE_STEPPER);
   } else {
     if (!sansCharge || serie.poids > 0) {
-      h += htmlStepper(e, s, 'poids', serie.poids, sansCharge ? 'kg de lest' : 'kg', PAS_POIDS_STEPPER);
+      h += htmlStepper(e, s, 'poids', serie.poids, sansCharge ? 'kg de lest' : (unilat ? 'kg par côté' : 'kg'), PAS_POIDS_STEPPER);
     }
     if (type === 'maintien') {
       h += htmlStepper(e, s, 'reps', serie.reps, unilat ? 'secondes / côté' : 'secondes', PAS_SECONDES_STEPPER);
@@ -2778,7 +2779,7 @@ function htmlChampsCompact(ligneEx, serie, attrs, unilat) {
   var sansCharge = (type === 'poids_corps' || type === 'maintien');
   var h = '';
   if (type !== 'cardio' && (!sansCharge || serie.poids > 0)) {
-    h += '<span class="serie-champ"><input type="number" step="0.5" inputmode="decimal" data-role="live-poids"' + attrs + ' value="' + serie.poids + '"></span><span class="serie-unite">kg</span>';
+    h += '<span class="serie-champ"><input type="number" step="0.5" inputmode="decimal" data-role="live-poids"' + attrs + ' value="' + serie.poids + '"></span><span class="serie-unite">' + (unilat ? 'kg/côté' : 'kg') + '</span>';
   }
   var unite = unilat ? 'reps/côté' : 'reps';
   if (type === 'maintien') { unite = unilat ? 's/côté' : 's'; }

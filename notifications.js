@@ -115,12 +115,18 @@ function heureActuelleDepassee(heureRappel) {
   return maintenant >= heureCible;
 }
 
+function aSeancePrevueAujourdhui() {
+  var aujourdHui = formaterDateISO(new Date());
+  return etat.agenda.some(function (a) { return a.date === aujourdHui && a.statut === 'planifie'; });
+}
+
 function verifierRappelsDus() {
   var rappelsDus = [];
   reglagesRappels.forEach(function (rappel) {
     if (!rappel.actif) { return; }
     if (rappelEstFaitAujourdhui(rappel.id)) { return; }
     if (!heureActuelleDepassee(rappel.heure)) { return; }
+    if (rappel.id === 'seance' && !aSeancePrevueAujourdhui()) { return; }
     rappelsDus.push(rappel);
   });
   return rappelsDus;

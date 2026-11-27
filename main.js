@@ -229,7 +229,8 @@ ajouterEcouteurClicDelegue(document.body, function (cible) {
   if (action === 'grappe-moins') { grappeMoins(parseInt(cible.getAttribute('data-ex'), 10), parseInt(cible.getAttribute('data-serie'), 10)); return; }
   if (action === 'chrono-maintien') { basculerChronoMaintien(parseInt(cible.getAttribute('data-ex'), 10), parseInt(cible.getAttribute('data-serie'), 10)); return; }
   if (action === 'ajouter-lest') { ajouterLest(parseInt(cible.getAttribute('data-ex'), 10)); return; }
-  if (action === 'choisir-style-exercice') { ouvrirChoixStyleExercice(parseInt(cible.getAttribute('data-ex'), 10)); return; }
+  if (action === 'choisir-style-exercice') { ouvrirChoixStyleExercice(parseInt(cible.getAttribute('data-ex'), 10), 'structure'); return; }
+  if (action === 'onglet-style') { ouvrirChoixStyleExercice(exerciceStyleEnCours, cible.getAttribute('data-onglet')); return; }
   if (action === 'choisir-style-seance') { choisirStyleSeance(cible.getAttribute('data-champ'), cible.getAttribute('data-valeur')); return; }
   if (action === 'aide-style-seance') { ouvrirGuideTypes(id, 'style'); return; }
   if (action === 'retour-choix-style') { ouvrirChoixStyleExercice(exerciceStyleEnCours); return; }
