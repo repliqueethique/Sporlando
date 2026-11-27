@@ -2593,6 +2593,8 @@ function ligneStyle(champ, valeur, nom, meta, avecAide, active) {
   return h + '</div>';
 }
 
+var styleOngletEnCours = 'structure';
+
 function htmlListeStyle(champ, valeurActive) {
   var h = '', i;
   if (champ === 'technique') {
@@ -2602,25 +2604,35 @@ function htmlListeStyle(champ, valeurActive) {
     }
     return h;
   }
-  for (i = 0; i < TYPES_EXERCICE.length; i++) {
-    var t = TYPES_EXERCICE[i];
-    if (!estTypePrincipal(t)) { continue; }
-    h += ligneStyle(champ, t.id, t.nom, nomCategorieType(t.cat), true, t.id === valeurActive);
+  for (var c = 0; c < CATEGORIES_TYPES.length; c++) {
+    var cat = CATEGORIES_TYPES[c], groupe = '';
+    for (i = 0; i < TYPES_EXERCICE.length; i++) {
+      var t = TYPES_EXERCICE[i];
+      if (t.cat !== cat.id || !estTypePrincipal(t)) { continue; }
+      groupe += ligneStyle(champ, t.id, t.nom, '', true, t.id === valeurActive);
+    }
+    if (groupe !== '') { h += '<div class="selecteur-groupe">' + echapperHtml(cat.nom) + '</div>' + groupe; }
   }
   return h;
 }
 
-function ouvrirChoixStyleExercice(exIndex) {
+function ouvrirChoixStyleExercice(exIndex, onglet) {
   if (!etat.seanceActive) { return; }
   exerciceStyleEnCours = exIndex;
+  if (onglet) { styleOngletEnCours = onglet; }
   var ligne = etat.seanceActive.exercices[exIndex];
   var exRef = trouverParId(etat.exercices, ligne.exerciceId);
   var html = '<div class="modal-entete"><h2>' + echapperHtml(exRef ? exRef.nom : 'Exercice') + '</h2><button class="bouton-fermer" data-action="fermer-modal">&times;</button></div>';
-  html += '<div class="selecteur-groupe">Type d\'exercice</div>' + htmlListeStyle('structure', ligne.structure || 'lineaire');
-  html += '<div class="selecteur-groupe">Technique sur la dernière série</div>' + htmlListeStyle('technique', ligne.technique || 'aucune');
+  html += '<div class="sous-onglets" style="margin-bottom:12px;">';
+  html += '<button class="sous-onglet' + (styleOngletEnCours === 'structure' ? ' sous-onglet-actif' : '') + '" data-action="onglet-style" data-onglet="structure">Type</button>';
+  html += '<button class="sous-onglet' + (styleOngletEnCours === 'technique' ? ' sous-onglet-actif' : '') + '" data-action="onglet-style" data-onglet="technique">Dernière série</button>';
+  html += '</div>';
+  var valeur = (styleOngletEnCours === 'technique') ? (ligne.technique || 'aucune') : (ligne.structure || 'lineaire');
+  html += htmlListeStyle(styleOngletEnCours, valeur);
   html += '<div class="modal-pied modal-pied-ligne"><button class="btn btn-contour" style="flex:1;" data-action="style-par-defaut" data-ex="' + exIndex + '">Par défaut</button>';
   html += '<button class="btn btn-plein" style="flex:1.4;" data-action="fermer-modal">Terminé</button></div>';
   ouvrirModal(html);
+  document.getElementById('modal-contenu').scrollTop = 0;
 }
 
 /* Applique le choix tout de suite et déplace la coche sans redessiner la feuille */
