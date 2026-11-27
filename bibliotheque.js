@@ -136,67 +136,279 @@ function rafraichirDiagrammeMuscles() {
   zone.innerHTML = construireDiagrammeMuscles(select.value);
 }
 
+var ORDRE_MATERIEL_EXERCICE = ['barre_olympique', 'barre_z', 'haltere', 'poulie', 'aucun'];
+
+var INFOS_CHAMPS_EXERCICE = {
+  nom: { titre: 'Nom de l\'exercice', texte: 'Nom affiché dans la bibliothèque, les séances et l\'historique.' },
+  groupe: { titre: 'Groupe musculaire', texte: 'Classe l\'exercice par zone principale et met à jour la silhouette.' },
+  materiel: { titre: 'Matériel & pas d\'incrément', texte: 'Clique sur le bouton pour faire défiler : barre olympique (+2,5 kg), barre en Z (+2,5 kg), haltères (+1,25 kg), colonne de poids (+5 kg) ou poids du corps.' },
+  securite: { titre: 'Barres de sécurité', texte: 'Actif avec barre olympique ou barre en Z. Glisse horizontalement sur le chiffre pour régler le cran, et clique sur la flèche pour inverser haut / bas.' },
+  unilateral: { titre: 'Unilatéral', texte: 'Actif hors barre olympique et barre en Z. Indique que poids et répétitions sont comptés par côté.' },
+  poids: { titre: 'Poids par défaut (KG)', texte: 'Charge de départ proposée lorsque tu ajoutes cet exercice à une séance.' },
+  reps: { titre: 'Répétitions par défaut (REP)', texte: 'Nombre de répétitions (ou secondes / minutes selon le type) de départ.' },
+  series: { titre: 'Séries par défaut (SÉR)', texte: 'Nombre de séries de travail créées par défaut pour cet exercice.' },
+  met: { titre: 'Intensité (MET)', texte: 'Coefficient d\'effort utilisé pour estimer les calories brûlées (5 = musculation générale).' },
+  type: { titre: 'Type d\'exercice', texte: 'Structure de progression par défaut (linéaire, fourchette de reps, cluster, maintien, etc.).' },
+  technique: { titre: 'Technique sur la dernière série', texte: 'Technique d\'intensification appliquée par défaut sur la dernière série.' },
+  variantes: { titre: 'Variantes & notes', texte: 'Prise, inclinaison, position des pieds ou repères techniques à garder sous la main.' }
+};
+
+function svgMaterielExercice(cle) {
+  if (cle === 'barre_olympique') {
+    return '<svg viewBox="0 0 28 24" width="22" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="2" y1="12" x2="26" y2="12"/><rect x="6" y="7" width="3" height="10" rx="1" fill="currentColor"/><rect x="19" y="7" width="3" height="10" rx="1" fill="currentColor"/><line x1="4" y1="9" x2="4" y2="15"/><line x1="24" y1="9" x2="24" y2="15"/></svg>';
+  }
+  if (cle === 'barre_z') {
+    return '<svg viewBox="0 0 28 24" width="22" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="3,12 7,12 10,8 14,16 18,8 21,12 25,12"/><rect x="6" y="8" width="2.5" height="8" rx="0.8" fill="currentColor"/><rect x="19.5" y="8" width="2.5" height="8" rx="0.8" fill="currentColor"/></svg>';
+  }
+  if (cle === 'haltere') {
+    return '<svg viewBox="0 0 28 24" width="22" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="7" y1="12" x2="21" y2="12"/><rect x="4" y="7" width="3.5" height="10" rx="1.2" fill="currentColor"/><rect x="20.5" y="7" width="3.5" height="10" rx="1.2" fill="currentColor"/></svg>';
+  }
+  if (cle === 'poulie') {
+    return '<svg viewBox="0 0 28 24" width="22" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="14" y1="3" x2="14" y2="14"/><circle cx="14" cy="5" r="2"/><rect x="9" y="9" width="10" height="3" rx="1"/><rect x="9" y="14" width="10" height="3" rx="1"/><rect x="9" y="19" width="10" height="3" rx="1"/></svg>';
+  }
+  return '<svg viewBox="0 0 28 24" width="22" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="14" cy="5" r="2.5"/><path d="M8 11h12l-2 5h-8z"/><line x1="11" y1="16" x2="9" y2="22"/><line x1="17" y1="16" x2="19" y2="22"/></svg>';
+}
+
+function svgUnilateralExercice() {
+  return '<svg class="sx-info-icone" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h16M8 8l-4 4 4 4M16 8l4 4-4 4"/></svg>';
+}
+
+function labelTitreBulle(cleInfo, texteLabel, classeSupp) {
+  return '<span class="ex-titre-bulle' + (classeSupp ? ' ' + classeSupp : '') + '" data-action="ouvrir-bulle-exercice" data-info="' + cleInfo + '">' + texteLabel + '</span>';
+}
+
+function ouvrirBulleInfoExercice(cleInfo) {
+  var info = INFOS_CHAMPS_EXERCICE[cleInfo];
+  if (!info) { return; }
+  var html = '<div class="modal-entete"><h2>' + echapperHtml(info.titre) + '</h2><button class="bouton-fermer" data-action="fermer-modal">&times;</button></div>';
+  html += '<p class="texte-att" style="line-height:1.5; margin-bottom:14px;">' + echapperHtml(info.texte) + '</p>';
+  html += '<button class="btn btn-plein btn-bloc" data-action="fermer-modal">Compris</button>';
+  ouvrirModal(html);
+}
+
+var glisseCranExercice = { actif: false, x0: 0, val0: 0, init: false };
+
+function configurerGlisseCranExercice() {
+  var zone = document.getElementById('ex-cran-glissable');
+  var champ = document.getElementById('champ-ex-securite');
+  var aff = document.getElementById('ex-cran-valeur');
+  if (!zone || !champ || !aff) { return; }
+
+  function majCran(v) {
+    var n = Math.max(0, Math.min(99, Math.round(v)));
+    champ.value = n > 0 ? String(n) : '';
+    aff.textContent = n > 0 ? String(n) : '—';
+  }
+
+  function debut(x) {
+    glisseCranExercice.actif = true;
+    glisseCranExercice.x0 = x;
+    glisseCranExercice.val0 = parseInt(champ.value, 10) || 0;
+    zone.classList.add('glisse-actif');
+  }
+
+  function deplacer(x) {
+    if (!glisseCranExercice.actif) { return; }
+    var pas = Math.trunc((x - glisseCranExercice.x0) / 18);
+    majCran(glisseCranExercice.val0 + pas);
+  }
+
+  function fin() {
+    glisseCranExercice.actif = false;
+    zone.classList.remove('glisse-actif');
+  }
+
+  zone.addEventListener('mousedown', function (e) { debut(e.clientX); });
+  zone.addEventListener('touchstart', function (e) { debut(e.touches[0].clientX); }, { passive: true });
+
+  if (!glisseCranExercice.init) {
+    glisseCranExercice.init = true;
+    document.addEventListener('mousemove', function (e) { deplacer(e.clientX); });
+    document.addEventListener('touchmove', function (e) { deplacer(e.touches[0].clientX); }, { passive: true });
+    document.addEventListener('mouseup', fin);
+    document.addEventListener('touchend', fin);
+  }
+}
+
+function cycleMaterielExercice() {
+  var champMat = document.getElementById('champ-ex-equipement');
+  if (!champMat) { return; }
+  var idx = ORDRE_MATERIEL_EXERCICE.indexOf(champMat.value);
+  var suivant = ORDRE_MATERIEL_EXERCICE[(idx + 1) % ORDRE_MATERIEL_EXERCICE.length];
+  champMat.value = suivant;
+  champMat.dispatchEvent(new Event('change', { bubbles: true }));
+}
+
+function basculerSensSecuriteExercice() {
+  var champSens = document.getElementById('champ-ex-securite-sens');
+  var btnFleche = document.getElementById('ex-btn-fleche-secu');
+  var bouclier = document.getElementById('ex-bouclier-secu');
+  var chiffre = document.getElementById('ex-cran-valeur');
+  if (!champSens) { return; }
+  var nouveauSens = (champSens.value === 'bas') ? 'haut' : 'bas';
+  champSens.value = nouveauSens;
+  if (btnFleche) {
+    btnFleche.innerHTML = (nouveauSens === 'bas') ? SVG_FLECHE_BAS : SVG_FLECHE_HAUT;
+  }
+  if (bouclier && chiffre) {
+    var txt = chiffre.textContent;
+    bouclier.innerHTML = '<svg class="sx-bouclier-fond" viewBox="0 0 24 28" aria-hidden="true"><path d="M12 1.5L21.5 5v8.5c0 5.6-3.9 9.7-9.5 12-5.6-2.3-9.5-6.4-9.5-12V5z"/></svg><span class="sx-bouclier-texte">' +
+      ((nouveauSens === 'bas') ? ('<b class="donnee-num">' + txt + '</b>' + SVG_FLECHE_BAS) : (SVG_FLECHE_HAUT + '<b class="donnee-num">' + txt + '</b>')) +
+      '</span>';
+  }
+}
+
+function basculerUnilateralExercice() {
+  var champUni = document.getElementById('champ-ex-unilateral');
+  var btnUni = document.getElementById('ex-btn-unilateral');
+  if (!champUni || !btnUni) { return; }
+  champUni.checked = !champUni.checked;
+  btnUni.classList.toggle('ex-icone-btn-actif', champUni.checked);
+}
+
+function rafraichirZoneMaterielExercice() {
+  var zone = document.getElementById('ex-zone-materiel-ligne');
+  var champMat = document.getElementById('champ-ex-equipement');
+  if (!zone || !champMat) { return; }
+
+  var cle = champMat.value || 'aucun';
+  var eqObj = EQUIPEMENTS_POIDS[cle] || EQUIPEMENTS_POIDS.aucun;
+  var estBarre = (cle === 'barre_olympique' || cle === 'barre_z');
+  var cranActuel = document.getElementById('champ-ex-securite') ? document.getElementById('champ-ex-securite').value : '';
+  var sensActuel = document.getElementById('champ-ex-securite-sens') ? document.getElementById('champ-ex-securite-sens').value : 'haut';
+  var uniActuel = document.getElementById('champ-ex-unilateral') ? document.getElementById('champ-ex-unilateral').checked : false;
+
+  var h = '<div class="ex-mat-groupe">';
+  h += labelTitreBulle('materiel', 'Matériel', 'ex-mini-titre');
+  h += '<button type="button" class="ex-icone-btn ex-icone-btn-actif" data-action="cycle-materiel-exercice" title="' + echapperHtml(eqObj.label) + '">' + svgMaterielExercice(cle) + '</button>';
+  h += '</div>';
+
+  h += '<input type="hidden" id="champ-ex-securite" value="' + echapperHtml(cranActuel) + '">';
+  h += '<input type="hidden" id="champ-ex-securite-sens" value="' + (sensActuel === 'bas' ? 'bas' : 'haut') + '">';
+  h += '<input type="checkbox" id="champ-ex-unilateral" style="display:none;"' + (uniActuel ? ' checked' : '') + '>';
+
+  if (estBarre) {
+    var chiffreAff = cranActuel ? cranActuel : '—';
+    var contenuBouclier = (sensActuel === 'bas')
+      ? ('<b class="donnee-num">' + echapperHtml(chiffreAff) + '</b>' + SVG_FLECHE_BAS)
+      : (SVG_FLECHE_HAUT + '<b class="donnee-num">' + echapperHtml(chiffreAff) + '</b>');
+    h += '<div class="ex-mat-groupe">';
+    h += labelTitreBulle('securite', 'Sécu', 'ex-mini-titre');
+    h += '<div class="ex-secu-ligne">';
+    h += '<div class="ex-cran-glissable" id="ex-cran-glissable" title="Glisser pour régler le cran"><span id="ex-cran-valeur" style="display:none;">' + echapperHtml(chiffreAff) + '</span><span class="sx-bouclier" id="ex-bouclier-secu"><svg class="sx-bouclier-fond" viewBox="0 0 24 28" aria-hidden="true"><path d="M12 1.5L21.5 5v8.5c0 5.6-3.9 9.7-9.5 12-5.6-2.3-9.5-6.4-9.5-12V5z"/></svg><span class="sx-bouclier-texte">' + contenuBouclier + '</span></span></div>';
+    h += '<button type="button" class="ex-icone-btn" id="ex-btn-fleche-secu" data-action="basculer-sens-securite" title="Changer le sens">' + ((sensActuel === 'bas') ? SVG_FLECHE_BAS : SVG_FLECHE_HAUT) + '</button>';
+    h += '</div></div>';
+  } else {
+    h += '<div class="ex-mat-groupe">';
+    h += labelTitreBulle('unilateral', 'Unilat.', 'ex-mini-titre');
+    h += '<button type="button" class="ex-icone-btn' + (uniActuel ? ' ex-icone-btn-actif' : '') + '" id="ex-btn-unilateral" data-action="basculer-unilateral-exercice" title="Unilatéral">' + svgUnilateralExercice() + '</button>';
+    h += '</div>';
+  }
+
+  zone.innerHTML = h;
+  if (estBarre) { configurerGlisseCranExercice(); }
+}
+
 function ouvrirFormulaireExercice(idExercice) {
   var exercice = idExercice ? trouverParId(etat.exercices, idExercice) : null;
   var estModif = !!exercice;
   if (!exercice) {
-    exercice = { id: null, nom: '', groupe: 'Autre', poidsDefaut: 20, repsDefaut: 10, seriesDefaut: 3, met: 5, variantes: '', unilateral: false, securiteCran: '', securiteSens: 'haut' };  }
+    exercice = {
+      id: null,
+      nom: '',
+      groupe: 'Autre',
+      equipement: 'aucun',
+      poidsDefaut: 20,
+      repsDefaut: 10,
+      seriesDefaut: 3,
+      met: 5,
+      variantes: '',
+      unilateral: false,
+      securiteCran: '',
+      securiteSens: 'haut',
+      typeDefaut: 'lineaire',
+      techniqueDefaut: 'aucune'
+    };
+  }
   var html = '';
   html += '<div class="modal-entete"><h2>' + (estModif ? 'Modifier l\'exercice' : 'Nouvel exercice') + '</h2>';
   html += '<button class="bouton-fermer" data-action="fermer-modal">&times;</button></div>';
+
+  /* 1. Historique */
   if (estModif) {
     var stats = statistiquesExercice(exercice.id);
-    html += '<div class="carte" style="margin-bottom:14px;">';
+    html += '<div class="carte" style="margin-bottom:12px;">';
     html += '<h2 class="carte-titre">Historique</h2>';
     if (stats.nombreDeFois === 0) {
       html += '<div class="texte-att">Pas encore réalisé.</div>';
     } else {
-      html += '<div class="texte-att" style="margin-bottom:8px;">Réalisé ' + stats.nombreDeFois + ' fois.</div>';
+      html += '<div class="texte-att" style="margin-bottom:6px;">Réalisé ' + stats.nombreDeFois + ' fois.</div>';
       for (var m = 0; m < STRUCTURES_SERIES.length; m++) {
         var valeurMode = STRUCTURES_SERIES[m].valeur;
         if (stats.statsParStructure[valeurMode] === undefined) { continue; }
-        html += '<div class="ligne" style="padding:3px 0;"><span class="texte-att">' + echapperHtml(STRUCTURES_SERIES[m].libelle) + '</span><span class="donnee-num">' + stats.statsParStructure[valeurMode] + ' kg</span></div>';
+        html += '<div class="ligne" style="padding:2px 0;"><span class="texte-att">' + echapperHtml(STRUCTURES_SERIES[m].libelle) + '</span><span class="donnee-num">' + stats.statsParStructure[valeurMode] + ' kg</span></div>';
       }
       if (stats.rerMoyen !== null) {
-        html += '<div class="ligne" style="padding:3px 0;"><span class="texte-att">RER moyen ressenti</span><span class="donnee-num">' + stats.rerMoyen.toFixed(1) + ' rep(s)</span></div>';
+        html += '<div class="ligne" style="padding:2px 0;"><span class="texte-att">RER moyen ressenti</span><span class="donnee-num">' + stats.rerMoyen.toFixed(1) + ' rep(s)</span></div>';
       }
     }
     html += '</div>';
   }
-  html += '<div class="champ"><label>Nom</label><input type="text" id="champ-ex-nom" value="' + echapperHtml(exercice.nom) + '" placeholder="ex. Développé couché"></div>';
-  var equipActuel = exercice.equipement || 'aucun';
-  var optionsEquip = '';
+
+  /* 2. Nom + Groupe musculaire + Muscles ciblés (silhouette seule) */
+  html += '<div class="carte ex-bloc">';
+  html += '<div class="champ ex-champ-compact"><label>' + labelTitreBulle('nom', 'Nom') + '</label><input type="text" id="champ-ex-nom" value="' + echapperHtml(exercice.nom) + '" placeholder="ex. Développé couché"></div>';
+  html += '<div class="ex-identite-ligne">';
+  html += '<div class="ex-identite-gauche">';
+  html += '<div class="champ ex-champ-compact" style="margin-bottom:0;"><label>' + labelTitreBulle('groupe', 'Groupe musculaire') + '</label><select id="champ-ex-groupe">' + optionsGroupesMusculaires(exercice.groupe) + '</select></div>';
+  html += '</div>';
+  html += '<div id="diagramme-muscles-zone" class="diagramme-muscles-petit ex-silhouette-seule"></div>';
+  html += '</div>';
+  html += '</div>';
+
+  /* 3. Matériel + Barre de sécu / Unilatéral sur la même ligne */
+  var eqInit = exercice.equipement || 'aucun';
+  if (!EQUIPEMENTS_POIDS[eqInit]) { eqInit = 'aucun'; }
+  html += '<div class="carte ex-bloc">';
+  html += '<select id="champ-ex-equipement" style="display:none;">';
   for (var eqCle in EQUIPEMENTS_POIDS) {
     if (EQUIPEMENTS_POIDS.hasOwnProperty(eqCle)) {
-      var eqObj = EQUIPEMENTS_POIDS[eqCle];
-      optionsEquip += '<option value="' + eqObj.id + '"' + (eqObj.id === equipActuel ? ' selected' : '') + '>' + echapperHtml(eqObj.label) + ' (+' + eqObj.pas + ' kg)</option>';
+      html += '<option value="' + eqCle + '"' + (eqCle === eqInit ? ' selected' : '') + '>' + eqCle + '</option>';
     }
   }
-  html += '<div class="champ"><label>Groupe musculaire</label><select id="champ-ex-groupe">' + optionsGroupesMusculaires(exercice.groupe) + '</select></div>';
-  html += '<div class="champ"><label>Matériel / incrément</label><select id="champ-ex-equipement">' + optionsEquip + '</select></div>';
-  html += '<div class="champ"><label>Poids par défaut (kg)</label><input type="number" step="0.5" id="champ-ex-poids" value="' + exercice.poidsDefaut + '"></div>';
-  html += '<div class="champ"><label>Répétitions par défaut</label><input type="number" step="1" id="champ-ex-reps" value="' + exercice.repsDefaut + '"></div>';
-  html += '<div class="champ"><label>Séries par défaut</label><input type="number" step="1" id="champ-ex-series" value="' + exercice.seriesDefaut + '"></div>';
-  html += '<div class="champ"><label>Type d\'exercice par défaut</label><select id="champ-ex-type">' + optionsTypesPrincipaux(exercice.typeDefaut || 'lineaire') + '</select></div>';
-  html += '<div class="champ"><label>Technique par défaut (dernière série)</label><select id="champ-ex-technique">' + optionsListeValeurLibelle(TECHNIQUES_INTENSIFICATION, exercice.techniqueDefaut || 'aucune') + '</select></div>';
-  html += '<div class="champ"><label>Intensité (MET, sert au calcul des calories — 5 = musculation générale)</label><input type="number" step="0.5" id="champ-ex-met" value="' + exercice.met + '"></div>';
-  html += '<div class="reglages-section"><label class="reglages-interrupteur" style="padding-bottom:0;"><span>Unilatéral</span><input type="checkbox" id="champ-ex-unilateral"' + (exercice.unilateral ? ' checked' : '') + '></label>';
-  html += '<p class="reglages-note">Un côté après l\'autre : poids et reps comptés par côté.</p></div>';  html += '<div class="champ"><label>Variantes (prise, position...)</label><textarea id="champ-ex-variantes" placeholder="ex. Prise sumo : jambes écartées, accentue adducteurs et fessiers">' + echapperHtml(exercice.variantes || '') + '</textarea></div>';
-  var sensSec = (exercice.securiteSens === 'bas') ? 'bas' : 'haut';
-  var secu = '<input type="hidden" id="champ-ex-securite-sens" value="' + sensSec + '">';
-  secu += '<div class="champ"><label>Cran (optionnel)</label><input type="number" inputmode="numeric" step="1" min="1" id="champ-ex-securite" value="' + echapperHtml(exercice.securiteCran || '') + '" placeholder="ex. 5"></div>';
-  secu += '<div class="reglages-segments">';
-  secu += '<button class="reglages-segment' + (sensSec === 'haut' ? ' reglage-option-active' : '') + '" data-action="choisir-option" data-champ="champ-ex-securite-sens" data-valeur="haut">' + SVG_FLECHE_HAUT + 'Du dessus</button>';
-  secu += '<button class="reglages-segment' + (sensSec === 'bas' ? ' reglage-option-active' : '') + '" data-action="choisir-option" data-champ="champ-ex-securite-sens" data-valeur="bas">' + SVG_FLECHE_BAS + 'Du dessous</button>';
-  secu += '</div><p class="reglages-note">Barres de sécurité : numéro du cran, compté depuis le haut ou depuis le bas du rack.</p>';
-  html += sectionReglages('Barres de sécurité', secu);
-  html += '<div class="champ"><label>Muscles ciblés</label><div id="diagramme-muscles-zone" class="diagramme-muscles-petit"></div></div>';
+  html += '</select>';
+  html += '<input type="hidden" id="champ-ex-securite" value="' + echapperHtml(exercice.securiteCran || '') + '">';
+  html += '<input type="hidden" id="champ-ex-securite-sens" value="' + ((exercice.securiteSens === 'bas') ? 'bas' : 'haut') + '">';
+  html += '<input type="checkbox" id="champ-ex-unilateral" style="display:none;"' + (exercice.unilateral ? ' checked' : '') + '>';
+  html += '<div id="ex-zone-materiel-ligne" class="ex-ligne-materiel"></div>';
+  html += '</div>';
+
+  /* 4. Poids / Répétitions / Séries / Intensité sur la même ligne */
+  html += '<div class="carte ex-bloc">';
+  html += '<div class="ex-quatre-champs">';
+  html += '<div class="ex-quatre-cell"><span class="ex-quatre-label">' + labelTitreBulle('poids', 'KG') + '</span><input type="number" step="0.5" id="champ-ex-poids" value="' + exercice.poidsDefaut + '"></div>';
+  html += '<div class="ex-quatre-cell"><span class="ex-quatre-label">' + labelTitreBulle('reps', 'REP') + '</span><input type="number" step="1" id="champ-ex-reps" value="' + exercice.repsDefaut + '"></div>';
+  html += '<div class="ex-quatre-cell"><span class="ex-quatre-label">' + labelTitreBulle('series', 'SÉR') + '</span><input type="number" step="1" id="champ-ex-series" value="' + exercice.seriesDefaut + '"></div>';
+  html += '<div class="ex-quatre-cell"><span class="ex-quatre-label">' + labelTitreBulle('met', 'MET') + '</span><input type="number" step="0.5" id="champ-ex-met" value="' + exercice.met + '"></div>';
+  html += '</div>';
+  html += '</div>';
+
+  /* 5. Type + Technique côte à côte, puis Variantes */
+  html += '<div class="carte ex-bloc">';
+  html += '<div class="ex-deux-champs">';
+  html += '<div class="champ ex-champ-compact" style="margin-bottom:0;"><label>' + labelTitreBulle('type', 'Type') + '</label><select id="champ-ex-type">' + optionsTypesPrincipaux(exercice.typeDefaut || 'lineaire') + '</select></div>';
+  html += '<div class="champ ex-champ-compact" style="margin-bottom:0;"><label>' + labelTitreBulle('technique', 'Technique') + '</label><select id="champ-ex-technique">' + optionsListeValeurLibelle(TECHNIQUES_INTENSIFICATION, exercice.techniqueDefaut || 'aucune') + '</select></div>';
+  html += '</div>';
+  html += '<div class="champ ex-champ-compact" style="margin-top:10px; margin-bottom:0;"><label>' + labelTitreBulle('variantes', 'Variantes') + '</label><textarea id="champ-ex-variantes" rows="2" placeholder="Prise, position...">' + echapperHtml(exercice.variantes || '') + '</textarea></div>';
+  html += '</div>';
+
   html += '<button class="btn btn-plein btn-bloc" data-action="enregistrer-exercice" data-id="' + (exercice.id || '') + '">Enregistrer</button>';
   if (estModif) {
     html += '<button class="btn btn-alerte btn-bloc" style="margin-top:8px;" data-action="supprimer-exercice" data-id="' + exercice.id + '">Supprimer cet exercice</button>';
   }
   ouvrirModal(html);
   rafraichirDiagrammeMuscles();
+  rafraichirZoneMaterielExercice();
 }
 
 function enregistrerExercice(idExistant) {
@@ -205,6 +417,7 @@ function enregistrerExercice(idExistant) {
   var donnees = {
     nom: nom,
     groupe: document.getElementById('champ-ex-groupe').value,
+    equipement: document.getElementById('champ-ex-equipement').value,
     poidsDefaut: parseFloat(document.getElementById('champ-ex-poids').value) || 0,
     repsDefaut: parseInt(document.getElementById('champ-ex-reps').value, 10) || 0,
     seriesDefaut: parseInt(document.getElementById('champ-ex-series').value, 10) || 1,
@@ -214,13 +427,13 @@ function enregistrerExercice(idExistant) {
     securiteCran: document.getElementById('champ-ex-securite').value.trim(),
     securiteSens: document.getElementById('champ-ex-securite-sens').value,
     typeDefaut: document.getElementById('champ-ex-type').value,
-    techniqueDefaut: document.getElementById('champ-ex-technique').value,
-    equipement: document.getElementById('champ-ex-equipement').value
+    techniqueDefaut: document.getElementById('champ-ex-technique').value
   };
   if (idExistant) {
     var exercice = trouverParId(etat.exercices, idExistant);
     exercice.nom = donnees.nom;
     exercice.groupe = donnees.groupe;
+    exercice.equipement = donnees.equipement;
     exercice.poidsDefaut = donnees.poidsDefaut;
     exercice.repsDefaut = donnees.repsDefaut;
     exercice.seriesDefaut = donnees.seriesDefaut;
@@ -231,7 +444,6 @@ function enregistrerExercice(idExistant) {
     exercice.securiteSens = donnees.securiteSens;
     exercice.typeDefaut = donnees.typeDefaut;
     exercice.techniqueDefaut = donnees.techniqueDefaut;
-    exercice.equipement = donnees.equipement;
   } else {
     donnees.id = genererId();
     etat.exercices.push(donnees);

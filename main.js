@@ -180,6 +180,10 @@ ajouterEcouteurClicDelegue(document.body, function (cible) {
   if (action === 'editer-exercice') { ouvrirFormulaireExercice(id); return; }
   if (action === 'enregistrer-exercice') { enregistrerExercice(id || null); return; }
   if (action === 'supprimer-exercice') { supprimerExercice(id); return; }
+  if (action === 'ouvrir-bulle-exercice') { ouvrirBulleInfoExercice(cible.getAttribute('data-info')); return; }
+  if (action === 'cycle-materiel-exercice') { cycleMaterielExercice(); return; }
+  if (action === 'basculer-sens-securite') { basculerSensSecuriteExercice(); return; }
+  if (action === 'basculer-unilateral-exercice') { basculerUnilateralExercice(); return; }
 
   if (action === 'nouvelle-seance') { ouvrirFormulaireSeance(null); return; }
   if (action === 'editer-seance') { ouvrirFormulaireSeance(id); return; }
@@ -278,6 +282,7 @@ document.body.addEventListener('change', function (evt) {
         champPoids.value = eq.poidsVide;
       }
     }
+    rafraichirZoneMaterielExercice();
   }
   if (role === 'se-structure') { memoriserChampsSeanceEnCours(); rendreFormulaireSeance(); }
   if (role === 'pr-seance') { majJoursProgramme(evt.target); }

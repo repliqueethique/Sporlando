@@ -3164,3 +3164,124 @@ main::after {
   transition: transform .2s cubic-bezier(.34,1.56,.64,1), border-color .2s ease;
 }
 .btn-aide-type:active { transform: scale(.9); border-color: var(--couleur-turquoise); }
+
+.ex-bloc {
+  margin-bottom: 10px;
+  padding: 10px;
+}
+
+.ex-champ-compact input,
+.ex-champ-compact select,
+.ex-champ-compact textarea {
+  padding: 7px 9px;
+  font-size: 14px;
+}
+
+.ex-titre-bulle {
+  cursor: pointer;
+  border-bottom: 1px dashed currentColor;
+  padding-bottom: 1px;
+}
+
+.ex-mini-titre {
+  font-size: 11px;
+  color: var(--texte-attenue, #8996A3);
+  margin-bottom: 4px;
+  display: inline-block;
+}
+
+.ex-identite-ligne {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.ex-identite-gauche {
+  flex: 1;
+  min-width: 0;
+}
+
+.ex-silhouette-seule {
+  flex: 0 0 92px;
+  margin-top: 0;
+}
+
+.ex-ligne-materiel {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.ex-mat-groupe {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.ex-secu-ligne {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.ex-cran-glissable {
+  touch-action: pan-y;
+  cursor: ew-resize;
+  user-select: none;
+  display: inline-flex;
+  align-items: center;
+}
+
+.ex-icone-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  border: 1px solid var(--bordure, #2A313B);
+  background: var(--fond-carte, #161B22);
+  color: var(--texte-principal, #E6EDF3);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0;
+}
+
+.ex-icone-btn-actif {
+  border-color: var(--accent, #1FD9C4);
+  background: rgba(31, 217, 196, 0.14);
+  color: var(--accent, #1FD9C4);
+}
+
+.ex-quatre-champs {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.ex-quatre-cell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 0;
+}
+
+.ex-quatre-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--texte-attenue, #8996A3);
+  margin-bottom: 4px;
+}
+
+.ex-quatre-cell input {
+  width: 100%;
+  text-align: center;
+  padding: 7px 4px;
+  font-size: 14px;
+}
+
+.ex-deux-champs {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
