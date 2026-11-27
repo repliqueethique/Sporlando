@@ -1,3 +1,41 @@
+var EQUIPEMENTS_POIDS = {
+  barre_olympique: {
+    id: 'barre_olympique',
+    label: 'Barre olympique',
+    poidsVide: 20,
+    pas: 2.5,
+    stepInput: 1.25
+  },
+  haltere: {
+    id: 'haltere',
+    label: 'Haltères',
+    poidsVide: 4,
+    pas: 1.25,
+    stepInput: 1.25
+  },
+  barre_z: {
+    id: 'barre_z',
+    label: 'Barre en Z',
+    poidsVide: 6,
+    pas: 2.5,
+    stepInput: 1.25
+  },
+  poulie: {
+    id: 'poulie',
+    label: 'Colonne de poids',
+    poidsVide: 5,
+    pas: 5,
+    stepInput: 5
+  },
+  aucun: {
+    id: 'aucun',
+    label: 'Poids du corps / Autre',
+    poidsVide: 0,
+    pas: 2.5,
+    stepInput: 0.5
+  }
+};
+
 /* Bibliothèque de base adaptée au matériel : rack ATX (poulie haute/basse, barre de traction multigrip,
    fixations élastiques), banc inclinable, barre olympique + disques, barre EZ, haltères olympiques,
    poignées de tirage, élastiques 5/10 kg, poignées de pompes, tapis de sol. Poids/reps/séries = valeurs
@@ -54,3 +92,4 @@ var EXERCICES_DE_BASE = [
   { nom: 'Rotation russe', groupe: 'Abdominaux', poidsDefaut: 5, repsDefaut: 20, seriesDefaut: 3, met: 3.5, variantes: '' },
   { nom: 'Crunch à la poulie', groupe: 'Abdominaux', poidsDefaut: 25, repsDefaut: 15, seriesDefaut: 3, met: 3.5, variantes: '' }
 ];
+

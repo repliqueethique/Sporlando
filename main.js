@@ -268,6 +268,17 @@ document.body.addEventListener('change', function (evt) {
     modifierRerExercice(parseInt(evt.target.getAttribute('data-ex'), 10), evt.target.value);
   }
   if (evt.target.id === 'champ-ex-groupe') { rafraichirDiagrammeMuscles(); }
+  if (evt.target.id === 'champ-ex-equipement') {
+    var eq = EQUIPEMENTS_POIDS[evt.target.value];
+    var champPoids = document.getElementById('champ-ex-poids');
+    if (eq && champPoids) {
+      champPoids.step = eq.stepInput;
+      var poidsActuel = parseFloat(champPoids.value);
+      if (!poidsActuel || poidsActuel === 0) {
+        champPoids.value = eq.poidsVide;
+      }
+    }
+  }
   if (role === 'se-structure') { memoriserChampsSeanceEnCours(); rendreFormulaireSeance(); }
   if (role === 'pr-seance') { majJoursProgramme(evt.target); }
   if (role === 'objectif-choix') { majObjectifLibre(evt.target); }

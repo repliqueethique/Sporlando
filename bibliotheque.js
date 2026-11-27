@@ -164,7 +164,16 @@ function ouvrirFormulaireExercice(idExercice) {
     html += '</div>';
   }
   html += '<div class="champ"><label>Nom</label><input type="text" id="champ-ex-nom" value="' + echapperHtml(exercice.nom) + '" placeholder="ex. Développé couché"></div>';
+  var equipActuel = exercice.equipement || 'aucun';
+  var optionsEquip = '';
+  for (var eqCle in EQUIPEMENTS_POIDS) {
+    if (EQUIPEMENTS_POIDS.hasOwnProperty(eqCle)) {
+      var eqObj = EQUIPEMENTS_POIDS[eqCle];
+      optionsEquip += '<option value="' + eqObj.id + '"' + (eqObj.id === equipActuel ? ' selected' : '') + '>' + echapperHtml(eqObj.label) + ' (+' + eqObj.pas + ' kg)</option>';
+    }
+  }
   html += '<div class="champ"><label>Groupe musculaire</label><select id="champ-ex-groupe">' + optionsGroupesMusculaires(exercice.groupe) + '</select></div>';
+  html += '<div class="champ"><label>Matériel / incrément</label><select id="champ-ex-equipement">' + optionsEquip + '</select></div>';
   html += '<div class="champ"><label>Poids par défaut (kg)</label><input type="number" step="0.5" id="champ-ex-poids" value="' + exercice.poidsDefaut + '"></div>';
   html += '<div class="champ"><label>Répétitions par défaut</label><input type="number" step="1" id="champ-ex-reps" value="' + exercice.repsDefaut + '"></div>';
   html += '<div class="champ"><label>Séries par défaut</label><input type="number" step="1" id="champ-ex-series" value="' + exercice.seriesDefaut + '"></div>';
@@ -205,7 +214,8 @@ function enregistrerExercice(idExistant) {
     securiteCran: document.getElementById('champ-ex-securite').value.trim(),
     securiteSens: document.getElementById('champ-ex-securite-sens').value,
     typeDefaut: document.getElementById('champ-ex-type').value,
-    techniqueDefaut: document.getElementById('champ-ex-technique').value
+    techniqueDefaut: document.getElementById('champ-ex-technique').value,
+    equipement: document.getElementById('champ-ex-equipement').value
   };
   if (idExistant) {
     var exercice = trouverParId(etat.exercices, idExistant);
@@ -221,6 +231,7 @@ function enregistrerExercice(idExistant) {
     exercice.securiteSens = donnees.securiteSens;
     exercice.typeDefaut = donnees.typeDefaut;
     exercice.techniqueDefaut = donnees.techniqueDefaut;
+    exercice.equipement = donnees.equipement;
   } else {
     donnees.id = genererId();
     etat.exercices.push(donnees);
@@ -509,7 +520,8 @@ function ajouterExerciceASeance() {
     technique: exRef.techniqueDefaut || 'aucune',
     tempo: '',
     reps: exRef.repsDefaut,
-    series: exRef.seriesDefaut
+    series: exRef.seriesDefaut,
+    equipement: exRef.equipement || 'aucun'
   });
   rendreFormulaireSeance();
 }

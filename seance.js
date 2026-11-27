@@ -22,9 +22,12 @@ function demarrerSeanceDepuisModele(seanceModeleId, agendaEntryId) {
         poidsBase = (structure === 'cardio') ? 0 : e.poids;   /* lest éventuel */
         repsBase = e.reps;                                      /* secondes, reps ou minutes de la séance modèle */
       }
+      var exRef = trouverParId(etat.exercices, e.exerciceId);
+      var equip = e.equipement || (exRef && exRef.equipement) || 'aucun';
       var seriesTab = genererSeriesSelonStructure(structure, poidsBase, repsBase, e.series);
       return {
         exerciceId: e.exerciceId,
+        equipement: equip,
         structure: structure,
         technique: e.technique || 'aucune',
         tempo: e.tempo || '',
@@ -657,7 +660,24 @@ function formaterResumeSeries(ligneEx) {
 
 var exercicesDeplies = {};
 
-var PAS_POIDS_STEPPER = 2.5;  /* kg ajoutés/retirés par les boutons − / + (change-le si tu veux) */
+function obtenirEquipementExercice(exIndexOuId) {
+  var ligneEx = null;
+  var exRef = null;
+  if (typeof exIndexOuId === 'number') {
+    if (etat.seanceActive && etat.seanceActive.exercices[exIndexOuId]) {
+      ligneEx = etat.seanceActive.exercices[exIndexOuId];
+      exRef = trouverParId(etat.exercices, ligneEx.exerciceId);
+    }
+  } else if (exIndexOuId) {
+    exRef = trouverParId(etat.exercices, exIndexOuId);
+  }
+  var cle = (ligneEx && ligneEx.equipement) || (exRef && exRef.equipement) || 'aucun';
+  return EQUIPEMENTS_POIDS[cle] || EQUIPEMENTS_POIDS.aucun;
+}
+
+function pasPoidsPourExercice(exIndexOuId) {
+  return obtenirEquipementExercice(exIndexOuId).pas;
+}
 var PAS_REPS_STEPPER = 1;
 
 function htmlStepper(e, s, champ, valeur, unite, pas) {
@@ -749,7 +769,7 @@ function chargeSuggeree(exerciceId, reps) {
       }
     }
     if (nb > 0 && toutesFaites && maxPoids > 0 && reps <= repsAuMax) {
-      var prog = arrondirPoids(maxPoids + PAS_POIDS_STEPPER);
+      var prog = arrondirPoids(maxPoids + pasPoidsPourExercice(exerciceId));
       if (prog > poids) { poids = prog; raison = 'progression'; }
     }
   }
@@ -2503,9 +2523,11 @@ function traiterCommandeVocale(texte) {
     return;
   }
 
+  var posVoix = voixPositionEnCours();
+  var pasVoix = posVoix ? pasPoidsPourExercice(posVoix.ex) : VOIX_PAS_POIDS;
   if (action === 'echauffement') { voixAjouterEchauffement(); return; }
-  if (action === 'poids+') { voixAjusterSerie('poids', VOIX_PAS_POIDS); return; }
-  if (action === 'poids-') { voixAjusterSerie('poids', -VOIX_PAS_POIDS); return; }
+  if (action === 'poids+') { voixAjusterSerie('poids', pasVoix); return; }
+  if (action === 'poids-') { voixAjusterSerie('poids', -pasVoix); return; }
   if (action === 'reps+') { voixAjusterSerie('reps', VOIX_PAS_REPS); return; }
   if (action === 'reps-') { voixAjusterSerie('reps', -VOIX_PAS_REPS); return; }
 
@@ -2722,7 +2744,7 @@ function suggestionFourchette(ligneEx) {
     if (series[i].reps < minReps) { minReps = series[i].reps; }
   }
   if (nb === 0) { return null; }
-  if (minReps >= repsMax) { return { poids: arrondirPoids(maxPoids + PAS_POIDS_STEPPER), reps: repsMin, raison: 'progression' }; }
+  if (minReps >= repsMax) { return { poids: arrondirPoids(maxPoids + pasPoidsPourExercice(ligneEx.exerciceId)), reps: repsMin, raison: 'progression' }; }
   return { poids: maxPoids, reps: Math.min(repsMax, Math.max(repsMin, minReps + 1)), raison: 'reps' };
 }
 
@@ -2760,6 +2782,20 @@ function formaterSecondes(sec) {
 }
 
 /* Champs de la série en cours, selon le type */
+function obtenirEquipementExercice(exIndex) {
+  if (!etat.seanceActive || !etat.seanceActive.exercices[exIndex]) {
+    return EQUIPEMENTS_POIDS.aucun;
+  }
+  var ligneEx = etat.seanceActive.exercices[exIndex];
+  var exRef = trouverParId(etat.exercices, ligneEx.exerciceId);
+  var cle = ligneEx.equipement || (exRef && exRef.equipement) || 'aucun';
+  return EQUIPEMENTS_POIDS[cle] || EQUIPEMENTS_POIDS.aucun;
+}
+
+function pasPoidsPourExercice(exIndex) {
+  return obtenirEquipementExercice(exIndex).pas;
+}
+
 function htmlChampsHero(ligneEx, serie, e, s, unilat) {
   var type = ligneEx.structure || 'lineaire';
   var sansCharge = (type === 'poids_corps' || type === 'maintien');
@@ -2769,7 +2805,7 @@ function htmlChampsHero(ligneEx, serie, e, s, unilat) {
     h += htmlStepper(e, s, 'distance', serie.distance || 0, 'km', PAS_DISTANCE_STEPPER);
   } else {
     if (!sansCharge || serie.poids > 0) {
-      h += htmlStepper(e, s, 'poids', serie.poids, sansCharge ? 'kg de lest' : (unilat ? 'kg par côté' : 'kg'), PAS_POIDS_STEPPER);
+      h += htmlStepper(e, s, 'poids', serie.poids, sansCharge ? 'kg de lest' : (unilat ? 'kg / côté' : 'kg'), pasPoidsPourExercice(e));
     }
     if (type === 'maintien') {
       h += htmlStepper(e, s, 'reps', serie.reps, unilat ? 'secondes / côté' : 'secondes', PAS_SECONDES_STEPPER);
@@ -2806,8 +2842,9 @@ function htmlChampsCompact(ligneEx, serie, attrs, unilat) {
 /* « + lest » : fait apparaître le champ kg sur les séries restantes */
 function ajouterLest(exIndex) {
   var series = etat.seanceActive.exercices[exIndex].series;
+  var pas = pasPoidsPourExercice(exIndex);
   for (var i = 0; i < series.length; i++) {
-    if (!series[i].echauffement && !series[i].fait && !(series[i].poids > 0)) { series[i].poids = PAS_POIDS_STEPPER; }
+    if (!series[i].echauffement && !series[i].fait && !(series[i].poids > 0)) { series[i].poids = pas; }
   }
   sauvegarderEtat();
   rendreExercicesActifs();
