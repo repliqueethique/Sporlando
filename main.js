@@ -29,6 +29,9 @@ ajouterEcouteurClicDelegue(document.body, function (cible) {
   var action = cible.getAttribute('data-action');
   var id = cible.getAttribute('data-id');
 
+  if (action === 'ouvrir-choix') { ouvrirChoix(cible.getAttribute('data-liste'), cible.getAttribute('data-cible')); return; }
+  if (action === 'choisir-valeur-choix') { choisirValeurChoix(cible.getAttribute('data-valeur')); return; }
+  if (action === 'fermer-choix') { fermerChoix(); return; }
   if (action === 'aller-page') { allerVersPage(cible.getAttribute('data-page')); return; }
   if (action === 'fermer-modal') { fermerModal(); return; }
   if (action === 'confirmation-valider') { validerConfirmation(); return; }

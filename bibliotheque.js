@@ -1,3 +1,89 @@
+/* ============================================================
+   CHOIX PAR FEUILLE (remplace les <select> groupe / type / technique)
+   ============================================================ */
+var choixEnCours = null;
+var TITRES_CHOIX = { groupe: 'Groupe musculaire', type: 'Type d\'exercice', technique: 'Technique (dernière série)' };
+
+function listeChoix(nom) {
+  var r = [], i;
+  if (nom === 'groupe') {
+    for (i = 0; i < GROUPES_MUSCULAIRES.length; i++) { r.push({ valeur: GROUPES_MUSCULAIRES[i], libelle: GROUPES_MUSCULAIRES[i], meta: '' }); }
+  } else if (nom === 'technique') {
+    for (i = 0; i < TECHNIQUES_INTENSIFICATION.length; i++) { r.push({ valeur: TECHNIQUES_INTENSIFICATION[i].valeur, libelle: TECHNIQUES_INTENSIFICATION[i].libelle, meta: '' }); }
+  } else {
+    for (i = 0; i < TYPES_EXERCICE.length; i++) {
+      if (!estTypePrincipal(TYPES_EXERCICE[i])) { continue; }
+      r.push({ valeur: TYPES_EXERCICE[i].id, libelle: TYPES_EXERCICE[i].nom, meta: nomCategorieType(TYPES_EXERCICE[i].cat) });
+    }
+  }
+  return r;
+}
+
+function libelleChoix(nom, valeur) {
+  var l = listeChoix(nom);
+  for (var i = 0; i < l.length; i++) { if (l[i].valeur === valeur) { return l[i].libelle; } }
+  return valeur;
+}
+
+/* Remplace un <select> : champ caché (qui garde la valeur) + bouton */
+function htmlChampChoix(nom, id, valeur, role, index) {
+  var h = '<input type="hidden" id="' + id + '" value="' + echapperHtml(valeur) + '"' +
+    (role ? ' data-role="' + role + '" data-index="' + index + '"' : '') + '>';
+  h += '<button type="button" class="choix-bouton" data-action="ouvrir-choix" data-liste="' + nom + '" data-cible="' + id + '">';
+  h += '<span class="choix-bouton-texte">' + echapperHtml(libelleChoix(nom, valeur)) + '</span><span class="choix-bouton-chevron">&#8964;</span></button>';
+  return h;
+}
+
+function ouvrirChoix(nom, idCible) {
+  var champ = document.getElementById(idCible);
+  if (!champ) { return; }
+  var ancien = document.getElementById('choix-overlay');
+  if (ancien && ancien.parentNode) { ancien.parentNode.removeChild(ancien); }
+  choixEnCours = { liste: nom, cible: idCible };
+  var options = listeChoix(nom);
+  var html = '<div class="modal-contenu"><div class="modal-poignee"></div>';
+  html += '<div class="modal-entete"><h2>' + echapperHtml(TITRES_CHOIX[nom]) + '</h2><button class="bouton-fermer" data-action="fermer-choix">&times;</button></div>';
+  for (var i = 0; i < options.length; i++) {
+    var o = options[i];
+    html += '<button class="selecteur-ligne' + (o.valeur === champ.value ? ' selecteur-ligne-active' : '') + '" data-action="choisir-valeur-choix" data-valeur="' + echapperHtml(o.valeur) + '">';
+    html += '<span class="selecteur-ligne-textes"><span class="selecteur-ligne-nom">' + echapperHtml(o.libelle) + '</span>';
+    if (o.meta) { html += '<span class="selecteur-ligne-meta">' + echapperHtml(o.meta) + '</span>'; }
+    html += '</span><span class="selecteur-coche">&#10003;</span></button>';
+  }
+  html += '</div>';
+  var ov = document.createElement('div');
+  ov.id = 'choix-overlay';
+  ov.className = 'modal-overlay choix-overlay';
+  ov.innerHTML = html;
+  ov.addEventListener('click', function (e) { if (e.target === ov) { fermerChoix(); } }, false);
+  document.body.appendChild(ov);
+  void ov.offsetWidth;
+  ov.className += ' modal-ouvert';
+}
+
+function fermerChoix() {
+  var ov = document.getElementById('choix-overlay');
+  if (!ov) { return; }
+  ov.removeAttribute('id');
+  ov.className = ov.className.replace(' modal-ouvert', '');
+  window.setTimeout(function () { if (ov.parentNode) { ov.parentNode.removeChild(ov); } }, 340);
+}
+
+function choisirValeurChoix(valeur) {
+  if (!choixEnCours) { return; }
+  var id = choixEnCours.cible, nom = choixEnCours.liste;
+  var champ = document.getElementById(id);
+  choixEnCours = null;
+  if (champ) {
+    champ.value = valeur;
+    var txt = document.querySelector('[data-action="ouvrir-choix"][data-cible="' + id + '"] .choix-bouton-texte');
+    if (txt) { txt.textContent = libelleChoix(nom, valeur); }
+  }
+  fermerChoix();
+  if (id === 'champ-ex-groupe') { rafraichirDiagrammeMuscles(); }
+  if (champ && champ.getAttribute('data-role') === 'se-structure') { memoriserChampsSeanceEnCours(); rendreFormulaireSeance(); }
+}
+
 var SVG_FLECHE_HAUT = '<svg class="fleche-svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 4l9 16H3z"/></svg>';
 var SVG_FLECHE_BAS = '<svg class="fleche-svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 20L3 4h18z"/></svg>';
 
@@ -438,7 +524,7 @@ function ouvrirFormulaireExercice(idExercice) {
   html += '<div class="champ ex-champ-compact"><label>' + labelTitreBulle('nom', 'Nom') + '</label><input type="text" id="champ-ex-nom" value="' + echapperHtml(exercice.nom) + '" placeholder="ex. Développé couché"></div>';
   html += '<div class="ex-identite-ligne">';
   html += '<div class="ex-identite-gauche">';
-  html += '<div class="champ ex-champ-compact"><label>' + labelTitreBulle('groupe', 'Groupe musculaire') + '</label><select id="champ-ex-groupe">' + optionsGroupesMusculaires(exercice.groupe) + '</select></div>';
+  html += '<div class="champ"><label>Groupe musculaire</label>' + htmlChampChoix('groupe', 'champ-ex-groupe', exercice.groupe) + '</div>';
   html += '<select id="champ-ex-equipement" style="display:none;">';
   for (var eqCle in EQUIPEMENTS_POIDS) {
     if (EQUIPEMENTS_POIDS.hasOwnProperty(eqCle)) {
@@ -469,8 +555,8 @@ function ouvrirFormulaireExercice(idExercice) {
   /* 5. Type + Technique côte à côte, puis Variantes */
   html += '<div class="carte ex-bloc">';
   html += '<div class="ex-deux-champs">';
-  html += '<div class="champ ex-champ-compact" style="margin-bottom:0;"><label>' + labelTitreBulle('type', 'Type') + '</label><select id="champ-ex-type">' + optionsTypesPrincipaux(exercice.typeDefaut || 'lineaire') + '</select></div>';
-  html += '<div class="champ ex-champ-compact" style="margin-bottom:0;"><label>' + labelTitreBulle('technique', 'Technique') + '</label><select id="champ-ex-technique">' + optionsListeValeurLibelle(TECHNIQUES_INTENSIFICATION, exercice.techniqueDefaut || 'aucune') + '</select></div>';
+  html += '<div class="champ"><label>Type d\'exercice par défaut</label>' + htmlChampChoix('type', 'champ-ex-type', exercice.typeDefaut || 'lineaire') + '</div>';
+  html += '<div class="champ"><label>Technique par défaut (dernière série)</label>' + htmlChampChoix('technique', 'champ-ex-technique', exercice.techniqueDefaut || 'aucune') + '</div>';
   html += '</div>';
   html += '<div class="champ ex-champ-compact" style="margin-top:10px; margin-bottom:0;"><label>' + labelTitreBulle('variantes', 'Variantes') + '</label><textarea id="champ-ex-variantes" rows="2" placeholder="Prise, position...">' + echapperHtml(exercice.variantes || '') + '</textarea></div>';
   html += '</div>';
@@ -705,13 +791,13 @@ function rendreFormulaireSeance(sens) {
       html += '<div class="serie-champ" style="width:auto;"><label class="texte-att" style="font-size:11px;">Séries</label><input type="number" step="1" data-role="se-series" data-index="' + i + '" value="' + ligneEx.series + '"></div>';
       html += '</div>';
       html += '<div class="champ" style="margin-top:8px; margin-bottom:6px;"><label style="font-size:11px;">Type d\'exercice</label>';
-      html += '<div class="type-choix"><select data-role="se-structure" data-index="' + i + '">' + optionsTypesPrincipaux(ligneEx.structure || 'lineaire') + '</select>';
+      html += '<div class="type-choix">' + htmlChampChoix('type', 'se-structure-' + i, ligneEx.structure || 'lineaire', 'se-structure', i);
       html += '<button class="btn-aide-type" data-action="aide-type-seance" data-index="' + i + '" data-champ="structure" aria-label="Explication">?</button></div>';
       var typeChoisi = trouverTypeExercice(ligneEx.structure || 'lineaire');
       if (typeChoisi) { html += '<div class="texte-att type-resume">' + echapperHtml(typeChoisi.besoin) + '</div>'; }
       html += '</div>';
       html += '<div class="champ" style="margin-bottom:6px;"><label style="font-size:11px;">Technique sur la dernière série</label>';
-      html += '<div class="type-choix"><select data-role="se-technique" data-index="' + i + '">' + optionsListeValeurLibelle(TECHNIQUES_INTENSIFICATION, ligneEx.technique || 'aucune') + '</select>';
+      html += '<div class="type-choix">' + htmlChampChoix('technique', 'se-technique-' + i, ligneEx.technique || 'aucune', 'se-technique', i);
       html += '<button class="btn-aide-type" data-action="aide-type-seance" data-index="' + i + '" data-champ="technique" aria-label="Explication">?</button></div></div>';
       html += '<div class="champ" style="margin-bottom:0;"><label style="font-size:11px;">Tempo (optionnel, ex. 4-1-1-0)</label>';
       html += '<input type="text" data-role="se-tempo" data-index="' + i + '" value="' + echapperHtml(ligneEx.tempo || '') + '" placeholder="ex. 4-1-1-0"></div>';
