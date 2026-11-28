@@ -3480,6 +3480,7 @@ main::after {
   justify-content: center;
   width: 30px;
   height: 30px;
+  line-height: 0;
   border-radius: 10px;
   background: var(--surface-2, rgba(255, 255, 255, 0.06));
   border: 1px solid var(--bordure, rgba(255, 255, 255, 0.08));
@@ -3491,8 +3492,14 @@ main::after {
   border-color: color-mix(in srgb, var(--accent, currentColor) 35%, transparent);
 }
 
+.exo-badge-icone .ex-uni-contenu,
 .exo-badge-icone svg {
-  width: 17px;
-  height: 17px;
-  display: block;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  margin: 0;
+  padding: 0;
+  flex-shrink: 0;
 }
