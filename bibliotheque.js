@@ -1145,6 +1145,48 @@ function remplirAgendaProgramme(prog, dateDebutISO) {
   return ajoutes;
 }
 
+/* Planifie le programme sur la semaine en cours seulement (lundi à dimanche, sans toucher au passé).
+   Utilise les jours choisis dans le programme enregistré. Ne démarre pas le programme. */
+function appliquerProgrammeSemaine(idProg) {
+  var prog = trouverParId(etat.programmes, idProg);
+  if (!prog) { return; }
+  var planning = prog.planning || {};
+  var aDesJours = false;
+  for (var cle in planning) {
+    if (planning.hasOwnProperty(cle) && planning[cle].length > 0) { aDesJours = true; break; }
+  }
+  if (!aDesJours) {
+    afficherToast('Choisis d\'abord des jours pour les séances, puis enregistre le programme.');
+    return;
+  }
+  var lundi = lundiDeLaSemaine(new Date());
+  var aujourdHui = formaterDateISO(new Date());
+  var ajoutes = 0;
+  for (var i = 0; i < 7; i++) {
+    var dateISO = formaterDateISO(new Date(lundi.getFullYear(), lundi.getMonth(), lundi.getDate() + i));
+    if (dateISO < aujourdHui) { continue; }
+    for (var s = 0; s < prog.seanceIds.length; s++) {
+      var sid = prog.seanceIds[s];
+      var jours = planning[sid];
+      if (!jours || jours.indexOf(i) === -1) { continue; }
+      if (!trouverParId(etat.seances, sid)) { continue; }
+      var dejaLa = etat.agenda.some(function (a) { return a.date === dateISO && a.seanceId === sid; });
+      if (dejaLa) { continue; }
+      etat.agenda.push({ id: genererId(), date: dateISO, seanceId: sid, statut: 'planifie', caloriesEstimees: 0, dureeMinutes: 0, resultat: null, programmeId: prog.id });
+      ajoutes++;
+    }
+  }
+  sauvegarderEtat();
+  fermerModal();
+  rendreCalendrier();
+  rendreJourSelectionne();
+  rendreAVenir();
+  rendreCarteSeanceJour();
+  afficherToast(ajoutes > 0
+    ? ajoutes + ' séance' + (ajoutes > 1 ? 's' : '') + ' ajoutée' + (ajoutes > 1 ? 's' : '') + ' à la semaine en cours.'
+    : 'Rien à ajouter : la semaine est déjà planifiée (ou ses jours sont passés).');
+}
+
 /* Programme déjà en cours et modifié : on refait les séances à venir */
 function synchroniserAgendaProgramme(prog) {
   retirerAgendaProgramme(prog.id);
@@ -1207,6 +1249,7 @@ function rendreFormulaireProgramme() {
   html += '</div>';
   html += '<button class="btn btn-plein btn-bloc" style="margin-top:10px;" data-action="enregistrer-programme">Enregistrer le programme</button>';
   if (estModif) {
+    html += '<button class="btn btn-contour btn-bloc" style="margin-top:8px;" data-action="appliquer-programme-semaine" data-id="' + programmeEnConstruction.id + '">Appliquer à la semaine en cours</button>';
     if (etat.programmeActif && etat.programmeActif.programmeId === programmeEnConstruction.id) {
       html += '<button class="btn btn-contour btn-bloc" style="margin-top:8px;" data-action="arreter-programme">Arrêter ce programme (en cours)</button>';
     } else {

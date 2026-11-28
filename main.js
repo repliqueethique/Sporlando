@@ -205,6 +205,7 @@ ajouterEcouteurClicDelegue(document.body, function (cible) {
   if (action === 'supprimer-programme') { supprimerProgramme(id); return; }
   if (action === 'demarrer-programme') { demarrerProgramme(id); return; }
   if (action === 'arreter-programme') { arreterProgrammeActif(); return; }
+  if (action === 'appliquer-programme-semaine') { appliquerProgrammeSemaine(id); return; }
   if (action === 'pr-jour') { basculerJourProgramme(cible); return; }
 
   if (action === 'mois-precedent') { changerMois(-1); return; }
