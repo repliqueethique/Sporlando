@@ -80,7 +80,12 @@ function choisirValeurChoix(valeur) {
     if (txt) { txt.textContent = libelleChoix(nom, valeur); }
   }
   fermerChoix();
-  if (id === 'champ-ex-groupe') { rafraichirDiagrammeMuscles(); }
+  if (id === 'champ-ex-groupe') {
+    if (Object.keys(musclesEditionExercice).length === 0) {
+      initialiserMusclesEdition({ groupe: valeur });
+    }
+    rafraichirDiagrammeMuscles();
+  }
   if (champ && champ.getAttribute('data-role') === 'se-structure') { memoriserChampsSeanceEnCours(); rendreFormulaireSeance(); }
 }
 
@@ -246,6 +251,67 @@ function couleurPourNiveauMuscle(niveau, couleurBase, couleurActive) {
   return couleurBase;
 }
 
+var musclesEditionExercice = {};
+
+function niveauSuivantMuscle(niveauActuel) {
+  var n = Number(niveauActuel) || 0;
+  if (n === 0) { return 1; }
+  if (n === 1) { return 2; }
+  return 0;
+}
+
+function initialiserMusclesEdition(exercice) {
+  musclesEditionExercice = {};
+  if (!exercice) { return; }
+
+  if (exercice.muscles && typeof exercice.muscles === 'object') {
+    for (var cle in exercice.muscles) {
+      if (Object.prototype.hasOwnProperty.call(exercice.muscles, cle)) {
+        var v = Number(exercice.muscles[cle]);
+        if (v === 1 || v === 2) {
+          musclesEditionExercice[cle] = v;
+        }
+      }
+    }
+    return;
+  }
+
+  var groupe = exercice.groupe;
+  var listeGroupe = MUSCLES_PAR_GROUPE[groupe] || [];
+  for (var i = 0; i < listeGroupe.length; i++) {
+    musclesEditionExercice[listeGroupe[i]] = 2;
+  }
+}
+
+function attacherClicMusclesSvg(conteneur) {
+  if (!conteneur) { return; }
+  var chemins = conteneur.querySelectorAll('path[data-muscle]');
+
+  for (var i = 0; i < chemins.length; i++) {
+    (function (chemin) {
+      chemin.style.cursor = 'pointer';
+      chemin.addEventListener('click', function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+
+        var nomMuscle = chemin.getAttribute('data-muscle');
+        if (!nomMuscle) { return; }
+
+        var niveauActuel = Number(musclesEditionExercice[nomMuscle] || 0);
+        var suivant = niveauSuivantMuscle(niveauActuel);
+
+        if (suivant === 0) {
+          delete musclesEditionExercice[nomMuscle];
+        } else {
+          musclesEditionExercice[nomMuscle] = suivant;
+        }
+
+        rafraichirDiagrammeMuscles();
+      }, false);
+    })(chemins[i]);
+  }
+}
+
 function construireDiagrammeMuscles(sourceMuscles) {
   if (!anatomieSvgCache) {
     return '<div class="texte-att">Chargement de l’anatomie…</div>';
@@ -308,10 +374,30 @@ function construireDiagrammeMuscles(sourceMuscles) {
   svg.style.display = 'block';
   svg.style.maxWidth = '100%';
 
+  var couleurNiveau1 = couleurPourNiveauMuscle(1, couleurBase, couleurActive);
+  var couleurNiveau2 = couleurPourNiveauMuscle(2, couleurBase, couleurActive);
+
+  var legende =
+    '<div style="display:flex;gap:14px;justify-content:center;flex-wrap:wrap;font-size:12px;margin-top:8px;opacity:0.9;">' +
+      '<span style="display:inline-flex;align-items:center;gap:6px;">' +
+        '<span style="width:12px;height:12px;border-radius:3px;background:' + couleurBase + ';border:1px solid rgba(255,255,255,0.2);display:inline-block;"></span>' +
+        '0 · Aucun' +
+      '</span>' +
+      '<span style="display:inline-flex;align-items:center;gap:6px;">' +
+        '<span style="width:12px;height:12px;border-radius:3px;background:' + couleurNiveau1 + ';display:inline-block;"></span>' +
+        '1 · Secondaire (50%)' +
+      '</span>' +
+      '<span style="display:inline-flex;align-items:center;gap:6px;">' +
+        '<span style="width:12px;height:12px;border-radius:3px;background:' + couleurNiveau2 + ';display:inline-block;"></span>' +
+        '2 · Principal (100%)' +
+      '</span>' +
+    '</div>';
+
   return '<div class="svg-conteneur" style="width:100%;max-width:1000px;margin:0 auto;background:' +
     couleurFond +
     ';border-radius:10px;padding:8px;box-sizing:border-box;">' +
     new XMLSerializer().serializeToString(svg) +
+    legende +
     '</div>';
 }
 
@@ -332,7 +418,11 @@ function rafraichirDiagrammeMuscles() {
   zone.style.alignItems = 'center';
 
   if (anatomieSvgCache) {
-    zone.innerHTML = construireDiagrammeMuscles(select.value);
+    zone.innerHTML = construireDiagrammeMuscles({
+      muscles: musclesEditionExercice,
+      groupe: select.value
+    });
+    attacherClicMusclesSvg(zone);
     return;
   }
 
@@ -713,6 +803,7 @@ function ouvrirFormulaireExercice(idExercice) {
     html += '<button class="btn btn-alerte btn-bloc" style="margin-top:8px;" data-action="supprimer-exercice" data-id="' + exercice.id + '">Supprimer cet exercice</button>';
   }
   ouvrirModal(html);
+  initialiserMusclesEdition(exercice);
   rafraichirDiagrammeMuscles();
   rafraichirZoneMaterielExercice();
 }
@@ -721,7 +812,15 @@ function enregistrerExercice(idExistant) {
   var nom = document.getElementById('champ-ex-nom').value.trim();
   if (!nom) { afficherToast('Le nom de l\'exercice est obligatoire.'); return; }
   var exerciceExistant = idExistant ? trouverParId(etat.exercices, idExistant) : null;
-  var musclesSauvegardes = (exerciceExistant && exerciceExistant.muscles) ? exerciceExistant.muscles : {};
+  var musclesSauvegardes = {};
+  for (var cleMuscle in musclesEditionExercice) {
+    if (Object.prototype.hasOwnProperty.call(musclesEditionExercice, cleMuscle)) {
+      var niv = Number(musclesEditionExercice[cleMuscle]);
+      if (niv === 1 || niv === 2) {
+        musclesSauvegardes[cleMuscle] = niv;
+      }
+    }
+  }
 
   var donnees = {
     nom: nom,
