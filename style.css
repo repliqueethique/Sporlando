@@ -440,6 +440,7 @@ a { color: inherit; }
 
 :root { --hauteur-footer: 80px; }
 body { overflow-x: hidden; }
+main { overflow-x: clip; }
 
 main::after {
   content: '';
