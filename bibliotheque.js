@@ -1404,14 +1404,8 @@ function estExerciceUnilateral(exo) {
 }
 
 function libelleEquipementExo(equipement) {
-  const libelles = {
-    barre_olympique: 'Barre olympique',
-    haltere: 'Haltère',
-    barre_z: 'Barre Z',
-    poulie: 'Poulie',
-    aucun: 'Poids du corps / Sans matériel'
-  };
-  return libelles[equipement] || 'Matériel';
+  var eqObj = EQUIPEMENTS_POIDS[equipement] || EQUIPEMENTS_POIDS.aucun;
+  return eqObj ? eqObj.label : 'Matériel';
 }
 
 function iconeEquipementExo(equipement) {
@@ -1470,19 +1464,27 @@ function iconeUnilateralExo() {
 }
 
 function htmlBadgesCarteExercice(exo) {
-  const equipement = exo.equipement || 'aucun';
-  const unilateral = estExerciceUnilateral(exo);
+  var equipement = exo.equipement || 'aucun';
+  var modeUni = exo.modeUnilateral || (exo.unilateral ? 'cote_par_cote' : 'aucun');
+  var estUnilateral = modeUni !== 'aucun';
 
-  return `
-    <div class="exo-carte-badges">
-      <span class="exo-badge-icone" title="${libelleEquipementExo(equipement)}" aria-label="${libelleEquipementExo(equipement)}">
-        ${iconeEquipementExo(equipement)}
-      </span>
-      ${unilateral ? `
-        <span class="exo-badge-icone exo-badge-icone--unilateral" title="Unilatéral" aria-label="Unilatéral">
-          ${iconeUnilateralExo()}
-        </span>
-      ` : ''}
-    </div>
-  `;
+  var html = '<div class="exo-carte-badges">';
+  
+  // Utilise l'icône de matériel officielle de l'app
+  html += '<span class="exo-badge-icone" title="' + echapperHtml(libelleEquipementExo(equipement)) + '" aria-label="' + echapperHtml(libelleEquipementExo(equipement)) + '">';
+  html += svgMaterielExercice(equipement);
+  html += '</span>';
+
+  // Utilise l'icône unilatérale officielle de l'app si active
+  if (estUnilateral) {
+    var titreUni = modeUni === 'synchronise'
+      ? 'Unilatéral en même temps'
+      : 'Unilatéral côté par côté';
+    html += '<span class="exo-badge-icone exo-badge-icone--unilateral" title="' + echapperHtml(titreUni) + '" aria-label="' + echapperHtml(titreUni) + '">';
+    html += svgModeUnilateral(modeUni);
+    html += '</span>';
+  }
+
+  html += '</div>';
+  return html;
 }
