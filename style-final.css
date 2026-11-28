@@ -954,3 +954,28 @@
   clip-path: polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px);
 }
 :root[data-theme="effroi"] .modal-contenu .case-liste input[type="checkbox"] { border-color: var(--cadre); }
+
+/* ===== Routine : jamais de bouton tronqué ===== */
+.todo-barre { overflow: visible; }
+.carte-checklist.carte-checklist-disparition { overflow: hidden; }   /* garde l'animation de disparition */
+.todo-texte { -webkit-flex: 1 1 auto; flex: 1 1 auto; min-width: 0; }
+.todo-titre {
+  font-size: 22px;
+  font-size: clamp(16px, 5.5vw, 22px);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.todo-icones { -webkit-flex: 0 0 auto; flex: 0 0 auto; }
+.todo-bouton { -webkit-flex: 0 0 44px; flex: 0 0 44px; }
+.todo-progression {
+  border-radius: 0 0 var(--tuile-rayon, var(--rayon)) var(--tuile-rayon, var(--rayon));
+  overflow: hidden;
+}
+@media (max-width: 360px) {
+  .todo-bouton { margin-left: 6px; }
+  .todo-barre { padding-left: 12px; padding-right: 10px; }
+}
+/* thèmes aux coins coupés : on éloigne le dernier bouton du coin */
+:root[data-theme="hivernal"] .todo-barre,
+:root[data-theme="effroi"] .todo-barre { padding-right: 24px; }
