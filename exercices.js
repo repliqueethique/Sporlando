@@ -41,8 +41,34 @@ var EQUIPEMENTS_POIDS = {
    poignées de tirage, élastiques 5/10 kg, poignées de pompes, tapis de sol. Poids/reps/séries = valeurs
    de départ, à ajuster ensuite selon ton niveau. */
 var EXERCICES_DE_BASE = [
-  { nom: 'Développé couché barre', groupe: 'Pectoraux', poidsDefaut: 40, repsDefaut: 8, seriesDefaut: 4, met: 5, variantes: 'Prise serrée : accentue les triceps. Prise large : accentue les pectoraux externes.' },
-  { nom: 'Développé incliné barre', groupe: 'Pectoraux', poidsDefaut: 30, repsDefaut: 8, seriesDefaut: 4, met: 5, variantes: 'Incliné à 30-45° : accentue le haut des pectoraux.' },
+  {
+    nom: 'Développé couché barre',
+    groupe: 'Pectoraux',
+    poidsDefaut: 40,
+    repsDefaut: 8,
+    seriesDefaut: 4,
+    met: 5,
+    variantes: 'Prise serrée : accentue les triceps. Prise large : accentue les pectoraux externes.',
+    muscles: {
+      grand_pectoral: 2,
+      deltoide: 1,
+      triceps_brachial: 1
+    }
+  },
+  {
+    nom: 'Développé incliné barre',
+    groupe: 'Pectoraux',
+    poidsDefaut: 30,
+    repsDefaut: 8,
+    seriesDefaut: 4,
+    met: 5,
+    variantes: 'Incliné à 30-45° : accentue le haut des pectoraux.',
+    muscles: {
+      grand_pectoral: 2,
+      deltoide: 1,
+      triceps_brachial: 1
+    }
+  },
   { nom: 'Développé couché haltères', groupe: 'Pectoraux', poidsDefaut: 12, repsDefaut: 10, seriesDefaut: 3, met: 5, variantes: 'Prise neutre (paumes face à face) : moins de stress sur les épaules.' },
   { nom: 'Développé incliné haltères', groupe: 'Pectoraux', poidsDefaut: 10, repsDefaut: 10, seriesDefaut: 3, met: 5, variantes: '' },
   { nom: 'Écarté couché haltères', groupe: 'Pectoraux', poidsDefaut: 8, repsDefaut: 12, seriesDefaut: 3, met: 4, variantes: '' },

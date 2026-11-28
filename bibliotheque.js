@@ -216,7 +216,37 @@ var MUSCLES_PAR_GROUPE = {
   ]
 };
 
-function construireDiagrammeMuscles(groupe) {
+function normaliserNomMuscle(idSvg) {
+  return (idSvg || '').replace(/-\d+$/, '');
+}
+
+function niveauMuscleExercice(exercice, nomMuscle) {
+  if (!exercice || !nomMuscle) {
+    return 0;
+  }
+
+  if (exercice.muscles && Object.prototype.hasOwnProperty.call(exercice.muscles, nomMuscle)) {
+    var val = Number(exercice.muscles[nomMuscle]);
+    if (val === 2) { return 2; }
+    if (val === 1) { return 1; }
+    return 0;
+  }
+
+  var musclesGroupe = MUSCLES_PAR_GROUPE[exercice.groupe] || [];
+  return musclesGroupe.indexOf(nomMuscle) !== -1 ? 2 : 0;
+}
+
+function couleurPourNiveauMuscle(niveau, couleurBase, couleurActive) {
+  if (niveau === 2) {
+    return couleurActive;
+  }
+  if (niveau === 1) {
+    return 'color-mix(in srgb, ' + couleurActive + ' 50%, ' + couleurBase + ' 50%)';
+  }
+  return couleurBase;
+}
+
+function construireDiagrammeMuscles(sourceMuscles) {
   if (!anatomieSvgCache) {
     return '<div class="texte-att">Chargement de l’anatomie…</div>';
   }
@@ -226,22 +256,32 @@ function construireDiagrammeMuscles(groupe) {
     'image/svg+xml'
   );
 
-  var musclesActifs = MUSCLES_PAR_GROUPE[groupe] || [];
-  var chemins = doc.querySelectorAll('path');
+  var exerciceOuCarte = null;
+  if (typeof sourceMuscles === 'string') {
+    var musclesGroupe = MUSCLES_PAR_GROUPE[sourceMuscles] || [];
+    var carteGroupe = {};
+    for (var g = 0; g < musclesGroupe.length; g++) {
+      carteGroupe[musclesGroupe[g]] = 2;
+    }
+    exerciceOuCarte = { muscles: carteGroupe, groupe: sourceMuscles };
+  } else if (sourceMuscles && sourceMuscles.muscles) {
+    exerciceOuCarte = sourceMuscles;
+  } else {
+    exerciceOuCarte = { muscles: sourceMuscles || {}, groupe: null };
+  }
 
-  // Récupération des couleurs depuis les variables CSS du thème
+  var chemins = doc.querySelectorAll('path');
   var couleurs = getComputedStyle(document.documentElement);
 
   var couleurFond = couleurs.getPropertyValue('--couleur-carte-creux').trim() || '#10141A';
-  var couleurBase = couleurs.getPropertyValue('couleur-carte').trim() || '#1B2027';
+  var couleurBase = couleurs.getPropertyValue('--couleur-carte').trim() || '#1B2027';
   var couleurActive = couleurs.getPropertyValue('--couleur-turquoise').trim() || '#1FD9C4';
 
   for (var i = 0; i < chemins.length; i++) {
     var chemin = chemins[i];
     var id = chemin.getAttribute('id') || '';
-    var nomMuscle = id.replace(/-\d+$/, '');
+    var nomMuscle = normaliserNomMuscle(id);
 
-    // Contours de la silhouette
     if (nomMuscle.indexOf('contour') === 0) {
       chemin.style.setProperty('fill', 'none', 'important');
       chemin.style.setProperty('stroke', couleurBase, 'important');
@@ -250,30 +290,24 @@ function construireDiagrammeMuscles(groupe) {
       continue;
     }
 
-    var actif = musclesActifs.indexOf(nomMuscle) !== -1;
+    var niveau = niveauMuscleExercice(exerciceOuCarte, nomMuscle);
+    var fill = couleurPourNiveauMuscle(niveau, couleurBase, couleurActive);
 
-    // Muscles sélectionnés en turquoise, les autres en couleur atténuée
-    chemin.style.setProperty(
-      'fill',
-      actif ? couleurActive : couleurBase,
-      'important'
-    );
-
+    chemin.setAttribute('data-muscle', nomMuscle);
+    chemin.setAttribute('data-niveau', String(niveau));
+    chemin.style.setProperty('fill', fill, 'important');
     chemin.style.setProperty('stroke', couleurBase, 'important');
     chemin.style.setProperty('stroke-width', '3px', 'important');
     chemin.style.setProperty('stroke-linejoin', 'round', 'important');
   }
 
   var svg = doc.documentElement;
-
   svg.setAttribute('width', '100%');
   svg.setAttribute('height', 'auto');
   svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
-
   svg.style.display = 'block';
   svg.style.maxWidth = '100%';
 
-  // Fond sombre de la carte et silhouettes agrandies
   return '<div class="svg-conteneur" style="width:100%;max-width:1000px;margin:0 auto;background:' +
     couleurFond +
     ';border-radius:10px;padding:8px;box-sizing:border-box;">' +
@@ -586,6 +620,7 @@ function ouvrirFormulaireExercice(idExercice) {
       id: null,
       nom: '',
       groupe: 'Autre',
+      muscles: {},
       equipement: 'aucun',
       poidsDefaut: 20,
       repsDefaut: 10,
@@ -685,9 +720,13 @@ function ouvrirFormulaireExercice(idExercice) {
 function enregistrerExercice(idExistant) {
   var nom = document.getElementById('champ-ex-nom').value.trim();
   if (!nom) { afficherToast('Le nom de l\'exercice est obligatoire.'); return; }
+  var exerciceExistant = idExistant ? trouverParId(etat.exercices, idExistant) : null;
+  var musclesSauvegardes = (exerciceExistant && exerciceExistant.muscles) ? exerciceExistant.muscles : {};
+
   var donnees = {
     nom: nom,
     groupe: document.getElementById('champ-ex-groupe').value,
+    muscles: musclesSauvegardes,
     equipement: document.getElementById('champ-ex-equipement').value,
     poidsDefaut: parseFloat(document.getElementById('champ-ex-poids').value) || 0,
     repsDefaut: parseInt(document.getElementById('champ-ex-reps').value, 10) || 0,
@@ -701,22 +740,22 @@ function enregistrerExercice(idExistant) {
     typeDefaut: document.getElementById('champ-ex-type').value,
     techniqueDefaut: document.getElementById('champ-ex-technique').value
   };
-  if (idExistant) {
-    var exercice = trouverParId(etat.exercices, idExistant);
-    exercice.nom = donnees.nom;
-    exercice.groupe = donnees.groupe;
-    exercice.equipement = donnees.equipement;
-    exercice.poidsDefaut = donnees.poidsDefaut;
-    exercice.repsDefaut = donnees.repsDefaut;
-    exercice.seriesDefaut = donnees.seriesDefaut;
-    exercice.met = donnees.met;
-    exercice.variantes = donnees.variantes;
-    exercice.unilateral = donnees.unilateral;
-    exercice.modeUnilateral = donnees.modeUnilateral;
-    exercice.securiteCran = donnees.securiteCran;
-    exercice.securiteSens = donnees.securiteSens;
-    exercice.typeDefaut = donnees.typeDefaut;
-    exercice.techniqueDefaut = donnees.techniqueDefaut;
+  if (idExistant && exerciceExistant) {
+    exerciceExistant.nom = donnees.nom;
+    exerciceExistant.groupe = donnees.groupe;
+    exerciceExistant.muscles = donnees.muscles;
+    exerciceExistant.equipement = donnees.equipement;
+    exerciceExistant.poidsDefaut = donnees.poidsDefaut;
+    exerciceExistant.repsDefaut = donnees.repsDefaut;
+    exerciceExistant.seriesDefaut = donnees.seriesDefaut;
+    exerciceExistant.met = donnees.met;
+    exerciceExistant.variantes = donnees.variantes;
+    exerciceExistant.unilateral = donnees.unilateral;
+    exerciceExistant.modeUnilateral = donnees.modeUnilateral;
+    exerciceExistant.securiteCran = donnees.securiteCran;
+    exerciceExistant.securiteSens = donnees.securiteSens;
+    exerciceExistant.typeDefaut = donnees.typeDefaut;
+    exerciceExistant.techniqueDefaut = donnees.techniqueDefaut;
   } else {
     donnees.id = genererId();
     etat.exercices.push(donnees);
