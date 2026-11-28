@@ -1209,6 +1209,131 @@ function rendreProgrammeActif() {
   zone.innerHTML = html;
 }
 
+/* Agrège l'activité musculaire (pondérée par le niveau 2 ou 1 de l'exercice et le nb de séries validées)
+   sur la semaine [lundiDebut, lundiDebut + 7j[ */
+function calculerIntensiteMusclesSemaine(lundiDebut) {
+  var lundiFin = new Date(lundiDebut.getFullYear(), lundiDebut.getMonth(), lundiDebut.getDate() + 7);
+  var dateDebutISO = formaterDateISO(lundiDebut);
+  var dateFinISO = formaterDateISO(lundiFin);
+  var scoreParMuscle = {};
+
+  var entreesTerminees = etat.agenda.filter(function (a) {
+    return a.statut === 'termine' && a.resultat && a.date >= dateDebutISO && a.date < dateFinISO;
+  });
+
+  for (var e = 0; e < entreesTerminees.length; e++) {
+    var resultat = entreesTerminees[e].resultat;
+    for (var j = 0; j < resultat.exercices.length; j++) {
+      var ligneEx = resultat.exercices[j];
+      var nbSeries = ligneEx.series.filter(function (s) { return s.fait && !s.echauffement; }).length;
+      if (nbSeries <= 0) { continue; }
+
+      var exRef = trouverParId(etat.exercices, ligneEx.exerciceId);
+      if (!exRef) { continue; }
+
+      if (exRef.muscles && typeof exRef.muscles === 'object') {
+        for (var cleMuscle in exRef.muscles) {
+          if (!Object.prototype.hasOwnProperty.call(exRef.muscles, cleMuscle)) { continue; }
+          var niv = Number(exRef.muscles[cleMuscle]) || 0;
+          if (niv > 0) {
+            // Niveau 2 = poids 1.0 par série, niveau 1 = poids 0.5 par série
+            var poidsNiveau = (niv === 2) ? 1 : 0.5;
+            scoreParMuscle[cleMuscle] = (scoreParMuscle[cleMuscle] || 0) + nbSeries * poidsNiveau;
+          }
+        }
+      } else {
+        var musclesGroupe = MUSCLES_PAR_GROUPE[exRef.groupe] || [];
+        for (var m = 0; m < musclesGroupe.length; m++) {
+          var nomM = musclesGroupe[m];
+          scoreParMuscle[nomM] = (scoreParMuscle[nomM] || 0) + nbSeries;
+        }
+      }
+    }
+  }
+
+  return scoreParMuscle;
+}
+
+/* Calcule un score d'activité par muscle sur la semaine [lundiDebut, lundiDebut + 7j[ :
+   - si l'exercice a un objet `muscles` (valeurs 1 ou 2), utilise niveau 2 = 1.0 et niveau 1 = 0.5 par série validée
+   - sinon, repli sur `MUSCLES_PAR_GROUPE[ex.groupe]` à 1.0 par série validée */
+function calculerIntensiteMusclesSemaine(lundiDebut) {
+  var lundiFin = new Date(lundiDebut.getFullYear(), lundiDebut.getMonth(), lundiDebut.getDate() + 7);
+  var dateDebutISO = formaterDateISO(lundiDebut);
+  var dateFinISO = formaterDateISO(lundiFin);
+  var scoreParMuscle = {};
+
+  var entreesTerminees = etat.agenda.filter(function (a) {
+    return a.statut === 'termine' && a.resultat && a.date >= dateDebutISO && a.date < dateFinISO;
+  });
+
+  for (var e = 0; e < entreesTerminees.length; e++) {
+    var resultat = entreesTerminees[e].resultat;
+    for (var j = 0; j < resultat.exercices.length; j++) {
+      var ligneEx = resultat.exercices[j];
+      var nbSeries = ligneEx.series.filter(function (s) { return s.fait && !s.echauffement; }).length;
+      if (nbSeries <= 0) { continue; }
+
+      var exRef = trouverParId(etat.exercices, ligneEx.exerciceId);
+      if (!exRef) { continue; }
+
+      if (exRef.muscles && typeof exRef.muscles === 'object') {
+        for (var cleMuscle in exRef.muscles) {
+          if (!Object.prototype.hasOwnProperty.call(exRef.muscles, cleMuscle)) { continue; }
+          var niv = Number(exRef.muscles[cleMuscle]) || 0;
+          if (niv > 0) {
+            var poidsNiveau = (niv === 2) ? 1 : 0.5;
+            scoreParMuscle[cleMuscle] = (scoreParMuscle[cleMuscle] || 0) + nbSeries * poidsNiveau;
+          }
+        }
+      } else if (typeof MUSCLES_PAR_GROUPE === 'object') {
+        var musclesGroupe = MUSCLES_PAR_GROUPE[exRef.groupe] || [];
+        for (var m = 0; m < musclesGroupe.length; m++) {
+          var nomM = musclesGroupe[m];
+          scoreParMuscle[nomM] = (scoreParMuscle[nomM] || 0) + nbSeries;
+        }
+      }
+    }
+  }
+
+  return scoreParMuscle;
+}
+
+/* Applique une opacité graduée sur chaque <path> de la silhouette selon son ratio par rapport au max de la semaine :
+   - score > 0 : opacité de 0.30 (faible sollicitation) à 1.00 (muscle le plus sollicité)
+   - score === 0 : 0.20 (discret, non sollicité cette semaine) */
+function appliquerOpaciteGradueeSilhouette(zoneSilhouette, scores) {
+  if (!zoneSilhouette) { return; }
+
+  var maxScore = 0;
+  for (var cle in scores) {
+    if (Object.prototype.hasOwnProperty.call(scores, cle) && scores[cle] > maxScore) {
+      maxScore = scores[cle];
+    }
+  }
+
+  var chemins = zoneSilhouette.querySelectorAll('path');
+  for (var i = 0; i < chemins.length; i++) {
+    var chemin = chemins[i];
+    var idBrut = chemin.getAttribute('id') || '';
+    var nomMuscle = idBrut.replace(/-\d+$/, '');
+
+    if (nomMuscle.indexOf('contour') === 0) {
+      chemin.style.setProperty('opacity', '0.6', 'important');
+      continue;
+    }
+
+    var score = scores[nomMuscle] || 0;
+    if (score <= 0 || maxScore <= 0) {
+      chemin.style.setProperty('opacity', '0.2', 'important');
+    } else {
+      var ratio = score / maxScore;
+      var opacite = 0.3 + 0.7 * ratio;
+      chemin.style.setProperty('opacity', opacite.toFixed(2), 'important');
+    }
+  }
+}
+
 function rendreEquilibre() {
   var libelleZone = document.getElementById('equilibre-libelle-semaine');
   if (!libelleZone) { return; }
@@ -1259,6 +1384,38 @@ function rendreEquilibre() {
     htmlAlerte += '<div class="alerte-equilibre-ok">&#10003; Équilibre correct (' + volPec + ' vs ' + volDos + ' séries).</div>';
   }
   document.getElementById('equilibre-zone-alerte').innerHTML = htmlAlerte;
+
+  var zoneSilhouette = document.getElementById('equilibre-zone-silhouette');
+  if (zoneSilhouette && typeof construireDiagrammeMuscles === 'function') {
+    var scoresMuscles = calculerIntensiteMusclesSemaine(lundi);
+    var carteActive = {};
+    for (var mCle in scoresMuscles) {
+      if (Object.prototype.hasOwnProperty.call(scoresMuscles, mCle) && scoresMuscles[mCle] > 0) {
+        carteActive[mCle] = 2;
+      }
+    }
+
+    var htmlSil = '<h2 class="carte-titre">Synthèse musculaire de la semaine</h2>';
+    if (!anatomieSvgCache && typeof rafraichirDiagrammeMuscles === 'function') {
+      htmlSil += '<div id="equilibre-svg-interne"><div class="texte-att">Chargement de l’anatomie…</div></div>';
+      zoneSilhouette.innerHTML = htmlSil;
+      fetch('Anatomie.svg')
+        .then(function (r) { return r.ok ? r.text() : Promise.reject(); })
+        .then(function (svgTxt) {
+          anatomieSvgCache = svgTxt;
+          rendreEquilibre();
+        })
+        .catch(function () {
+          var cible = document.getElementById('equilibre-svg-interne');
+          if (cible) { cible.innerHTML = '<div class="texte-att">Erreur de chargement de la silhouette.</div>'; }
+        });
+    } else {
+      htmlSil += '<div id="equilibre-svg-interne">' + construireDiagrammeMuscles({ muscles: carteActive, groupe: null }) + '</div>';
+      htmlSil += '<div class="texte-att" style="margin-top:8px;font-size:12px;">Opacité proportionnelle au volume pondéré de la semaine (0 = non sollicité, max = 100 % d’opacité).</div>';
+      zoneSilhouette.innerHTML = htmlSil;
+      appliquerOpaciteGradueeSilhouette(document.getElementById('equilibre-svg-interne'), scoresMuscles);
+    }
+  }
 }
 
 /* ============================================================
